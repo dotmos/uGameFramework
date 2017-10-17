@@ -4,6 +4,6 @@ A reactive, modular, service based framework for Unity that keeps the code side 
 Used in production at gentlymad studios for "Furious Fightpub" and "Pizza Connection 3".
 
 Based on UniRx (https://github.com/neuecc/UniRx) and Zenject (https://github.com/modesttree/Zenject).
-Features an optional MVC implementation and Reactive State Machines.
+Features an optional MVC implementation, reactive state machines, modular services and parallel global eventstreams.
 
 TODO: Add documentation to repo.
