@@ -18,7 +18,7 @@ namespace Service.Events {
 
         [Inject]
         void Initialize(
-            [Inject] Service.AsyncManager.IAsyncManager asyncManager
+            [InjectOptional] Service.AsyncManager.IAsyncManager asyncManager
         ) {
             _asyncManager = asyncManager;
         }

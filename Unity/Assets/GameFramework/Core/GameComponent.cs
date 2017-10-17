@@ -35,8 +35,8 @@ public class GameComponent : MonoBehaviour, ITickable, IDisposable {
         [Inject] DiContainer diContainer,
         [Inject] DisposableManager dManager,
         [Inject] TickableManager tManager,
-        [Inject] IEventsService eventService,
-        [Inject] Service.AsyncManager.IAsyncManager asyncManager)
+        [Inject] IEventsService eventService
+        )
     {
         if (isInitialized) return;
         isInitialized = true;
