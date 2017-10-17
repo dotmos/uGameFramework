@@ -1,0 +1,3 @@
+2017-05-15
+Changed: DisposableManager
+- added  void SkipDispose(..)-method

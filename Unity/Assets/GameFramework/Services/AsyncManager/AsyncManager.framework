@@ -1,0 +1,16 @@
+## service start
+
+using System;
+
+namespace Service.AsyncManager {
+	public interface IAsyncManager {
+		("AsyncFuture") AddToMainThread(("Action") act);
+		("AsyncFuture") AddToWorkerThread(("Action") act,("Action") onFinished);
+		("AsyncFuture") Call(("Action") act,bool usingCoroutine);
+		void DisposeThreads();  
+	} 
+}
+
+
+ 
+## service end
