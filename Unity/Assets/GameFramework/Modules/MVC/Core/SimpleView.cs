@@ -228,11 +228,10 @@ namespace MVC{
         public void Dispose()
         {
             if(this == null || wasDisposed || !ViewInitialized) return;
-
             wasDisposed = true;
 
             OnDispose();
-
+            
             RemoveTickable(this);
             _dManager.Remove(this);
 

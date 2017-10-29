@@ -35,13 +35,13 @@ public class GameComponent : MonoBehaviour, ITickable, IDisposable {
         [Inject] DiContainer diContainer,
         [Inject] DisposableManager dManager,
         [Inject] TickableManager tManager,
-        [Inject] IEventsService eventService
-        )
+        [Inject] IEventsService eventService,
+        [Inject] Service.AsyncManager.IAsyncManager asyncManager)
     {
         if (isInitialized) return;
         isInitialized = true;
 
-		PreBind();
+        PreBind();
 
         Container = diContainer;
         _dManager = dManager;
@@ -78,7 +78,7 @@ public class GameComponent : MonoBehaviour, ITickable, IDisposable {
     void Awake()
     {
         //If this view is part of the scenefile, make sure it gets initialized/injected
-        if(bindOnAwake)
+        if (bindOnAwake)
         {
 			Bind();
         }

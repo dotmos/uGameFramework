@@ -14,7 +14,7 @@ namespace Service.Scene{
         void Initialize(
             [Inject] ISceneService sceneService
         ){
-            _sceneService = sceneService;
+            _sceneService = sceneService; 
  
             this.OnEvent<LoadSceneCommand>().Subscribe(e => LoadSceneCommandHandler(e)).AddTo(this);
             this.OnEvent<UnloadSceneCommand>().Subscribe(e => UnloadSceneCommandHandler(e)).AddTo(this);

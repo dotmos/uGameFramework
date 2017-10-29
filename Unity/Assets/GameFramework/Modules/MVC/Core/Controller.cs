@@ -312,20 +312,18 @@ namespace MVC{
         bool wasDisposed;
         public void Dispose(){
             if(wasDisposed || Kernel.applicationQuitting) return;
+            wasDisposed = true;
+
+            OnDispose();
 
             //Tell subscribers that controller is disposing
             OnDisposing.Execute();
             OnDisposing.Dispose();
             OnDisposing = null;
 
-
-            wasDisposed = true;
-
             Disposables.Dispose();
             DisposablesProperty.Dispose();
-            DisposablesProperty = null;
-
-            OnDispose();
+            DisposablesProperty = null;         
 
             controllerEventsSubject.Dispose();
             controllerEventsSubject = null;

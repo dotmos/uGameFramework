@@ -16,5 +16,18 @@ namespace UnityEngine {
             mBlock.SetColor(name, color);
             renderer.SetPropertyBlock(mBlock);
         }
+
+        /// <summary>
+        /// Sets an instanced rendering compatible float for this renderer using MaterialBlocks. If you want to set multiple colors at once, do not use this as it has a little overhead.
+        /// </summary>
+        /// <param name="renderer"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public static void SetFloatInstanced(this Renderer renderer, string name, float value) {
+            MaterialPropertyBlock mBlock = new MaterialPropertyBlock();
+            renderer.GetPropertyBlock(mBlock);
+            mBlock.SetFloat(name, value);
+            renderer.SetPropertyBlock(mBlock);
+        }
     }
 }

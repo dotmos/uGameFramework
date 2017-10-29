@@ -210,6 +210,12 @@ namespace MVC{
             if(wasDisposed || Kernel.applicationQuitting || this == null) return;
             wasDisposed = true;
 
+            Disposables.Dispose();
+            DisposablesProperty.Dispose();
+            DisposablesProperty = null;
+
+            OnDispose();
+
             OnDisposing.Execute();
 
             OnDisposing.Dispose();
@@ -217,12 +223,7 @@ namespace MVC{
 
             OnAfterBind.Dispose();
             OnAfterBind = null;
-
-            Disposables.Dispose();
-            DisposablesProperty = null;
-
-            OnDispose();
-
+            
             _dManager.Remove(this);
         }
 

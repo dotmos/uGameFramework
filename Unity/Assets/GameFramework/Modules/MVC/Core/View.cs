@@ -277,10 +277,11 @@ namespace MVC{
         public void Dispose()
         {
             if(this == null || wasDisposed || !ViewInitialized) return;
-
             wasDisposed = true;
 
             OnDispose();
+
+            
 
             if(this.gameObject != null && destroyOnDispose)
             {
