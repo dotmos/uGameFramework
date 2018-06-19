@@ -13,7 +13,7 @@ public class ServiceInstaller : MonoInstaller {
         //Serializer 
         Service.Serializer.ServiceInstaller.Install(Container);
 
-        /*
+        
         //ThreadManager
         Service.AsyncManager.ServiceInstaller.Install(Container);
 
@@ -21,18 +21,21 @@ public class ServiceInstaller : MonoInstaller {
         //Input
         Service.Input.ServiceInstaller.Install(Container);
 
-        //Local Storage
-        Service.LocalStorage.ServiceInstaller.Install(Container);
+        //Console 
+        Service.Scripting.ServiceInstaller.Install(Container);
 
-        //Resources Service
-        Service.Resources.ServiceInstaller.Install(Container);
+        /*        //Local Storage
+                Service.LocalStorage.ServiceInstaller.Install(Container);
 
-        //Scene Service
-        Service.Scene.ServiceInstaller.Install(Container);
+                //Resources Service
+                Service.Resources.ServiceInstaller.Install(Container);
 
-        //Camera Service
-        Service.Camera.ServiceInstaller.Install(Container);
-        */
+                //Scene Service
+                Service.Scene.ServiceInstaller.Install(Container);
+
+                //Camera Service
+                Service.Camera.ServiceInstaller.Install(Container);
+                */
 
         Debug.Log("Finished installing services");
     }

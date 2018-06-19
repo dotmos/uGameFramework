@@ -1,0 +1,17 @@
+## service start
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+
+namespace Service.Scripting {
+    public interface IScriptingService {  	
+		void OpenScriptingConsole();
+		void CloseScriptingConsole();
+		void ToggleScriptingConsole();
+		("Script") GetMainScript();
+		bool IsScriptingConsoleVisible(); 
+		string ExecuteStringOnMainScript(string luaCode);
+    }  
+}  
+## events 
+
+## service end

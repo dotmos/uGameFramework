@@ -4,14 +4,16 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
 
 
 using UniRx;
 using Zenject;
 
-namespace Service.AsyncManager
+namespace Service.Scripting
 {
-    public abstract class AsyncManagerBase : IAsyncManager, IDisposable
+    public abstract class ScriptingServiceBase : IScriptingService, IDisposable
     {
 
         protected DisposableManager _dManager;
@@ -50,7 +52,7 @@ namespace Service.AsyncManager
                 cmdGetScript.result.Globals[name] = this;
             }
             catch (Exception e) {
-                UnityEngine.Debug.LogError("Error activating default scripting for Service.AsyncManager with lua-name:" + name);
+                UnityEngine.Debug.LogError("Error activating default scripting for Service.Scripting with lua-name:" + name);
                 UnityEngine.Debug.LogException(e);
             }
         }
@@ -102,13 +104,17 @@ namespace Service.AsyncManager
 
         
                                                           
-        public abstract AsyncFuture AddToMainThread(Action act,bool global=false);
+        public abstract void OpenScriptingConsole();
         
-        public abstract AsyncFuture AddToWorkerThread(Action act,Action onFinished,bool global=false);
+        public abstract void CloseScriptingConsole();
         
-        public abstract AsyncFuture Call(Action act,bool usingCoroutine,bool global=false);
+        public abstract void ToggleScriptingConsole();
         
-        public abstract void DisposeThreads(bool onlyNonGlobals=false);
+        public abstract Script GetMainScript();
+        
+        public abstract bool IsScriptingConsoleVisible();
+        
+        public abstract string ExecuteStringOnMainScript(string luaCode);
         
     }
 }
