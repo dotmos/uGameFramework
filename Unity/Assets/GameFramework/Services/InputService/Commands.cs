@@ -23,6 +23,7 @@ namespace Service.Input{
             this.OnEvent<GetButtonUpCommand>().Subscribe(e => GetButtonUpCommandHandler(e)).AddTo(this);
             this.OnEvent<GetButtonCommand>().Subscribe(e => GetButtonCommandHandler(e)).AddTo(this);
             this.OnEvent<GetAxisCommand>().Subscribe(e => GetAxisCommandHandler(e)).AddTo(this);
+            this.OnEvent<EnableInputCommand>().Subscribe(e => EnableInputCommandHandler(e)).AddTo(this);
         }
             
         /// <summary>
@@ -115,6 +116,13 @@ namespace Service.Input{
         }
         protected void GetAxisCommandHandler( GetAxisCommand cmd){
             cmd.result = _inputService.GetAxis(cmd.input);
+        }
+
+        public class EnableInputCommand {
+            public bool enable = true;
+        }
+        protected void EnableInputCommandHandler(EnableInputCommand cmd) {
+            _inputService.EnableInput(cmd.enable);
         }
     }
 

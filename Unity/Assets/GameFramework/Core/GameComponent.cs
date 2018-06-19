@@ -20,7 +20,13 @@ public class GameComponent : MonoBehaviour, ITickable, IDisposable {
     /// </summary>
     public bool bindOnAwake = true;
 
-    bool isInitialized = false;
+    /// <summary>
+    /// Whether or not this GameComponent was bound
+    /// </summary>
+    protected bool isInitialized {
+        get;
+        private set;
+    }
 
     protected DiContainer Container {
         get;
@@ -83,7 +89,7 @@ public class GameComponent : MonoBehaviour, ITickable, IDisposable {
         }
     }
 
-	protected virtual void Bind(){
+	public virtual void Bind(){
 		Profiler.BeginSample("Bind");
 		if(!isInitialized && Kernel.Instance != null) Kernel.Instance.Inject(this);
 		Profiler.EndSample();

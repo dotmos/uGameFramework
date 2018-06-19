@@ -16,6 +16,7 @@ namespace Service.Input{
 
         DisposableManager _dManager;
         CompositeDisposable disposables = new CompositeDisposable();
+        bool inputEnabled = true;
 
         Service.Events.IEventsService _eventService;
 
@@ -31,15 +32,25 @@ namespace Service.Input{
 
             //Fire events on button up/down
             disposables.Add( Observable.EveryUpdate().Subscribe(e => {
-                //Check button down
-                foreach(KeyValuePair<object, List<Func<bool>>> kv in buttonDownHandlers){
-                    if( GetButtonDown(kv.Key) ) _eventService.Publish(new Events.ButtonDownEvent(){button = kv.Key});
-                }
-                //Check button up
-                foreach(KeyValuePair<object, List<Func<bool>>> kv in buttonUpHandlers){
-                    if( GetButtonUp(kv.Key) ) _eventService.Publish(new Events.ButtonUpEvent(){button = kv.Key});
+                if (inputEnabled) {
+                    //Check button down
+                    foreach (KeyValuePair<object, List<Func<bool>>> kv in buttonDownHandlers) {
+                        if (GetButtonDown(kv.Key)) _eventService.Publish(new Events.ButtonDownEvent() { button = kv.Key });
+                    }
+                    //Check button up
+                    foreach (KeyValuePair<object, List<Func<bool>>> kv in buttonUpHandlers) {
+                        if (GetButtonUp(kv.Key)) _eventService.Publish(new Events.ButtonUpEvent() { button = kv.Key });
+                    }
                 }
             }) );
+        }
+
+        /// <summary>
+        /// Enable/Disable input
+        /// </summary>
+        /// <param name="enable"></param>
+        public void EnableInput(bool enable) {
+            inputEnabled = enable;
         }
 
         /// <summary>
@@ -136,6 +147,8 @@ namespace Service.Input{
         /// <c>false</c>
         /// <param name="input">Input.</param>
         public bool GetButtonDown(object input){
+            if (!inputEnabled) return false;
+
             bool result = false;
 
             if(input != null && buttonDownHandlers.ContainsKey(input))
@@ -161,6 +174,8 @@ namespace Service.Input{
         /// <c>false</c>
         /// <param name="input">Input.</param>
         public bool GetButtonUp(object input){
+            if (!inputEnabled) return false;
+
             bool result = false;
 
             if(input != null && buttonUpHandlers.ContainsKey(input))
@@ -186,6 +201,8 @@ namespace Service.Input{
         /// <c>false</c>
         /// <param name="input">Input.</param>
         public bool GetButton(object input){
+            if (!inputEnabled) return false;
+
             bool result = false;
 
             if(input != null && buttonHoldHandlers.ContainsKey(input))
@@ -209,6 +226,8 @@ namespace Service.Input{
         /// <returns>The axis.</returns>
         /// <param name="input">Input.</param>
         public float GetAxis(object input){
+            if (!inputEnabled) return 0;
+
             float result = 0;
 
             if(input != null && axisHandlers.ContainsKey(input))

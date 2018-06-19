@@ -3,6 +3,12 @@
 namespace Service.Input{    
     public interface IInputService {
         /// <summary>
+        /// Enables or disables input
+        /// </summary>
+        /// <param name="enable"></param>
+        void EnableInput(bool enable);
+
+        /// <summary>
         /// Registers a new button. If the input already exists, an additional handler will be added, resulting in the input being set by multiple handlers
         /// </summary>
         /// <param name="input">Input.</param>

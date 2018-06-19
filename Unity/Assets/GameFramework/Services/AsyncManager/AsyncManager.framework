@@ -2,10 +2,10 @@
 
 namespace Service.AsyncManager {
 	public interface IAsyncManager {
-		("AsyncFuture") AddToMainThread(("Action") act);
-		("AsyncFuture") AddToWorkerThread(("Action") act,("Action") onFinished);
-		("AsyncFuture") Call(("Action") act,bool usingCoroutine);
-		void DisposeThreads();  
+		("AsyncFuture") AddToMainThread(("Action") act,bool global=False);
+		("AsyncFuture") AddToWorkerThread(("Action") act,("Action") onFinished,bool global=False);
+		("AsyncFuture") Call(("Action") act,bool usingCoroutine,bool global=False);
+		void DisposeThreads(bool onlyNonGlobals=False);  
 	} 
 }
 

@@ -19,6 +19,11 @@ namespace MVC{
         /// </summary>
         bool delayAfterBind = false;
 
+        /// <summary>
+        /// Skip Debug.LogError(...)/Exception-output if the Model is disposed but not bound
+        /// </summary>
+        protected bool skipWarning = false;
+
         ReactiveCommand _OnDisposing;
         /// <summary>
         /// Fired when model is disposing
@@ -64,7 +69,7 @@ namespace MVC{
         protected DiContainer Container;
         DisposableManager _dManager;
         ISerializerService _serializerService;
-        IEventsService _eventService;
+        protected IEventsService _eventService;
 
         protected bool initialized = false;
         private bool wasPreBound = false;
@@ -210,6 +215,7 @@ namespace MVC{
             if(wasDisposed || Kernel.applicationQuitting || this == null) return;
             wasDisposed = true;
 
+
             Disposables.Dispose();
             DisposablesProperty.Dispose();
             DisposablesProperty = null;
@@ -223,8 +229,19 @@ namespace MVC{
 
             OnAfterBind.Dispose();
             OnAfterBind = null;
-            
-            _dManager.Remove(this);
+
+            //If an error is thrown here, you are trying to dispose a model that was not bound. This should never happen/you should always bind your models and this comment is just here so you know whats wrong :)
+            //_dManager.Remove(this);
+            //If an error is thrown here, you are trying to dispose a model that was not bound. This should never happen/you should always bind your models and this comment is just here so you know whats wrong :)
+            try {
+                _dManager.Remove(this);
+            }
+            catch (Exception e) {
+                if (!skipWarning) { // sry, but I have some cases(in my NPC-Nodes) where I have a Model but unbound. I shouldn't have used MVC-Model in the first place....
+                    UnityEngine.Debug.LogError("Tried to dispose unbound MVC-Model:" + GetType().ToString());
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
         }
 
         public virtual void OnDispose(){

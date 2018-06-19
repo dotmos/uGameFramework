@@ -33,9 +33,7 @@ namespace Service.Scene{
             _eventService.Publish(new Events.SceneLoadedEvent() { sceneID = sceneID });
 
             //activate scene if it is currently disabled
-            if(makeActive){
-                ActivateScene(sceneID);
-            }
+            ActivateScene(sceneID);
 
             //Set scene to active
             if(!additive || makeActive) Observable.NextFrame().Subscribe(e => SetActiveScene(sceneID));
@@ -69,10 +67,8 @@ namespace Service.Scene{
                 //Fire signal trigger
                 _eventService.Publish(new Events.SceneLoadedEvent { sceneID = sceneID }); ;
 
-                if(makeActive){
-                    //activate scene if it is currently disabled
-                    ActivateScene(sceneID);
-                }
+                //activate scene if it is currently disabled
+                ActivateScene(sceneID);
 
                 //Set scene to active
                 if(!additive || makeActive) SetActiveScene(sceneID);

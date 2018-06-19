@@ -33,6 +33,13 @@ namespace MVC{
         /// Default is false.
         /// </summary>
         public bool bindOnAwake = false;
+        /// <summary>
+        /// Whether or not this view was disposed
+        /// </summary>
+        public bool wasDisposed {
+            get;
+            private set;
+        }
 
         IDisposable controllerDisposeListener;
 
@@ -273,7 +280,6 @@ namespace MVC{
             if (disposeOnControllerDispose) Dispose();
         }
 
-        bool wasDisposed;
         public void Dispose()
         {
             if(this == null || wasDisposed || !ViewInitialized) return;

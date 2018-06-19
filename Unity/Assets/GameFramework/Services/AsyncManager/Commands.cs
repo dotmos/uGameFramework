@@ -4,6 +4,7 @@ using Service.Events;
 using System;
 using Zenject;
 using UniRx;
+using System.Diagnostics;
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -18,10 +19,13 @@ namespace Service.AsyncManager{
         [Inject]
         void Initialize([Inject] IAsyncManager service) {
             _service = service;
-
+            
             this.OnEvent<AddToMainThreadCommand>().Subscribe(e => AddToMainThreadCommandHandler(e)).AddTo(this);
+
             this.OnEvent<AddToWorkerThreadCommand>().Subscribe(e => AddToWorkerThreadCommandHandler(e)).AddTo(this);
+
             this.OnEvent<CallCommand>().Subscribe(e => CallCommandHandler(e)).AddTo(this);
+
             this.OnEvent<DisposeThreadsCommand>().Subscribe(e => DisposeThreadsCommandHandler(e)).AddTo(this);
 
         }
@@ -30,58 +34,89 @@ namespace Service.AsyncManager{
         public class AddToMainThreadCommand {
             public AsyncFuture result;
                         public Action act;
+                        public bool global=false;
             
             
         }
 
 		protected void AddToMainThreadCommandHandler(AddToMainThreadCommand cmd) {
-            //Profiler.BeginSample("AddToMainThreadCommandHandler");
-            cmd.result = _service.AddToMainThread(cmd.act);
-            //Profiler.EndSample();
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("AddToMainThreadCommand");
+#endif
+            
+            cmd.result = _service.AddToMainThread(cmd.act,cmd.global);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("AddToMainThreadCommand");
+#endif
         }
-
+        
 
         public class AddToWorkerThreadCommand {
             public AsyncFuture result;
                         public Action act;
                         public Action onFinished;
+                        public bool global=false;
             
             
         }
 
 		protected void AddToWorkerThreadCommandHandler(AddToWorkerThreadCommand cmd) {
-            //Profiler.BeginSample("AddToWorkerThreadCommandHandler");
-            cmd.result = _service.AddToWorkerThread(cmd.act,cmd.onFinished);
-            //Profiler.EndSample();
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("AddToWorkerThreadCommand");
+#endif
+            
+            cmd.result = _service.AddToWorkerThread(cmd.act,cmd.onFinished,cmd.global);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("AddToWorkerThreadCommand");
+#endif
         }
-
+        
 
         public class CallCommand {
             public AsyncFuture result;
                         public Action act;
                         public bool usingCoroutine;
+                        public bool global=false;
             
             
         }
 
 		protected void CallCommandHandler(CallCommand cmd) {
-            //Profiler.BeginSample("CallCommandHandler");
-            cmd.result = _service.Call(cmd.act,cmd.usingCoroutine);
-            //Profiler.EndSample();
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("CallCommand");
+#endif
+            
+            cmd.result = _service.Call(cmd.act,cmd.usingCoroutine,cmd.global);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("CallCommand");
+#endif
         }
-
+        
 
         public class DisposeThreadsCommand {
-
+            public bool onlyNonGlobals=false;
+            
             
         }
 
 		protected void DisposeThreadsCommandHandler(DisposeThreadsCommand cmd) {
-            //Profiler.BeginSample("DisposeThreadsCommandHandler");
-            _service.DisposeThreads();
-            //Profiler.EndSample();
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("DisposeThreadsCommand");
+#endif
+            _service.DisposeThreads(cmd.onlyNonGlobals);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("DisposeThreadsCommand");
+#endif
         }
-
+        
     }
 
 

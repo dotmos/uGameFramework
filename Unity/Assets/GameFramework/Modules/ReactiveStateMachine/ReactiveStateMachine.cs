@@ -160,6 +160,8 @@ public class ReactiveStateMachine<TTrigger, TState> : IDisposable {
     /// <typeparam name="TTrigger">The 1st type parameter.</typeparam>
     public void Trigger(TTrigger evt)
     {
+        //Note: Add a DelayFrame(1, EndOfFrame) here to make sure a state can only change once per frame? Some unity components like Animator have problems with multiple state changes per frame
+
         triggerSubject.OnNext(evt);
     }
 
@@ -184,15 +186,17 @@ public class ReactiveStateMachine<TTrigger, TState> : IDisposable {
             onExitSubject.OnNext(CurrentStateProperty.LastValue); //Fire onExit
         }
 
+        //Get tick command for current state. Might be null.
+        tickCommand = GetTickCommand(state);
+
         //Fire OnEnter for currentState
         if (state != null) {
             //                    CallStateChangeMethod(s, MethodCache.MethodName.OnEnter);
             onEnterSubject.OnNext(state);
             //Debug.Log("Current State changed to:" + s);
-        }
 
-        //Get tick command for current state. Might be null.
-        tickCommand = GetTickCommand(state);
+            //Tick(0);
+        }  
     }
 
     /// <summary>

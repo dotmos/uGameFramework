@@ -37,6 +37,13 @@ namespace MVC{
         /// Dispose the model when controller is disposed. Default is true.
         /// </summary>
         public bool disposeModel = true;
+        /// <summary>
+        /// Whether or not this controller was disposed
+        /// </summary>
+        public bool wasDisposed {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// The Model Property of this controller
@@ -309,7 +316,7 @@ namespace MVC{
             if (disposeOnModelDispose) Dispose();
         }
 
-        bool wasDisposed;
+        
         public void Dispose(){
             if(wasDisposed || Kernel.applicationQuitting) return;
             wasDisposed = true;

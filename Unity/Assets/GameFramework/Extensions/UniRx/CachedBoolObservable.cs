@@ -68,8 +68,29 @@ namespace UniRx {
 
         public IDisposable Subscribe(IObserver<bool> observer) {
             this.observer = observer;
-            disposables.Add(first.Subscribe(val => { currentValueFirst = val; Check(); }, err => { observer.OnError(err); }, FirstCompleted));
-            disposables.Add(second.Subscribe(val => { currentValueLast = val; Check(); }, err => { observer.OnError(err); }, SecondCompleted));
+
+            bool initial = true;
+
+            disposables.Add(first.Subscribe(val => {
+                currentValueFirst = val;
+                if (!initial) {
+                    Check();
+                } else {
+                    initial = false;
+                    // postpone the first call to the next frame to wait for the initial call of the other element
+                    Observable.NextFrame().Take(1).Subscribe(_ => Check());
+                }
+            }, err => { observer.OnError(err); }, FirstCompleted));
+            disposables.Add( second.Subscribe(val => {
+                currentValueLast = val;
+                if (!initial) {
+                    Check();
+                } else {
+                    initial = false;
+                    // postpone the first call to the next frame to wait for the initial call of the other element
+                    Observable.NextFrame().Take(1).Subscribe(_ => Check());
+                }
+            }, err => { observer.OnError(err); }, SecondCompleted));
             return this;
         }
 
