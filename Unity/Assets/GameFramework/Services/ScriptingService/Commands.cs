@@ -15,7 +15,7 @@ using System.Diagnostics;
 //
 ////////////////////////////////////////////////////////////////////// 
 namespace Service.Scripting{
-    public class Commands : CommandsBase {
+    public partial class Commands : CommandsBase {
         IScriptingService _service;
 
         [Inject]
@@ -34,9 +34,16 @@ namespace Service.Scripting{
 
             this.OnEvent<ExecuteStringOnMainScriptCommand>().Subscribe(e => ExecuteStringOnMainScriptCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<LoadStringToMainScriptCommand>().Subscribe(e => LoadStringToMainScriptCommandHandler(e)).AddTo(this);
+
         }
+        
 
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class OpenScriptingConsoleCommand {
 
             
@@ -55,6 +62,11 @@ namespace Service.Scripting{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class CloseScriptingConsoleCommand {
 
             
@@ -73,6 +85,11 @@ namespace Service.Scripting{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class ToggleScriptingConsoleCommand {
 
             
@@ -91,6 +108,11 @@ namespace Service.Scripting{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class GetMainScriptCommand {
             public Script result;
             
@@ -111,6 +133,11 @@ namespace Service.Scripting{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class IsScriptingConsoleVisibleCommand {
             public bool result;
             
@@ -131,6 +158,11 @@ namespace Service.Scripting{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class ExecuteStringOnMainScriptCommand {
             public string result;
                         public string luaCode;
@@ -148,6 +180,30 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("ExecuteStringOnMainScriptCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load a script into the default lua-context
+        /// </summary>
+        
+        public class LoadStringToMainScriptCommand {
+            public string fileName;
+            
+            
+        }
+
+		protected void LoadStringToMainScriptCommandHandler(LoadStringToMainScriptCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LoadStringToMainScriptCommand");
+#endif
+            _service.LoadStringToMainScript(cmd.fileName);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LoadStringToMainScriptCommand");
 #endif
         }
         

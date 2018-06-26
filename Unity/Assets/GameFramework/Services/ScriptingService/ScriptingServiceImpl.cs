@@ -80,6 +80,8 @@ namespace Service.Scripting {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
 
-
+        public override void LoadStringToMainScript(string fileName) {
+            throw new NotImplementedException();
+        }
     }
 }

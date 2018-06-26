@@ -35,6 +35,16 @@ namespace Service.Scripting {
 
 					string ExecuteStringOnMainScript(string luaCode);
 
+
+		/// <summary>
+        /// Load a script into the default lua-context 
+        /// <param name="fileName"></param>
+
+        /// </summary>
+        
+
+					void LoadStringToMainScript(string fileName);
+
 	}
 
 

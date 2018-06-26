@@ -13,7 +13,7 @@ using System.Diagnostics;
 //
 ////////////////////////////////////////////////////////////////////// 
 namespace Service.AsyncManager{
-    public class Commands : CommandsBase {
+    public partial class Commands : CommandsBase {
         IAsyncManager _service;
 
         [Inject]
@@ -29,8 +29,13 @@ namespace Service.AsyncManager{
             this.OnEvent<DisposeThreadsCommand>().Subscribe(e => DisposeThreadsCommandHandler(e)).AddTo(this);
 
         }
+        
 
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class AddToMainThreadCommand {
             public AsyncFuture result;
                         public Action act;
@@ -53,6 +58,11 @@ namespace Service.AsyncManager{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class AddToWorkerThreadCommand {
             public AsyncFuture result;
                         public Action act;
@@ -76,6 +86,11 @@ namespace Service.AsyncManager{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class CallCommand {
             public AsyncFuture result;
                         public Action act;
@@ -99,6 +114,11 @@ namespace Service.AsyncManager{
         }
         
 
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class DisposeThreadsCommand {
             public bool onlyNonGlobals=false;
             

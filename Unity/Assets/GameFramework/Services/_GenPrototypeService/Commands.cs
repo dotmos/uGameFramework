@@ -13,7 +13,7 @@ using System.Diagnostics;
 //
 ////////////////////////////////////////////////////////////////////// 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
-    public class Commands : CommandsBase {
+    public partial class Commands : CommandsBase {
         /*name:interfaceName*/IPrototypeService/*endname*/ _service;
 
         [Inject]
@@ -23,8 +23,13 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
             this.OnEvent</*name:methodCommand*/DoPrototypeCommand/*endname*/>().Subscribe(e => /*name:methodCommandHandler*/DoPrototypeCommandHandler/*endname*/(e)).AddTo(this);
 /*endblock:eventBinding*/
         }
-/*block:command*/
-/*block:clazz*/
+        /*block:command*/
+
+        /*block:clazz*/
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+        
         public class /*name:methodCommand*/DoPrototypeCommand/*endname*/ {
 /*block:commandParameter*/            public /*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*//*endname*/;
             /*endblock:commandParameter*/
@@ -66,7 +71,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
 /*endblock:commandFile*/
 /*block:customCommandFile*/
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
-    public class CommandsCustom : CommandsBase {
+    public partial class Commands : CommandsBase {
 	// use [custom-command:True] on framework methods to enable custom-command for this method
         /*block:command*/
         public class CustomCommandBody {
