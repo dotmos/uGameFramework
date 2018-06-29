@@ -21,8 +21,7 @@ namespace Service.FileSystem {
 		/// <summary>
         /// Get path as string for given domain 
         /// <param name="domain"></param>
-
-        /// </summary>
+ /// </summary>
         
 
 					string GetPath(FSDomain domain);
@@ -32,8 +31,7 @@ namespace Service.FileSystem {
         /// Write string to file 
         /// <param name="pathToFile"></param>
         /// <param name="data"></param>
-
-        /// </summary>
+ /// </summary>
         
 
 					bool WriteStringToFile(string pathToFile,string data);
@@ -42,8 +40,7 @@ namespace Service.FileSystem {
 		/// <summary>
         /// Load file as string 
         /// <param name="pathToFile"></param>
-
-        /// </summary>
+ /// </summary>
         
 
 					string LoadFileAsString(string pathToFile);

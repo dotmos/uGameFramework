@@ -160,7 +160,7 @@ namespace Service.Scripting{
 
         
         /// <summary>
-        /// 
+        /// Execute a string into the default-lua-context
         /// </summary>
         
         public class ExecuteStringOnMainScriptCommand {

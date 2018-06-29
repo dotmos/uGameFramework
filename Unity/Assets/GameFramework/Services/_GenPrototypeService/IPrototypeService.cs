@@ -24,8 +24,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 		/// <summary>
         /// /*name:summary*/This method is about blabla/*endname*/ 
 /*block:param*/        /// <param name="/*name:name*/settings/*endname*/"></param>
-/*endblock:param*/
-        /// </summary>
+/*endblock:param*/ /// </summary>
         /*block:return*//// <returns>/*name:return*//*endname*/</returns>/*endblock:return*/
 /*endblock:documentation*/
 		/*block:methodBody*/			/*name:returnType*/string/*endname*/ /*name:methodName*/DoPrototype/*endname*/(/*block:parameter*//*name:comma*//*endname*//*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*/= ""/*endname*//*endblock:parameter*/)/*endblock:methodBody*/;
