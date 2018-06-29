@@ -158,10 +158,10 @@ MonoBehaviour:
   - {fileID: 494538841}
   _installerPrefabs: []
   _scriptableObjectInstallers: []
+  _autoRun: 1
   _parentNewObjectsUnderRoot: 1
   _contractNames: []
-  _parentContractName: 
-  _autoRun: 1
+  _parentContractNames: []
 --- !u!4 &494538843
 Transform:
   m_ObjectHideFlags: 0
