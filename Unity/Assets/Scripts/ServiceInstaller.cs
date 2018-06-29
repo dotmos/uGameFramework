@@ -12,7 +12,6 @@ public class ServiceInstaller : MonoInstaller {
 
         //Serializer 
         Service.Serializer.ServiceInstaller.Install(Container);
-
         
         //ThreadManager
         Service.AsyncManager.ServiceInstaller.Install(Container);
@@ -20,6 +19,9 @@ public class ServiceInstaller : MonoInstaller {
         //optional services (see "Services" folder for more, or write your own)
         //Input
         Service.Input.ServiceInstaller.Install(Container);
+
+        // FileSystem
+        Service.FileSystem.ServiceInstaller.Install(Container);
 
         //Console 
         Service.Scripting.ServiceInstaller.Install(Container);

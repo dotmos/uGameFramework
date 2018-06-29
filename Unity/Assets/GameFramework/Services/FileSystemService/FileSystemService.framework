@@ -1,0 +1,18 @@
+## service start
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+
+namespace Service.FileSystem {
+    public interface IFileSystemService {  	
+		string GetPath(?FSDomain domain);
+    }  
+}  
+## model
+
+public enum FSDomain {
+	ScriptingOutput
+}  
+
+## events 
+
+## service end
