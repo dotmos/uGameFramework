@@ -58,7 +58,7 @@ namespace Service.Scripting {
         public override void OpenScriptingConsole() {
             if (scriptingComponent == null) {
                 var prefab = UnityEngine.Resources.Load("ScriptingConsole");
-                scriptingComponent = GameObject.Instantiate(prefab) as ScriptingConsoleComponent;
+                scriptingComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<ScriptingConsoleComponent>();
             } else {
                 scriptingComponent.gameObject.SetActive(true);
             }
