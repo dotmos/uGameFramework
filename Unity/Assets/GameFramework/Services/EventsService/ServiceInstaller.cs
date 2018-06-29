@@ -7,7 +7,10 @@ namespace Service.Events{
         public override void InstallBindings()
         {
             Container.Bind<IEventsService>().To<EventsService>().AsSingle();
-            Container.BindAllInterfaces<IEventsService>().AsSingle();
+            
+            // commented out and replaced due to zenject update:
+            // Container.BindAllInterfaces<IEventsService>().AsSingle();  
+           // Container.BindInterfacesAndSelfTo<IEventsService>().AsSingle();
         }
     }
 }

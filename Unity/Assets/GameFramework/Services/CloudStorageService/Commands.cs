@@ -47,7 +47,9 @@ namespace Service.CloudStorage{
         public override void InstallBindings()
         {
             Commands cmds = Container.Instantiate<Commands>();
-            Container.BindAllInterfaces<Commands>().FromInstance(cmds);
+//            Container.BindAllInterfaces<Commands>().FromInstance(cmds);
+            Container.BindInterfacesTo<Commands>().FromInstance(cmds);
+
         }
     }
 }

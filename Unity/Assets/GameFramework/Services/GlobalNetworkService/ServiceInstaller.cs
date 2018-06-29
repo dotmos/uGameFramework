@@ -8,12 +8,14 @@ namespace Service.GlobalNetwork{
 
     	public override void InstallBindings()
         {
-            #if SERVER
+#if SERVER
 //            Container.Bind<IServer>().ToSingleGameObject<ServerBase>("NetworkServerService");
             Container.Bind<IServer>().To<ServerBase>().FromGameObject().WithGameObjectName("NetworkServerService").AsSingle();
-            #else
-//            Container.Bind<IClient>().ToSingleGameObject<ClientBase>("NetworkClientService");
-            Container.Bind<IClient>().To<ClientBase>().FromGameObject().WithGameObjectName("NetworkClientService").AsSingle();
+#else
+            //            Container.Bind<IClient>().ToSingleGameObject<ClientBase>("NetworkClientService");
+
+            // commented out due to zenject update - 26.06.2018
+            //Container.Bind<IClient>().To<ClientBase>().FromGameObject().WithGameObjectName("NetworkClientService").AsSingle();
             #endif
 
             CommandsInstaller.Install(Container);

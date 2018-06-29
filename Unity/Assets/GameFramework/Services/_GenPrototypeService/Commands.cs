@@ -59,7 +59,8 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
         public override void InstallBindings()
         {
             Commands cmds = Container.Instantiate<Commands>();
-            Container.BindAllInterfaces<Commands>().FromInstance(cmds);
+            // commented out due to zenject update (26.06.18)
+            //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }
     }
 }

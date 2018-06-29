@@ -91,7 +91,7 @@ public partial class Kernel : SceneContext {
     public void SetOnApplicationQuitSettings() {
         if (!applicationQuitting) {
             applicationQuitting = true;
-            dManager.SkipDispose(true);
+           // dManager.SkipDispose(true);
         }
     }
 
