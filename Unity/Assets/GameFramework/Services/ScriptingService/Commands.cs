@@ -34,7 +34,7 @@ namespace Service.Scripting{
 
             this.OnEvent<ExecuteStringOnMainScriptCommand>().Subscribe(e => ExecuteStringOnMainScriptCommandHandler(e)).AddTo(this);
 
-            this.OnEvent<LoadStringToMainScriptCommand>().Subscribe(e => LoadStringToMainScriptCommandHandler(e)).AddTo(this);
+            this.OnEvent<ExecuteFileToMainScriptCommand>().Subscribe(e => ExecuteFileToMainScriptCommandHandler(e)).AddTo(this);
 
         }
         
@@ -189,21 +189,23 @@ namespace Service.Scripting{
         /// Load a script into the default lua-context
         /// </summary>
         
-        public class LoadStringToMainScriptCommand {
-            public string fileName;
+        public class ExecuteFileToMainScriptCommand {
+            public string result;
+                        public string fileName;
             
             
         }
 
-		protected void LoadStringToMainScriptCommandHandler(LoadStringToMainScriptCommand cmd) {
+		protected void ExecuteFileToMainScriptCommandHandler(ExecuteFileToMainScriptCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("LoadStringToMainScriptCommand");
+            ptest.Start("ExecuteFileToMainScriptCommand");
 #endif
-            _service.LoadStringToMainScript(cmd.fileName);
+            
+            cmd.result = _service.ExecuteFileToMainScript(cmd.fileName);
 #if PERFORMANCE_TEST
             // now stop the watches
-            ptest.Stop("LoadStringToMainScriptCommand");
+            ptest.Stop("ExecuteFileToMainScriptCommand");
 #endif
         }
         

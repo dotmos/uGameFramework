@@ -24,12 +24,16 @@ namespace Service.FileSystem{
             
             this.OnEvent<GetPathCommand>().Subscribe(e => GetPathCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<WriteStringToFileCommand>().Subscribe(e => WriteStringToFileCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<LoadFileAsStringCommand>().Subscribe(e => LoadFileAsStringCommandHandler(e)).AddTo(this);
+
         }
         
 
         
         /// <summary>
-        /// 
+        /// Get path as string for given domain
         /// </summary>
         
         public class GetPathCommand {
@@ -49,6 +53,59 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetPathCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Write string to file
+        /// </summary>
+        
+        public class WriteStringToFileCommand {
+            public bool result;
+                        public string pathToFile;
+                        public string data;
+            
+            
+        }
+
+		protected void WriteStringToFileCommandHandler(WriteStringToFileCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("WriteStringToFileCommand");
+#endif
+            
+            cmd.result = _service.WriteStringToFile(cmd.pathToFile,cmd.data);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("WriteStringToFileCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load file as string
+        /// </summary>
+        
+        public class LoadFileAsStringCommand {
+            public string result;
+                        public string pathToFile;
+            
+            
+        }
+
+		protected void LoadFileAsStringCommandHandler(LoadFileAsStringCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LoadFileAsStringCommand");
+#endif
+            
+            cmd.result = _service.LoadFileAsString(cmd.pathToFile);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LoadFileAsStringCommand");
 #endif
         }
         

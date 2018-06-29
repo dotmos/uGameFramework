@@ -10,8 +10,8 @@ namespace Service.Scripting {
 		("Script") GetMainScript();
 		bool IsScriptingConsoleVisible(); 
 		string ExecuteStringOnMainScript(string luaCode);
-		## "Load a script into the default lua-context"
-		void LoadStringToMainScript(string fileName); 
+		## "Load a script into the default lua-context" 
+		string ExecuteFileToMainScript(string fileName);  
     }  
 }  
 ## events 

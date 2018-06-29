@@ -4,7 +4,12 @@ using MoonSharp.Interpreter;
 
 namespace Service.FileSystem {
     public interface IFileSystemService {  	
+		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain);
+		## "Write string to file"
+		bool WriteStringToFile(string pathToFile,string data); 
+		## "Load file as string"
+		string LoadFileAsString(string pathToFile);
     }  
 }  
 ## model

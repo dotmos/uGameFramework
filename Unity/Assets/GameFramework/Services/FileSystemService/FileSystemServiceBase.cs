@@ -106,6 +106,10 @@ namespace Service.FileSystem
                                                           
         public abstract string GetPath(FSDomain domain);
         
+        public abstract bool WriteStringToFile(string pathToFile,string data);
+        
+        public abstract string LoadFileAsString(string pathToFile);
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

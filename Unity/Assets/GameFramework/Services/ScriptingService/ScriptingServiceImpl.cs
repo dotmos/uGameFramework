@@ -6,6 +6,7 @@ using UniRx;
 using MoonSharp.Interpreter;
 using UnityEngine;
 using MoonSharp.Interpreter.Interop;
+using System.IO;
 
 namespace Service.Scripting {
     class ScriptingServiceImpl : ScriptingServiceBase {
@@ -55,6 +56,27 @@ namespace Service.Scripting {
             }
         }
 
+        public override string ExecuteFileToMainScript(string fileName) {
+            try {
+                // TODO: User DoFile with corresponding platform-controller
+                //var result = mainScript.DoFile(fileName);
+                //return result.ToString();
+                var input = File.ReadAllText(fileName);
+                return ExecuteStringOnMainScript(input);
+            }
+            catch (ScriptRuntimeException ex) {
+                return "Error: " + ex.DecoratedMessage;
+            }
+            catch (SyntaxErrorException sex) {
+                return "Error: " + sex.DecoratedMessage;
+            }
+            catch (MoonSharp.Interpreter.InterpreterException ie) {
+                return "Error: " + ie.DecoratedMessage;
+            }
+        }
+
+
+
         public override void OpenScriptingConsole() {
             if (scriptingComponent == null) {
                 var prefab = UnityEngine.Resources.Load("ScriptingConsole");
@@ -92,8 +114,5 @@ namespace Service.Scripting {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
 
-        public override void LoadStringToMainScript(string fileName) {
-            throw new NotImplementedException(); 
-        }
     }
 }

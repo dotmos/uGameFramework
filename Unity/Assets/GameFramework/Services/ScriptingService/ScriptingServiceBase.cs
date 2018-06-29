@@ -116,7 +116,7 @@ namespace Service.Scripting
         
         public abstract string ExecuteStringOnMainScript(string luaCode);
         
-        public abstract void LoadStringToMainScript(string fileName);
+        public abstract string ExecuteFileToMainScript(string fileName);
         
     }
 }

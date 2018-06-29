@@ -31,7 +31,11 @@ namespace Service.Scripting {
 
 
 					bool IsScriptingConsoleVisible();
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="luaCode"></param>
+        /// <returns></returns>
 
 					string ExecuteStringOnMainScript(string luaCode);
 
@@ -39,11 +43,10 @@ namespace Service.Scripting {
 		/// <summary>
         /// Load a script into the default lua-context 
         /// <param name="fileName"></param>
-
         /// </summary>
         
 
-					void LoadStringToMainScript(string fileName);
+					string ExecuteFileToMainScript(string fileName);
 
 	}
 

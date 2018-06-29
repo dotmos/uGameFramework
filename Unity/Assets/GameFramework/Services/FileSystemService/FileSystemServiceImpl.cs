@@ -14,9 +14,6 @@ namespace Service.FileSystem {
 
         protected override void AfterInitialize() {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
-
-            string path = GetPath(FSDomain.ScriptingOutput);
-            File.WriteAllText(path+"/script.lua", "a=10;print(a);");
         }
 
 
@@ -30,6 +27,33 @@ namespace Service.FileSystem {
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
             return EnsureDirectoryExistsAndReturn(path);
+        }
+
+        public override bool WriteStringToFile(string pathToFile, string data) {
+            // TODO: Ensure Directory?
+            // TODO: Use the PC3-bulletproof writing version
+            try {
+                File.WriteAllText(pathToFile, data);
+                return true;
+            }
+            catch (Exception e) {
+                Debug.LogError("There was a problem using SaveStringToFile with "+pathToFile+"=>DATA:\n"+data);
+                Debug.LogException(e);
+                return false;
+            }
+        }
+
+        public override string LoadFileAsString(string pathToFile) {
+            try {
+                var result = File.ReadAllText(pathToFile);
+                return result;
+            }
+            catch (Exception e) {
+                Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
+                Debug.LogException(e);
+                return null;
+            }
+
         }
 
         private string EnsureDirectoryExistsAndReturn(string path) {
