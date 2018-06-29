@@ -18,11 +18,20 @@ namespace Service.Scripting {
                 // make all datatypes available
                 UserData.RegistrationPolicy = InteropRegistrationPolicy.Automatic;
 
-                scriptingComponent = GameObject.Find("/ScriptingConsole").GetComponent<ScriptingConsoleComponent>();
+                //scriptingComponent = GameObject.Find("/ScriptingConsole").GetComponent<ScriptingConsoleComponent>();
                 // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
                 mainScript = new Script();
+
+
+                // TODO: get rid of EveryUpdate
+                Observable.EveryUpdate().Subscribe(_ => {
+                    if (UnityEngine.Input.GetKeyDown(KeyCode.F8)) {
+                        ToggleScriptingConsole();
+                    }
+                }).AddTo(disposables);
                 
-                Observable.NextFrame().Subscribe(_ => ActivateDefaultScripting("script"));
+                // TODO: get rid of nextframe
+                Observable.NextFrame().Subscribe(_ => ActivateDefaultScripting("script")).AddTo(disposables);
             }
             catch (Exception e) {
                 Debug.LogError("COULD NOT START SCRIPTINGCONSOLE SERVICE!");
@@ -48,9 +57,11 @@ namespace Service.Scripting {
 
         public override void OpenScriptingConsole() {
             if (scriptingComponent == null) {
-                return;
+                var prefab = UnityEngine.Resources.Load("ScriptingConsole");
+                scriptingComponent = GameObject.Instantiate(prefab) as ScriptingConsoleComponent;
+            } else {
+                scriptingComponent.gameObject.SetActive(true);
             }
-            scriptingComponent.gameObject.SetActive(true);
         }
 
 		public override void CloseScriptingConsole() {
@@ -61,10 +72,11 @@ namespace Service.Scripting {
         }
 
         public override void ToggleScriptingConsole() {
-            if (scriptingComponent == null) {
-                return;
+            if (scriptingComponent==null || !scriptingComponent.gameObject.activeSelf) {
+                OpenScriptingConsole();
+            } else {
+                CloseScriptingConsole();
             }
-            scriptingComponent.gameObject.SetActive(!scriptingComponent.gameObject.activeSelf);
         }
 
         public override Script GetMainScript() {

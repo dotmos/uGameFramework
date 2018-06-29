@@ -27,10 +27,7 @@ public class ScriptingConsoleComponent : GameComponent {
     protected override void AfterBind() {
         consoleInput.onEndEdit.AddListener(ProcessInput);
         Observable.EveryUpdate().Subscribe(_ => {
-            if (Input.GetKeyDown(KeyCode.F8)) {
-                gameObject.SetActive(!gameObject.activeSelf);
-            }
-            else if(consoleInput.isFocused && Input.GetKeyDown(KeyCode.UpArrow)){
+            if(consoleInput.isFocused && Input.GetKeyDown(KeyCode.UpArrow)){
                 if (historyID+1 < history.Count) {
                     historyID++;
                 }
