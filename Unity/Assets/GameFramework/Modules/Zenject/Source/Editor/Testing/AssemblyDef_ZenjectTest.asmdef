@@ -1,0 +1,12 @@
+{
+    "name": "AssemblyDef_ZenjectTest",
+    "references": [
+        "uGameFramework"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

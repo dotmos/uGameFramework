@@ -1,0 +1,12 @@
+{
+    "name": "AssemblyDef_onlyEditor_3",
+    "references": [
+        "uGameFramework"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
