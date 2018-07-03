@@ -54,6 +54,18 @@ public partial class Kernel : SceneContext {
 
     new void Awake(){
         Instance = this;
+        PreInstall += () => { Debug.Log("PREINSTALL"); };
+        PostInstall += () => {
+            eventService = Container.Resolve<Service.Events.IEventsService>();
+
+            Debug.Log("POSTINSTALL");
+        };
+        PreResolve += () => {
+            eventService = Container.Resolve<Service.Events.IEventsService>();
+            Debug.Log("PRERESOLVE");
+        };
+        PostResolve += () => { eventService.Publish(new Events.OnAllServicesInstalled()); Debug.Log("POSTRESOLVE"); };
+
         base.Awake();
     }
 
@@ -63,6 +75,7 @@ public partial class Kernel : SceneContext {
         //Let the program know, that Kernel has finished loading
         eventService = Container.Resolve<Service.Events.IEventsService>();
         eventService.Publish(new Events.KernelReadyEvent());
+        Debug.Log("KERNEL REALLY READY?");
     }
 
     void OnApplicationFocus(bool hasFocus) {

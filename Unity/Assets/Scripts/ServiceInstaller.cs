@@ -5,6 +5,9 @@ public class ServiceInstaller : MonoInstaller {
 
 	public override void InstallBindings()
     {
+        Container.Bind<IExecutionWrapper>().To<DefaultExecutionWrapper>().AsSingle();
+
+
         Debug.Log("Installing Services ...");
 
         //EventService
@@ -26,6 +29,9 @@ public class ServiceInstaller : MonoInstaller {
         //Console 
         Service.Scripting.ServiceInstaller.Install(Container);
 
+        //GameStateService
+        Service.GameStateService.ServiceInstaller.Install(Container);
+
         /*        //Local Storage
                 Service.LocalStorage.ServiceInstaller.Install(Container);
 
@@ -41,4 +47,6 @@ public class ServiceInstaller : MonoInstaller {
 
         Debug.Log("Finished installing services");
     }
+
+
 }

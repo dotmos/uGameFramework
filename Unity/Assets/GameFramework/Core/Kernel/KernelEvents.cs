@@ -23,5 +23,11 @@ public partial class Kernel : SceneContext {
         /// </summary>
         public class OnApplicationQuit {
         }
+
+        /// <summary>
+        /// Fired when all services got installed by zenject
+        /// </summary>
+        public class OnAllServicesInstalled {
+        }
     }
 }

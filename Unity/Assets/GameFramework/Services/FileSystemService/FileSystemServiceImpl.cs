@@ -6,6 +6,7 @@ using Zenject;
 using UniRx;
 using UnityEngine;
 using System.IO;
+using Service.Scripting;
 
 namespace Service.FileSystem {
     class FileSystemServiceImpl : FileSystemServiceBase {
@@ -16,10 +17,7 @@ namespace Service.FileSystem {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
         }
 
-
-
         public override string GetPath(FSDomain domain) {
-
             string prefix = Application.streamingAssetsPath;
             string path = MISC_PATH;
             switch (domain) {

@@ -1,0 +1,35 @@
+## service start
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+
+namespace Service.GameStateService {  
+    public interface IGameStateService {  	
+    	## "Register gamestate with its name. Optionally you can pass an overriden GameState-Classtype of your own"
+		("GameState") RegisterGameState(string name,("GameState") gamestate=("null"));
+		## "Get the current gamestate. Alternatively use \"[Inject] GameState current;\""
+		("GameState") GetCurrentGameState();
+		## "Start a new gamestate after stopping the current one (if present). Optionally pass a context in which you can e.g. set gamestate-flags"
+		("IObservable<bool>") StartGameState(("GameState") gamestate,GSContext ctx=("null"));
+    }  
+}  
+## model
+
+public enum GSStatus {
+	noneStatus,starting,running,closing
+}
+
+public class GSContext{
+}
+
+
+## events 
+
+
+
+public class GameStateStatusChange {
+	public ("GameState") gameState;
+	public ?GSStatus fromStatus;
+	public ?GSStatus toStatus;
+}
+
+## service end
