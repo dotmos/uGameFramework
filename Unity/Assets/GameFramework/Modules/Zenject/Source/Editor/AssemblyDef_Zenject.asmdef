@@ -1,5 +1,5 @@
 {
-    "name": "AssemblyDef_Zenject",
+    "name": "Editor_Zenject",
     "references": [
         "uGameFramework"
     ],
