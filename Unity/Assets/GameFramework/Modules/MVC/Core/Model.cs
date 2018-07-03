@@ -10,16 +10,6 @@ namespace MVC{
     public class Model : IModel {
 
         /// <summary>
-        /// Autobind on creation? You have to set this when calling the constructor. Default is false.
-        /// </summary>
-        public bool autoBind = false;
-
-        /// <summary>
-        /// If set to true, will delay AfterBind() by one frame. Might be needed for deserialization
-        /// </summary>
-        bool delayAfterBind = false;
-
-        /// <summary>
         /// Skip Debug.LogError(...)/Exception-output if the Model is disposed but not bound
         /// </summary>
         protected bool skipWarning = false;
@@ -37,34 +27,7 @@ namespace MVC{
             }
         }
 
-        ReactiveCommand _OnAfterBind;
-        /// <summary>
-        /// Fired when AfterBind is called
-        /// </summary>
-        public ReactiveCommand OnAfterBind {
-            get { return _OnAfterBind; }
-            private set { _OnAfterBind = value; }
-        }
-
-        private ReactiveProperty<CompositeDisposable> DisposablesProperty;
-        private CompositeDisposable Disposables{
-            get{
-                return DisposablesProperty.Value;
-            }
-        }
-
-        /// <summary>
-        /// Every model listens to this and will bind itself when this is executed
-        /// </summary>
-        private static ReactiveCommand<bool> bindAllCommand = new ReactiveCommand<bool>();
-        /// <summary>
-        /// This will bind ALL models that were ever created. If a model was already bound, it will not be bound again.
-        /// </summary>
-        /// <param name="delayAfterBind">If set to true, will delay AfterBind execution 1 frame. This might be needed when deserializing. Default is false.</param>
-        public static void BindAll(bool delayAfterBind = false) {
-            bindAllCommand.Execute(delayAfterBind);
-        }
-        
+        private CompositeDisposable Disposables;
 
         protected DiContainer Container;
         DisposableManager _dManager;
@@ -76,7 +39,6 @@ namespace MVC{
         private bool wasConstructed = false;
         public Model(){
             TryOnConstruct();
-            if(autoBind) Bind();
         }
 
         [OnDeserializing]
@@ -88,18 +50,13 @@ namespace MVC{
             if (!wasConstructed) OnConstruct();
         }
 
-        IDisposable bindAllListener;
-
         /// <summary>
         /// Executed when constructor is called, OnDeserializingAttribute is fired or Bind() is called. Will not be executed again, if already executed in the past.
         /// </summary>
         protected virtual void OnConstruct() {
             wasConstructed = true;
-            if (DisposablesProperty == null) DisposablesProperty = new ReactiveProperty<CompositeDisposable>(new CompositeDisposable());
+            if (Disposables == null) Disposables = new CompositeDisposable();
             OnDisposing = new ReactiveCommand();
-            OnAfterBind = new ReactiveCommand();
-            bindAllListener = bindAllCommand.Subscribe(e => Bind(e));
-            bindAllListener.AddTo(this);
         }
 
         
@@ -114,10 +71,7 @@ namespace MVC{
             if(initialized) return;
             initialized = true;
 
-            Bind(delayAfterBind);
-
-            if (bindAllListener != null) bindAllListener.Dispose();
-            bindAllListener = null;
+            Bind();
 
             Container = _container;
             _dManager = dManager;
@@ -126,21 +80,15 @@ namespace MVC{
 
             _dManager.Add(this);
 
-            OnAfterBind.Execute();
-            if (!delayAfterBind) {
-                AfterBind();
-            } else {
-                Observable.NextFrame().Subscribe(e => AfterBind()).AddTo(this);
-            }
+            AfterBind();
         }
 
         /// <summary>
         /// Bind this instance.
         /// </summary>
         /// <param name="delayAfterBind">If set to true, will delay AfterBind execution 1 frame. This might be needed when deserializing. Default is false.</param>
-        public virtual void Bind(bool delayAfterBind = false)
+        public virtual void Bind()
         {
-            this.delayAfterBind = delayAfterBind;
             if (!wasPreBound) PreBind();
             if (!initialized) Kernel.Instance.Inject(this);
         }
@@ -173,10 +121,10 @@ namespace MVC{
         }
 
         /// <summary>
-        /// Copies the values from the supplied model to this model
+        /// Copies the values from the supplied model to this model. Both properties and fields are copied.
         /// </summary>
         /// <param name="model">Model.</param>
-        public virtual void CopyValues(IModel model){
+        public virtual void CopyValuesFromOtherModel(IModel model){
             model.CopyProperties(this);
             model.CopyFields(this);
         }
@@ -217,18 +165,12 @@ namespace MVC{
 
 
             Disposables.Dispose();
-            DisposablesProperty.Dispose();
-            DisposablesProperty = null;
 
             OnDispose();
 
             OnDisposing.Execute();
-
             OnDisposing.Dispose();
             OnDisposing = null;
-
-            OnAfterBind.Dispose();
-            OnAfterBind = null;
 
             //If an error is thrown here, you are trying to dispose a model that was not bound. This should never happen/you should always bind your models and this comment is just here so you know whats wrong :)
             //_dManager.Remove(this);

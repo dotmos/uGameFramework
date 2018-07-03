@@ -7,14 +7,7 @@ using MVC;
 public class AnotherTestView : View<TestController> {
 
     public TestView testView;
-
-    protected override void PreBind()
-    {
-        base.PreBind();
-
-        //Do NOT create an own controller/model
-        createController = false;
-    }
+    
 
     protected override void AfterBind()
     {

@@ -29,15 +29,6 @@ namespace MVC{
         protected bool initialized = false;
 
         /// <summary>
-        /// Automatically create a new model when controller is created. Default is false.
-        /// </summary>
-        public bool createModelOnBind = false;
-
-        /// <summary>
-        /// Dispose the model when controller is disposed. Default is true.
-        /// </summary>
-        public bool disposeModel = true;
-        /// <summary>
         /// Whether or not this controller was disposed
         /// </summary>
         public bool wasDisposed {
@@ -49,7 +40,15 @@ namespace MVC{
         /// The Model Property of this controller
         /// </summary>
         /// <value>The model property.</value>
-        public ReactiveProperty<IModel> ModelProperty = new ReactiveProperty<IModel>();
+        private ReactiveProperty<IModel> _ModelProperty = new ReactiveProperty<IModel>();
+        public ReactiveProperty<IModel> ModelProperty {
+            get {
+                return _ModelProperty;
+            }
+            private set {
+                _ModelProperty = value;
+            }
+        }
         /// <summary>
         /// The model of this controller
         /// </summary>
@@ -64,14 +63,7 @@ namespace MVC{
         }
 
         //Disposables
-        private ReactiveProperty<CompositeDisposable> DisposablesProperty = new ReactiveProperty<CompositeDisposable>(new CompositeDisposable());
-        private CompositeDisposable Disposables{
-            get{
-                return DisposablesProperty.Value;
-            }
-        }
-
-        
+        private CompositeDisposable Disposables = new CompositeDisposable();
 
         protected DiContainer Container;
         private DisposableManager _dManager;
@@ -85,10 +77,6 @@ namespace MVC{
         /// Container for firing controller events
         /// </summary>
         Subject<object> controllerEventsSubject = new Subject<object>();
-
-//        public Controller(){
-//            Bind();
-//        }
 
         /// <summary>
         /// Initialize the controller and inject everything
@@ -116,15 +104,7 @@ namespace MVC{
 
             this.ModelProperty.DistinctUntilChanged().Subscribe(e => ListenToModelDispose()).AddTo(this);
 
-            if (createModelOnBind && Model == null) {
-                IModel _m = CreateModel();
-                _m.Bind();
-                SetModel(_m);
-            }
-
             AfterBind();
-
-            //UnityEngine.Debug.Log(this + " init");
         }
 
         /// <summary>
@@ -275,17 +255,6 @@ namespace MVC{
             SetModel( CreateModel(modelType));
         }
 
-       /// <summary>
-       /// Copies values from the supplied model and puts them in the controller model
-       /// </summary>
-       /// <param name="model">Model.</param>
-        public virtual void CopyModelValues(IModel model){
-            if(Model == null){
-                SetModel(CreateModel());
-            }
-            Model.CopyValues(model);
-        }
-
         /// <summary>
         /// Helper function for getting Model in (Mono)View
         /// </summary>
@@ -328,16 +297,13 @@ namespace MVC{
             OnDisposing.Dispose();
             OnDisposing = null;
 
-            Disposables.Dispose();
-            DisposablesProperty.Dispose();
-            DisposablesProperty = null;         
+            Disposables.Dispose();   
 
             controllerEventsSubject.Dispose();
             controllerEventsSubject = null;
             viewEventsSubject.Dispose();
             viewEventsSubject = null;
 
-            if(disposeModel && Model != null) Model.Dispose();
             Model = null;
             Container = null;
             _eventService = null;

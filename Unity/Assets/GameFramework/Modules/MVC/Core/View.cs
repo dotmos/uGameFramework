@@ -16,23 +16,9 @@ namespace MVC{
         /// </summary>
         public bool destroyOnDispose = true;
         /// <summary>
-        /// Dispose the controller when Dispose is called. Default is true.
-        /// </summary>
-        public bool disposeControllerOnDispose = true;
-        /// <summary>
         /// Dispose the view if the controller is disposed. Default is false.
         /// </summary>
         public bool disposeOnControllerDispose = false;
-        /// <summary>
-        /// If set to true, a controller and model will be created when view is initialized. This can only be set from the editor or in PreBind().
-        /// Otherwise it will do nothing. Default is false.
-        /// </summary>
-        public bool createController = false;
-        /// <summary>
-        /// If set to true, view will have it's dependencies injected and is initialized on startup. This can only be set from the editor or in PreBind().
-        /// Default is false.
-        /// </summary>
-        public bool bindOnAwake = false;
         /// <summary>
         /// Whether or not this view was disposed
         /// </summary>
@@ -63,12 +49,21 @@ namespace MVC{
                 return ControllerProperty.Value;
             }
             protected set{
+                if (value != null) {
+                    //Keep model up to date
+                    value.ModelProperty.Where(o => o == value).Subscribe(e => Model = e).AddTo(this);
+                }
+                else Model = null;
                 ControllerProperty.Value = value;
             }
         }
+        public ReactiveProperty<IModel> ModelProperty = new ReactiveProperty<IModel>();
         public IModel Model{
             get{
-                return Controller.GetModel();
+                return ModelProperty.Value;
+            }
+            protected set {
+                ModelProperty.Value = value;
             }
         }
 
@@ -99,13 +94,6 @@ namespace MVC{
 
             this.ControllerProperty.DistinctUntilChanged().Subscribe(e =>  ListenToControllerDispose()).AddTo(this);
 
-            //Create controller if this view is created through editor/sceneload
-            if (createController && Controller == null) {
-				IController _c = CreateController ();
-				_c.Bind ();
-				SetController (_c);
-			}
-
             //To make IDisposable work, we have to add this instance to the disposable manager
             _dManager.Add(this);
 
@@ -124,11 +112,6 @@ namespace MVC{
 
         protected virtual void Awake()
         {
-            //If this view is part of the scenefile, make sure it gets initialized/injected
-            if(bindOnAwake)
-            {
-                Bind();
-            }
         }
 
         public virtual void Bind(){
@@ -299,13 +282,11 @@ namespace MVC{
             RemoveTickable(this);
             _dManager.Remove(this);
 
-            //Debug.Log(this + " disposed");
-
-            if(disposeControllerOnDispose && Controller != null)
-            {
-                Controller.Dispose();
-            }
             Controller = null;
+            ControllerProperty.Dispose();
+            ViewInitializedProperty.Dispose();
+            Model = null;
+            ModelProperty.Dispose();
 
             _eventService = null;
             _dManager = null;

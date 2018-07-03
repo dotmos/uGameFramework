@@ -43,16 +43,12 @@ namespace MVC{
         /// <param name="modelType">Model type.</param>
         void SetModel(Type modelType);
 
-        /// <summary>
-        /// Copies values from the supplied model and puts them in the controller model
-        /// </summary>
-        /// <param name="model">Model.</param>
-        void CopyModelValues(IModel model);
         // Use this to listen to an event from the controller which is meant for the view
         IObservable<TEvent> OnController<TEvent>();
         // Use this to publish an event from a view to the controller
         void PublishToController<TEvent>(TEvent evt);
 
         ReactiveCommand OnDisposing { get; }
+        ReactiveProperty<IModel> ModelProperty { get; }
     }
 }
