@@ -8,3 +8,4 @@ Features an optional MVC implementation, reactive state machines, modular servic
 Needs Unity with .NET 4.6 support enabled. (found in PlayerSettings)
 
 Used in production at gentlymad studios for "Furious Fightpub" and "Pizza Connection 3".
+.
