@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace ECS {
     /// <summary>
@@ -11,6 +10,10 @@ namespace ECS {
         public int ID;
 
         public UID(int ID) {
+            this.ID = ID;
+        }
+
+        public void SetID(int ID) {
             this.ID = ID;
         }
     }

@@ -13,18 +13,6 @@ namespace ECS {
         Dictionary<UID, List<IComponent>> _entities = new Dictionary<UID, List<IComponent>>();
 
         /// <summary>
-        /// Lookup table for systems to fetch all entities to process.
-        /// </summary>
-        Dictionary<ISystem, List<UID>> _systemToEntity = new Dictionary<ISystem, List<UID>>();
-
-        /// <summary>
-        /// Lookup table for systems to fetch all relevant components.
-        /// Components are stored as a list of entity components.
-        /// I.e. entities have ComponentA & ComponentB that are needed by the system. List looks like this: Entity1.ComponentA, Entity1.ComponentB, Entity2.ComponentA, Entity2.ComponentB, etc.
-        /// </summary>
-        Dictionary<ISystem, List<IComponent>> _systemToComponents = new Dictionary<ISystem, List<IComponent>>();
-
-        /// <summary>
         /// List of all registered systems
         /// </summary>
         List<ISystem> _systems = new List<ISystem>();
@@ -62,8 +50,11 @@ namespace ECS {
         /// Destroys the entity
         /// </summary>
         /// <param name="entityID"></param>
-        public void DestroyEntity(UID entity) {
-            if (EntityExists(entity)) {
+        public void DestroyEntity(ref UID entity) {
+            if (EntityExists(ref entity)) {
+                _entities[entity].Clear();
+                EntityModified(ref entity);
+                _entities[entity] = null;
                 _entities.Remove(entity);
                 _recycledIds.Enqueue(entity.ID);
             }
@@ -74,7 +65,7 @@ namespace ECS {
         /// </summary>
         /// <param name="entityID"></param>
         /// <returns></returns>
-        public bool EntityExists(UID entity) {
+        public bool EntityExists(ref UID entity) {
             return _entities.ContainsKey(entity);
         }
 
@@ -84,15 +75,17 @@ namespace ECS {
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
-        public T AddComponent<T>(UID entity) where T : IComponent, new() {
-            if (EntityExists(entity)) {
-                return (T)AddComponent(entity, new T());
+        public T AddComponent<T>(ref UID entity) where T : IComponent, new() {
+            if (EntityExists(ref entity)) {
+                return (T)AddComponent(ref entity, new T());
             }
             return default(T);
         }
-        public IComponent AddComponent(UID entity, IComponent component) {
-            if (EntityExists(entity)) {
+        public IComponent AddComponent(ref UID entity, IComponent component) {
+            if (component.Entity.ID == -1 || EntityExists(ref entity)) {
+                component.Entity.SetID(entity.ID);
                 _entities[entity].Add(component);
+                EntityModified(ref entity);
             }
             return null;
         }
@@ -102,12 +95,14 @@ namespace ECS {
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
-        public void RemoveComponent<T>(UID entity) where T : IComponent {
-            RemoveComponent(entity, GetComponent<T>(entity));
+        public void RemoveComponent<T>(ref UID entity) where T : IComponent {
+            RemoveComponent(ref entity, GetComponent<T>(ref entity));
         }
-        public void RemoveComponent(UID entity, IComponent component) {
-            if(component != null && EntityExists(entity)) {
+        public void RemoveComponent(ref UID entity, IComponent component) {
+            if(component != null && EntityExists(ref entity)) {
                 _entities[entity].Remove(component);
+                component.Entity.SetID(-1);
+                EntityModified(ref entity);
             }
         }
 
@@ -117,8 +112,8 @@ namespace ECS {
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public T GetComponent<T>(UID entity) where T : IComponent{
-            if (EntityExists(entity)) {
+        public T GetComponent<T>(ref UID entity) where T : IComponent{
+            if (EntityExists(ref entity)) {
                 //TODO: This is very slow. Rethink how entities are stored.
                 IComponent c = _entities[entity].Find(o => o is T);
                 if(c != null) {
@@ -134,9 +129,9 @@ namespace ECS {
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public bool HasComponent<T>(UID entity) where T: IComponent {
+        public bool HasComponent<T>(ref UID entity) where T: IComponent {
             //TODO: This is very slow. Rethink how entities are stored.
-            return GetComponent<T>(entity) != null ? true : false;
+            return GetComponent<T>(ref entity) != null ? true : false;
         }
 
 
@@ -145,10 +140,9 @@ namespace ECS {
         /// </summary>
         /// <param name="system"></param>
         public void RegisterSystem(ISystem system) {
-            if (!_systems.Contains(system)) {
+            if (system.entityManager != null && !_systems.Contains(system)) {
+                system.SetEntityManager(this);
                 _systems.Add(system);
-                _systemToEntity.Add(system, new List<UID>());
-                _systemToComponents.Add(system, new List<IComponent>());
             }
         }
 
@@ -159,49 +153,17 @@ namespace ECS {
         public void UnregisterSystem(ISystem system) {
             if (_systems.Contains(system)) {
                 _systems.Remove(system);
-                if (_systemToEntity.ContainsKey(system)) {
-                    _systemToEntity[system].Clear();
-                    _systemToEntity[system] = null;
-                    _systemToEntity.Remove(system);
-                }
-                _systemToComponents[system].Clear();
-                _systemToComponents[system] = null;
-                _systemToComponents.Remove(system);
+                system.SetEntityManager(null);
             }
         }
 
         /// <summary>
-        /// Registers an entity with the system
+        /// Call whenever an entity is modified
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="system"></param>
-        public void RegisterEntityWithSystem(UID entity, ISystem system) {
-            if (!_systemToEntity[system].Contains(entity)) {
-                //Cache entity in _systemToEntity
-                _systemToEntity[system].Add(entity);
-
-                //Get all needed components for the system from the entity
-                List<IComponent> components = system.GetNeededComponents(entity);
-                //Cache components in _systemToComponents
-                _systemToComponents[system].AddRange(components);
-            }
-        }
-
-        /// <summary>
-        /// Unregisters an entity from the system
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="system"></param>
-        public void UnregisterEntityFromSystem(UID entity, ISystem system) {
-            if (_systemToEntity[system].Contains(entity)) {
-                //Remove cached components from _systemToComponents
-                List<IComponent> components = _systemToComponents[system].FindAll(o => o.Entity.ID == entity.ID);
-                foreach(IComponent c in components) {
-                    _systemToComponents[system].Remove(c);
-                }
-
-                //Remove entity from _systemToEntitiy
-                _systemToEntity[system].Remove(entity);
+        protected virtual void EntityModified(ref UID entity) {
+            for(int i=0; i<_systems.Count; ++i) {
+                _systems[i].EntityModified(ref entity);
             }
         }
     }
