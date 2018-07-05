@@ -86,7 +86,8 @@ namespace ECS {
         public T AddComponent<T>(UID entity) where T : IComponent, new() {
             UnityEngine.Debug.Log("Adding component "+typeof(T)+" to entity:" + entity.ID);
             if (EntityExists(entity)) {
-                return (T)AddComponent(entity, new T());
+                IComponent component = new T();
+                return (T)AddComponent(entity, component);
             }
             return default(T);
         }
