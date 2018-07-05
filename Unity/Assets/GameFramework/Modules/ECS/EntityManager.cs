@@ -10,15 +10,22 @@ namespace ECS {
         /// </summary>
         //This is super cache unfriendly.
         //TODO: Make cache friendly and do not use a list of components, but use a list of ids, targeting component arrays of same component type. I.e. one array per component type
-        Dictionary<UID, List<IComponent>> _entities = new Dictionary<UID, List<IComponent>>();
+        Dictionary<UID, List<IComponent>> _entities;
 
         /// <summary>
         /// List of all registered systems
         /// </summary>
-        List<ISystem> _systems = new List<ISystem>();
+        List<ISystem> _systems;
 
         private Queue<int> _recycledIds;
-        private int _lastId { get; set; } = 0;
+        private int _lastId { get; set; }
+
+        public EntityManager() {
+            _entities = new Dictionary<UID, List<IComponent>>();
+            _systems = new List<ISystem>();
+            _recycledIds = new Queue<int>();
+            _lastId = 0;
+        }
 
         /// <summary>
         /// Creates a new entity
@@ -40,6 +47,7 @@ namespace ECS {
             }
 
             UID uid = new UID(id);
+            UnityEngine.Debug.Log(uid.ID);
 
             _entities.Add(uid, new List<IComponent>());
 
@@ -50,10 +58,10 @@ namespace ECS {
         /// Destroys the entity
         /// </summary>
         /// <param name="entityID"></param>
-        public void DestroyEntity(ref UID entity) {
-            if (EntityExists(ref entity)) {
+        public void DestroyEntity(UID entity) {
+            if (EntityExists(entity)) {
                 _entities[entity].Clear();
-                EntityModified(ref entity);
+                EntityModified(entity);
                 _entities[entity] = null;
                 _entities.Remove(entity);
                 _recycledIds.Enqueue(entity.ID);
@@ -65,7 +73,7 @@ namespace ECS {
         /// </summary>
         /// <param name="entityID"></param>
         /// <returns></returns>
-        public bool EntityExists(ref UID entity) {
+        public bool EntityExists(UID entity) {
             return _entities.ContainsKey(entity);
         }
 
@@ -75,17 +83,21 @@ namespace ECS {
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
-        public T AddComponent<T>(ref UID entity) where T : IComponent, new() {
-            if (EntityExists(ref entity)) {
-                return (T)AddComponent(ref entity, new T());
+        public T AddComponent<T>(UID entity) where T : IComponent, new() {
+            UnityEngine.Debug.Log("Adding component "+typeof(T)+" to entity:" + entity.ID);
+            if (EntityExists(entity)) {
+                return (T)AddComponent(entity, new T());
             }
             return default(T);
         }
-        public IComponent AddComponent(ref UID entity, IComponent component) {
-            if (component.Entity.ID == -1 || EntityExists(ref entity)) {
-                component.Entity.SetID(entity.ID);
+        public IComponent AddComponent(UID entity, IComponent component) {
+            if (EntityExists(entity) && !HasComponent(entity, component)) {
+                //component.Entity.SetID(entity.ID);
+                component.Entity = entity;
                 _entities[entity].Add(component);
-                EntityModified(ref entity);
+                EntityModified(entity);
+                UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
+                return component;
             }
             return null;
         }
@@ -95,14 +107,14 @@ namespace ECS {
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
-        public void RemoveComponent<T>(ref UID entity) where T : IComponent {
-            RemoveComponent(ref entity, GetComponent<T>(ref entity));
+        public void RemoveComponent<T>(UID entity) where T : IComponent {
+            RemoveComponent(entity, GetComponent<T>(entity));
         }
-        public void RemoveComponent(ref UID entity, IComponent component) {
-            if(component != null && EntityExists(ref entity)) {
+        public void RemoveComponent(UID entity, IComponent component) {
+            if(component != null && EntityExists(entity)) {
                 _entities[entity].Remove(component);
                 component.Entity.SetID(-1);
-                EntityModified(ref entity);
+                EntityModified(entity);
             }
         }
 
@@ -112,14 +124,17 @@ namespace ECS {
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public T GetComponent<T>(ref UID entity) where T : IComponent{
-            if (EntityExists(ref entity)) {
-                //TODO: This is very slow. Rethink how entities are stored.
+        public T GetComponent<T>(UID entity) where T : IComponent{
+            if (EntityExists(entity)) {
+                //TODO: This is slow. Rethink how entities are stored.
                 IComponent c = _entities[entity].Find(o => o is T);
                 if(c != null) {
                     return (T)c;
                 }
             }
+
+            UnityEngine.Debug.LogError("Entity " + entity.ID + " does not exist!");
+            //throw new Exception("Entity " + entity.ID + " does not exist!");
             return default(T);
         }
 
@@ -129,9 +144,26 @@ namespace ECS {
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public bool HasComponent<T>(ref UID entity) where T: IComponent {
-            //TODO: This is very slow. Rethink how entities are stored.
-            return GetComponent<T>(ref entity) != null ? true : false;
+        public bool HasComponent<T>(UID entity) where T: IComponent {
+            if (EntityExists(entity)) {
+                //TODO: This is slow. Rethink how entities/components are stored.
+                IComponent c = _entities[entity].Find(o => o is T);
+                if (c != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool HasComponent(UID entity, IComponent component) {
+            if (EntityExists(entity)) {
+                //TODO: This is slow. Rethink how entities/components are stored.
+                IComponent c = _entities[entity].Find(o => o == component);
+                if (c != null) {
+                    return true;
+                }
+            }
+            return false;
         }
 
 
@@ -140,7 +172,7 @@ namespace ECS {
         /// </summary>
         /// <param name="system"></param>
         public void RegisterSystem(ISystem system) {
-            if (system.entityManager != null && !_systems.Contains(system)) {
+            if (system.entityManager == null && !_systems.Contains(system)) {
                 system.SetEntityManager(this);
                 _systems.Add(system);
             }
@@ -161,9 +193,9 @@ namespace ECS {
         /// Call whenever an entity is modified
         /// </summary>
         /// <param name="entity"></param>
-        protected virtual void EntityModified(ref UID entity) {
+        protected virtual void EntityModified(UID entity) {
             for(int i=0; i<_systems.Count; ++i) {
-                _systems[i].EntityModified(ref entity);
+                _systems[i].EntityModified(entity);
             }
         }
     }

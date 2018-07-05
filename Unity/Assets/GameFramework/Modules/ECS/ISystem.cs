@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace ECS {
@@ -18,7 +19,9 @@ namespace ECS {
         /// Call whenever an entity is modified
         /// </summary>
         /// <param name="entity"></param>
-        void EntityModified(ref UID entity);
+        void EntityModified(UID entity);
+
+        void AddDisposable(IDisposable disposable);
     }
 }
 
