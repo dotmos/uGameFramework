@@ -24,12 +24,23 @@ public class GSContext{
 
 ## events 
 
-
-
-public class GameStateStatusChange {
+public class GameStateBeforeTick{
 	public ("GameState") gameState;
-	public ?GSStatus fromStatus;
-	public ?GSStatus toStatus;
+}
+public class GameStateAfterTick{
+	public ("GameState") gameState;
+}
+public class GameStateBeforeEnter{
+	public ("GameState") gameState;
+}
+public class GameStateAfterEnter{
+	public ("GameState") gameState;
+}
+public class GameStateBeforeExit{
+	public ("GameState") gameState;
+}
+public class GameStateAfterExit{
+	public ("GameState") gameState;
 }
 
 ## service end

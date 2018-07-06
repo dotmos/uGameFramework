@@ -4,35 +4,15 @@ using MoonSharp.Interpreter;
 
 using Zenject;
 using UniRx;
+using UnityEngine;
 
 namespace Service.GameStateService {
-    public class GameStateServiceImpl : GameStateServiceBase {
-
-        class API
-        {
-            GameStateServiceImpl instance;
-
-            public API(GameStateServiceImpl instance) {
-                this.instance = instance;
-            }
-
-            public List<string> GetGamestates() {
-                return new List<string>(instance.gameStates.Keys);
-            }
-
-            public void StartGamestate(string name) {
-                try {
-                    var gs = instance.gameStates[name];
-                    instance.StartGameState(gs).Subscribe(_=> { }).AddTo(gs.gamestateDisposable);
-                }
-                catch (Exception e) {
-                    UnityEngine.Debug.LogException(e);
-                }
-            }
-        }
+    public partial class GameStateServiceImpl : GameStateServiceBase {
 
         private Dictionary<string, GameState> gameStates = new Dictionary<string, GameState>();
         public ReactiveProperty<GameState> CurrentGameStateProperty = new ReactiveProperty<GameState>((GameState)null);
+
+
 
         public GameState CurrentGameState {
             get { return CurrentGameStateProperty.Value; }
@@ -46,7 +26,7 @@ namespace Service.GameStateService {
         public ReactiveProperty<bool> TransitionRunningProperty = new ReactiveProperty<bool>();
 
         protected override void AfterInitialize() {
-
+            // dependency injection 
             Kernel.Instance.Container.Bind<Service.GameStateService.GameState>().FromMethod(() => {
                 return CurrentGameState;
             });
@@ -62,50 +42,66 @@ namespace Service.GameStateService {
             }
         }
 
-
-
-
-/*        [Inject]
+        [Inject]
         public void Test() {
+            ReactivePriorityExecutionList pl = new ReactivePriorityExecutionList();
 
-            var a = Observable.Return(1);
+            pl.QueueElement(() => { Debug.Log("4"); },Priorities.PRIORITY_LATE);
+            pl.QueueElement(() => { Debug.Log("5"); }, Priorities.PRIORITY_LATE);
+            pl.QueueElement(() => { Debug.Log("6"); }, Priorities.PRIORITY_LATE);
+            pl.QueueElement(() => { Debug.Log("7"); }, Priorities.PRIORITY_LATE);
+            pl.QueueElement(() => { Debug.Log("1"); });
+            pl.QueueElement(() => { Debug.Log("2"); });
+            pl.QueueElement(() => { Debug.Log("3"); });
+            pl.RxExecute().Subscribe(evt => {
+                Debug.Log("SUB");
+            }, 
+                e => { Debug.LogError("error:" + e); }, () => Debug.Log("COMPLETED"));
+            int a = 0;
+        }
 
-            var b = a.Concat(Observable.Merge(Observable.Return(18), Observable.Return(95), Observable.Return(1895)));
 
-            b.Subscribe(val => {
-                UnityEngine.Debug.Log("OTU:" + val);
-            }); ;
+        /*        [Inject]
+                public void Test() {
 
-            // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
-            PriorityList pl = new PriorityList();
+                    var a = Observable.Return(1);
 
-            Func<int, IObservable<bool>> createIt = (nr) => {
-                return Observable.Create<bool>((observer) => { UnityEngine.Debug.Log(nr); observer.OnNext(true); return null; });
-            };
+                    var b = a.Concat(Observable.Merge(Observable.Return(18), Observable.Return(95), Observable.Return(1895)));
 
-            pl.QueueElement(createIt(1), 100);
-            pl.QueueElement(createIt(2), 100);
-            pl.QueueElement(createIt(3), 100);
-            pl.QueueElement(createIt(4), 100);
-            pl.QueueElement(createIt(5), 100);
-            pl.QueueElement(createIt(6), 1000);
+                    b.Subscribe(val => {
+                        UnityEngine.Debug.Log("OTU:" + val);
+                    }); ;
 
-            pl.QueueElement(Observable.Interval(TimeSpan.FromSeconds(2)).Take(10)
-                            .Do(i => {
-                                UnityEngine.Debug.Log("WAIT:" + i);
-                            })
-                            .Last().Select(_ => true), 500);
-            pl.QueueElement(Observable.Interval(TimeSpan.FromSeconds(1)).Take(10)
-                            .Do(i => {
-                                UnityEngine.Debug.Log("WAITET:" + i);
-                            })
-                            .Last().Select(_ => true), 500);
+                    // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
+                    PriorityList pl = new PriorityList();
 
-            pl.RxExecute().Subscribe(_ => {
-                UnityEngine.Debug.Log("DONE");
-            });
+                    Func<int, IObservable<bool>> createIt = (nr) => {
+                        return Observable.Create<bool>((observer) => { UnityEngine.Debug.Log(nr); observer.OnNext(true); return null; });
+                    };
 
-        } */
+                    pl.QueueElement(createIt(1), 100);
+                    pl.QueueElement(createIt(2), 100);
+                    pl.QueueElement(createIt(3), 100);
+                    pl.QueueElement(createIt(4), 100);
+                    pl.QueueElement(createIt(5), 100);
+                    pl.QueueElement(createIt(6), 1000);
+
+                    pl.QueueElement(Observable.Interval(TimeSpan.FromSeconds(2)).Take(10)
+                                    .Do(i => {
+                                        UnityEngine.Debug.Log("WAIT:" + i);
+                                    })
+                                    .Last().Select(_ => true), 500);
+                    pl.QueueElement(Observable.Interval(TimeSpan.FromSeconds(1)).Take(10)
+                                    .Do(i => {
+                                        UnityEngine.Debug.Log("WAITET:" + i);
+                                    })
+                                    .Last().Select(_ => true), 500);
+
+                    pl.RxExecute().Subscribe(_ => {
+                        UnityEngine.Debug.Log("DONE");
+                    });
+
+                } */
 
 
         public override GameState RegisterGameState(string name, GameState gamestate=null) {

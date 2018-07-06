@@ -5,39 +5,174 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UniRx;
+using UnityEngine;
 using Zenject;
 
 namespace Service.GameStateService
 {
     public class GameState {
 
+        private class TickEnvelope
+        {
+            /// <summary>
+            /// Priority for this call in the gamestate's tick-list
+            /// </summary>
+            public int priority = Priorities.PRIORITY_DEFAULT;
+
+            /// <summary>
+            /// The execution domain of this call
+            /// </summary>
+            public ExecutionDomain executionDomain = ExecutionDomain.unknown;
+
+            /// <summary>
+            /// Amount of calls (sense?)
+            /// </summary>
+            public uint calls = 0;
+            /// <summary>
+            /// simple action call encapsulating the logic
+            /// </summary>
+            public Action action = null;
+            /// <summary>
+            /// bool function encapsulting the logic. returns false=>removed from execution list, return true=>stays in list
+            /// </summary>
+            public Func<bool> func = null;
+        }
+
+        /// <summary>
+        /// The gamestateDisposable that get emptied when
+        /// </summary>
         public CompositeDisposable gamestateDisposable = new CompositeDisposable();
 
-        public GSStatus currentState = GSStatus.noneStatus;
+        /// <summary>
+        /// The tick disposable
+        /// </summary>
+        public IDisposable tickDisposable = null;
+
+        /// <summary>
+        /// Get the systems execution wrapper for wrapping actions and function-blocks with special logic
+        /// </summary>
+        [Inject]
+        public IExecutionWrapper executionWrapper;
+
+        public ReactiveProperty<GSStatus> currentStateProperty = new ReactiveProperty<GSStatus>(GSStatus.noneStatus);
+        public GSStatus CurrentState {
+            get { return currentStateProperty.Value; }
+            private set { currentStateProperty.Value = value; }
+        }
 
         /// <summary>
         /// PriorityList to be called when this gamestate is started
         /// </summary>
-        public PriorityList OnEnter = new PriorityList();
-        /*protected PriorityList OnPause = new PriorityList();
-        protected PriorityList OnResume = new PriorityList();*/
+        public ReactivePriorityExecutionList OnEnter = new ReactivePriorityExecutionList();
         /// <summary>
         /// PriorityList to be called when this gamestate is left
         /// </summary>
-        public PriorityList OnExit = new PriorityList();
-        protected PriorityList OnTick = new PriorityList();
+        public ReactivePriorityExecutionList OnExit = new ReactivePriorityExecutionList();
 
-        public string Name { get; private set; }
+        /// <summary>
+        /// Sorted to execute the gamestate-tick-loop
+        /// </summary>
+        private bool isTickListDirty = false;
+        private List<TickEnvelope> OnTick = new List<TickEnvelope>();
+
+
+        /// <summary>
+        /// Gamestate Name
+        /// </summary>
+        public string GamestateName { get; private set; }
 
         private GSContext currentContext = null;
 
         public GSContext Context { get { return currentContext; } }
 
+        // Event-Templates
+        private Events.GameStateBeforeEnter evtBeforeEnter = new Events.GameStateBeforeEnter();
+        private Events.GameStateAfterEnter evtAfterEnter = new Events.GameStateAfterEnter();
+        private Events.GameStateBeforeTick evtBeforeTick = new Events.GameStateBeforeTick();
+        private Events.GameStateAfterTick evtAfterTick = new Events.GameStateAfterTick();
+        private Events.GameStateBeforeExit evtBeforeExit = new Events.GameStateBeforeExit();
+        private Events.GameStateAfterExit evtAfterExit = new Events.GameStateAfterExit();
+
         [Inject]
-        IEventsService eventsService;
+        IEventsService _eventService;
+
+        /// <summary>
+        /// Adds an action to the gamestate's queue list and will be executed on the next tick sorted by its priority(default:Priorities.PRIORITY_DEFAULT=512)
+        /// and will be removed from the executionlist afterwards
+        /// </summary>
+        /// <param name="act"></param>
+        /// <param name="priority"></param>
+        /// <param name="exeType"></param>
+        public void AddTick(Action act, int priority=Priorities.PRIORITY_DEFAULT, ExecutionDomain exeType=ExecutionDomain.unknown) {
+            var envelope = new TickEnvelope() {
+                action = act,
+                priority = priority,
+                executionDomain = exeType
+            };
+            OnTick.Add(envelope);
+            isTickListDirty = true;
+        }
+
+        /// <summary>
+        /// Adds a function(returing bool) to the gamestate's queue list and will be executed on the next tick sorted by its priority(default:Priorities.PRIORITY_DEFAULT=512)
+        /// as long as the function returns true the function stays in the execution-queue until it returns false
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="priority"></param>
+        public void AddTick(Func<bool> func,int priority = Priorities.PRIORITY_DEFAULT, ExecutionDomain exeType = ExecutionDomain.unknown) {
+            var envelope = new TickEnvelope() {
+                func = func,
+                priority = priority,
+                executionDomain = exeType
+            };
+            OnTick.Add(envelope);
+            isTickListDirty = true;
+        }
+
+        private List<TickEnvelope> removeList = new List<TickEnvelope>();
+
+        /// <summary>
+        /// Do the actual execution of all tick-actions sorted by their priority
+        /// </summary>
+        private void ExecuteTickList() {
+            // CAUTION: this method is called every tick. so keep it as fast as possible
+
+
+            if (isTickListDirty) {
+                OnTick = OnTick.OrderBy(env => env.priority).ToList();
+                isTickListDirty = false;
+            }
+
+            // using this kind of execution cause I think this is the fastest way
+            for (int i = OnTick.Count - 1; i >= 0; i--) {
+                var currentEnvelope = OnTick[i];
+                if (currentEnvelope.action != null) {
+                    // execute the action
+                    currentEnvelope.action();
+                    removeList.Add(currentEnvelope);
+                }
+                else if (currentEnvelope.func != null) {
+                    bool keepOnExecuting = currentEnvelope.func();
+                    if (!keepOnExecuting) {
+                        removeList.Add(currentEnvelope);
+                    } else {
+                        currentEnvelope.calls++; // sensless stat!?!
+                    }
+                }
+                else {
+                    Debug.LogError("Tick-Envelope without logic... removing");
+                    removeList.Add(currentEnvelope);
+                }
+            }
+
+            for (int i = removeList.Count - 1; i >= 0; i = 0) {
+                OnTick.Remove(removeList[i]);
+            }
+        }
+
 
         public GameState(string name) {
-            this.Name = name;
+            this.GamestateName = name;
         }
 
         /// <summary>
@@ -48,29 +183,33 @@ namespace Service.GameStateService
         public IObservable<bool> DoOnEnter(GSContext ctx=null) {
             this.currentContext = ctx;
 
-            eventsService.Publish(new Events.GameStateStatusChange() {
-                gameState = this,
-                fromStatus = currentState,
-                toStatus = GSStatus.starting
-            });
-            currentState = GSStatus.starting;
+            CurrentState = GSStatus.starting;
+
+            // fire hook
+            _eventService.Publish(evtBeforeEnter);
 
             // if not overriden, exit immediately
             return OnEnter.RxExecute().Finally(()=> {
-                eventsService.Publish(new Events.GameStateStatusChange() {
-                    gameState = this,
-                    fromStatus = currentState,
-                    toStatus = GSStatus.starting
-                });
-            });
-        }
+                CurrentState = GSStatus.running;
 
-        /// <summary>
-        /// Called every tick, if gamestate is in running-state. Add additional gamestate logic here.
-        /// </summary>
-        /// <param name="tick"></param>
-        public virtual void DoOnTick(float tick) {
-            //TODO
+                // fire hook
+                _eventService.Publish(evtAfterEnter);
+
+                // finally the gamestate is started
+                tickDisposable = Observable.EveryUpdate()
+                    .Subscribe(_ => {
+                        // tell that the we start the tick. last chance to react
+                        // TODO: performance? (i guess its ok, but 2 msgs per frame,...should be ok. yes?)
+                        _eventService.Publish(evtBeforeTick);
+
+                        ExecuteTickList();
+
+                        // tell that the tick is finished
+                        _eventService.Publish(evtAfterTick);
+                    });
+
+                gamestateDisposable.Add(tickDisposable); // add tick also to gamestate just to be sure the gamestate's tick gets disposed when the gamestate is left
+            });
         }
 
         /// <summary>
@@ -79,23 +218,23 @@ namespace Service.GameStateService
         /// </summary>
         /// <returns></returns>
         public virtual IObservable<bool> DoOnExit() {
-            eventsService.Publish(new Events.GameStateStatusChange() {
-                gameState = this,
-                fromStatus = currentState,
-                toStatus = GSStatus.closing
-            });
-            currentState = GSStatus.closing;
+            CurrentState = GSStatus.closing;
 
-            // if not overriden, exit immediately
+            _eventService.Publish(evtBeforeExit);
+
+            // stop tick
+            if (tickDisposable != null) {
+                tickDisposable.Dispose();
+                tickDisposable = null;
+            }
+
+            // start the OnExit-Process
             return OnExit.RxExecute().Finally(() => {
                 // clear all disposables connected to this gamestate
                 gamestateDisposable.Clear();
 
-                eventsService.Publish(new Events.GameStateStatusChange() {
-                    gameState = this,
-                    fromStatus = currentState,
-                    toStatus = GSStatus.noneStatus
-                });
+                _eventService.Publish(evtAfterExit);
+
             });
         }
     }

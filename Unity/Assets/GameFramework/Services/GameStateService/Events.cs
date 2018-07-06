@@ -15,10 +15,38 @@ namespace Service.GameStateService {
     public class Events {
         
         [DataContract(IsReference = true)]
-        public class GameStateStatusChange {
+        public class GameStateBeforeTick {
            [DataMember] public GameState gameState;
-           [DataMember] public GSStatus fromStatus;
-           [DataMember] public GSStatus toStatus;
+
+        }
+
+        [DataContract(IsReference = true)]
+        public class GameStateAfterTick {
+           [DataMember] public GameState gameState;
+
+        }
+
+        [DataContract(IsReference = true)]
+        public class GameStateBeforeEnter {
+           [DataMember] public GameState gameState;
+
+        }
+
+        [DataContract(IsReference = true)]
+        public class GameStateAfterEnter {
+           [DataMember] public GameState gameState;
+
+        }
+
+        [DataContract(IsReference = true)]
+        public class GameStateBeforeExit {
+           [DataMember] public GameState gameState;
+
+        }
+
+        [DataContract(IsReference = true)]
+        public class GameStateAfterExit {
+           [DataMember] public GameState gameState;
 
         }
         

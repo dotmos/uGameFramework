@@ -4,40 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UniRx;
+using UnityEngine;
 using Zenject;
-
-public interface IExecutionWrapper
-{
-    IObservable<T> Wrap<T>(IObservable<T> input);
-    IObservable<T> Wrap<T>(Func<T> input);
-    IObservable<bool> Wrap(Action input);
-}
-
-public class DefaultExecutionWrapper : IExecutionWrapper
-{
-    public IObservable<T> Wrap<T>(IObservable<T> input) {
-        return input;
-    }
-
-    public IObservable<T> Wrap<T>(Func<T> input) {
-        return Wrap(Observable.Create<T>((observer) => {
-            T result = input();
-            observer.OnNext(result);
-            observer.OnCompleted();
-            return null;
-        }));
-    }
-
-    public IObservable<bool> Wrap(Action input) {
-        return Wrap(Observable.Create<bool>((observer) => {
-            input();
-            observer.OnNext(true);
-            observer.OnCompleted();
-            return null;
-        }));
-    }
-}
-
 
 /// <summary>
 /// Some priorities default priorities
@@ -48,13 +16,15 @@ public partial class Priorities {
     public const int PRIORITY_LATE = 128;
 }
 
-public class PriorityList : IDisposable
+public class ReactivePriorityExecutionList : IDisposable
 {
          
-    public PriorityList() {
+    public ReactivePriorityExecutionList() {
         Kernel.Instance.Inject(this);
     }
 
+    public interface IContext {
+    }
 
     public class PriorityListElement
     {
@@ -71,6 +41,16 @@ public class PriorityList : IDisposable
     }
 
     /// <summary>
+    /// Only allow to use action as Queue-Element to prevent long lasting Observables (e.g. in tick-queue)
+    /// </summary>
+    private bool actionOnly = false;
+
+    /// <summary>
+    /// Keep a list with all PriorityListElements on execution 
+    /// </summary>
+    private bool showExecutingElements = false;
+
+    /// <summary>
     /// The reactive collection of the sorted list, showing all currently running ListElements
     /// </summary>
     private ReactiveCollection<PriorityListElement> executingElements = null;
@@ -81,39 +61,86 @@ public class PriorityList : IDisposable
   //  private Func<IObservable<bool>, IObservable<bool>> executionWrapper = new Func<IObservable<bool>, IObservable<bool>>(rxIn => { return rxIn; });
 
     [Inject]
-    IExecutionWrapper executionWrapper;
+    IReactiveExecutionWrapper executionWrapper;
 
     /// <summary>
     /// The list of all ListElements cached before the list is executed
     /// </summary>
     private List<PriorityListElement> elemCache = new List<PriorityListElement>();
     
-    public void QueueElement(IObservable<bool> call, int priority=Priorities.PRIORITY_DEFAULT) {
+    /// <summary>
+    /// Cache the sorted elemCache
+    /// </summary>
+    private List<PriorityListElement> sortedList = new List<PriorityListElement>();
+
+    /// <summary>
+    /// Caches the priority list's IObservable-Chain
+    /// </summary>
+    private IObservable<bool> rxCurrent = Observable.Return(true);
+
+    /// <summary>
+    /// Did the list change till last process?
+    /// </summary>
+    private bool isDirty = false;
+
+    /// <summary>
+    /// Create prioritylist with optional flag to only allow actions as queue-element and to show the QueueElements 
+    /// </summary>
+    /// <param name="actionOnly"></param>
+    public ReactivePriorityExecutionList(bool showExecutionElements=false, bool actionOnly = false) {
+        this.actionOnly = true;
+    }
+
+    public PriorityListElement QueueElement(IObservable<bool> call, int priority=Priorities.PRIORITY_DEFAULT) {
+        if (actionOnly) {
+            Debug.LogError("You tried to add IObservable queue-element to action-only priority-list (prio:" + priority+") skipping....");
+            return null;
+        }
         // get a priority-list element from the pool
         var priorityListElem = PriorityListElement.Pool.Spawn();
         // set the data
         priorityListElem.call = call;
         priorityListElem.priority = priority;
         elemCache.Add(priorityListElem);
+        isDirty = true;
+        return priorityListElem;
     }
 
-    public void QueueElement(Action call, int priority = Priorities.PRIORITY_DEFAULT) {
+    public PriorityListElement QueueElement(Action call, int priority = Priorities.PRIORITY_DEFAULT) {
         // get a priority-list element from the pool
         var priorityListElem = PriorityListElement.Pool.Spawn();
         // set the data
         priorityListElem.call = executionWrapper.Wrap(call);
         priorityListElem.priority = priority;
         elemCache.Add(priorityListElem);
+        isDirty = true;
+        return priorityListElem;
     }
 
+    /// <summary>
+    /// Create an IObservable thate executes the logic sorted by priorities. Same priority is called parallel( Observable.Merge) and lower priority is <br/>
+    /// executed later (Observable.Concat of Priority-Blocks)
+    /// </summary>
+    /// <returns></returns>
     public IObservable<bool> RxExecute() {
-        var sortedList = elemCache.OrderByDescending(elem => elem.priority).ToList();
-        executingElements = new ReactiveCollection<PriorityListElement>(sortedList);
+        if (!isDirty || rxCurrent==null) {
+            // no changes => nothing to do!
+            return rxCurrent;
+        }
 
-        elemCache.Clear();
+        // process the list
+
+
+        sortedList = elemCache.OrderByDescending(elem => elem.priority).ToList();
+        // let's use the sorted list as next elemCache. (TODO: Not sure about the sort-algorithm, but that might have some inpact)
+        elemCache = new List<PriorityListElement>(sortedList);
+
+        if (showExecutingElements) {
+            executingElements = new ReactiveCollection<PriorityListElement>(elemCache);
+        }
 
         // the last observable of the rx-chain
-        IObservable<bool> currentObservable = null;
+        rxCurrent = null;
 
         // as long as there are elements in the priority list
         while (sortedList.Count>0) {
@@ -128,7 +155,9 @@ public class PriorityList : IDisposable
                 var execution = currentElem.call
                         .Take(1) // exactly one element is expected and accepted.
                         .Select(result => {
-                            executingElements.Remove(currentElem);
+                            if (executingElements != null) {
+                                executingElements.Remove(currentElem);
+                            }
                             return result;
                         }); // remove this element from the execution list
                 currentList.Add(execution);
@@ -136,27 +165,53 @@ public class PriorityList : IDisposable
             }
             
             if (currentList.Count > 0) {
+                // TODO: recognize what executions did not finish properly (returned false)
                 var parallelExecution = Observable.Merge(currentList)
                                                   .Last(); // only propagate element the last element (that means: no matter if the single listElements returned true/false it will go on
                                                   
-                if (currentObservable == null) {
-                    currentObservable = parallelExecution;
+                if (rxCurrent == null) {
+                    rxCurrent = parallelExecution;
                 } else {
                     // start with the new execution once all parallel observables are executed
-                    currentObservable = currentObservable.Concat(parallelExecution);
+                    rxCurrent = rxCurrent.Concat(parallelExecution);
                 }
             }
         }
-
-        return currentObservable;
+        isDirty = false;
+        return rxCurrent.Last().Finally(()=> {
+            if (executingElements != null) {
+                ClearExecutionElements();
+            }
+        });
     }
 
-    public void Clear() {
+    public void RemoveQueueElement(PriorityListElement elem) {
+        elemCache.Remove(elem);
+    }
+
+    
+    private void ClearExecutionElements() {
         if (executingElements != null) {
             executingElements.Clear();
             executingElements.Dispose();
             executingElements = null;
         }
+    }
+
+    /// <summary>
+    /// Clear the list
+    /// </summary>
+    public void Clear() {
+        ClearExecutionElements();
+
+        if (elemCache != null) {
+            foreach (var elem in elemCache) {
+                PriorityListElement.Pool.Despawn(elem);
+            }
+            elemCache.Clear();
+            isDirty = true;
+        }
+
     }
 
     public void Dispose() {
