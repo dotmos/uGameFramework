@@ -12,8 +12,6 @@ namespace Service.GameStateService {
         private Dictionary<string, GameState> gameStates = new Dictionary<string, GameState>();
         public ReactiveProperty<GameState> CurrentGameStateProperty = new ReactiveProperty<GameState>((GameState)null);
 
-
-
         public GameState CurrentGameState {
             get { return CurrentGameStateProperty.Value; }
             private set { CurrentGameStateProperty.Value = value; }
@@ -30,35 +28,25 @@ namespace Service.GameStateService {
             Kernel.Instance.Container.Bind<Service.GameStateService.GameState>().FromMethod(() => {
                 return CurrentGameState;
             });
-
-            try {
-                var cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-                Publish(cmdGetScript);
-                cmdGetScript.result.Globals["GS"] = new API(this);
-            }
-            catch (Exception e) {
-                UnityEngine.Debug.LogError("Error activating default scripting for Service.GameStateService with lua-name: GS");
-                UnityEngine.Debug.LogException(e);
-            }
         }
-
+        /*
         [Inject]
         public void Test() {
             ReactivePriorityExecutionList pl = new ReactivePriorityExecutionList();
 
-            pl.QueueElement(() => { Debug.Log("4"); },Priorities.PRIORITY_LATE);
-            pl.QueueElement(() => { Debug.Log("5"); }, Priorities.PRIORITY_LATE);
-            pl.QueueElement(() => { Debug.Log("6"); }, Priorities.PRIORITY_LATE);
-            pl.QueueElement(() => { Debug.Log("7"); }, Priorities.PRIORITY_LATE);
-            pl.QueueElement(() => { Debug.Log("1"); });
-            pl.QueueElement(() => { Debug.Log("2"); });
-            pl.QueueElement(() => { Debug.Log("3"); });
+            pl.Add(() => { Debug.Log("4"); },Priorities.PRIORITY_LATE);
+            pl.Add(() => { Debug.Log("5"); }, Priorities.PRIORITY_LATE);
+            pl.Add(() => { Debug.Log("6"); }, Priorities.PRIORITY_LATE);
+            pl.Add(() => { Debug.Log("7"); }, Priorities.PRIORITY_LATE);
+            pl.Add(() => { Debug.Log("1"); });
+            pl.Add(() => { Debug.Log("2"); });
+            pl.Add(() => { Debug.Log("3"); });
             pl.RxExecute().Subscribe(evt => {
                 Debug.Log("SUB");
             }, 
                 e => { Debug.LogError("error:" + e); }, () => Debug.Log("COMPLETED"));
             int a = 0;
-        }
+        }*/
 
 
         /*        [Inject]
@@ -139,11 +127,17 @@ namespace Service.GameStateService {
                 // if there is a gamestate already active, first make sure it's onExit-observable is finished
                 startupSequence.Add(oldGameState.DoOnExit());
             }
+            startupSequence.Add(Observable.Return(true).Do(_=> {
+                // make sure the new gamestate is set before OnEnter-calls are executed
+                CurrentGameState = gamestate;
+            }));
             startupSequence.Add(gamestate.DoOnEnter());
 
-            return Observable.Concat(startupSequence).Do(_ => {
-                CurrentGameState = gamestate;
-            });
+            return Observable.Concat(startupSequence);
+        }
+
+        public override IObservable<bool> StopGameState(GameState gamestate) {
+            return gamestate.DoOnExit().Finally( ()=> { CurrentGameState = null; });
         }
     }
 }

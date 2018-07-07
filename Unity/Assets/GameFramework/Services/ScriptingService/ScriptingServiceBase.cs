@@ -13,9 +13,8 @@ using Zenject;
 
 namespace Service.Scripting
 {
-    public abstract class ScriptingServiceBase : IScriptingService, IDisposable
+    public  abstract class ScriptingServiceBase : IScriptingService, IDisposable
     {
-
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
         protected Service.AsyncManager.IAsyncManager _asyncManager;
@@ -37,6 +36,9 @@ namespace Service.Scripting
 
             try {
                 AfterInitialize();
+                Observable.NextFrame().Subscribe(_ => {
+                    InitAPI();
+                });
             }
             catch (Exception e) {
                 UnityEngine.Debug.LogError("Catched exception in Service-AfterInitialize() from service:" + GetType());
@@ -44,6 +46,7 @@ namespace Service.Scripting
             }
         }
 
+        protected abstract void InitAPI();
 
         protected void ActivateDefaultScripting(string name) {
             try {

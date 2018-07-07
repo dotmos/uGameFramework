@@ -45,6 +45,9 @@ namespace Service.GameStateService {
 
 					IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
 
+
+					IObservable<bool> StopGameState(GameState gamestate);
+
 	}
 
 

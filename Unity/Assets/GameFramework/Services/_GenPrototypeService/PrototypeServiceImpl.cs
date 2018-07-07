@@ -4,7 +4,8 @@ using Zenject;
 using UniRx;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
-    class /*name:implName*/PrototypeServiceImpl/*endname*/ : /*name:serviceName*/PrototypeService/*endname*/ {
+/*block:impl*/
+    partial class /*name:implName*/PrototypeServiceImpl/*endname*/ : /*name:serviceName*/PrototypeService/*endname*/ {
 /*block:property*/
 /*name:propAsString*/public override int MaxSoundChannels{get;set;}/*endname*/
 /*endblock:property*/
@@ -26,4 +27,30 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         }
 
     }
+/*endblock:impl*/
+
+/*block:scripting*/
+    partial class /*name:implName*/PrototypeServiceImpl/*endname*/ : /*name:serviceName*/PrototypeService/*endname*/
+    {
+        protected override void InitAPI() {
+            var cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
+            Publish(cmdGetScript);
+            var api = new API(this);
+            Kernel.Instance.Inject(api);
+            cmdGetScript.result.Globals[/*name|dq:scriptName*/"GS"/*endname*/] = api;
+        }
+
+
+        class API
+        {
+            /*name:implName*/PrototypeServiceImpl/*endname*/ instance;
+
+            public API( /*name:implName*/PrototypeServiceImpl/*endname*/ instance) {
+                this.instance = instance;
+            }
+
+            /* add here scripting for this service */
+        }
+    }
+/*endblock:scripting*/
 }

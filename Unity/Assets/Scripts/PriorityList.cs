@@ -91,7 +91,7 @@ public class ReactivePriorityExecutionList : IDisposable
         this.actionOnly = true;
     }
 
-    public PriorityListElement QueueElement(IObservable<bool> call, int priority=Priorities.PRIORITY_DEFAULT) {
+    public PriorityListElement Add(IObservable<bool> call, int priority=Priorities.PRIORITY_DEFAULT) {
         if (actionOnly) {
             Debug.LogError("You tried to add IObservable queue-element to action-only priority-list (prio:" + priority+") skipping....");
             return null;
@@ -106,7 +106,7 @@ public class ReactivePriorityExecutionList : IDisposable
         return priorityListElem;
     }
 
-    public PriorityListElement QueueElement(Action call, int priority = Priorities.PRIORITY_DEFAULT) {
+    public PriorityListElement Add(Action call, int priority = Priorities.PRIORITY_DEFAULT) {
         // get a priority-list element from the pool
         var priorityListElem = PriorityListElement.Pool.Spawn();
         // set the data

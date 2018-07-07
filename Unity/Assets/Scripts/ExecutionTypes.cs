@@ -9,10 +9,11 @@ using Zenject;
 
 public enum ExecutionDomain
 {
+    unknown,
     scripting,
     ui,
     pathfinding,
-    unknown
+    visual
 }
 
 

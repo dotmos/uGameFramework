@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UniRx;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 
@@ -41,6 +42,33 @@ public interface IExecutionWrapper
     void WrapExe(Action input, ExecutionDomain executionType = ExecutionDomain.unknown);
 }
 
+public class UtilsObservable
+{
+    public static IObservable<bool> LoadScene(string sceneName) {
+        return Observable.Create<bool>((observer) => {
+            var async = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+            async.completed += (val) => {
+                observer.OnNext(true);
+                observer.OnCompleted();
+            };
+            return null;
+        });
+    }
+
+    public static IObservable<bool> UnloadScene(string sceneName) {
+        return Observable.Create<bool>((observer) => {
+            int idx = SceneManager.GetSceneByName(sceneName).buildIndex;
+            var async = SceneManager.UnloadSceneAsync(idx);
+            async.completed += (val) => {
+                observer.OnNext(true);
+                observer.OnCompleted();
+            };
+            return null;
+        });
+    }
+
+}
+
 public class DefaultExecutionWrapper : IExecutionWrapper
 {
     public Func<T> Wrap<T>(Func<T> input, ExecutionDomain executionType = ExecutionDomain.unknown) {
@@ -55,6 +83,7 @@ public class DefaultExecutionWrapper : IExecutionWrapper
                 return default(T);
             }
             finally {
+                
                 // TODO STOP TIMER
             }
         });

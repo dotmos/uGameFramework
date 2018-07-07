@@ -172,7 +172,12 @@ namespace Service.GameStateService
 
 
         public GameState(string name) {
+            Kernel.Instance.Inject(this);
             this.GamestateName = name;
+        }
+
+        protected GSContext CreateDefaultContext() {
+            return new GSContext();
         }
 
         /// <summary>
@@ -181,7 +186,7 @@ namespace Service.GameStateService
         /// </summary>
         /// <returns></returns>
         public IObservable<bool> DoOnEnter(GSContext ctx=null) {
-            this.currentContext = ctx;
+            this.currentContext = ctx==null ? CreateDefaultContext() : ctx;
 
             CurrentState = GSStatus.starting;
 
@@ -227,6 +232,8 @@ namespace Service.GameStateService
                 tickDisposable.Dispose();
                 tickDisposable = null;
             }
+            // clear the ticklist
+            OnTick.Clear();
 
             // start the OnExit-Process
             return OnExit.RxExecute().Finally(() => {

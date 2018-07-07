@@ -11,9 +11,8 @@ using Zenject;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
 {
-    public abstract class /*name:serviceName*/PrototypeService/*endname*/ : /*name:interfaceName*/IPrototypeService/*endname*/, IDisposable
+    public  abstract class /*name:serviceName*/PrototypeService/*endname*/ : /*name:interfaceName*/IPrototypeService/*endname*/, IDisposable
     {
-
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
         protected Service.AsyncManager.IAsyncManager _asyncManager;
@@ -35,6 +34,9 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
 
             try {
                 AfterInitialize();
+                Observable.NextFrame().Subscribe(_ => {
+                    InitAPI();
+                });
             }
             catch (Exception e) {
                 UnityEngine.Debug.LogError("Catched exception in Service-AfterInitialize() from service:" + GetType());
@@ -42,6 +44,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
             }
         }
 
+        protected abstract void InitAPI();
 
         protected void ActivateDefaultScripting(string name) {
             try {

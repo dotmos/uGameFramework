@@ -9,7 +9,7 @@ using MoonSharp.Interpreter.Interop;
 using System.IO;
 
 namespace Service.Scripting {
-    class ScriptingServiceImpl : ScriptingServiceBase {
+    partial class ScriptingServiceImpl : ScriptingServiceBase {
 
         private Script mainScript;
         private ScriptingConsoleComponent scriptingComponent;

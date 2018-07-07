@@ -9,7 +9,7 @@ using System.IO;
 using Service.Scripting;
 
 namespace Service.FileSystem {
-    class FileSystemServiceImpl : FileSystemServiceBase {
+    partial class FileSystemServiceImpl : FileSystemServiceBase {
 
         public readonly string MISC_PATH = Application.persistentDataPath + "/default";
 
