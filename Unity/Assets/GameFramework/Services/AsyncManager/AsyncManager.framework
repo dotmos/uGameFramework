@@ -6,7 +6,7 @@ namespace Service.AsyncManager {
 		("AsyncFuture") AddToWorkerThread(("Action") act,("Action") onFinished,bool global=False);
 		("AsyncFuture") Call(("Action") act,bool usingCoroutine,bool global=False);
 		void DisposeThreads(bool onlyNonGlobals=False);  
-	} 
+	}   
 }
 
 

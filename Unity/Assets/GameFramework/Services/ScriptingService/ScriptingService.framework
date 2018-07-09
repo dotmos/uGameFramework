@@ -13,6 +13,8 @@ namespace Service.Scripting {
 		string ExecuteStringOnMainScript(string luaCode);
 		## "Load a script into the default lua-context" 
 		string ExecuteFileToMainScript(string fileName);  
+		## "Generates a list of possible proposals"
+		("Proposal") AutocompleteProposals(string currentInput,int cursorPos);
     }  
 }      
 ## events 

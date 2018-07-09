@@ -29,6 +29,8 @@ namespace Service.FileSystem {
             }
 
             /* add here scripting for this service */
+            public const string DEFAULT = "TOM";
+
         }
     }
 

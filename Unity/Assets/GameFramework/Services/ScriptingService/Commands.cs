@@ -36,6 +36,8 @@ namespace Service.Scripting{
 
             this.OnEvent<ExecuteFileToMainScriptCommand>().Subscribe(e => ExecuteFileToMainScriptCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<AutocompleteProposalsCommand>().Subscribe(e => AutocompleteProposalsCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -206,6 +208,33 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("ExecuteFileToMainScriptCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Generates a list of possible proposals
+        /// </summary>
+        
+        public class AutocompleteProposalsCommand {
+            public Proposal result;
+                        public string currentInput;
+                        public int cursorPos;
+            
+            
+        }
+
+		protected void AutocompleteProposalsCommandHandler(AutocompleteProposalsCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("AutocompleteProposalsCommand");
+#endif
+            
+            cmd.result = _service.AutocompleteProposals(cmd.currentInput,cmd.cursorPos);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("AutocompleteProposalsCommand");
 #endif
         }
         

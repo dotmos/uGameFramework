@@ -53,6 +53,13 @@ public class ScriptingConsoleComponent : GameComponent {
         consoleInput.onEndEdit.AddListener(ProcessInput);
         Observable.EveryUpdate().Subscribe(_ => {
             if (consoleInput.isFocused) {
+                if (Input.GetKeyDown(KeyCode.LeftControl)) {
+                    consoleInput.readOnly = true;
+                }
+                else if (Input.GetKeyUp(KeyCode.LeftControl)) {
+                    consoleInput.readOnly = false;
+                }
+
                 if (Input.GetKeyDown(KeyCode.UpArrow)) {
                     if (historyID + 1 < history.Count) {
                         historyID++;
@@ -65,9 +72,27 @@ public class ScriptingConsoleComponent : GameComponent {
                         historyID = 0;
                     }
                     consoleInput.text = history[historyID];
-                }
-                else if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Space)) {
-                    Debug.Log("SCRIPTING AUTOCOMPLETE");
+                } else if (Input.GetKeyDown(KeyCode.Space) && Input.GetKey(KeyCode.LeftControl)) {
+                    var proposal = scripting.AutocompleteProposals(GetCurrentText(),consoleInput.caretPosition);
+
+                    if (proposal == null || proposal.proposalElements==null) {
+                        // no proposals
+                        return;
+                    }
+                    var proposals = proposal.proposalElements;
+
+                    if (proposals.Count == 1) {
+                        string beginning = consoleInput.text.Substring(0, proposal.replaceStringStart);
+                        string end = consoleInput.text.Substring(proposal.replaceStringEnd,consoleInput.text.Length-proposal.replaceStringEnd);
+                        consoleInput.text = beginning+proposals[0].full+end;
+                        consoleInput.caretPosition = proposal.replaceStringStart+proposals[0].full.Length;
+                    }
+                    else if (proposals.Count > 1) {
+                        AddToText(">> " + proposals
+                                            .Select(elem=>elem.simple)
+                                            .Aggregate((i, j) => i + " " + j));
+                    }
+
                 }
             }
         }).AddTo(this);
@@ -87,14 +112,18 @@ public class ScriptingConsoleComponent : GameComponent {
         var cmdGetMainScript = new Service.Scripting.Commands.GetMainScriptCommand();
         Publish(cmdGetMainScript);
         cmdGetMainScript.result.Options.DebugPrint = (inputString) => {
-            addToText(inputString);
+            AddToText(inputString);
         };
     }
 
-    private void addToText(string txt) {
+    public void AddToText(string txt) {
         currentViewText += txt + "\n";
         consoleText.text = currentViewText;
     }
+
+    public string GetCurrentText() {
+        return consoleInput.text;
+    } 
 
     protected override void OnDispose() {
         base.OnDispose();
@@ -103,7 +132,7 @@ public class ScriptingConsoleComponent : GameComponent {
 
     public void ProcessInput(string input) {
         if (input.ToLower() == "help") {
-            addToText("help\ncommands: close,save [relative filename],... plus service-commands");
+            AddToText("help\ncommands: close,save [relative filename],... plus service-commands");
             // TODO: Make this better
         } else if (input.ToLower() == "clear") {
             currentViewText = "";
@@ -114,23 +143,23 @@ public class ScriptingConsoleComponent : GameComponent {
             // save current history to file
             var splits = input.Split(' ');
             if (splits.Length < 2) {
-                addToText("'save' needs a path (relative to the scripting folder)\ne.g.: save test.lua");
+                AddToText("'save' needs a path (relative to the scripting folder)\ne.g.: save test.lua");
             } else {
                 // save the history
                 string path = splits[1];
                 if (path.StartsWith("/") || path.StartsWith("\\")) {
-                    addToText("Warning: Using absolute path not allowed!! files are saved relative to scripting folder:" + scriptingPath);
+                    AddToText("Warning: Using absolute path not allowed!! files are saved relative to scripting folder:" + scriptingPath);
                     path = path.Substring(1);
                 }
                 
                 filesystem.WriteStringToFile(scriptingPath+"/"+path, history.Aggregate((i, j) => j + " \n" + i));
-                addToText("saved\n");
+                AddToText("saved\n");
             }
         } else if (input.ToLower().StartsWith("load")) {
             // save current history to file
             var splits = input.Split(' ');
             if (splits.Length < 2) {
-                addToText("'load' needs a path (relative to the scripting folder)\ne.g.: load test.lua");
+                AddToText("'load' needs a path (relative to the scripting folder)\ne.g.: load test.lua");
             } else {
                 // save the history
                 string path = splits[1];
@@ -139,9 +168,9 @@ public class ScriptingConsoleComponent : GameComponent {
                 }
                 var result = scripting.ExecuteFileToMainScript(scriptingPath+"/"+path);
                 if (result != "void") {
-                    addToText(result);
+                    AddToText(result);
                 } else {
-                    addToText("\nloaded");
+                    AddToText("\nloaded");
                 }
             }
         } else if (input.ToLower().StartsWith("dir")) {
@@ -153,16 +182,16 @@ public class ScriptingConsoleComponent : GameComponent {
 
             try {
                 if (!Directory.Exists(filePath)) {
-                    addToText("Directory " + path + " does not exist");
+                    AddToText("Directory " + path + " does not exist");
                 } else {
                     var dir = Directory.GetFiles(filePath);
 
-                    addToText("Directory:" + (path == "" ? "/" : path));
+                    AddToText("Directory:" + (path == "" ? "/" : path));
                     if (dir.Length == 0) {
-                        addToText("NO FILES (in folder"+filePath+")");
+                        AddToText("NO FILES (in folder"+filePath+")");
                     } else {
                         foreach (var entry in dir) {
-                            addToText(entry.Replace(scriptingPath,"").Substring(1) );
+                            AddToText(entry.Replace(scriptingPath,"").Substring(1) );
                         }
                     }
                 }

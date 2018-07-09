@@ -121,6 +121,8 @@ namespace Service.Scripting
         
         public abstract string ExecuteFileToMainScript(string fileName);
         
+        public abstract Proposal AutocompleteProposals(string currentInput,int cursorPos);
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

@@ -50,6 +50,16 @@ namespace Service.Scripting {
 
 					string ExecuteFileToMainScript(string fileName);
 
+
+		/// <summary>
+        /// Generates a list of possible proposals 
+        /// <param name="currentInput"></param>
+        /// <param name="cursorPos"></param>
+ /// </summary>
+        
+
+					Proposal AutocompleteProposals(string currentInput,int cursorPos);
+
 	}
 
 

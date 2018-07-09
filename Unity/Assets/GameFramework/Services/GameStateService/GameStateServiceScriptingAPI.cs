@@ -29,6 +29,29 @@ namespace Service.GameStateService {
             }
 
             /* add here scripting for this service */
+            public List<string> GetGamestates() {
+                return new List<string>(instance.gameStates.Keys);
+            }
+
+            public void StartGamestate(string name) {
+                try {
+                    var gs = instance.gameStates[name];
+                    instance.StartGameState(gs).Subscribe(_ => { }).AddTo(gs.gamestateDisposable);
+                }
+                catch (Exception e) {
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+
+            public void StopGamestate(string name) {
+                try {
+                    var gs = instance.gameStates[name];
+                    instance.StopGameState(gs).Subscribe(_ => { }).AddTo(gs.gamestateDisposable);
+                }
+                catch (Exception e) {
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
         }
     }
 
