@@ -23,6 +23,15 @@ public class ScriptingConsoleComponent : GameComponent {
 
     private string scriptingPath = null;
 
+    public ReactiveProperty<bool> consoleEnabledPropery = new ReactiveProperty<bool>(false);
+    /// <summary>
+    /// Is the gameconsole enabled?
+    /// </summary>
+    public bool ConsoleEnabled {
+        get { return consoleEnabledPropery.Value; }
+        set { consoleEnabledPropery.Value = value; }
+    }
+
     [Inject]
     IFileSystemService filesystem;
     [Inject]
@@ -43,21 +52,37 @@ public class ScriptingConsoleComponent : GameComponent {
 
         consoleInput.onEndEdit.AddListener(ProcessInput);
         Observable.EveryUpdate().Subscribe(_ => {
-            if(consoleInput.isFocused && Input.GetKeyDown(KeyCode.UpArrow)){
-                if (historyID+1 < history.Count) {
-                    historyID++;
+            if (consoleInput.isFocused) {
+                if (Input.GetKeyDown(KeyCode.UpArrow)) {
+                    if (historyID + 1 < history.Count) {
+                        historyID++;
+                    }
+                    consoleInput.text = history[historyID];
+                } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
+                    if (historyID > 0) {
+                        historyID--;
+                    } else if (historyID < 0) {
+                        historyID = 0;
+                    }
+                    consoleInput.text = history[historyID];
                 }
-                consoleInput.text = history[historyID];
-            } 
-            else if (consoleInput.isFocused && Input.GetKeyDown(KeyCode.DownArrow)) {
-                if (historyID > 0) {
-                    historyID--;
-                } else if (historyID < 0) {
-                    historyID = 0;
+                else if (Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Space)) {
+                    Debug.Log("SCRIPTING AUTOCOMPLETE");
                 }
-                consoleInput.text = history[historyID];
             }
         }).AddTo(this);
+
+        consoleEnabledPropery
+            .DistinctUntilChanged()
+            .Subscribe(enabled => {
+                if (enabled) {
+                    gameObject.SetActive(true);
+                    consoleInput.ActivateInputField();
+                } else {
+                    gameObject.SetActive(false);
+                }
+            })
+            .AddTo(this);
 
         var cmdGetMainScript = new Service.Scripting.Commands.GetMainScriptCommand();
         Publish(cmdGetMainScript);
