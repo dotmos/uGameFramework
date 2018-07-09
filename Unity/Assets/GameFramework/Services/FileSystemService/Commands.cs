@@ -33,7 +33,7 @@ namespace Service.FileSystem{
 
         
         /// <summary>
-        /// 
+        /// Get path as string for given domain
         /// </summary>
         
         public class GetPathCommand {
@@ -59,7 +59,7 @@ namespace Service.FileSystem{
 
         
         /// <summary>
-        /// 
+        /// Write string to file
         /// </summary>
         
         public class WriteStringToFileCommand {
@@ -86,7 +86,7 @@ namespace Service.FileSystem{
 
         
         /// <summary>
-        /// 
+        /// Load file as string
         /// </summary>
         
         public class LoadFileAsStringCommand {

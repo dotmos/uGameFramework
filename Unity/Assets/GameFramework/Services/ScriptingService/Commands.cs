@@ -160,7 +160,7 @@ namespace Service.Scripting{
 
         
         /// <summary>
-        /// 
+        /// Execute a string into the default-lua-context
         /// </summary>
         
         public class ExecuteStringOnMainScriptCommand {
@@ -186,7 +186,7 @@ namespace Service.Scripting{
 
         
         /// <summary>
-        /// 
+        /// Load a script into the default lua-context
         /// </summary>
         
         public class ExecuteFileToMainScriptCommand {
