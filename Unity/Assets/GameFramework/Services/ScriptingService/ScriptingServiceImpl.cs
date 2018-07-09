@@ -14,6 +14,10 @@ namespace Service.Scripting {
         private Script mainScript;
         private ScriptingConsoleComponent scriptingComponent;
 
+        /// <summary>
+        /// Is the gameconsole enabled?
+        /// </summary>
+
         protected override void AfterInitialize() {
             try {
                 // make all datatypes available
@@ -81,20 +85,19 @@ namespace Service.Scripting {
             if (scriptingComponent == null) {
                 var prefab = UnityEngine.Resources.Load("ScriptingConsole");
                 scriptingComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<ScriptingConsoleComponent>();
-            } else {
-                scriptingComponent.gameObject.SetActive(true);
-            }
+            } 
+            scriptingComponent.ConsoleEnabled = true;
         }
 
 		public override void CloseScriptingConsole() {
             if (scriptingComponent == null) {
                 return;
             }
-            scriptingComponent.gameObject.SetActive(false);
+            scriptingComponent.ConsoleEnabled = false;
         }
 
         public override void ToggleScriptingConsole() {
-            if (scriptingComponent==null || !scriptingComponent.gameObject.activeSelf) {
+            if (scriptingComponent==null || !scriptingComponent.ConsoleEnabled)  {
                 OpenScriptingConsole();
             } else {
                 CloseScriptingConsole();
@@ -106,7 +109,7 @@ namespace Service.Scripting {
         }
 
         public override bool IsScriptingConsoleVisible() {
-            return scriptingComponent.gameObject.activeSelf;
+            return scriptingComponent.ConsoleEnabled;
         }
 
 
