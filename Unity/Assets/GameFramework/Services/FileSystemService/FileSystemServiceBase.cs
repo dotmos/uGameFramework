@@ -13,9 +13,8 @@ using Zenject;
 
 namespace Service.FileSystem
 {
-    public abstract class FileSystemServiceBase : IFileSystemService, IDisposable
+    public  abstract class FileSystemServiceBase : IFileSystemService, IDisposable
     {
-
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
         protected Service.AsyncManager.IAsyncManager _asyncManager;
@@ -37,6 +36,9 @@ namespace Service.FileSystem
 
             try {
                 AfterInitialize();
+                Observable.NextFrame().Subscribe(_ => {
+                    InitAPI();
+                });
             }
             catch (Exception e) {
                 UnityEngine.Debug.LogError("Catched exception in Service-AfterInitialize() from service:" + GetType());
@@ -44,6 +46,7 @@ namespace Service.FileSystem
             }
         }
 
+        protected abstract void InitAPI();
 
         protected void ActivateDefaultScripting(string name) {
             try {

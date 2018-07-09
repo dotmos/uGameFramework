@@ -28,6 +28,8 @@ namespace Service.GameStateService{
 
             this.OnEvent<StartGameStateCommand>().Subscribe(e => StartGameStateCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<StopGameStateCommand>().Subscribe(e => StopGameStateCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -106,6 +108,32 @@ namespace Service.GameStateService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("StartGameStateCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class StopGameStateCommand {
+            public IObservable<bool> result;
+                        public GameState gamestate;
+            
+            
+        }
+
+		protected void StopGameStateCommandHandler(StopGameStateCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("StopGameStateCommand");
+#endif
+            
+            cmd.result = _service.StopGameState(cmd.gamestate);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("StopGameStateCommand");
 #endif
         }
         

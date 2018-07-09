@@ -10,10 +10,10 @@ namespace Service.FileSystem {
 		bool WriteStringToFile(string pathToFile,string data); 
 		## "Load file as string"
 		string LoadFileAsString(string pathToFile);
-    }  
-}  
+    }      
+}     
 ## model
-
+ 
 public enum FSDomain {
 	ScriptingOutput
 }  

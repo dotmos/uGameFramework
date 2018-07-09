@@ -33,7 +33,7 @@ namespace Service.AsyncManager {
         public Action action = null; 
     }
 
-    class AsyncManagerImpl : AsyncManagerBase {
+    partial class AsyncManagerImpl : AsyncManagerBase {
 
         // flag to be set so that the workerthread know when to remove all not global actions
         protected bool workerThreadRemoveNotGlobalActions = false;

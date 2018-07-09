@@ -13,9 +13,8 @@ using Zenject;
 
 namespace Service.GameStateService
 {
-    public abstract class GameStateServiceBase : IGameStateService, IDisposable
+    public  abstract class GameStateServiceBase : IGameStateService, IDisposable
     {
-
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
         protected Service.AsyncManager.IAsyncManager _asyncManager;
@@ -37,6 +36,9 @@ namespace Service.GameStateService
 
             try {
                 AfterInitialize();
+                Observable.NextFrame().Subscribe(_ => {
+                    InitAPI();
+                });
             }
             catch (Exception e) {
                 UnityEngine.Debug.LogError("Catched exception in Service-AfterInitialize() from service:" + GetType());
@@ -44,6 +46,7 @@ namespace Service.GameStateService
             }
         }
 
+        protected abstract void InitAPI();
 
         protected void ActivateDefaultScripting(string name) {
             try {
@@ -109,6 +112,8 @@ namespace Service.GameStateService
         public abstract GameState GetCurrentGameState();
         
         public abstract IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
+        
+        public abstract IObservable<bool> StopGameState(GameState gamestate);
         
     }
 }
