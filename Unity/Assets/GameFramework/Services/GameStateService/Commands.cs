@@ -33,7 +33,7 @@ namespace Service.GameStateService{
 
         
         /// <summary>
-        /// Register gamestate with its name. Optionally you can pass an overriden GameState-Classtype of your own
+        /// 
         /// </summary>
         
         public class RegisterGameStateCommand {
@@ -60,7 +60,7 @@ namespace Service.GameStateService{
 
         
         /// <summary>
-        /// Get the current gamestate. Alternatively use "[Inject] GameState current;"
+        /// 
         /// </summary>
         
         public class GetCurrentGameStateCommand {
@@ -85,7 +85,7 @@ namespace Service.GameStateService{
 
         
         /// <summary>
-        /// Start a new gamestate after stopping the current one (if present). Optionally pass a context in which you can e.g. set gamestate-flags
+        /// 
         /// </summary>
         
         public class StartGameStateCommand {
