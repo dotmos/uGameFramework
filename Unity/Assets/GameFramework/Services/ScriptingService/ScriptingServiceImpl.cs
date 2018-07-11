@@ -80,9 +80,34 @@ namespace Service.Scripting {
             if (userdata.Descriptor is StandardUserDataDescriptor) {
                 var dscr = (StandardUserDataDescriptor)userdata.Descriptor;
 
-                result.AddRange(dscr.MemberNames);
+                foreach (var member in dscr.Members) {
+                    var memberResult = member.Key;
+
+                    // is Method?
+                    if (member.Value is OverloadedMethodMemberDescriptor) {
+                        var declaringType = (member.Value as OverloadedMethodMemberDescriptor).DeclaringType;
+
+                        var m1 = declaringType.GetMethod(member.Key);
+
+                        if (m1 == null) {
+                            result.Add(memberResult);
+                            continue;
+                        }
+                        var methodparams = m1.GetParameters();
+
+                        memberResult += "(";
+                        foreach (var param in methodparams) {
+                            if (memberResult[memberResult.Length - 1] != '(') {
+                                memberResult += ",";
+                            }
+                            memberResult += param.Name;
+                        }
+                        memberResult += ")";
+                    }
+                    result.Add(memberResult);
+                }
             } else {
-                Debug.LogWarning("Propsal from Userdata cannot process UserData-Descriptor-Type:" + userdata.Descriptor.GetType().ToString());
+                Debug.LogWarning("Proposal from Userdata cannot process UserData-Descriptor-Type:" + userdata.Descriptor.GetType().ToString());
             }
 
             return result;
@@ -97,11 +122,23 @@ namespace Service.Scripting {
         /// <returns></returns>
         private void CurrentWordOnCursor(string all,out string firstPart,out string secondPart,int cursorPos,ref int start,ref int endPos) {
             endPos = cursorPos;
-            // TODO: Regular expression?
+            // TODO: Make all this process in Regular expression? Not sure how this special case could be mapped to a regex
+
+            if (all.Length == 0) {
+                // nothing to do
+                start = 0;
+                endPos = 0;
+                firstPart = "";
+                secondPart = "";
+                return;
+            }
+
+
             string first = "";
             string second = "";
+
             bool checkFirst = true;
-            while (all[cursorPos]!='.' && cursorPos>=0) {
+            while (cursorPos >= 0 && all[cursorPos]!='.') {
                 if (delimiters.Contains(all[cursorPos])) {
                     // found end => there is not firstpart
                     checkFirst = false; // since we already hit a delimiter, we can stop word processing
@@ -112,7 +149,7 @@ namespace Service.Scripting {
             }
             if (checkFirst) {
                 cursorPos--;
-                while (!delimiters.Contains(all[cursorPos]) && cursorPos >= 0) {
+                while (cursorPos >= 0 && !delimiters.Contains(all[cursorPos])) {
                     first = all[cursorPos] + first;
                     cursorPos--;
                 }
@@ -156,6 +193,10 @@ namespace Service.Scripting {
             } else {
                 // check root-global
                 currentProposals = mainScript.Globals.Keys.Select(val=>val.String).ToList();
+                foreach (var key in mainScript.Globals.Keys) {
+                    var val = mainScript.Globals[key];
+                    int a = 0;
+                }
             }
 
             if (currentProposals == null) {
@@ -166,8 +207,8 @@ namespace Service.Scripting {
                            .Select(elem => new ProposalElement() { simple = elem, full = (currentObjectPath==""?elem:currentObjectPath + "." + elem) })
                            .ToList();
 
-            result.replaceStringStart = from;
-            result.replaceStringEnd = to;
+            result.replaceStringStart = Math.Max(0,from);
+            result.replaceStringEnd = Math.Min(currentInput.Length,to);
             return result;
         }
 
