@@ -60,6 +60,15 @@ namespace Service.Scripting {
 
 					Proposal AutocompleteProposals(string currentInput,int cursorPos);
 
+
+		/// <summary>
+        /// Output to console 
+        /// <param name="text"></param>
+ /// </summary>
+        
+
+					void WriteToScriptingConsole(string text);
+
 	}
 
 

@@ -38,6 +38,8 @@ namespace Service.Scripting{
 
             this.OnEvent<AutocompleteProposalsCommand>().Subscribe(e => AutocompleteProposalsCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<WriteToScriptingConsoleCommand>().Subscribe(e => WriteToScriptingConsoleCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -235,6 +237,30 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("AutocompleteProposalsCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Output to console
+        /// </summary>
+        
+        public class WriteToScriptingConsoleCommand {
+            public string text;
+            
+            
+        }
+
+		protected void WriteToScriptingConsoleCommandHandler(WriteToScriptingConsoleCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("WriteToScriptingConsoleCommand");
+#endif
+            _service.WriteToScriptingConsole(cmd.text);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("WriteToScriptingConsoleCommand");
 #endif
         }
         

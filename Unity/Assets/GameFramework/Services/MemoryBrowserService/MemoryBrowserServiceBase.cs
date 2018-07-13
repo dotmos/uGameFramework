@@ -11,9 +11,9 @@ using MoonSharp.Interpreter;
 using UniRx;
 using Zenject;
 
-namespace Service.Scripting
+namespace Service.MemoryBrowserService
 {
-    public  abstract class ScriptingServiceBase : IScriptingService, IDisposable
+    public  abstract class MemoryBrowserServiceBase : IMemoryBrowserService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
@@ -55,7 +55,7 @@ namespace Service.Scripting
                 cmdGetScript.result.Globals[name] = this;
             }
             catch (Exception e) {
-                UnityEngine.Debug.LogError("Error activating default scripting for Service.Scripting with lua-name:" + name);
+                UnityEngine.Debug.LogError("Error activating default scripting for Service.MemoryBrowserService with lua-name:" + name);
                 UnityEngine.Debug.LogException(e);
             }
         }
@@ -107,23 +107,11 @@ namespace Service.Scripting
 
         
                                                           
-        public abstract void OpenScriptingConsole();
+        public abstract bool IsSimpleType(object obj);
         
-        public abstract void CloseScriptingConsole();
+        public abstract MemoryBrowser CreateMemoryBrowser(string id,object root);
         
-        public abstract void ToggleScriptingConsole();
-        
-        public abstract Script GetMainScript();
-        
-        public abstract bool IsScriptingConsoleVisible();
-        
-        public abstract string ExecuteStringOnMainScript(string luaCode);
-        
-        public abstract string ExecuteFileToMainScript(string fileName);
-        
-        public abstract Proposal AutocompleteProposals(string currentInput,int cursorPos);
-        
-        public abstract void WriteToScriptingConsole(string text);
+        public abstract MemoryBrowser GetBrowser(string id);
         
     }
 }

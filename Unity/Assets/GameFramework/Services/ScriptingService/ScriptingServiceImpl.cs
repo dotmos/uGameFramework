@@ -14,7 +14,7 @@ namespace Service.Scripting {
 
         private Script mainScript;
         private ScriptingConsoleComponent scriptingComponent;
-        private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';'};
+        private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' '};
 
         /// <summary>
         /// Is the gameconsole enabled?
@@ -87,22 +87,28 @@ namespace Service.Scripting {
                     if (member.Value is OverloadedMethodMemberDescriptor) {
                         var declaringType = (member.Value as OverloadedMethodMemberDescriptor).DeclaringType;
 
-                        var m1 = declaringType.GetMethod(member.Key);
+                        try {
+                            var m1 = declaringType.GetMethod(member.Key);
 
-                        if (m1 == null) {
-                            result.Add(memberResult);
-                            continue;
-                        }
-                        var methodparams = m1.GetParameters();
-
-                        memberResult += "(";
-                        foreach (var param in methodparams) {
-                            if (memberResult[memberResult.Length - 1] != '(') {
-                                memberResult += ",";
+                            if (m1 == null) {
+                                result.Add(memberResult);
+                                continue;
                             }
-                            memberResult += param.Name;
+                            var methodparams = m1.GetParameters();
+
+                            memberResult += "(";
+                            foreach (var param in methodparams) {
+                                if (memberResult[memberResult.Length - 1] != '(') {
+                                    memberResult += ",";
+                                }
+                                memberResult += param.Name;
+                            }
+                            memberResult += ")";
                         }
-                        memberResult += ")";
+                        catch (Exception e) {
+                            Debug.LogWarning("Problem is processing userdata/members with memberName:" + member.Key);
+                            Debug.LogException(e);
+                        }
                     }
                     result.Add(memberResult);
                 }
@@ -204,6 +210,7 @@ namespace Service.Scripting {
             }
 
             result.proposalElements = currentProposals.FindAll(prop => lastInputPart.Length == 0 || prop.StartsWith(lastInputPart))
+                           .Where(elem=>!elem.StartsWith("__new") && !elem.StartsWith("ToString") && !elem.StartsWith("Dispose") && !elem.StartsWith("Equals") && !elem.StartsWith("GetHashCode") && !elem.StartsWith("GetType") )
                            .Select(elem => new ProposalElement() { simple = elem, full = (currentObjectPath==""?elem:currentObjectPath + "." + elem) })
                            .ToList();
 
@@ -269,6 +276,13 @@ namespace Service.Scripting {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
 
+        public override void WriteToScriptingConsole(string text) {
+            if (scriptingComponent == null) {
+                var prefab = UnityEngine.Resources.Load("ScriptingConsole");
+                scriptingComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<ScriptingConsoleComponent>();
+            }
+            scriptingComponent.AddToText(text);
+        }
     }
 
     public class Proposal

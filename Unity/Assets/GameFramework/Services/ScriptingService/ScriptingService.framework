@@ -15,6 +15,8 @@ namespace Service.Scripting {
 		string ExecuteFileToMainScript(string fileName);  
 		## "Generates a list of possible proposals"
 		("Proposal") AutocompleteProposals(string currentInput,int cursorPos);
+		## "Output to console"
+		void WriteToScriptingConsole(string text);
     }  
 }      
 ## events 

@@ -34,6 +34,9 @@ public class ServiceInstaller : MonoInstaller {
         //GameStateService
         Service.GameStateService.ServiceInstaller.Install(Container);
 
+        //MemoryBrowser
+        Service.MemoryBrowserService.ServiceInstaller.Install(Container);
+
         /*        //Local Storage
                 Service.LocalStorage.ServiceInstaller.Install(Container);
 

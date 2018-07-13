@@ -1,0 +1,21 @@
+## service start
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+
+namespace Service.MemoryBrowserService {
+    public interface IMemoryBrowserService {
+    	bool IsSimpleType(object obj);
+    	("MemoryBrowser") CreateMemoryBrowser(string id,object root);  	
+		("MemoryBrowser") GetBrowser(string id);
+    }  
+}      
+## model
+
+public class Watch{
+	public string name;
+	public object value;
+}
+
+## events 
+  
+## service end

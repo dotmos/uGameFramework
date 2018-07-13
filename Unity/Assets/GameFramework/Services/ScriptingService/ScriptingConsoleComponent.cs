@@ -61,17 +61,25 @@ public class ScriptingConsoleComponent : GameComponent {
                 }
 
                 if (Input.GetKeyDown(KeyCode.UpArrow)) {
+                    if (history.Count == 0) {
+                        return;
+                    }
+
                     if (historyID + 1 < history.Count) {
                         historyID++;
                     }
                     consoleInput.text = history[historyID];
                 } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
+                    if (history.Count == 0) {
+                        return;
+                    }
                     if (historyID > 0) {
                         historyID--;
+                        consoleInput.text = history[historyID];
                     } else if (historyID < 0) {
                         historyID = 0;
+                        consoleInput.text = "";
                     }
-                    consoleInput.text = history[historyID];
                 } else if (Input.GetKeyDown(KeyCode.Space) && Input.GetKey(KeyCode.LeftControl)) {
                     var proposal = scripting.AutocompleteProposals(GetCurrentText(),consoleInput.caretPosition);
 
@@ -88,9 +96,11 @@ public class ScriptingConsoleComponent : GameComponent {
                         consoleInput.caretPosition = proposal.replaceStringStart+proposals[0].full.Length;
                     }
                     else if (proposals.Count > 1) {
-                        AddToText(">> " + proposals
+                        // if there more than 5 proposals show them side by side and if 5 or less show them one per line
+                        var connector = proposals.Count > 8 ? " " : "\n >> ";
+                        AddToText(GetCurrentText()+"\n >> " + proposals
                                             .Select(elem=>elem.simple)
-                                            .Aggregate((i, j) => i + " " + j));
+                                            .Aggregate((i, j) => i + connector + j));
                     }
 
                 }
@@ -213,5 +223,8 @@ public class ScriptingConsoleComponent : GameComponent {
         history.Insert(0, input);
         consoleInput.ActivateInputField();
         consoleInput.text = "";
+        // always be at the end of the history after execution
+        historyID = 0;
+
     }
 }
