@@ -17,6 +17,8 @@ namespace Service.Scripting {
 		("Proposal") AutocompleteProposals(string currentInput,int cursorPos);
 		## "Output to console"
 		void WriteToScriptingConsole(string text);
+		
+		//T GetComponent<T>(UID entity) where T : IComponent
     }  
 }      
 ## events 

@@ -20,7 +20,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
         void Initialize([Inject] /*name:interfaceName*/IPrototypeService/*endname*/ service) {
             _service = service;
             /*block:eventBinding*/
-            this.OnEvent</*name:methodCommand*/DoPrototypeCommand/*endname*/>().Subscribe(e => /*name:methodCommandHandler*/DoPrototypeCommandHandler/*endname*/(e)).AddTo(this);
+            this.OnEvent</*name:methodCommand*/DoPrototypeCommand/*endname*//*name:genericOnEvent*//*endname*/>().Subscribe(e => /*name:methodCommandHandler*/DoPrototypeCommandHandler/*endname*/(e)).AddTo(this);
 /*endblock:eventBinding*/
         }
         /*block:command*/
@@ -30,7 +30,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
         /// /*name:documentation*//*endname*/
         /// </summary>
         
-        public class /*name:methodCommand*/DoPrototypeCommand/*endname*/ {
+        public class /*name:methodCommand*/DoPrototypeCommand/*endname*/ /*name:genInput*//*endname*/ {
 /*block:commandParameter*/            public /*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*//*endname*/;
             /*endblock:commandParameter*/
             /*block:rip*/
@@ -39,13 +39,13 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/{
 /*endblock:rip*/
         }
 /*endblock:clazz*/
-		protected void /*name:methodCommandHandler*/DoPrototypeCommandHandler/*endname*/(/*name:methodCommand*/DoPrototypeCommand/*endname*/ cmd) {
+		protected void /*name:methodCommandHandler*/DoPrototypeCommandHandler/*endname*/ /*block:genericDefinition*//*name:genInput*//*endname*//*endblock:genericDefinition*/ (/*name:methodCommand*/DoPrototypeCommand/*endname*//*name:genInput*//*endname*/ cmd)/*block:genericRestriction*//*name:genericRestrictionInput*//*endname*//*endblock:genericRestriction*/ {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start(/*name|dq:methodCommand*/"DoPrototypeCommand"/*endname*/);
 #endif
-            /*block:result*/
-            cmd.result = /*endblock:result*/_service./*name:methodName*/DoPrototype/*endname*/(/*block:handlerParameter*//*name:comma*//*endname*/cmd./*name:name*/settings/*endname*//*endblock:handlerParameter*/);
+        /*block:result*/
+            cmd.result = /*endblock:result*/_service./*name:methodName*/DoPrototype/*endname*//*name:genInput*//*endname*/(/*block:handlerParameter*//*name:comma*//*endname*/cmd./*name:name*/settings/*endname*//*endblock:handlerParameter*/);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop(/*name|dq:methodCommand*/"DoPrototypeCommand"/*endname*/);

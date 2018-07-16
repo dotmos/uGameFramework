@@ -36,19 +36,19 @@ namespace Service.FileSystem{
         /// Get path as string for given domain
         /// </summary>
         
-        public class GetPathCommand {
+        public class GetPathCommand  {
             public string result;
                         public FSDomain domain;
             
             
         }
 
-		protected void GetPathCommandHandler(GetPathCommand cmd) {
+		protected void GetPathCommandHandler  (GetPathCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("GetPathCommand");
 #endif
-            
+        
             cmd.result = _service.GetPath(cmd.domain);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -62,7 +62,7 @@ namespace Service.FileSystem{
         /// Write string to file
         /// </summary>
         
-        public class WriteStringToFileCommand {
+        public class WriteStringToFileCommand  {
             public bool result;
                         public string pathToFile;
                         public string data;
@@ -70,12 +70,12 @@ namespace Service.FileSystem{
             
         }
 
-		protected void WriteStringToFileCommandHandler(WriteStringToFileCommand cmd) {
+		protected void WriteStringToFileCommandHandler  (WriteStringToFileCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("WriteStringToFileCommand");
 #endif
-            
+        
             cmd.result = _service.WriteStringToFile(cmd.pathToFile,cmd.data);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -89,19 +89,19 @@ namespace Service.FileSystem{
         /// Load file as string
         /// </summary>
         
-        public class LoadFileAsStringCommand {
+        public class LoadFileAsStringCommand  {
             public string result;
                         public string pathToFile;
             
             
         }
 
-		protected void LoadFileAsStringCommandHandler(LoadFileAsStringCommand cmd) {
+		protected void LoadFileAsStringCommandHandler  (LoadFileAsStringCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("LoadFileAsStringCommand");
 #endif
-            
+        
             cmd.result = _service.LoadFileAsString(cmd.pathToFile);
 #if PERFORMANCE_TEST
             // now stop the watches

@@ -27,7 +27,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 /*endblock:param*/ /// </summary>
         /*block:return*//// <returns>/*name:return*//*endname*/</returns>/*endblock:return*/
 /*endblock:documentation*/
-		/*block:methodBody*/			/*name:returnType*/string/*endname*/ /*name:methodName*/DoPrototype/*endname*/(/*block:parameter*//*name:comma*//*endname*//*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*/= ""/*endname*//*endblock:parameter*/)/*endblock:methodBody*/;
+		/*block:methodBody*/			/*name:returnType*/string/*endname*/ /*name:methodName*/DoPrototype/*endname*//*block:genericDefinition*//*name:genInput*//*endname*//*endblock:genericDefinition*/(/*block:parameter*//*name:comma*//*endname*//*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*/= ""/*endname*//*endblock:parameter*/)/*block:genericRestriction*//*name:genericRestrictionInput*//*endname*//*endblock:genericRestriction*//*endblock:methodBody*/;
 /*endblock:method*/
 	}
 

@@ -48,17 +48,17 @@ namespace Service.Scripting{
         /// 
         /// </summary>
         
-        public class OpenScriptingConsoleCommand {
+        public class OpenScriptingConsoleCommand  {
 
             
         }
 
-		protected void OpenScriptingConsoleCommandHandler(OpenScriptingConsoleCommand cmd) {
+		protected void OpenScriptingConsoleCommandHandler  (OpenScriptingConsoleCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("OpenScriptingConsoleCommand");
 #endif
-            _service.OpenScriptingConsole();
+        _service.OpenScriptingConsole();
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("OpenScriptingConsoleCommand");
@@ -71,17 +71,17 @@ namespace Service.Scripting{
         /// 
         /// </summary>
         
-        public class CloseScriptingConsoleCommand {
+        public class CloseScriptingConsoleCommand  {
 
             
         }
 
-		protected void CloseScriptingConsoleCommandHandler(CloseScriptingConsoleCommand cmd) {
+		protected void CloseScriptingConsoleCommandHandler  (CloseScriptingConsoleCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("CloseScriptingConsoleCommand");
 #endif
-            _service.CloseScriptingConsole();
+        _service.CloseScriptingConsole();
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("CloseScriptingConsoleCommand");
@@ -94,17 +94,17 @@ namespace Service.Scripting{
         /// 
         /// </summary>
         
-        public class ToggleScriptingConsoleCommand {
+        public class ToggleScriptingConsoleCommand  {
 
             
         }
 
-		protected void ToggleScriptingConsoleCommandHandler(ToggleScriptingConsoleCommand cmd) {
+		protected void ToggleScriptingConsoleCommandHandler  (ToggleScriptingConsoleCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("ToggleScriptingConsoleCommand");
 #endif
-            _service.ToggleScriptingConsole();
+        _service.ToggleScriptingConsole();
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("ToggleScriptingConsoleCommand");
@@ -117,18 +117,18 @@ namespace Service.Scripting{
         /// 
         /// </summary>
         
-        public class GetMainScriptCommand {
+        public class GetMainScriptCommand  {
             public Script result;
             
             
         }
 
-		protected void GetMainScriptCommandHandler(GetMainScriptCommand cmd) {
+		protected void GetMainScriptCommandHandler  (GetMainScriptCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("GetMainScriptCommand");
 #endif
-            
+        
             cmd.result = _service.GetMainScript();
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -142,18 +142,18 @@ namespace Service.Scripting{
         /// 
         /// </summary>
         
-        public class IsScriptingConsoleVisibleCommand {
+        public class IsScriptingConsoleVisibleCommand  {
             public bool result;
             
             
         }
 
-		protected void IsScriptingConsoleVisibleCommandHandler(IsScriptingConsoleVisibleCommand cmd) {
+		protected void IsScriptingConsoleVisibleCommandHandler  (IsScriptingConsoleVisibleCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("IsScriptingConsoleVisibleCommand");
 #endif
-            
+        
             cmd.result = _service.IsScriptingConsoleVisible();
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -167,19 +167,19 @@ namespace Service.Scripting{
         /// Execute a string into the default-lua-context
         /// </summary>
         
-        public class ExecuteStringOnMainScriptCommand {
+        public class ExecuteStringOnMainScriptCommand  {
             public string result;
                         public string luaCode;
             
             
         }
 
-		protected void ExecuteStringOnMainScriptCommandHandler(ExecuteStringOnMainScriptCommand cmd) {
+		protected void ExecuteStringOnMainScriptCommandHandler  (ExecuteStringOnMainScriptCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("ExecuteStringOnMainScriptCommand");
 #endif
-            
+        
             cmd.result = _service.ExecuteStringOnMainScript(cmd.luaCode);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -193,19 +193,19 @@ namespace Service.Scripting{
         /// Load a script into the default lua-context
         /// </summary>
         
-        public class ExecuteFileToMainScriptCommand {
+        public class ExecuteFileToMainScriptCommand  {
             public string result;
                         public string fileName;
             
             
         }
 
-		protected void ExecuteFileToMainScriptCommandHandler(ExecuteFileToMainScriptCommand cmd) {
+		protected void ExecuteFileToMainScriptCommandHandler  (ExecuteFileToMainScriptCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("ExecuteFileToMainScriptCommand");
 #endif
-            
+        
             cmd.result = _service.ExecuteFileToMainScript(cmd.fileName);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -219,7 +219,7 @@ namespace Service.Scripting{
         /// Generates a list of possible proposals
         /// </summary>
         
-        public class AutocompleteProposalsCommand {
+        public class AutocompleteProposalsCommand  {
             public Proposal result;
                         public string currentInput;
                         public int cursorPos;
@@ -227,12 +227,12 @@ namespace Service.Scripting{
             
         }
 
-		protected void AutocompleteProposalsCommandHandler(AutocompleteProposalsCommand cmd) {
+		protected void AutocompleteProposalsCommandHandler  (AutocompleteProposalsCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("AutocompleteProposalsCommand");
 #endif
-            
+        
             cmd.result = _service.AutocompleteProposals(cmd.currentInput,cmd.cursorPos);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -246,18 +246,18 @@ namespace Service.Scripting{
         /// Output to console
         /// </summary>
         
-        public class WriteToScriptingConsoleCommand {
+        public class WriteToScriptingConsoleCommand  {
             public string text;
             
             
         }
 
-		protected void WriteToScriptingConsoleCommandHandler(WriteToScriptingConsoleCommand cmd) {
+		protected void WriteToScriptingConsoleCommandHandler  (WriteToScriptingConsoleCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("WriteToScriptingConsoleCommand");
 #endif
-            _service.WriteToScriptingConsole(cmd.text);
+        _service.WriteToScriptingConsole(cmd.text);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("WriteToScriptingConsoleCommand");

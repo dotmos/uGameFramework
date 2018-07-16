@@ -38,7 +38,7 @@ namespace Service.GameStateService{
         /// Register gamestate with its name. Optionally you can pass an overriden GameState-Classtype of your own
         /// </summary>
         
-        public class RegisterGameStateCommand {
+        public class RegisterGameStateCommand  {
             public GameState result;
                         public string name;
                         public GameState gamestate=null;
@@ -46,12 +46,12 @@ namespace Service.GameStateService{
             
         }
 
-		protected void RegisterGameStateCommandHandler(RegisterGameStateCommand cmd) {
+		protected void RegisterGameStateCommandHandler  (RegisterGameStateCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("RegisterGameStateCommand");
 #endif
-            
+        
             cmd.result = _service.RegisterGameState(cmd.name,cmd.gamestate);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -65,18 +65,18 @@ namespace Service.GameStateService{
         /// Get the current gamestate. Alternatively use "[Inject] GameState current;"
         /// </summary>
         
-        public class GetCurrentGameStateCommand {
+        public class GetCurrentGameStateCommand  {
             public GameState result;
             
             
         }
 
-		protected void GetCurrentGameStateCommandHandler(GetCurrentGameStateCommand cmd) {
+		protected void GetCurrentGameStateCommandHandler  (GetCurrentGameStateCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("GetCurrentGameStateCommand");
 #endif
-            
+        
             cmd.result = _service.GetCurrentGameState();
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -90,7 +90,7 @@ namespace Service.GameStateService{
         /// Start a new gamestate after stopping the current one (if present). Optionally pass a context in which you can e.g. set gamestate-flags
         /// </summary>
         
-        public class StartGameStateCommand {
+        public class StartGameStateCommand  {
             public IObservable<bool> result;
                         public GameState gamestate;
                         public GSContext ctx=null;
@@ -98,12 +98,12 @@ namespace Service.GameStateService{
             
         }
 
-		protected void StartGameStateCommandHandler(StartGameStateCommand cmd) {
+		protected void StartGameStateCommandHandler  (StartGameStateCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("StartGameStateCommand");
 #endif
-            
+        
             cmd.result = _service.StartGameState(cmd.gamestate,cmd.ctx);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -117,19 +117,19 @@ namespace Service.GameStateService{
         /// 
         /// </summary>
         
-        public class StopGameStateCommand {
+        public class StopGameStateCommand  {
             public IObservable<bool> result;
                         public GameState gamestate;
             
             
         }
 
-		protected void StopGameStateCommandHandler(StopGameStateCommand cmd) {
+		protected void StopGameStateCommandHandler  (StopGameStateCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("StopGameStateCommand");
 #endif
-            
+        
             cmd.result = _service.StopGameState(cmd.gamestate);
 #if PERFORMANCE_TEST
             // now stop the watches

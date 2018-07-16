@@ -36,7 +36,7 @@ namespace Service.AsyncManager{
         /// 
         /// </summary>
         
-        public class AddToMainThreadCommand {
+        public class AddToMainThreadCommand  {
             public AsyncFuture result;
                         public Action act;
                         public bool global=false;
@@ -44,12 +44,12 @@ namespace Service.AsyncManager{
             
         }
 
-		protected void AddToMainThreadCommandHandler(AddToMainThreadCommand cmd) {
+		protected void AddToMainThreadCommandHandler  (AddToMainThreadCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("AddToMainThreadCommand");
 #endif
-            
+        
             cmd.result = _service.AddToMainThread(cmd.act,cmd.global);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -63,7 +63,7 @@ namespace Service.AsyncManager{
         /// 
         /// </summary>
         
-        public class AddToWorkerThreadCommand {
+        public class AddToWorkerThreadCommand  {
             public AsyncFuture result;
                         public Action act;
                         public Action onFinished;
@@ -72,12 +72,12 @@ namespace Service.AsyncManager{
             
         }
 
-		protected void AddToWorkerThreadCommandHandler(AddToWorkerThreadCommand cmd) {
+		protected void AddToWorkerThreadCommandHandler  (AddToWorkerThreadCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("AddToWorkerThreadCommand");
 #endif
-            
+        
             cmd.result = _service.AddToWorkerThread(cmd.act,cmd.onFinished,cmd.global);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -91,7 +91,7 @@ namespace Service.AsyncManager{
         /// 
         /// </summary>
         
-        public class CallCommand {
+        public class CallCommand  {
             public AsyncFuture result;
                         public Action act;
                         public bool usingCoroutine;
@@ -100,12 +100,12 @@ namespace Service.AsyncManager{
             
         }
 
-		protected void CallCommandHandler(CallCommand cmd) {
+		protected void CallCommandHandler  (CallCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("CallCommand");
 #endif
-            
+        
             cmd.result = _service.Call(cmd.act,cmd.usingCoroutine,cmd.global);
 #if PERFORMANCE_TEST
             // now stop the watches
@@ -119,18 +119,18 @@ namespace Service.AsyncManager{
         /// 
         /// </summary>
         
-        public class DisposeThreadsCommand {
+        public class DisposeThreadsCommand  {
             public bool onlyNonGlobals=false;
             
             
         }
 
-		protected void DisposeThreadsCommandHandler(DisposeThreadsCommand cmd) {
+		protected void DisposeThreadsCommandHandler  (DisposeThreadsCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("DisposeThreadsCommand");
 #endif
-            _service.DisposeThreads(cmd.onlyNonGlobals);
+        _service.DisposeThreads(cmd.onlyNonGlobals);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("DisposeThreadsCommand");
