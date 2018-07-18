@@ -113,6 +113,8 @@ namespace Service.MemoryBrowserService
         
         public abstract MemoryBrowser GetBrowser(string id);
         
+        public abstract ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

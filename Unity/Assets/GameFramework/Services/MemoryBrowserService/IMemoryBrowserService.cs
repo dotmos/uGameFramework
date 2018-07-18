@@ -18,24 +18,37 @@ namespace Service.MemoryBrowserService {
 
 
 
+		/// <summary>
+        /// Is this obj a simple type? (int,float,bool,string).  
+        /// <param name="obj"></param>
+ /// </summary>
+        
+
 					bool IsSimpleType(object obj);
 
 
 					MemoryBrowser CreateMemoryBrowser(string id,object root);
 
 
+		/// <summary>
+        /// Get Browser by name 
+        /// <param name="id"></param>
+ /// </summary>
+        
+
 					MemoryBrowser GetBrowser(string id);
+
+
+		/// <summary>
+        /// Get Reactive Dictionary with a memory-browsers(key=name value=MemoryBrowser) 
+ /// </summary>
+        
+
+					ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
 
 	}
 
 
-
-    [DataContract(IsReference = true)]
-    public class Watch {
-        [DataMember]public string name ;
-        [DataMember]public object value ;
-
-    }
 
 }
 ///////////////////////////////////////////////////////////////////////

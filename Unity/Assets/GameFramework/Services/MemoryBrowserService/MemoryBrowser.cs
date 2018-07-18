@@ -16,7 +16,7 @@ namespace Service.MemoryBrowserService {
 
         public enum ElementType
         {
-            nullType, objectType, listType
+            nullType, objectType, listType, dictType
         }
 
         [Inject]
@@ -56,11 +56,19 @@ namespace Service.MemoryBrowserService {
             }
             else if (obj is IList) {
                 return ElementType.listType;
-            } else {
+            } 
+            else if (obj is IDictionary) {
+                return ElementType.dictType;
+            }
+            else {
                 return ElementType.objectType;
             }
         }
 
+        /// <summary>
+        /// Update the data for the current values visibile in the memory browser
+        /// </summary>
+        /// <returns></returns>
         public ReactiveDictionary<string,object> UpdateCurrentSnapshot() {
             var obj = Current;
 
@@ -187,6 +195,10 @@ namespace Service.MemoryBrowserService {
             }
         }
 
+        /// <summary>
+        /// Browse deeper into the data-structure (non simple-types)
+        /// </summary>
+        /// <param name="valueName"></param>
         public void Browse(string valueName) {
             if (rxCurrentSnapShot.ContainsKey(valueName)) {
                 var nextObj = rxCurrentSnapShot[valueName];
@@ -203,7 +215,7 @@ namespace Service.MemoryBrowserService {
         }
 
         /// <summary>
-        /// Go back to the element we came from
+        /// Go back on hierarchy
         /// </summary>
         public void Back() {
             if (rxBreadcrumbs.Count > 1) {
@@ -215,10 +227,21 @@ namespace Service.MemoryBrowserService {
             }
         }
 
+        /// <summary>
+        /// Check if the specified object is simple
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private static bool IsSimple(object obj) {
             var type = obj.GetType();
             return IsSimple(type);
         }
+
+        /// <summary>
+        /// Check if the specified type is simple
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsSimple(Type type) {
             return type.IsPrimitive
                 || type.IsEnum

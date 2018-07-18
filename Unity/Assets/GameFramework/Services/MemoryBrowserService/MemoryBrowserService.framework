@@ -4,17 +4,16 @@ using MoonSharp.Interpreter;
 
 namespace Service.MemoryBrowserService {
     public interface IMemoryBrowserService {
+    	## "Is this obj a simple type? (int,float,bool,string). "
     	bool IsSimpleType(object obj);
     	("MemoryBrowser") CreateMemoryBrowser(string id,object root);  	
+    	## "Get Browser by name"
 		("MemoryBrowser") GetBrowser(string id);
+		## "Get Reactive Dictionary with a memory-browsers(key=name value=MemoryBrowser)"
+		("ReactiveDictionary<string, MemoryBrowser>") rxGetAllBrowsers();		
     }  
 }      
 ## model
-
-public class Watch{
-	public string name;
-	public object value;
-}
 
 ## events 
   

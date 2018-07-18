@@ -34,7 +34,17 @@ namespace Service.MemoryBrowserService {
             return MemoryBrowser.IsSimple(obj.GetType());
         }
 
+        public override ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers() {
+            return browsers;
+        }
+
         protected override void OnDispose() {
+            foreach (var browser in browsers) {
+                browser.Value.Dispose();
+            }
+            browsers.Dispose();
+            browsers.Clear();
+            browsers = null;
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
 

@@ -28,12 +28,14 @@ namespace Service.MemoryBrowserService{
 
             this.OnEvent<GetBrowserCommand>().Subscribe(e => GetBrowserCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<rxGetAllBrowsersCommand>().Subscribe(e => rxGetAllBrowsersCommandHandler(e)).AddTo(this);
+
         }
         
 
         
         /// <summary>
-        /// 
+        /// Is this obj a simple type? (int,float,bool,string). 
         /// </summary>
         
         public class IsSimpleTypeCommand  {
@@ -86,7 +88,7 @@ namespace Service.MemoryBrowserService{
 
         
         /// <summary>
-        /// 
+        /// Get Browser by name
         /// </summary>
         
         public class GetBrowserCommand  {
@@ -106,6 +108,31 @@ namespace Service.MemoryBrowserService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetBrowserCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Get Reactive Dictionary with a memory-browsers(key=name value=MemoryBrowser)
+        /// </summary>
+        
+        public class rxGetAllBrowsersCommand  {
+            public ReactiveDictionary<string, MemoryBrowser> result;
+            
+            
+        }
+
+		protected void rxGetAllBrowsersCommandHandler  (rxGetAllBrowsersCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("rxGetAllBrowsersCommand");
+#endif
+        
+            cmd.result = _service.rxGetAllBrowsers();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("rxGetAllBrowsersCommand");
 #endif
         }
         
