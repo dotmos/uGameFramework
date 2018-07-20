@@ -132,7 +132,7 @@ namespace Service.MemoryBrowserService {
         }
 
         /// <summary>
-        /// Set Value by using the valueName(field or property) and the new Value as string. The value is tried to be converted properly.
+        /// Set Value by using the valueName(field or property) and the new Value as string. The value is tried to be converted properly. Return true if every worked fine
         /// </summary>
         /// <param name="valueName"></param>
         /// <param name="newValueAsString"></param>
@@ -146,8 +146,19 @@ namespace Service.MemoryBrowserService {
                     var keyType = dict.GetType().GetGenericArguments()[0];
                     var valueType = dict.GetType().GetGenericArguments()[1];
 
-                    Debug.LogWarning("SETTING DICTIONARIES NOT IMPLEMENTED YET!");
-                    // TODO
+
+                    if ( !rxCurrentSnapShot.ContainsKey(valueName)) {
+                        Debug.LogError("Unknown dictionary key:" + valueName);
+                        return false;
+                    }
+                    var objToChange = rxCurrentSnapShot[valueName];
+
+                    if (!IsSimple(objToChange) || !IsSimple(valueType) ) {
+                        Debug.LogError("Tried to change non simple-obj");
+                        return false;
+                    }
+
+                    dict[valueName]= Convert.ChangeType(newValueAsString, valueType);
                 }
                 else if (obj is IList) {
                     var list = (IList)obj;
