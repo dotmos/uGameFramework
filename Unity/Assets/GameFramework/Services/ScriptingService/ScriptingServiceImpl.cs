@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-
 using Zenject;
 using UniRx;
 using MoonSharp.Interpreter;
@@ -13,7 +12,7 @@ namespace Service.Scripting {
     partial class ScriptingServiceImpl : ScriptingServiceBase {
 
         private Script mainScript;
-        private ScriptingConsoleComponent scriptingComponent;
+        private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
         private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' '};
 
         /// <summary>
@@ -241,22 +240,22 @@ namespace Service.Scripting {
 
 
         public override void OpenScriptingConsole() {
-            if (scriptingComponent == null) {
+            if (devConsoleComponent == null) {
                 var prefab = UnityEngine.Resources.Load("DevelopmentConsole");
-                scriptingComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<ScriptingConsoleComponent>();
+                devConsoleComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<UserInterface.DevelopmentConsoleComponent>();
             } 
-            scriptingComponent.ConsoleEnabled = true;
+            devConsoleComponent.ConsoleEnabled = true;
         }
 
 		public override void CloseScriptingConsole() {
-            if (scriptingComponent == null) {
+            if (devConsoleComponent == null) {
                 return;
             }
-            scriptingComponent.ConsoleEnabled = false;
+            devConsoleComponent.ConsoleEnabled = false;
         }
 
         public override void ToggleScriptingConsole() {
-            if (scriptingComponent==null || !scriptingComponent.ConsoleEnabled)  {
+            if (devConsoleComponent==null || !devConsoleComponent.ConsoleEnabled)  {
                 OpenScriptingConsole();
             } else {
                 CloseScriptingConsole();
@@ -268,7 +267,7 @@ namespace Service.Scripting {
         }
 
         public override bool IsScriptingConsoleVisible() {
-            return scriptingComponent.ConsoleEnabled;
+            return devConsoleComponent.ConsoleEnabled;
         }
 
 
@@ -277,11 +276,11 @@ namespace Service.Scripting {
         }
 
         public override void WriteToScriptingConsole(string text) {
-            if (scriptingComponent == null) {
+            if (devConsoleComponent == null) {
                 var prefab = UnityEngine.Resources.Load("DevelopmentConsole");
-                scriptingComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<ScriptingConsoleComponent>();
+                devConsoleComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<UserInterface.DevelopmentConsoleComponent>();
             }
-            scriptingComponent.AddToText(text);
+            devConsoleComponent.AddToText(text);
         }
     }
 

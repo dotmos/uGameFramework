@@ -1,7 +1,7 @@
 {
     "name": "GMBasics",
     "references": [
-        "UserInterface"
+        "uGameFramework"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
