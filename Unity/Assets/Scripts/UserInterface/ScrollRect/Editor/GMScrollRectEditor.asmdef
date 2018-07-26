@@ -1,0 +1,12 @@
+{
+    "name": "GMScrollRectEditor",
+    "references": [
+        "UserInterface"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

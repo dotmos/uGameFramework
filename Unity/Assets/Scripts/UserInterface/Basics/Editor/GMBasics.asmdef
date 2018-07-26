@@ -1,0 +1,12 @@
+{
+    "name": "GMBasics",
+    "references": [
+        "UserInterface"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

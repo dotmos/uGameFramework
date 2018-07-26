@@ -242,7 +242,7 @@ namespace Service.Scripting {
 
         public override void OpenScriptingConsole() {
             if (scriptingComponent == null) {
-                var prefab = UnityEngine.Resources.Load("ScriptingConsole");
+                var prefab = UnityEngine.Resources.Load("DevelopmentConsole");
                 scriptingComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<ScriptingConsoleComponent>();
             } 
             scriptingComponent.ConsoleEnabled = true;
@@ -278,7 +278,7 @@ namespace Service.Scripting {
 
         public override void WriteToScriptingConsole(string text) {
             if (scriptingComponent == null) {
-                var prefab = UnityEngine.Resources.Load("ScriptingConsole");
+                var prefab = UnityEngine.Resources.Load("DevelopmentConsole");
                 scriptingComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<ScriptingConsoleComponent>();
             }
             scriptingComponent.AddToText(text);
