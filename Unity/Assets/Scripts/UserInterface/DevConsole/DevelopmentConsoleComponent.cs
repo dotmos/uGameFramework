@@ -47,6 +47,10 @@ namespace UserInterface {
 
             autoCompleteWindow.currentSelectedElementID = -1;
 
+            this.OnEvent<Service.Scripting.Commands.WriteToScriptingConsoleCommand>().Subscribe(e => {
+                AddToText(e.text);
+            }).AddTo(this);
+
             Observable.EveryUpdate().Subscribe(_ => {
                 if (historyID < 0 && autoCompleteWindow.currentSelectedElementID < 0) {
                     consoleInput.readOnly = false;
@@ -140,7 +144,9 @@ namespace UserInterface {
             }
         }
 
-        public void AddToText(string txt) {
+        void AddToText(string txt) {
+            if (txt == "") return;
+
             currentViewText += txt + "\n";
             consoleText.text = currentViewText;
         }

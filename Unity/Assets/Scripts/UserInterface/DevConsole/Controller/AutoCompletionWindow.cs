@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UserInterface.Scrollbar;
 using Service.Scripting;
+using UniRx;
 
 namespace UserInterface {
-    public class AutoCompletionWindow : MonoBehaviour {
+    public class AutoCompletionWindow : GameComponent {
         public GameObject proposalItemPrefab;
         public Transform proposalItemContainer;
         [Space]
@@ -44,13 +45,14 @@ namespace UserInterface {
         public void ApplyProposal(ProposalElement proposalElement) {
             ClearItems();
             currentSelectedElementID = -1;
+
             consoleInput.Select();
-            consoleInput.selectionFocusPosition = 0;
 
             string beginning = consoleInput.text.Substring(0, currentProposal.replaceStringStart);
             string end = consoleInput.text.Substring(currentProposal.replaceStringEnd, consoleInput.text.Length - currentProposal.replaceStringEnd);
             consoleInput.text = beginning + proposalElement.full + end;
             consoleInput.caretPosition = currentProposal.replaceStringStart + proposalElement.full.Length;
+            //TODO: SEtting the caret position after .Select() doesn't work, as the default input field from UnityUI selects the whole text. Write own input field component to avoid this behaviour
         }
 
         /// <summary>
