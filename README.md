@@ -1,4 +1,4 @@
-# uGameFramework by gentylmad
+# uGameFramework by gentlymad
 
 A reactive, modular, service based framework for Unity that keeps the code side of your project de-fragmented, organized and reuseable.
 
