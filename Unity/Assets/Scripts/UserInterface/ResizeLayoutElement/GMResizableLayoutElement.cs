@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UserInterface {
-    [AddComponentMenu(NamingHelper.ResizableLayoutElement.Name, 34)]
+    [AddComponentMenu(NamingHelper.ResizableLayout.Name, 34)]
     public class GMResizableLayoutElement : MonoBehaviour {
         public LayoutElement layoutElement;
         public Vector2 minimumDimensions = new Vector2(1280, 720);

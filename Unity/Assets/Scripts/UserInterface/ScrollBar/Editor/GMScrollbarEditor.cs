@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEngine;
@@ -35,21 +34,6 @@ namespace UserInterface.Scrollbar {
             m_OnValueChanged = serializedObject.FindProperty("m_OnValueChanged");
         }
 
-        [MenuItem(NamingHelper.Scrollbar.HierachyName, false, 0)]
-        static void AddPrefabToScene() {
-            //Selection.activeTransform
-            /*
-            MonoScript ms = MonoScript.FromScriptableObject(this);
-            string scriptFilePath = AssetDatabase.GetAssetPath(ms);
-
-            FileInfo fi = new FileInfo(scriptFilePath);
-            string prefabAssetPath = Path.Combine(fi.Directory.ToString(), "Prefabs", "Scrollbar.prefab");
-
-            Debug.Log(prefabAssetPath);
-            Debug.Log("test");
-            */
-        }
- 
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
             EditorGUILayout.Space();

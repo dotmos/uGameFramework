@@ -34,10 +34,14 @@ namespace UserInterface
             base.OnInspectorGUI();
 
             EditorGUILayout.PropertyField(colorizeElementsProp, true);
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Colors", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.PropertyField(defaultColorProp);
             EditorGUILayout.PropertyField(highlightColorProp);
             EditorGUILayout.PropertyField(pressedColorProp);
             EditorGUILayout.PropertyField(disabledColorProp);
+            EditorGUILayout.EndVertical();
 
             serializedObject.ApplyModifiedProperties();
 

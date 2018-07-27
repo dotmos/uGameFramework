@@ -1,0 +1,12 @@
+{
+    "name": "Fetcher",
+    "references": [
+        "uGameFramework"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
