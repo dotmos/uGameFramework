@@ -17,6 +17,7 @@ namespace UserInterface {
         public Text consoleText;
         public InputField consoleInput;
         public AutoCompletionWindow autoCompleteWindow;
+        public GMButton closeButton;
 
         private int historyID = -1;
         private List<string> history = new List<string>();
@@ -24,15 +25,7 @@ namespace UserInterface {
         private Service.Scripting.Commands.ExecuteStringOnMainScriptCommand executeLuaCmd = new Service.Scripting.Commands.ExecuteStringOnMainScriptCommand();
 
         private string scriptingPath = null;
-
-        public ReactiveProperty<bool> consoleEnabledPropery = new ReactiveProperty<bool>(false);
-        /// <summary>
-        /// Is the gameconsole enabled?
-        /// </summary>
-        public bool ConsoleEnabled {
-            get { return consoleEnabledPropery.Value; }
-            set { consoleEnabledPropery.Value = value; }
-        }
+        private float keyHeldTimer;
 
         [Inject]
         IFileSystemService filesystem;
@@ -44,6 +37,7 @@ namespace UserInterface {
 
             consoleInput.onValueChanged.AddListener(OnValueChanged);
             consoleInput.onEndEdit.AddListener(OnEndEdit);
+            closeButton.onClick.AddListener(CloseConsole);
 
             autoCompleteWindow.currentSelectedElementID = -1;
 
@@ -52,40 +46,70 @@ namespace UserInterface {
             }).AddTo(this);
 
             Observable.EveryUpdate().Subscribe(_ => {
-                if (historyID < 0 && autoCompleteWindow.currentSelectedElementID < 0) {
-                    consoleInput.readOnly = false;
-                } else {
+                if (Input.GetKeyDown(KeyCode.LeftControl)) {
                     consoleInput.readOnly = true;
                 }
 
-                if (Input.GetKeyDown(KeyCode.UpArrow)) {
-                    if (autoCompleteWindow.currentSelectedElementID < 0) {
-                        if (history.Count == 0) {
-                            return;
-                        }
+                if (Input.GetKeyUp(KeyCode.LeftControl)) {
+                    consoleInput.readOnly = false;
+                }
 
-                        if (historyID + 1 < history.Count) {
-                            historyID++;
-                        }
-                        consoleInput.text = history[historyID];
-                    } else {
-                        autoCompleteWindow.SwitchElement(-1);
+                if (Input.GetKey(KeyCode.UpArrow)) {
+                    //if nothing is selected reset
+                    if (!consoleInput.isFocused && autoCompleteWindow.currentSelectedElementID < 0 && historyID < 0) {
+                        consoleInput.ActivateInputField();
                     }
-                } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
-                    if (historyID < 0) {
-                        autoCompleteWindow.SwitchElement(1);
-                    } else {
-                        if (history.Count == 0) {
-                            return;
-                        }
-                        if (historyID > 0) {
-                            historyID--;
+
+                    //if keyHeldTimer == 0 we do one step, else if button is held more than 0.5 seconds we do continuous scroll
+                    if (keyHeldTimer == 0 || keyHeldTimer > 0.5f) {
+                        //if currentSelectedElementID == -1 we are currently switching through proposals
+                        if (autoCompleteWindow.currentSelectedElementID < 0) {
+                            if (history.Count == 0) {
+                                return;
+                            }
+
+                            if (historyID + 1 < history.Count) {
+                                historyID++;
+                            }
                             consoleInput.text = history[historyID];
-                        } else if (historyID < 0) {
-                            historyID = 0;
-                            consoleInput.text = "";
+                        } else {
+                            autoCompleteWindow.SwitchElement(-1);
                         }
                     }
+                } else if (Input.GetKey(KeyCode.DownArrow)) {
+                    //if nothing is selected reset
+                    if (!consoleInput.isFocused && autoCompleteWindow.currentSelectedElementID < 0 && historyID < 0) {
+                        consoleInput.ActivateInputField();
+                    }
+
+                    //if keyHeldTimer == 0 we do one step, else if button is held more than 0.5 seconds we do continuous scroll
+                    if (keyHeldTimer == 0 || keyHeldTimer > 0.5f) {
+                        //if historyID == -1 we are currently switching through proposals
+                        if (historyID < 0) {
+                            autoCompleteWindow.SwitchElement(1);
+                        } else {
+                            if (history.Count == 0) {
+                                return;
+                            }
+                            if (historyID > 0) {
+                                historyID--;
+                                consoleInput.text = history[historyID];
+                            } else if (historyID < 0) {
+                                historyID = 0;
+                                consoleInput.text = "";
+                            }
+                        }
+                    }
+                }
+
+                if (autoCompleteWindow.currentSelectedElementID >= 0 || historyID >= 0) {
+                    if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)) {
+                        keyHeldTimer += Time.deltaTime;
+                    }
+                }
+
+                if (Input.GetKeyUp(KeyCode.DownArrow) || Input.GetKeyUp(KeyCode.UpArrow)) {
+                    keyHeldTimer = 0;
                 }
 
                 if (Input.GetKeyDown(KeyCode.Space) && Input.GetKey(KeyCode.LeftControl)) {
@@ -93,17 +117,9 @@ namespace UserInterface {
                 }
             }).AddTo(this);
 
-            consoleEnabledPropery
-                .DistinctUntilChanged()
-                .Subscribe(enabled => {
-                    if (enabled) {
-                        gameObject.SetActive(true);
-                        consoleInput.ActivateInputField();
-                    } else {
-                        gameObject.SetActive(false);
-                    }
-                })
-                .AddTo(this);
+            this.OnEvent<Service.Scripting.Commands.OpenScriptingConsoleCommand>().Subscribe(e => {
+                consoleInput.ActivateInputField();
+            }).AddTo(this);
 
             var cmdGetMainScript = new Service.Scripting.Commands.GetMainScriptCommand();
             Publish(cmdGetMainScript);
@@ -256,6 +272,10 @@ namespace UserInterface {
             consoleInput.ActivateInputField();
             // always be at the end of the history after execution
             historyID = -1;
+        }
+
+        public void CloseConsole() {
+            this.Publish(new Service.Scripting.Commands.CloseScriptingConsoleCommand());
         }
     }
 }

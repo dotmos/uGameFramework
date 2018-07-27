@@ -11,7 +11,7 @@ namespace UserInterface {
         public GameObject proposalItemPrefab;
         public Transform proposalItemContainer;
         [Space]
-        public GMScrollbar scrollbar;
+        public GMScrollRect scrollRect;
         public InputField consoleInput;
 
         private List<AutoCompletionProposalItem> proposalItems = new List<AutoCompletionProposalItem>();
@@ -67,9 +67,16 @@ namespace UserInterface {
                     consoleInput.Select();
                 } else {
                     proposalItems[currentSelectedElementID].SelectItem();
+
+                    //scroll to element
+                    //float scrollValue = 1 + proposalItems[currentSelectedElementID].RectTransform.anchoredPosition.y / scrollRect.content.sizeDelta.y;
+                    float max = proposalItems.Count - 1;
+                    float scrollValue = (max - currentSelectedElementID) / max;
+                    scrollRect.verticalScrollbar.value = scrollValue;
                 }
             } else {
                 currentSelectedElementID = -1;
+                scrollRect.verticalScrollbar.value = 0;
             }
         }
 

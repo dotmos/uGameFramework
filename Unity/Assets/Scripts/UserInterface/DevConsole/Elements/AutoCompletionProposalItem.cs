@@ -10,6 +10,16 @@ namespace UserInterface {
 
         private AutoCompletionWindow autoCompleteWindow;
         private ProposalElement proposalElement;
+        private RectTransform rectTransform;
+
+        public RectTransform RectTransform {
+            get {
+                if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
+                return rectTransform;
+            } private set {
+                rectTransform = value;
+            }
+        }
 
         public void Initialize(ProposalElement proposal, AutoCompletionWindow autoCompleteWindow) {
             this.autoCompleteWindow = autoCompleteWindow;

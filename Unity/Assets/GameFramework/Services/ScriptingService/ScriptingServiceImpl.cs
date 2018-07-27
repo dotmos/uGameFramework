@@ -22,6 +22,7 @@ namespace Service.Scripting {
             sceneID = developmentSceneID,
             additive = true,
             asynchron = false,
+            makeActive = false
         };
         private bool devConsoleActive = false;
 
@@ -176,7 +177,7 @@ namespace Service.Scripting {
             start = cursorPos + 1;
 
             // at last find the endposition
-            cursorPos = endPos;
+            cursorPos = 0;
             while (cursorPos < all.Length && !delimiters.Contains(all[cursorPos])) {
                 cursorPos++;
             }
