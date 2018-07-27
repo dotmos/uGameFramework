@@ -10,15 +10,24 @@ using System.Linq;
 
 namespace Service.Scripting {
     partial class ScriptingServiceImpl : ScriptingServiceBase {
-
         private Script mainScript;
-        private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
+        //private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
         private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' '};
+
+        // Scene loading commands
+        private const string developmentSceneID = "DevelopmentConsole";
+        private Scene.Commands.ActivateSceneCommand activateDevelopmentConsole = new Scene.Commands.ActivateSceneCommand() { sceneID = developmentSceneID };
+        private Scene.Commands.DeactivateSceneCommand deactivateDevelopmentConsole = new Scene.Commands.DeactivateSceneCommand() { sceneID = developmentSceneID };
+        private Scene.Commands.LoadSceneCommand loadDevelopmentConsole = new Scene.Commands.LoadSceneCommand() {
+            sceneID = developmentSceneID,
+            additive = true,
+            asynchron = false,
+        };
+        private bool devConsoleActive = false;
 
         /// <summary>
         /// Is the gameconsole enabled?
         /// </summary>
-
         protected override void AfterInitialize() {
             try {
                 // make all datatypes available
@@ -34,7 +43,10 @@ namespace Service.Scripting {
                         ToggleScriptingConsole();
                     }
                 }).AddTo(disposables);
-                
+
+                // Load our development console scene
+                Publish(loadDevelopmentConsole);
+
                 // TODO: get rid of nextframe
                 Observable.NextFrame().Subscribe(_ => ActivateDefaultScripting("script")).AddTo(disposables);
             }
@@ -63,7 +75,6 @@ namespace Service.Scripting {
             }
         }
 
-
         private List<string> Proposal(DynValue dynvalue,string currentInput) {
             if (dynvalue.UserData != null) {
                 var userDataResult = Proposal(dynvalue.UserData);
@@ -87,7 +98,8 @@ namespace Service.Scripting {
                         var declaringType = (member.Value as OverloadedMethodMemberDescriptor).DeclaringType;
 
                         try {
-                            var m1 = declaringType.GetMethod(member.Key);
+                            var m1 = declaringType.GetMethod(member.Key, new[] { typeof(string) });
+                            //var m1 = declaringType.GetMethod(member.Key);
 
                             if (m1 == null) {
                                 result.Add(memberResult);
@@ -237,25 +249,20 @@ namespace Service.Scripting {
             }
         }
 
-
+        public override void WriteToScriptingConsole(string text) {}
 
         public override void OpenScriptingConsole() {
-            if (devConsoleComponent == null) {
-                var prefab = UnityEngine.Resources.Load("DevelopmentConsole");
-                devConsoleComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<UserInterface.DevelopmentConsoleComponent>();
-            } 
-            devConsoleComponent.ConsoleEnabled = true;
+            devConsoleActive = true;
+            Publish(activateDevelopmentConsole);
         }
 
 		public override void CloseScriptingConsole() {
-            if (devConsoleComponent == null) {
-                return;
-            }
-            devConsoleComponent.ConsoleEnabled = false;
+            devConsoleActive = false;
+            Publish(deactivateDevelopmentConsole);
         }
 
         public override void ToggleScriptingConsole() {
-            if (devConsoleComponent==null || !devConsoleComponent.ConsoleEnabled)  {
+            if (!devConsoleActive)  {
                 OpenScriptingConsole();
             } else {
                 CloseScriptingConsole();
@@ -267,20 +274,11 @@ namespace Service.Scripting {
         }
 
         public override bool IsScriptingConsoleVisible() {
-            return devConsoleComponent.ConsoleEnabled;
+            return devConsoleActive;
         }
-
 
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed
-        }
-
-        public override void WriteToScriptingConsole(string text) {
-            if (devConsoleComponent == null) {
-                var prefab = UnityEngine.Resources.Load("DevelopmentConsole");
-                devConsoleComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<UserInterface.DevelopmentConsoleComponent>();
-            }
-            devConsoleComponent.AddToText(text);
         }
     }
 
