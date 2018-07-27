@@ -28,6 +28,9 @@ public class ServiceInstaller : MonoInstaller {
         // FileSystem
         Service.FileSystem.ServiceInstaller.Install(Container);
 
+        //Scene Service
+        Service.Scene.ServiceInstaller.Install(Container);
+
         //Console 
         Service.Scripting.ServiceInstaller.Install(Container);
 
@@ -37,18 +40,14 @@ public class ServiceInstaller : MonoInstaller {
         //MemoryBrowser
         Service.MemoryBrowserService.ServiceInstaller.Install(Container);
 
-        /*        //Local Storage
-                Service.LocalStorage.ServiceInstaller.Install(Container);
+        //Local Storage
+        //Service.LocalStorage.ServiceInstaller.Install(Container);
 
-                //Resources Service
-                Service.Resources.ServiceInstaller.Install(Container);
+        //Resources Service
+        //Service.Resources.ServiceInstaller.Install(Container);
 
-                //Scene Service
-                Service.Scene.ServiceInstaller.Install(Container);
-
-                //Camera Service
-                Service.Camera.ServiceInstaller.Install(Container);
-                */
+        //Camera Service
+        //Service.Camera.ServiceInstaller.Install(Container);
 
         Debug.Log("Finished installing services");
     }
