@@ -16,6 +16,11 @@ namespace UserInterface {
         private Vector3 initialPosition;
         private Vector2 initialSize;
         private EventTrigger eventTrigger;
+        private Canvas canvas;
+
+        private void Awake() {
+            canvas = GetComponentInParent<Canvas>();
+        }
 
         void Start() {
             target.pivot = new Vector2(0, 1);
@@ -56,8 +61,9 @@ namespace UserInterface {
         }
 
         void RestrictToScreen() {
-            float minY = Mathf.Round(-Screen.height + target.sizeDelta.y);
-            float maxX = Mathf.Round(Screen.width - target.sizeDelta.x);
+            float minY = Mathf.Round(-Screen.height + target.sizeDelta.y * canvas.scaleFactor);
+            float maxX = Mathf.Round(Screen.width - target.sizeDelta.x * canvas.scaleFactor);
+
 
             float clampedX = Mathf.Clamp(target.anchoredPosition.x, 0f, maxX);
             float clampedY = Mathf.Clamp(target.anchoredPosition.y, minY, 0f);

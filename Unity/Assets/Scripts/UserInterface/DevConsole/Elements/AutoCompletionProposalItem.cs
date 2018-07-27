@@ -27,6 +27,9 @@ namespace UserInterface {
             button.Select();
         }
 
+        /// <summary>
+        /// This is triggered by the OnClick function as well as from the Submit eventTrigger of the button.
+        /// </summary>
         public void ApplyProposal() {
             if (autoCompleteWindow != null) autoCompleteWindow.ApplyProposal(proposalElement);
         }

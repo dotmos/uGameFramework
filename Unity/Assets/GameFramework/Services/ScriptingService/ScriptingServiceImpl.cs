@@ -15,6 +15,8 @@ namespace Service.Scripting {
         private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
         private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' '};
 
+        Scene.Commands.LoadSceneCommand loadScene = new Scene.Commands.LoadSceneCommand();
+
         /// <summary>
         /// Is the gameconsole enabled?
         /// </summary>
@@ -164,7 +166,7 @@ namespace Service.Scripting {
             start = cursorPos + 1;
 
             // at last find the endposition
-            cursorPos = endPos;
+            cursorPos = 0;
             while (cursorPos < all.Length && !delimiters.Contains(all[cursorPos])) {
                 cursorPos++;
             }
@@ -237,12 +239,10 @@ namespace Service.Scripting {
             }
         }
 
-
-
         public override void OpenScriptingConsole() {
             if (devConsoleComponent == null) {
-                var prefab = UnityEngine.Resources.Load("DevelopmentConsole");
-                devConsoleComponent = (GameObject.Instantiate(prefab) as GameObject).GetComponent<UserInterface.DevelopmentConsoleComponent>();
+                var scene = UnityEngine.Resources.Load("DevelopmentConsole");
+                devConsoleComponent = (GameObject.Instantiate(scene) as GameObject).GetComponent<UserInterface.DevelopmentConsoleComponent>();
             } 
             devConsoleComponent.ConsoleEnabled = true;
         }
