@@ -17,6 +17,16 @@ namespace UserInterface {
         private Vector2 initialSize;
         private EventTrigger eventTrigger;
 
+        private Canvas canvas;
+        private Canvas Canvas {
+            get {
+                if (canvas == null) canvas = GetComponentInParent<Canvas>();
+                return canvas;
+            } set {
+                canvas = value;
+            }
+        }
+
         void Start() {
             target.pivot = new Vector2(0, 1);
 
@@ -42,7 +52,7 @@ namespace UserInterface {
             if (!dragOnX) deltaMovement = deltaMovement * new Vector2(0, 1);
             if (!dragOnY) deltaMovement = deltaMovement * new Vector2(1, 0);
 
-            target.transform.Translate(deltaMovement);
+            target.Translate(deltaMovement);
 
             if (keepOnScreen) {
                 RestrictToScreen();
@@ -56,8 +66,9 @@ namespace UserInterface {
         }
 
         void RestrictToScreen() {
-            float minY = Mathf.Round(-Screen.height + target.sizeDelta.y);
-            float maxX = Mathf.Round(Screen.width - target.sizeDelta.x);
+            float minY = -Screen.height / Canvas.scaleFactor + target.sizeDelta.y;
+            float maxX = Screen.width / Canvas.scaleFactor - target.sizeDelta.x;
+
 
             float clampedX = Mathf.Clamp(target.anchoredPosition.x, 0f, maxX);
             float clampedY = Mathf.Clamp(target.anchoredPosition.y, minY, 0f);

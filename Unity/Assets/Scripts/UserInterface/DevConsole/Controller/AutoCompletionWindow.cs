@@ -15,16 +15,14 @@ namespace UserInterface {
 
         private List<AutoCompletionProposalItem> proposalItems = new List<AutoCompletionProposalItem>();
         private Proposal currentProposal;
-        private int currentSelectedElement;
+
+        [HideInInspector]
+        public int currentSelectedElementID = -1;
 
         public bool IsActive {
             get {
                 return gameObject.activeSelf;
             } private set { }
-        }
-
-        private void Awake() {
-            Activate(false);
         }
 
         public void UpdateList(Proposal proposal) {
@@ -36,28 +34,41 @@ namespace UserInterface {
                 SpawnItem(proposalElement);
             }
 
-            proposalItems[0].SelectItem();
-            currentSelectedElement = 0;
+            currentSelectedElementID = -1;
         }
 
+        /// <summary>
+        /// Adds the selected proposal to the input field.
+        /// </summary>
+        /// <param name="proposalElement"></param>
         public void ApplyProposal(ProposalElement proposalElement) {
+            ClearItems();
+            currentSelectedElementID = -1;
+            consoleInput.Select();
+            consoleInput.selectionFocusPosition = 0;
+
             string beginning = consoleInput.text.Substring(0, currentProposal.replaceStringStart);
             string end = consoleInput.text.Substring(currentProposal.replaceStringEnd, consoleInput.text.Length - currentProposal.replaceStringEnd);
             consoleInput.text = beginning + proposalElement.full + end;
             consoleInput.caretPosition = currentProposal.replaceStringStart + proposalElement.full.Length;
-
-            ClearItems();
-            Activate(false);
         }
 
-        public void SelectNextElement() {
-            currentSelectedElement = (currentSelectedElement + 1) % proposalItems.Count;
-            proposalItems[currentSelectedElement].SelectItem();
-        }
+        /// <summary>
+        /// Selects another entry in the auto completion window.
+        /// </summary>
+        /// <param name="direction">1 selects next element downwards. -1 selects next element upwards.</param>
+        public void SwitchElement(int direction) {
+            if (proposalItems.Count > 0) {
+                currentSelectedElementID = Mathf.Clamp(currentSelectedElementID + direction, -1, proposalItems.Count - 1);
 
-        public void SelectPreviousElement() {
-            currentSelectedElement = (currentSelectedElement - 1) % proposalItems.Count;
-            proposalItems[currentSelectedElement].SelectItem();
+                if (currentSelectedElementID < 0) {
+                    consoleInput.Select();
+                } else {
+                    proposalItems[currentSelectedElementID].SelectItem();
+                }
+            } else {
+                currentSelectedElementID = -1;
+            }
         }
 
         void SpawnItem(ProposalElement proposal) {
@@ -68,7 +79,7 @@ namespace UserInterface {
             proposalItems.Add(proposalItem);
         }
 
-        void ClearItems() {
+        public void ClearItems() {
             foreach(AutoCompletionProposalItem go in proposalItems) {
                 Destroy(go.gameObject);
             }

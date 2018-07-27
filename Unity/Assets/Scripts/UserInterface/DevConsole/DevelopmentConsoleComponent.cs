@@ -45,48 +45,47 @@ namespace UserInterface {
             consoleInput.onValueChanged.AddListener(OnValueChanged);
             consoleInput.onEndEdit.AddListener(OnEndEdit);
 
+            autoCompleteWindow.currentSelectedElementID = -1;
+
             Observable.EveryUpdate().Subscribe(_ => {
-                if (consoleInput.isFocused) {
-                    if (Input.GetKeyDown(KeyCode.LeftControl)) {
-                        consoleInput.readOnly = true;
-                    } else if (Input.GetKeyUp(KeyCode.LeftControl)) {
-                        consoleInput.readOnly = false;
+                if (historyID < 0 && autoCompleteWindow.currentSelectedElementID < 0) {
+                    consoleInput.readOnly = false;
+                } else {
+                    consoleInput.readOnly = true;
+                }
+
+                if (Input.GetKeyDown(KeyCode.UpArrow)) {
+                    if (autoCompleteWindow.currentSelectedElementID < 0) {
+                        if (history.Count == 0) {
+                            return;
+                        }
+
+                        if (historyID + 1 < history.Count) {
+                            historyID++;
+                        }
+                        consoleInput.text = history[historyID];
+                    } else {
+                        autoCompleteWindow.SwitchElement(-1);
                     }
-
-                    if (Input.GetKeyDown(KeyCode.UpArrow)) {
-                        if (autoCompleteWindow.IsActive) {
-                            autoCompleteWindow.SelectNextElement();
-                        } else {
-                            if (history.Count == 0) {
-                                return;
-                            }
-
-                            if (historyID + 1 < history.Count) {
-                                historyID++;
-                            }
+                } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
+                    if (historyID < 0) {
+                        autoCompleteWindow.SwitchElement(1);
+                    } else {
+                        if (history.Count == 0) {
+                            return;
+                        }
+                        if (historyID > 0) {
+                            historyID--;
                             consoleInput.text = history[historyID];
-                        }
-                    } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
-                        if (autoCompleteWindow.IsActive) {
-                            autoCompleteWindow.SelectPreviousElement();
-                        } else {
-                            if (history.Count == 0) {
-                                return;
-                            }
-                            if (historyID > 0) {
-                                historyID--;
-                                consoleInput.text = history[historyID];
-                            } else if (historyID < 0) {
-                                historyID = 0;
-                                consoleInput.text = "";
-                            }
+                        } else if (historyID < 0) {
+                            historyID = 0;
+                            consoleInput.text = "";
                         }
                     }
+                }
 
-                    if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Space)) {
-                        autoCompleteWindow.Activate(true);
-                        OnValueChanged(consoleInput.text);
-                    }
+                if (Input.GetKeyDown(KeyCode.Space) && Input.GetKey(KeyCode.LeftControl)) {
+                    GetAutocompleteProposal();
                 }
             }).AddTo(this);
 
@@ -119,21 +118,25 @@ namespace UserInterface {
             //Reset history ID if user typed
             historyID = -1;
 
-            if (autoCompleteWindow.IsActive) {
-                if (consoleInput.text.Length > 0) {
-                    var proposal = scripting.AutocompleteProposals(GetCurrentText(), consoleInput.caretPosition);
+            if (consoleInput.text.Length > 0) {
+                GetAutocompleteProposal();
+            } else {
+                autoCompleteWindow.ClearItems();
+            }
+        }
 
-                    if (proposal == null || proposal.proposalElements == null) {
-                        // no proposals
-                        autoCompleteWindow.Activate(false);
-                        return;
-                    }
-                    var proposals = proposal.proposalElements;
+        void GetAutocompleteProposal() {
+            var proposal = scripting.AutocompleteProposals(GetCurrentText(), consoleInput.caretPosition);
 
-                    if (proposals.Count > 0) {
-                        autoCompleteWindow.UpdateList(proposal);
-                    }
-                }
+            if (proposal == null || proposal.proposalElements == null) {
+                // no proposals
+                autoCompleteWindow.ClearItems();
+                return;
+            }
+            var proposals = proposal.proposalElements;
+
+            if (proposals.Count > 0) {
+                autoCompleteWindow.UpdateList(proposal);
             }
         }
 
@@ -149,13 +152,19 @@ namespace UserInterface {
         protected override void OnDispose() {
             base.OnDispose();
             consoleInput.onEndEdit.RemoveAllListeners();
+            consoleInput.onValueChanged.RemoveAllListeners();
         }
 
+        /// <summary>
+        /// This is called when hitting the return-key on the keyboard while the input field is focused and also by the submit button.
+        /// </summary>
         public void ProcessInput() {
             ProcessInput(consoleInput.text);
         }
 
         public void ProcessInput(string input) {
+            consoleInput.DeactivateInputField();
+
             if (input.ToLower() == "help") {
                 AddToText("help\ncommands: close,save [relative filename],... plus service-commands");
                 // TODO: Make this better
@@ -234,12 +243,13 @@ namespace UserInterface {
                 consoleText.text = currentViewText;
                 consoleInput.ActivateInputField();
             }
-            history.Insert(0, input);
-            consoleInput.ActivateInputField();
-            consoleInput.text = "";
-            // always be at the end of the history after execution
-            historyID = 0;
 
+            history.Insert(0, input);
+
+            consoleInput.text = "";
+            consoleInput.ActivateInputField();
+            // always be at the end of the history after execution
+            historyID = -1;
         }
     }
 }
