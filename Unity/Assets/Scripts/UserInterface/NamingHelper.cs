@@ -93,5 +93,13 @@ namespace UserInterface {
             public const string Name = BaseName + Separator + nameof(ScrollRectNavigation);
             public const string HierachyName = nameof(GameObject) + Separator + Name;
         }
+
+        /// <summary>
+        /// menu names for everything InputField specific.
+        /// </summary>
+        public static class InputField {
+            public const string Name = BaseName + Separator + nameof(InputField);
+            public const string HierachyName = nameof(GameObject) + Separator + Name;
+        }
     }
 }

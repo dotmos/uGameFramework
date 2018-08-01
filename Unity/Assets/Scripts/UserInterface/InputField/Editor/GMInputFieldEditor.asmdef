@@ -1,0 +1,12 @@
+{
+    "name": "GMInputFieldEditor",
+    "references": [
+        "uGameFramework"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

@@ -12,7 +12,7 @@ namespace UserInterface {
         public Transform proposalItemContainer;
         [Space]
         public GMScrollRect scrollRect;
-        public InputField consoleInput;
+        public GMInputField consoleInput;
 
         private List<AutoCompletionProposalItem> proposalItems = new List<AutoCompletionProposalItem>();
         private Proposal currentProposal;

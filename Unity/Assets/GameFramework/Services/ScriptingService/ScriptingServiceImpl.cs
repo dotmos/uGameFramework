@@ -264,9 +264,9 @@ namespace Service.Scripting {
 
         public override void ToggleScriptingConsole() {
             if (!devConsoleActive)  {
-                OpenScriptingConsole();
+                this.Publish(new Service.Scripting.Commands.OpenScriptingConsoleCommand());
             } else {
-                CloseScriptingConsole();
+                this.Publish(new Service.Scripting.Commands.CloseScriptingConsoleCommand());
             }
         }
 

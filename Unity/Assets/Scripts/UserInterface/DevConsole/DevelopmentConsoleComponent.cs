@@ -15,7 +15,7 @@ namespace UserInterface {
     public class DevelopmentConsoleComponent : GameComponent {
 
         public Text consoleText;
-        public InputField consoleInput;
+        public GMInputField consoleInput;
         public AutoCompletionWindow autoCompleteWindow;
         public GMButton closeButton;
 
@@ -43,6 +43,10 @@ namespace UserInterface {
 
             this.OnEvent<Service.Scripting.Commands.WriteToScriptingConsoleCommand>().Subscribe(e => {
                 AddToText(e.text);
+            }).AddTo(this);
+
+            this.OnEvent<Service.Scripting.Commands.OpenScriptingConsoleCommand>().Subscribe(e => {
+                consoleInput.ActivateInputField();
             }).AddTo(this);
 
             Observable.EveryUpdate().Subscribe(_ => {
@@ -115,10 +119,6 @@ namespace UserInterface {
                 if (Input.GetKeyDown(KeyCode.Space) && Input.GetKey(KeyCode.LeftControl)) {
                     GetAutocompleteProposal();
                 }
-            }).AddTo(this);
-
-            this.OnEvent<Service.Scripting.Commands.OpenScriptingConsoleCommand>().Subscribe(e => {
-                consoleInput.ActivateInputField();
             }).AddTo(this);
 
             var cmdGetMainScript = new Service.Scripting.Commands.GetMainScriptCommand();
