@@ -31,6 +31,9 @@ public class ServiceInstaller : MonoInstaller {
         //Scene Service
         Service.Scene.ServiceInstaller.Install(Container);
 
+        //DevUI Service
+        Service.DevUIService.ServiceInstaller.Install(Container);
+
         //Console 
         Service.Scripting.ServiceInstaller.Install(Container);
 

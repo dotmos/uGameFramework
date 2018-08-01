@@ -48,6 +48,15 @@ namespace Service.GameStateService {
 
 					IObservable<bool> StopGameState(GameState gamestate);
 
+
+		/// <summary>
+        /// Get gamestate by name 
+        /// <param name="name"></param>
+ /// </summary>
+        
+
+					GameState GetGameState(string name);
+
 	}
 
 

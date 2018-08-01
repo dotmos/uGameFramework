@@ -11,6 +11,8 @@ namespace Service.GameStateService {
 		## "Start a new gamestate after stopping the current one (if present). Optionally pass a context in which you can e.g. set gamestate-flags"
 		("IObservable<bool>") StartGameState(("GameState") gamestate,GSContext ctx=("null"));
 		("IObservable<bool>") StopGameState(("GameState") gamestate);
+		## "Get gamestate by name"
+		("GameState") GetGameState(string name);
     }  
 }  
 ## model
