@@ -118,6 +118,13 @@ namespace Service.GameStateService {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
 
+        public override GameState GetGameState(string name) {
+            if (gameStates.ContainsKey(name)) {
+                return gameStates[name];
+            }
+            return null;
+        }
+
         public override IObservable<bool> StartGameState(GameState gamestate, GSContext ctx = null) {
             var oldGameState = CurrentGameState;
             CurrentGameState = null;

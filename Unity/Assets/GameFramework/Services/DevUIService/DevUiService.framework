@@ -1,0 +1,27 @@
+## service start
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+
+namespace Service.DevUIService {
+	
+	
+    public interface IDevUIService {
+    	## "Get ReaciveDictionar of all views"  
+    	("ReactiveDictionary<string,DevUIView>") GetRxViews();	
+    	## "Add/Create view with name"
+		("DevUIView") AddView(string viewName);
+		## "Get a view by name"
+		("DevUIView") GetView(string viewName);
+		## "Check if view already exists"
+		bool ViewNameExists(string viewName);
+    }   
+}      
+## model
+
+
+
+## events 
+
+
+  
+## service end
