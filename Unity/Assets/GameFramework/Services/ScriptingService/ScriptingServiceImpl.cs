@@ -10,6 +10,11 @@ using System.Linq;
 
 namespace Service.Scripting {
     partial class ScriptingServiceImpl : ScriptingServiceBase {
+
+
+        [Inject]
+        private Service.LoggingService.ILoggingService logging;
+
         private Script mainScript;
         //private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
         private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' '};
@@ -67,15 +72,15 @@ namespace Service.Scripting {
                 return result.ToString();
             }
             catch (ScriptRuntimeException ex) {
-                Debug.LogException(ex);
+                //Debug.LogException(ex);
                 return "Error: "+ex.DecoratedMessage;
             }
             catch (SyntaxErrorException sex) {
-                Debug.LogException(sex);
+               // Debug.LogException(sex);
                 return "Error: " + sex.DecoratedMessage;
             }
             catch (MoonSharp.Interpreter.InterpreterException ie) {
-                Debug.LogException(ie);
+               // Debug.LogException(ie);
                 return "Error: " + ie.DecoratedMessage;
             }
         }
