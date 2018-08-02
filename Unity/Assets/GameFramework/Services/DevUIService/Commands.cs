@@ -30,6 +30,8 @@ namespace Service.DevUIService{
 
             this.OnEvent<ViewNameExistsCommand>().Subscribe(e => ViewNameExistsCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<RemoveViewCommand>().Subscribe(e => RemoveViewCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -132,6 +134,30 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("ViewNameExistsCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Remove View
+        /// </summary>
+        
+        public class RemoveViewCommand  {
+            public string viewName;
+            
+            
+        }
+
+		protected void RemoveViewCommandHandler  (RemoveViewCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("RemoveViewCommand");
+#endif
+        _service.RemoveView(cmd.viewName);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("RemoveViewCommand");
 #endif
         }
         

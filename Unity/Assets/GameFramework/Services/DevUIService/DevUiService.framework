@@ -14,6 +14,8 @@ namespace Service.DevUIService {
 		("DevUIView") GetView(string viewName);
 		## "Check if view already exists"
 		bool ViewNameExists(string viewName);
+		## "Remove View"
+		void RemoveView(string viewName);
     }   
 }      
 ## model
