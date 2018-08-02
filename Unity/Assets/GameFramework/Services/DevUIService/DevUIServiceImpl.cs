@@ -10,7 +10,10 @@ namespace Service.DevUIService {
     partial class DevUIServiceImpl : DevUIServiceBase {
 
         public ReactiveDictionary<string,DevUIView> rxViews;
-        
+
+        [Inject]
+        Service.LoggingService.ILoggingService logging;
+
 
         protected override void AfterInitialize() {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
@@ -22,6 +25,8 @@ namespace Service.DevUIService {
             }));
 
             win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
+
+            logging.Info("Something is good", "org.tt");
         }
 
 

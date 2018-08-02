@@ -3,8 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
+using UniRx;
+using Service.LoggingService;
 
-public class LocalLogOutput : MonoBehaviour {
+public class LocalLogOutput : GameComponent {
+
+    [Inject]
+    private Service.LoggingService.ILoggingService logging;
 
     public Transform logOutputContainer;
     public GameObject logOutputPrefab;
@@ -19,9 +25,13 @@ public class LocalLogOutput : MonoBehaviour {
     string theLog;
     Queue logQueue = new Queue();
 
-    private void Awake() {
+    protected override void AfterBind() {
         CreateNewLogOutput();
-        Application.logMessageReceived += HandleLog;
+        logging.GetRxOutputData().ObserveAdd().Subscribe(evt => AddData(evt.Value)).AddTo(this);
+    }
+
+    private void AddData(LogData data) {
+        currentLogOutput.text += data.ToString()+"\n";
     }
 
     //private void OnEnable() {
@@ -32,34 +42,34 @@ public class LocalLogOutput : MonoBehaviour {
     //    Application.logMessageReceived -= HandleLog;
     //}
 
-    void HandleLog(string logString, string stackTrace, LogType type) {
-        theLog = logString;
+    /*  void HandleLog(string logString, string stackTrace, LogType type) {
+          theLog = logString;
 
-        //Add to current char count
-        currentCharCount += theLog.Length;
+          //Add to current char count
+          currentCharCount += theLog.Length;
 
-        string newString = "[" + type + "] : " + theLog + "\n";
-        logQueue.Enqueue(newString);
+          string newString = "[" + type + "] : " + theLog + "\n";
+          logQueue.Enqueue(newString);
 
-        if (type == LogType.Exception) {
-            newString = "\n" + stackTrace;
-            logQueue.Enqueue(newString);
-        }
+          if (type == LogType.Exception) {
+              newString = "\n" + stackTrace;
+              logQueue.Enqueue(newString);
+          }
 
-        foreach (string log in logQueue) {
-            string[] subLogs = log.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+          foreach (string log in logQueue) {
+              string[] subLogs = log.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
-            foreach (string sublog in subLogs) {
-                currentLogOutput.text += sublog;
+              foreach (string sublog in subLogs) {
+                  currentLogOutput.text += sublog;
 
-                if (currentLogOutput.text.Length > maxCharacterAmount) {
-                    CreateNewLogOutput();
-                }
-            }
-        }
+                  if (currentLogOutput.text.Length > maxCharacterAmount) {
+                      CreateNewLogOutput();
+                  }
+              }
+          }
 
-        logQueue.Clear();
-    }
+          logQueue.Clear();
+      }*/
 
     void CreateNewLogOutput() {
         GameObject logOutputGO = Instantiate(logOutputPrefab) as GameObject;

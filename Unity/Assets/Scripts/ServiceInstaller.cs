@@ -21,6 +21,9 @@ public class ServiceInstaller : MonoInstaller {
         //ThreadManager
         Service.AsyncManager.ServiceInstaller.Install(Container);
 
+        // Logging
+        Service.LoggingService.ServiceInstaller.Install(Container);
+
         //optional services (see "Services" folder for more, or write your own)
         //Input
         Service.Input.ServiceInstaller.Install(Container);
