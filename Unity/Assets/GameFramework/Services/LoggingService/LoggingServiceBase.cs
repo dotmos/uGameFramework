@@ -11,9 +11,9 @@ using MoonSharp.Interpreter;
 using UniRx;
 using Zenject;
 
-namespace Service.FileSystem
+namespace Service.LoggingService
 {
-    public  abstract class FileSystemServiceBase : IFileSystemService, IDisposable
+    public  abstract class LoggingServiceBase : ILoggingService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
@@ -55,7 +55,7 @@ namespace Service.FileSystem
                 cmdGetScript.result.Globals[name] = this;
             }
             catch (Exception e) {
-                UnityEngine.Debug.LogError("Error activating default scripting for Service.FileSystem with lua-name:" + name);
+                UnityEngine.Debug.LogError("Error activating default scripting for Service.LoggingService with lua-name:" + name);
                 UnityEngine.Debug.LogException(e);
             }
         }
@@ -107,15 +107,17 @@ namespace Service.FileSystem
 
         
                                                           
-        public abstract string GetPath(FSDomain domain);
+        public abstract void AddLog(DebugType debugType,string message,string domain="");
         
-        public abstract bool WriteStringToFile(string pathToFile,string data);
+        public abstract void Info(string message,string domain="");
         
-        public abstract bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string data);
+        public abstract void Warn(string message,string domain="");
         
-        public abstract string LoadFileAsString(string pathToFile);
+        public abstract void Error(string message,string domain="");
         
-        public abstract string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
+        public abstract void Severe(string message,string domain="");
+        
+        public abstract ReactiveCollection<LogData> GetRxOutputData();
         
     }
 }

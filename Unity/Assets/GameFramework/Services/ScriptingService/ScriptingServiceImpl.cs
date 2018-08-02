@@ -85,7 +85,7 @@ namespace Service.Scripting {
                 var userDataResult = Proposal(dynvalue.UserData);
                 return userDataResult;
             } else {
-                Debug.LogWarning("Could not process proposal for Input:" + currentInput);
+                //Debug.LogWarning("Could not process proposal for Input:" + currentInput);
                 return null;
             }
         }

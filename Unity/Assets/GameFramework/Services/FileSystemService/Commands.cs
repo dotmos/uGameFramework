@@ -26,7 +26,11 @@ namespace Service.FileSystem{
 
             this.OnEvent<WriteStringToFileCommand>().Subscribe(e => WriteStringToFileCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<WriteStringToFileAtDomainCommand>().Subscribe(e => WriteStringToFileAtDomainCommandHandler(e)).AddTo(this);
+
             this.OnEvent<LoadFileAsStringCommand>().Subscribe(e => LoadFileAsStringCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<LoadFileAsStringAtDomainCommand>().Subscribe(e => LoadFileAsStringAtDomainCommandHandler(e)).AddTo(this);
 
         }
         
@@ -86,6 +90,34 @@ namespace Service.FileSystem{
 
         
         /// <summary>
+        /// Write string to file at domain
+        /// </summary>
+        
+        public class WriteStringToFileAtDomainCommand  {
+            public bool result;
+                        public FSDomain domain;
+                        public string relativePathToFile;
+                        public string data;
+            
+            
+        }
+
+		protected void WriteStringToFileAtDomainCommandHandler  (WriteStringToFileAtDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("WriteStringToFileAtDomainCommand");
+#endif
+        
+            cmd.result = _service.WriteStringToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.data);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("WriteStringToFileAtDomainCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
         /// Load file as string
         /// </summary>
         
@@ -106,6 +138,33 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadFileAsStringCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load file as string from domain
+        /// </summary>
+        
+        public class LoadFileAsStringAtDomainCommand  {
+            public string result;
+                        public FSDomain domain;
+                        public string relativePathToFile;
+            
+            
+        }
+
+		protected void LoadFileAsStringAtDomainCommandHandler  (LoadFileAsStringAtDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LoadFileAsStringAtDomainCommand");
+#endif
+        
+            cmd.result = _service.LoadFileAsStringAtDomain(cmd.domain,cmd.relativePathToFile);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LoadFileAsStringAtDomainCommand");
 #endif
         }
         

@@ -7,15 +7,20 @@ namespace Service.FileSystem {
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain);
 		## "Write string to file"
-		bool WriteStringToFile(string pathToFile,string data); 
+		bool WriteStringToFile(string pathToFile, string data);
+		## "Write string to file at domain"
+		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string data); 
 		## "Load file as string"
 		string LoadFileAsString(string pathToFile);
+		## "Load file as string from domain"
+		string LoadFileAsStringAtDomain(?FSDomain domain, string relativePathToFile);
     }      
 }     
 ## model
  
 public enum FSDomain {
-	ScriptingOutput
+	ScriptingOutput,
+	RuntimeAssets
 }  
 
 ## events 
