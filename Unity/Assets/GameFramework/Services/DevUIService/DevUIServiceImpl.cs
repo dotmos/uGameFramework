@@ -20,6 +20,8 @@ namespace Service.DevUIService {
             win.AddElement(new DevUIButton("kickit", () => {
                 UnityEngine.Debug.Log("KICKIT");
             }));
+
+            win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
         }
 
 
