@@ -47,6 +47,10 @@ namespace Service.Scripting {
 
                 // Load our development console scene
                 Publish(loadDevelopmentConsole);
+                //TODO: This is a workaround to close the dev console on start. Usually the loadDevelopmentConsole command published above should load the scene deactivated (makeActive set to false) which doesn't seem to work.
+                Observable.NextFrame().Subscribe(e => {
+                    this.Publish(new Service.Scripting.Commands.CloseScriptingConsoleCommand());
+                }).AddTo(disposables);
 
                 // TODO: get rid of nextframe
                 Observable.NextFrame().Subscribe(_ => ActivateDefaultScripting("script")).AddTo(disposables);

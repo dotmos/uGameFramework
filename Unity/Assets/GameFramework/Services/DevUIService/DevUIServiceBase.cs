@@ -11,9 +11,9 @@ using MoonSharp.Interpreter;
 using UniRx;
 using Zenject;
 
-namespace Service.GameStateService
+namespace Service.DevUIService
 {
-    public  abstract class GameStateServiceBase : IGameStateService, IDisposable
+    public  abstract class DevUIServiceBase : IDevUIService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
@@ -55,7 +55,7 @@ namespace Service.GameStateService
                 cmdGetScript.result.Globals[name] = this;
             }
             catch (Exception e) {
-                UnityEngine.Debug.LogError("Error activating default scripting for Service.GameStateService with lua-name:" + name);
+                UnityEngine.Debug.LogError("Error activating default scripting for Service.DevUIService with lua-name:" + name);
                 UnityEngine.Debug.LogException(e);
             }
         }
@@ -107,15 +107,13 @@ namespace Service.GameStateService
 
         
                                                           
-        public abstract GameState RegisterGameState(string name,GameState gamestate=null);
+        public abstract ReactiveDictionary<string,DevUIView> GetRxViews();
         
-        public abstract GameState GetCurrentGameState();
+        public abstract DevUIView AddView(string viewName);
         
-        public abstract IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
+        public abstract DevUIView GetView(string viewName);
         
-        public abstract IObservable<bool> StopGameState(GameState gamestate);
-        
-        public abstract GameState GetGameState(string name);
+        public abstract bool ViewNameExists(string viewName);
         
     }
 }
