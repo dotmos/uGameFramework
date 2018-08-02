@@ -9,9 +9,6 @@ namespace UserInterface {
         public bool keepOnScreen;
         public bool dragOnX = true;
         public bool dragOnY = true;
-        [Space]
-        public Vector2 marginMin;
-        public Vector2 marginMax;
 
         private Vector3 initialPosition;
         private Vector2 initialSize;
@@ -75,9 +72,12 @@ namespace UserInterface {
             target.anchoredPosition = new Vector2(clampedX, clampedY);
         }
 
-        void ResetWindow() {
+        public void AlignTop() {
             target.transform.position = initialPosition;
-            target.sizeDelta = initialSize;
+        }
+
+        public void AlignLeft() {
+            target.transform.position = initialPosition;
         }
     }
 }
