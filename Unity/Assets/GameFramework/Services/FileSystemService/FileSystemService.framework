@@ -12,6 +12,8 @@ namespace Service.FileSystem {
 		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string data); 
 		## "Load file as string"
 		string LoadFileAsString(string pathToFile);
+		## "Load file as string from domain"
+		string LoadFileAsStringAtDomain(?FSDomain domain, string relativePathToFile);
     }      
 }     
 ## model

@@ -115,6 +115,8 @@ namespace Service.FileSystem
         
         public abstract string LoadFileAsString(string pathToFile);
         
+        public abstract string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

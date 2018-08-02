@@ -59,6 +59,10 @@ namespace Service.FileSystem {
 
         }
 
+        public override string LoadFileAsStringAtDomain(FSDomain domain, string relativePathToFile) {
+            return LoadFileAsString(GetPath(domain) + "/" + relativePathToFile);
+        }
+
         private string EnsureDirectoryExistsAndReturn(string path) {
             try {
                 if (!Directory.Exists(path)) {

@@ -56,6 +56,16 @@ namespace Service.FileSystem {
 
 					string LoadFileAsString(string pathToFile);
 
+
+		/// <summary>
+        /// Load file as string from domain 
+        /// <param name="domain"></param>
+        /// <param name="relativePathToFile"></param>
+ /// </summary>
+        
+
+					string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
+
 	}
 
 

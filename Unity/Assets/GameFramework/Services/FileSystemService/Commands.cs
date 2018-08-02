@@ -30,6 +30,8 @@ namespace Service.FileSystem{
 
             this.OnEvent<LoadFileAsStringCommand>().Subscribe(e => LoadFileAsStringCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<LoadFileAsStringAtDomainCommand>().Subscribe(e => LoadFileAsStringAtDomainCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -136,6 +138,33 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadFileAsStringCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load file as string from domain
+        /// </summary>
+        
+        public class LoadFileAsStringAtDomainCommand  {
+            public string result;
+                        public FSDomain domain;
+                        public string relativePathToFile;
+            
+            
+        }
+
+		protected void LoadFileAsStringAtDomainCommandHandler  (LoadFileAsStringAtDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LoadFileAsStringAtDomainCommand");
+#endif
+        
+            cmd.result = _service.LoadFileAsStringAtDomain(cmd.domain,cmd.relativePathToFile);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LoadFileAsStringAtDomainCommand");
 #endif
         }
         
