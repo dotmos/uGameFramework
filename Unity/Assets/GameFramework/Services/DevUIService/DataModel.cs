@@ -44,6 +44,7 @@ namespace Service.DevUIService{
 
         public DevUIElement(string name) {
             this.name = name;
+            Kernel.Instance.Inject(this);
         }
 
     }
@@ -56,11 +57,55 @@ namespace Service.DevUIService{
         /// <summary>
         /// The Action to be called when this button is pressed
         /// </summary>
-        public Action callback;
+        protected Action callback;
 
         public DevUIButton(string name,Action action) : base(name) {
             callback = action;
         }
+
+        /// <summary>
+        /// Execute the button
+        /// </summary>
+        public void Execute() {
+            if (callback != null) {
+                callback();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Special Button to execute lua calls 
+    /// </summary>
+    public class DevUILUAButton : DevUIButton
+    {
+        Service.Scripting.IScriptingService _scriptingService;
+
+        public ReactiveProperty<string> luaCommandProperty = new ReactiveProperty<string>();
+
+        public string LuaCommand {
+            get { return luaCommandProperty.Value; }
+            set { luaCommandProperty.Value = value; }
+        }
+
+        /// <summary>
+        /// The Action to be called when this button is pressed
+        /// </summary>
+        public DevUILUAButton(string name, string action) : base(name,null) {
+            // get the scripting-service
+            _scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+            SetLuaCall(action);
+        }
+
+        public void SetLuaCall(string luacall) {
+            luaCommandProperty.Value = luacall;
+
+            callback = () => {
+                // execute the current command with the scripting service
+                _scriptingService.ExecuteStringOnMainScript(LuaCommand);
+            };
+        }
+
+        
     }
 
 }
