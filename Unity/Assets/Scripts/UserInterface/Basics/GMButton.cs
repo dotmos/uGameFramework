@@ -44,5 +44,17 @@ namespace UserInterface
                 }
             }
         }
+
+        public void Highlight(bool highlight) {
+            if (highlight) {
+                DoStateTransition(SelectionState.Highlighted, true);
+            } else {
+                if (interactable) {
+                    DoStateTransition(SelectionState.Normal, true);
+                } else {
+                    DoStateTransition(SelectionState.Disabled, true);
+                }
+            }
+        }
     }
 }

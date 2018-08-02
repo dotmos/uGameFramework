@@ -35,11 +35,8 @@ namespace UserInterface {
         protected override void AfterBind() {
             scriptingPath = filesystem.GetPath(FSDomain.ScriptingOutput);
 
-            consoleInput.onValueChanged.AddListener(OnValueChanged);
             consoleInput.onEndEdit.AddListener(OnEndEdit);
             closeButton.onClick.AddListener(CloseConsole);
-
-            autoCompleteWindow.currentSelectedElementID = -1;
 
             this.OnEvent<Service.Scripting.Events.WriteToScriptingConsole>().Subscribe(e => {
                 AddToText(e.text);
@@ -58,62 +55,65 @@ namespace UserInterface {
                     consoleInput.readOnly = false;
                 }
 
+                //Auto completion switch
                 if (Input.GetKey(KeyCode.UpArrow)) {
-                    //if nothing is selected reset
-                    if (!consoleInput.isFocused && autoCompleteWindow.currentSelectedElementID < 0 && historyID < 0) {
-                        consoleInput.ActivateInputField();
-                    }
-
-                    //if keyHeldTimer == 0 we do one step, else if button is held more than 0.5 seconds we do continuous scroll
-                    if (keyHeldTimer == 0 || keyHeldTimer > 0.5f) {
-                        //if currentSelectedElementID == -1 we are currently switching through proposals
-                        if (autoCompleteWindow.currentSelectedElementID < 0) {
-                            if (history.Count == 0) {
-                                return;
-                            }
-
-                            if (historyID + 1 < history.Count) {
-                                historyID++;
-                            }
-                            consoleInput.text = history[historyID];
-                        } else {
+                    if (historyID < 0) {
+                        //if keyHeldTimer == 0 we do one step, else if button is held more than 0.5 seconds we do continuous scroll
+                        if (keyHeldTimer == 0 || keyHeldTimer > 0.5f) {
                             autoCompleteWindow.SwitchElement(-1);
                         }
                     }
                 } else if (Input.GetKey(KeyCode.DownArrow)) {
-                    //if nothing is selected reset
-                    if (!consoleInput.isFocused && autoCompleteWindow.currentSelectedElementID < 0 && historyID < 0) {
-                        consoleInput.ActivateInputField();
-                    }
-
-                    //if keyHeldTimer == 0 we do one step, else if button is held more than 0.5 seconds we do continuous scroll
-                    if (keyHeldTimer == 0 || keyHeldTimer > 0.5f) {
-                        //if historyID == -1 we are currently switching through proposals
-                        if (historyID < 0) {
+                    if (historyID < 0) {
+                        //if keyHeldTimer == 0 we do one step, else if button is held more than 0.5 seconds we do continuous scroll
+                        if (keyHeldTimer == 0 || keyHeldTimer > 0.5f) {
                             autoCompleteWindow.SwitchElement(1);
-                        } else {
-                            if (history.Count == 0) {
-                                return;
-                            }
-                            if (historyID > 0) {
-                                historyID--;
-                                consoleInput.text = history[historyID];
-                            } else if (historyID < 0) {
-                                historyID = 0;
-                                consoleInput.text = "";
-                            }
                         }
                     }
+                } else if (Input.GetKeyDown(KeyCode.Tab)) {
+                    autoCompleteWindow.ApplyCurrentProposal();
                 }
 
-                if (autoCompleteWindow.currentSelectedElementID >= 0 || historyID >= 0) {
-                    if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)) {
-                        keyHeldTimer += Time.deltaTime;
-                    }
+                if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)) {
+                    keyHeldTimer += Time.deltaTime;
                 }
 
                 if (Input.GetKeyUp(KeyCode.DownArrow) || Input.GetKeyUp(KeyCode.UpArrow)) {
                     keyHeldTimer = 0;
+                }
+
+                //History switch
+                if (Input.GetKeyDown(KeyCode.UpArrow) && !autoCompleteWindow.HasContent) {
+                    if (consoleInput.text == "" || historyID >= 0) {
+                        if (history.Count == 0) {
+                            return;
+                        }
+
+                        historyID = Mathf.Clamp(++historyID, -1, history.Count - 1);
+
+                        consoleInput.text = history[historyID];
+                    }
+                }
+                    
+                if (Input.GetKeyDown(KeyCode.DownArrow) && !autoCompleteWindow.HasContent) {
+                    if (historyID >= 0) {
+                        if (history.Count == 0) {
+                            return;
+                        }
+
+                        historyID = Mathf.Clamp(--historyID, -1, history.Count - 1);
+
+                        if (historyID < 0) {
+                            consoleInput.text = "";
+                        } else {
+                            consoleInput.text = history[historyID];
+                        }
+                    }
+                }
+
+                //Exclude buttons from value changed
+                if (Input.anyKeyDown && !(Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.UpArrow)) || Input.GetKeyDown(KeyCode.Tab)) {
+                    OnValueChanged();
                 }
 
                 if (Input.GetKeyDown(KeyCode.Space) && Input.GetKey(KeyCode.LeftControl)) {
@@ -134,7 +134,7 @@ namespace UserInterface {
             }
         }
 
-        void OnValueChanged(string input) {
+        void OnValueChanged() {
             //Reset history ID if user typed
             historyID = -1;
 
@@ -269,6 +269,7 @@ namespace UserInterface {
             history.Insert(0, input);
 
             consoleInput.text = "";
+            autoCompleteWindow.ClearItems();
             consoleInput.ActivateInputField();
             // always be at the end of the history after execution
             historyID = -1;

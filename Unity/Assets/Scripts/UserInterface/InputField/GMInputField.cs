@@ -1018,15 +1018,15 @@ namespace UserInterface
                         return EditState.Continue;
                     }
 
-                case KeyCode.UpArrow: {
-                        MoveUp(shift);
-                        return EditState.Continue;
-                    }
+                //case KeyCode.UpArrow: {
+                //        MoveUp(shift);
+                //        return EditState.Continue;
+                //    }
 
-                case KeyCode.DownArrow: {
-                        MoveDown(shift);
-                        return EditState.Continue;
-                    }
+                //case KeyCode.DownArrow: {
+                //        MoveDown(shift);
+                //        return EditState.Continue;
+                //    }
 
                 // Submit
                 case KeyCode.Return:

@@ -28,13 +28,12 @@ namespace UserInterface {
             proposalOutput.text = proposal.simple;
         }
 
-        protected override void OnClick() {
-            base.OnClick();
-            ApplyProposal();
+        public void SelectItem() {
+            button.Highlight(true);
         }
 
-        public void SelectItem() {
-            button.Select();
+        public void DeselectItem() {
+            button.Highlight(false);
         }
 
         /// <summary>

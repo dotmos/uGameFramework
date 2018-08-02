@@ -14,11 +14,18 @@ namespace UserInterface {
         public GMScrollRect scrollRect;
         public GMInputField consoleInput;
 
+        public bool HasContent {
+            get {
+                if (proposalItems.Count > 0) return true;
+                else return false;
+            }
+        }
+
         private List<AutoCompletionProposalItem> proposalItems = new List<AutoCompletionProposalItem>();
         private Proposal currentProposal;
 
         [HideInInspector]
-        public int currentSelectedElementID = -1;
+        public int currentSelectedElementID = 0;
 
         public bool IsActive {
             get {
@@ -35,7 +42,7 @@ namespace UserInterface {
                 SpawnItem(proposalElement);
             }
 
-            currentSelectedElementID = -1;
+            SelectElementByIndex(0);
         }
 
         /// <summary>
@@ -44,9 +51,8 @@ namespace UserInterface {
         /// <param name="proposalElement"></param>
         public void ApplyProposal(ProposalElement proposalElement) {
             ClearItems();
-            currentSelectedElementID = -1;
 
-            consoleInput.Select();
+            currentSelectedElementID = 0;
 
             string beginning = consoleInput.text.Substring(0, currentProposal.replaceStringStart);
             string end = consoleInput.text.Substring(currentProposal.replaceStringEnd, consoleInput.text.Length - currentProposal.replaceStringEnd);
@@ -54,27 +60,36 @@ namespace UserInterface {
             consoleInput.caretPosition = currentProposal.replaceStringStart + proposalElement.full.Length;
         }
 
+        public void ApplyCurrentProposal() {
+            ProposalElement currentProposalElement = currentProposal.proposalElements[currentSelectedElementID];
+            ApplyProposal(currentProposalElement);
+        }
+
         /// <summary>
         /// Selects another entry in the auto completion window.
         /// </summary>
         /// <param name="direction">1 selects next element downwards. -1 selects next element upwards.</param>
         public void SwitchElement(int direction) {
+            //Increase index
+            int newIndex = Mathf.Clamp(currentSelectedElementID + direction, 0, proposalItems.Count - 1);
+            SelectElementByIndex(newIndex);
+        }
+
+        void SelectElementByIndex(int index) {
             if (proposalItems.Count > 0) {
-                currentSelectedElementID = Mathf.Clamp(currentSelectedElementID + direction, -1, proposalItems.Count - 1);
+                //Deselect previous item
+                if (currentSelectedElementID > -1) proposalItems[currentSelectedElementID].DeselectItem();
+                //Store current index
+                currentSelectedElementID = index;
+                //Select new item
+                proposalItems[currentSelectedElementID].SelectItem();
 
-                if (currentSelectedElementID < 0) {
-                    consoleInput.Select();
-                } else {
-                    proposalItems[currentSelectedElementID].SelectItem();
-
-                    //scroll to element
-                    //float scrollValue = 1 + proposalItems[currentSelectedElementID].RectTransform.anchoredPosition.y / scrollRect.content.sizeDelta.y;
-                    float max = proposalItems.Count - 1;
-                    float scrollValue = (max - currentSelectedElementID) / max;
-                    scrollRect.verticalScrollbar.value = scrollValue;
-                }
+                //scroll to element
+                float max = proposalItems.Count - 1;
+                float scrollValue = (max - currentSelectedElementID) / max;
+                scrollRect.verticalScrollbar.value = scrollValue;
             } else {
-                currentSelectedElementID = -1;
+                currentSelectedElementID = 0;
                 scrollRect.verticalScrollbar.value = 0;
             }
         }
