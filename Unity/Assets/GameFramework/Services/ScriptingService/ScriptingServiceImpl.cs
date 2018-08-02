@@ -250,11 +250,14 @@ namespace Service.Scripting {
             }
         }
 
-        public override void WriteToScriptingConsole(string text) {}
+        public override void WriteToScriptingConsole(string text) {
+            this.Publish(new Events.WriteToScriptingConsole() { text = text });
+        }
 
         public override void OpenScriptingConsole() {
             devConsoleActive = true;
             Publish(activateDevelopmentConsole);
+            this.Publish(new Events.ScriptingConsoleOpened());
         }
 
 		public override void CloseScriptingConsole() {

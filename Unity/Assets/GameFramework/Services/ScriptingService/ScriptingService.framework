@@ -22,5 +22,8 @@ namespace Service.Scripting {
     }  
 }      
 ## events 
-  
+public class WriteToScriptingConsole{
+	public string text;
+}
+public class ScriptingConsoleOpened{}
 ## service end

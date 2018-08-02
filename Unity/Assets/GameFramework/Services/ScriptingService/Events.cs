@@ -13,7 +13,18 @@ using System.Runtime.Serialization;
 namespace Service.Scripting {
     
     public class Events {
-                
+        
+        [DataContract(IsReference = true)]
+        public class WriteToScriptingConsole {
+           [DataMember] public string text;
+
+        }
+
+        [DataContract(IsReference = true)]
+        public class ScriptingConsoleOpened {
+
+        }
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

@@ -41,11 +41,11 @@ namespace UserInterface {
 
             autoCompleteWindow.currentSelectedElementID = -1;
 
-            this.OnEvent<Service.Scripting.Commands.WriteToScriptingConsoleCommand>().Subscribe(e => {
+            this.OnEvent<Service.Scripting.Events.WriteToScriptingConsole>().Subscribe(e => {
                 AddToText(e.text);
             }).AddTo(this);
-
-            this.OnEvent<Service.Scripting.Commands.OpenScriptingConsoleCommand>().Subscribe(e => {
+             
+            this.OnEvent<Service.Scripting.Events.ScriptingConsoleOpened>().Subscribe(e => {
                 consoleInput.ActivateInputField();
             }).AddTo(this);
 
