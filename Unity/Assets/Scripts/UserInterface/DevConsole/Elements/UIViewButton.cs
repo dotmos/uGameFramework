@@ -9,7 +9,7 @@ namespace UserInterface {
         public Text labelOutput;
         public Action callback;
 
-        public void Initialize(string label, Action callback) {
+        public virtual void Initialize(string label, Action callback) {
             labelOutput.text = label;
             this.callback = callback;
         }

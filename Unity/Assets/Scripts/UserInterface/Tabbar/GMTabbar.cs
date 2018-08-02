@@ -15,7 +15,6 @@ namespace UserInterface {
         public GMTab defaultTab;
 
         private List<GMTab> tabs = new List<GMTab>();
-        private List<GMTab> hiddenTabs = new List<GMTab>();
 
         private GMTab activeTab;
 
@@ -28,7 +27,7 @@ namespace UserInterface {
                 RegisterTab(tab);
             }
 
-            ActivateFirstTab();
+            ActivateCustomDefaultTab();
         }
 
         protected override void OnEnable()
@@ -44,7 +43,7 @@ namespace UserInterface {
 
         public void ActivateFirstTab() {
             if (tabs.Count > 0) {
-                GMTab firstTab = tabs.FirstOrDefault(tab => !hiddenTabs.Contains(tab) && tab.IsActive());
+                GMTab firstTab = tabs.FirstOrDefault();
 
                 if (firstTab != null)
                 {

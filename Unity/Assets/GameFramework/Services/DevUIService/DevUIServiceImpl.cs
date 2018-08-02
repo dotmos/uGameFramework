@@ -37,6 +37,10 @@ namespace Service.DevUIService {
             return null;
         }
 
+        public override void RemoveView(string viewName) {
+            rxViews.Remove(viewName);
+        }
+
         public override bool ViewNameExists(string viewName) {
             return rxViews.ContainsKey(viewName);
             

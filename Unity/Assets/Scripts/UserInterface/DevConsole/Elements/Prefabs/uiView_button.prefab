@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 114898593725264572}
   - component: {fileID: 114936426546538446}
   m_Layer: 5
-  m_Name: button_uiView
+  m_Name: uiView_button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,8 +137,8 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   colorizeElements:
   - {fileID: 114951235715020008}
-  defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
-  highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  defaultColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  highlightColor: {r: 0.8416696, g: 0.8740926, b: 0.9245283, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   disabledColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 0.39215687}
 --- !u!114 &114939327328030176

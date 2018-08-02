@@ -40,7 +40,7 @@ namespace Service.DevUIService{
     /// </summary>
     public class DevUIElement
     {
-        string name;
+        public string name;
 
         public DevUIElement(string name) {
             this.name = name;

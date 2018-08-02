@@ -52,6 +52,15 @@ namespace Service.DevUIService {
 
 					bool ViewNameExists(string viewName);
 
+
+		/// <summary>
+        /// Remove View 
+        /// <param name="viewName"></param>
+ /// </summary>
+        
+
+					void RemoveView(string viewName);
+
 	}
 
 

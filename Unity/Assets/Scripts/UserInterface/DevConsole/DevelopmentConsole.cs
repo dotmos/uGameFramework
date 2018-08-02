@@ -12,7 +12,7 @@ using System;
 using System.Linq;
 
 namespace UserInterface {
-    public class DevelopmentConsoleComponent : GameComponent {
+    public class DevelopmentConsole : GameComponent {
 
         public Text consoleText;
         public GMInputField consoleInput;

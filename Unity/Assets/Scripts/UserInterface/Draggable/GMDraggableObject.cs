@@ -10,8 +10,6 @@ namespace UserInterface {
         public bool dragOnX = true;
         public bool dragOnY = true;
 
-        private Vector3 initialPosition;
-        private Vector2 initialSize;
         private EventTrigger eventTrigger;
 
         private Canvas canvas;
@@ -26,9 +24,6 @@ namespace UserInterface {
 
         void Start() {
             target.pivot = new Vector2(0, 1);
-
-            initialPosition = target.transform.position;
-            initialSize = target.sizeDelta;
 
             eventTrigger = GetComponent<EventTrigger>();
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.Drag, OnDrag);
@@ -73,11 +68,13 @@ namespace UserInterface {
         }
 
         public void AlignTop() {
-            target.transform.position = initialPosition;
+            target.anchoredPosition = Vector3.zero;
+            RestrictToScreen();
         }
 
         public void AlignLeft() {
-            target.transform.position = initialPosition;
+            target.anchoredPosition = Vector3.zero;
+            RestrictToScreen();
         }
     }
 }
