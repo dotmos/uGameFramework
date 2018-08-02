@@ -26,6 +26,8 @@ namespace Service.FileSystem{
 
             this.OnEvent<WriteStringToFileCommand>().Subscribe(e => WriteStringToFileCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<WriteStringToFileAtDomainCommand>().Subscribe(e => WriteStringToFileAtDomainCommandHandler(e)).AddTo(this);
+
             this.OnEvent<LoadFileAsStringCommand>().Subscribe(e => LoadFileAsStringCommandHandler(e)).AddTo(this);
 
         }
@@ -80,6 +82,34 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("WriteStringToFileCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Write string to file at domain
+        /// </summary>
+        
+        public class WriteStringToFileAtDomainCommand  {
+            public bool result;
+                        public FSDomain domain;
+                        public string relativePathToFile;
+                        public string data;
+            
+            
+        }
+
+		protected void WriteStringToFileAtDomainCommandHandler  (WriteStringToFileAtDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("WriteStringToFileAtDomainCommand");
+#endif
+        
+            cmd.result = _service.WriteStringToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.data);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("WriteStringToFileAtDomainCommand");
 #endif
         }
         

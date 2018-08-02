@@ -22,6 +22,7 @@ namespace Service.FileSystem {
             string path = MISC_PATH;
             switch (domain) {
                 case FSDomain.ScriptingOutput: path = Application.persistentDataPath + "/scripting"; break;
+                case FSDomain.RuntimeAssets: path = Application.streamingAssetsPath; break;
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
             return EnsureDirectoryExistsAndReturn(path);
@@ -39,6 +40,10 @@ namespace Service.FileSystem {
                 Debug.LogException(e);
                 return false;
             }
+        }
+
+        public override bool WriteStringToFileAtDomain(FSDomain domain, string relativePathToFile, string data) {
+            return WriteStringToFile(GetPath(domain) + "/" + relativePathToFile, data);
         }
 
         public override string LoadFileAsString(string pathToFile) {

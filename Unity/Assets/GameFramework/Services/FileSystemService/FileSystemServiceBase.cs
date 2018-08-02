@@ -111,6 +111,8 @@ namespace Service.FileSystem
         
         public abstract bool WriteStringToFile(string pathToFile,string data);
         
+        public abstract bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string data);
+        
         public abstract string LoadFileAsString(string pathToFile);
         
     }
