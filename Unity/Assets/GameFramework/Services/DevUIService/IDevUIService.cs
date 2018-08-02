@@ -23,7 +23,7 @@ namespace Service.DevUIService {
  /// </summary>
         
 
-					ReactiveDictionary<string,DevUIView> GetRxViews();
+					ReactiveCollection<DevUIView> GetRxViews();
 
 
 		/// <summary>
@@ -60,6 +60,22 @@ namespace Service.DevUIService {
         
 
 					void RemoveView(string viewName);
+
+
+		/// <summary>
+        /// Load views from views-folder 
+ /// </summary>
+        
+
+					void LoadViews();
+
+
+		/// <summary>
+        /// Save views and its dynamically created elements 
+ /// </summary>
+        
+
+					void SaveViews();
 
 	}
 

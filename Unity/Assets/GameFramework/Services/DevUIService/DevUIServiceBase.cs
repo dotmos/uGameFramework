@@ -107,7 +107,7 @@ namespace Service.DevUIService
 
         
                                                           
-        public abstract ReactiveDictionary<string,DevUIView> GetRxViews();
+        public abstract ReactiveCollection<DevUIView> GetRxViews();
         
         public abstract DevUIView AddView(string viewName);
         
@@ -116,6 +116,10 @@ namespace Service.DevUIService
         public abstract bool ViewNameExists(string viewName);
         
         public abstract void RemoveView(string viewName);
+        
+        public abstract void LoadViews();
+        
+        public abstract void SaveViews();
         
     }
 }

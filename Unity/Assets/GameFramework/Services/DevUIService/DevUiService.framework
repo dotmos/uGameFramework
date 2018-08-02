@@ -7,7 +7,7 @@ namespace Service.DevUIService {
 	
     public interface IDevUIService {
     	## "Get ReaciveDictionar of all views"  
-    	("ReactiveDictionary<string,DevUIView>") GetRxViews();	
+    	("ReactiveCollection<DevUIView>") GetRxViews();	
     	## "Add/Create view with name"
 		("DevUIView") AddView(string viewName);
 		## "Get a view by name"
@@ -16,6 +16,11 @@ namespace Service.DevUIService {
 		bool ViewNameExists(string viewName);
 		## "Remove View"
 		void RemoveView(string viewName);
+		
+		## "Load views from views-folder"
+		void LoadViews();
+		## "Save views and its dynamically created elements"
+		void SaveViews();
     }   
 }      
 ## model
@@ -24,6 +29,10 @@ namespace Service.DevUIService {
 
 ## events 
 
-
+public class NewUIElement {
+	public ("DevUIElement") elem;
+	public ("DevUIView") view;
+	public bool inEditMode;
+}
   
 ## service end

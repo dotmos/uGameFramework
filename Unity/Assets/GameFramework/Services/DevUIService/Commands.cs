@@ -32,6 +32,10 @@ namespace Service.DevUIService{
 
             this.OnEvent<RemoveViewCommand>().Subscribe(e => RemoveViewCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<LoadViewsCommand>().Subscribe(e => LoadViewsCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<SaveViewsCommand>().Subscribe(e => SaveViewsCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -41,7 +45,7 @@ namespace Service.DevUIService{
         /// </summary>
         
         public class GetRxViewsCommand  {
-            public ReactiveDictionary<string,DevUIView> result;
+            public ReactiveCollection<DevUIView> result;
             
             
         }
@@ -158,6 +162,52 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("RemoveViewCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load views from views-folder
+        /// </summary>
+        
+        public class LoadViewsCommand  {
+
+            
+        }
+
+		protected void LoadViewsCommandHandler  (LoadViewsCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LoadViewsCommand");
+#endif
+        _service.LoadViews();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LoadViewsCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Save views and its dynamically created elements
+        /// </summary>
+        
+        public class SaveViewsCommand  {
+
+            
+        }
+
+		protected void SaveViewsCommandHandler  (SaveViewsCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("SaveViewsCommand");
+#endif
+        _service.SaveViews();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("SaveViewsCommand");
 #endif
         }
         

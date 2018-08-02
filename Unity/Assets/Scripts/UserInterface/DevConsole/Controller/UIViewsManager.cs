@@ -29,21 +29,26 @@ namespace UserInterface {
             base.AfterBind();
 
             //Load existing
-            ReactiveDictionary<string, DevUIView> devUIViews = _devUiService.GetRxViews();
+            ReactiveCollection<DevUIView> devUIViews = _devUiService.GetRxViews();
             
-            foreach(KeyValuePair<string, DevUIView> uiView in devUIViews) {
-                SpawnUIView(uiView.Value);
+            foreach(DevUIView uiView in devUIViews) {
+                SpawnUIView(uiView);
             }
 
             //listen to new
             _devUiService.GetRxViews().ObserveAdd().Subscribe(evt => {
                 // spawn View
-                var name = evt.Key;
                 var view = evt.Value;
                 SpawnUIView(view);
 
                 if (uiViews.Count > 0) addLuaButton.interactable = true;
                 else addLuaButton.interactable = false;
+            }).AddTo(this);
+
+            _eventService.OnEvent<Service.DevUIService.Events.NewUIElement>().Subscribe(evt=> {
+                if (evt.elem is DevUILUAButton) {
+                    SpawnLuaButton((DevUILUAButton)evt.elem, uiViews[evt.view].content.GetComponent<GMScrollRect>().content, evt.inEditMode);
+                }
             }).AddTo(this);
 
             addLuaButton.onClick.AddListener(AddLuaButton);
@@ -60,13 +65,16 @@ namespace UserInterface {
             _devUiService.AddView(name);
         }
 
+        
+
         void AddLuaButton() {
-            DevUILUAButton newButton = new DevUILUAButton("New Command", "print('Empty Command')");
+            DevUILUAButton newButton = new DevUILUAButton("New Command", "print('Empty Command')") { createdDynamically = true };
+            
             GMTab activeTab = uiViewTabbar.GetActiveTab();
             DevUIView uiView = uiViews.FirstOrDefault(u => u.Value == activeTab).Key;
 
             if (uiView != null) {
-                SpawnLuaButton(newButton, uiViews[uiView].content.GetComponent<GMScrollRect>().content, true);
+                uiView.AddElement(newButton);
             } else {
                 Debug.LogWarning("Couldn't create lua button because no active uiView could be found.");
             }

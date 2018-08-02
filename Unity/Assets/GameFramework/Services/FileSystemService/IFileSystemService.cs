@@ -66,11 +66,31 @@ namespace Service.FileSystem {
 
 					string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
 
+
+		/// <summary>
+        /// Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks ) 
+        /// <param name="absPath"></param>
+        /// <param name="pattern"></param>
+ /// </summary>
+        
+
+					List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
+
+
+		/// <summary>
+        /// Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks ) 
+        /// <param name="domain"></param>
+        /// <param name="filter"></param>
+ /// </summary>
+        
+
+					List<string> GetFilesInDomain(FSDomain domain,string filter="*.*");
+
 	}
 
 
     public enum FSDomain {
-        ScriptingOutput,RuntimeAssets
+        ScriptingOutput,RuntimeAssets,DevUIViews
         
     }
 

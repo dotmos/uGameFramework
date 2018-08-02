@@ -4,6 +4,7 @@ using MoonSharp.Interpreter;
 
 using Zenject;
 using UniRx;
+using System.Linq;
 
 namespace Service.FileSystem {
 
@@ -24,12 +25,22 @@ namespace Service.FileSystem {
         {
             FileSystemServiceImpl instance;
 
+            [Inject]
+            Service.Scripting.IScriptingService scripting;
+
             public API( FileSystemServiceImpl instance) {
                 this.instance = instance;
             }
 
             /* add here scripting for this service */
             public const string DEFAULT = "TOM";
+
+            public void OutputFolders() {
+                scripting.WriteToScriptingConsole("FileSystem-Folders:");
+                foreach (var fsType in Enum.GetValues(typeof(FSDomain)).Cast<FSDomain>()) {
+                    scripting.WriteToScriptingConsole(fsType.ToString() + " => " + instance.GetPath(fsType));
+                }
+            }
 
         }
     }

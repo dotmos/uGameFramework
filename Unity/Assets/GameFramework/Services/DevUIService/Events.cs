@@ -13,7 +13,15 @@ using System.Runtime.Serialization;
 namespace Service.DevUIService {
     
     public class Events {
-                
+        
+        [DataContract(IsReference = true)]
+        public class NewUIElement {
+           [DataMember] public DevUIElement elem;
+           [DataMember] public DevUIView view;
+           [DataMember] public bool inEditMode;
+
+        }
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

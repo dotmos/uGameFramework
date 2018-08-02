@@ -117,6 +117,10 @@ namespace Service.FileSystem
         
         public abstract string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
         
+        public abstract List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
+        
+        public abstract List<string> GetFilesInDomain(FSDomain domain,string filter="*.*");
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

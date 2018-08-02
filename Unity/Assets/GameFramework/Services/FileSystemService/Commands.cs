@@ -32,6 +32,10 @@ namespace Service.FileSystem{
 
             this.OnEvent<LoadFileAsStringAtDomainCommand>().Subscribe(e => LoadFileAsStringAtDomainCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<GetFilesInAbsFolderCommand>().Subscribe(e => GetFilesInAbsFolderCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<GetFilesInDomainCommand>().Subscribe(e => GetFilesInDomainCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -165,6 +169,60 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadFileAsStringAtDomainCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )
+        /// </summary>
+        
+        public class GetFilesInAbsFolderCommand  {
+            public List<string> result;
+                        public string absPath;
+                        public string pattern="*.*";
+            
+            
+        }
+
+		protected void GetFilesInAbsFolderCommandHandler  (GetFilesInAbsFolderCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("GetFilesInAbsFolderCommand");
+#endif
+        
+            cmd.result = _service.GetFilesInAbsFolder(cmd.absPath,cmd.pattern);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("GetFilesInAbsFolderCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )
+        /// </summary>
+        
+        public class GetFilesInDomainCommand  {
+            public List<string> result;
+                        public FSDomain domain;
+                        public string filter="*.*";
+            
+            
+        }
+
+		protected void GetFilesInDomainCommandHandler  (GetFilesInDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("GetFilesInDomainCommand");
+#endif
+        
+            cmd.result = _service.GetFilesInDomain(cmd.domain,cmd.filter);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("GetFilesInDomainCommand");
 #endif
         }
         

@@ -22,6 +22,7 @@ namespace Service.FileSystem {
             string path = MISC_PATH;
             switch (domain) {
                 case FSDomain.ScriptingOutput: path = Application.persistentDataPath + "/scripting"; break;
+                case FSDomain.DevUIViews: path = Application.persistentDataPath + "/dev-ui/views"; break;
                 case FSDomain.RuntimeAssets: path = Application.streamingAssetsPath; break;
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
@@ -82,5 +83,12 @@ namespace Service.FileSystem {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
 
+        public override List<string> GetFilesInAbsFolder(string absPath, string pattern = "*.*") {
+            return new List<string>(Directory.GetFiles(absPath, pattern, SearchOption.TopDirectoryOnly));
+        }
+
+        public override List<string> GetFilesInDomain(FSDomain domain, string filter = "*.*") {
+            return GetFilesInAbsFolder(GetPath(domain), filter);
+        }
     }
 }

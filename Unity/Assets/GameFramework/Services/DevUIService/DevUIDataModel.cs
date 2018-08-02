@@ -7,25 +7,53 @@ using System;
 using Zenject;
 using UniRx;
 using System.Diagnostics;
+using System.Runtime.Serialization;
+using System.Linq;
 
-
-namespace Service.DevUIService{
+namespace Service.DevUIService {
 
     /// <summary>
-    /// Data model for DevUIVies
+    /// Data model for DevUIViews
     /// </summary>
-    public class DevUIView
-    {
+    [DataContract]
+    public class DevUIView {
+        [DataMember]
         public string name;
         public ReactiveCollection<DevUIElement> uiElements = new ReactiveCollection<DevUIElement>();
 
-        public DevUIView(string name) {
-            this.name = name;
+        [Inject]
+        private Service.Events.IEventsService _eventsService;
+
+        [DataMember]
+        private List<DevUIElement> DATA_persistedUiElements {
+            get {
+                var dynamicals = uiElements.Where(elem => elem.createdDynamically).ToList();
+                return dynamicals;
+            }
+            set {
+                foreach (var elem in value) { uiElements.Add(elem); };
+            }
         }
 
-        public void AddElement(DevUIElement elem) {
+        public DevUIView(string name) {
+            this.name = name;
+            Kernel.Instance.Inject(this);
+        }
+
+        /// <summary>
+        /// Add an element to view and immediately go in editview (or specifiy not to do so)
+        /// </summary>
+        /// <param name="elem"></param>
+        /// <param name="addInEditMode"></param>
+        public void AddElement(DevUIElement elem,bool addInEditMode=true) {
             if (!uiElements.Contains(elem)) {
                 uiElements.Add(elem);
+
+                _eventsService.Publish(new Events.NewUIElement() {
+                    view = this,
+                    elem = elem,
+                    inEditMode = addInEditMode
+                });
             }
         }
 
@@ -38,9 +66,20 @@ namespace Service.DevUIService{
     /// <summary>
     /// Base type for devui-elements
     /// </summary>
-    public class DevUIElement
-    {
+    /// 
+    [DataContract]
+    public class DevUIElement {
+        /// <summary>
+        /// The name of this DevUI-Element
+        /// </summary>
+        [DataMember]
         public string name;
+
+        /// <summary>
+        /// if this element is created dynamically it gets persisted
+        /// </summary>
+        [DataMember]
+        public bool createdDynamically = false;
 
         public DevUIElement(string name) {
             this.name = name;
@@ -52,14 +91,14 @@ namespace Service.DevUIService{
     /// <summary>
     /// DevUI-Button
     /// </summary>
-    public class DevUIButton : DevUIElement
-    {
+    [DataContract]
+    public class DevUIButton : DevUIElement {
         /// <summary>
         /// The Action to be called when this button is pressed
         /// </summary>
         protected Action callback;
 
-        public DevUIButton(string name,Action action) : base(name) {
+        public DevUIButton(string name, Action action) : base(name) {
             callback = action;
         }
 
@@ -76,15 +115,23 @@ namespace Service.DevUIService{
     /// <summary>
     /// Special Button to execute lua calls 
     /// </summary>
-    public class DevUILUAButton : DevUIButton
-    {
+    [DataContract]
+    public class DevUILUAButton : DevUIButton {
         Service.Scripting.IScriptingService _scriptingService;
+
 
         public ReactiveProperty<string> luaCommandProperty = new ReactiveProperty<string>();
 
+        [DataMember]
+        private string DATA_LuaCommand {
+            get {return LuaCommand;}
+            set { SetLuaCall(value); }
+        }
+    
+
         public string LuaCommand {
             get { return luaCommandProperty.Value; }
-            set { luaCommandProperty.Value = value; }
+            private set { luaCommandProperty.Value = value; }
         }
 
         /// <summary>
