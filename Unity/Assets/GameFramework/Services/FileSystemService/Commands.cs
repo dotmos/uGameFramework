@@ -36,6 +36,14 @@ namespace Service.FileSystem{
 
             this.OnEvent<GetFilesInDomainCommand>().Subscribe(e => GetFilesInDomainCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<RemoveFileCommand>().Subscribe(e => RemoveFileCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<RemoveFileInDomainCommand>().Subscribe(e => RemoveFileInDomainCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<FileExistsCommand>().Subscribe(e => FileExistsCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<FileExistsInDomainCommand>().Subscribe(e => FileExistsInDomainCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -47,6 +55,7 @@ namespace Service.FileSystem{
         public class GetPathCommand  {
             public string result;
                         public FSDomain domain;
+                        public string realtivePart="";
             
             
         }
@@ -57,7 +66,7 @@ namespace Service.FileSystem{
             ptest.Start("GetPathCommand");
 #endif
         
-            cmd.result = _service.GetPath(cmd.domain);
+            cmd.result = _service.GetPath(cmd.domain,cmd.realtivePart);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetPathCommand");
@@ -223,6 +232,108 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetFilesInDomainCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Remove file from filesystem
+        /// </summary>
+        
+        public class RemoveFileCommand  {
+            public string filePath;
+            
+            
+        }
+
+		protected void RemoveFileCommandHandler  (RemoveFileCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("RemoveFileCommand");
+#endif
+        _service.RemoveFile(cmd.filePath);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("RemoveFileCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Remove file in domain
+        /// </summary>
+        
+        public class RemoveFileInDomainCommand  {
+            public FSDomain domain;
+                        public string relativePath;
+            
+            
+        }
+
+		protected void RemoveFileInDomainCommandHandler  (RemoveFileInDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("RemoveFileInDomainCommand");
+#endif
+        _service.RemoveFileInDomain(cmd.domain,cmd.relativePath);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("RemoveFileInDomainCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Check if a file exists(absolute)
+        /// </summary>
+        
+        public class FileExistsCommand  {
+            public bool result;
+                        public string pathToFile;
+            
+            
+        }
+
+		protected void FileExistsCommandHandler  (FileExistsCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("FileExistsCommand");
+#endif
+        
+            cmd.result = _service.FileExists(cmd.pathToFile);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("FileExistsCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Check if a file exists in a domain(relative to domain-root)
+        /// </summary>
+        
+        public class FileExistsInDomainCommand  {
+            public bool result;
+                        public FSDomain domain;
+                        public string relativePath;
+            
+            
+        }
+
+		protected void FileExistsInDomainCommandHandler  (FileExistsInDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("FileExistsInDomainCommand");
+#endif
+        
+            cmd.result = _service.FileExistsInDomain(cmd.domain,cmd.relativePath);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("FileExistsInDomainCommand");
 #endif
         }
         

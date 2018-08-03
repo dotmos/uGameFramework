@@ -22,9 +22,12 @@ namespace UserInterface {
         public Text labelOutput;
 
         private DevUILUAButton luaButton;
+        private DevUIView view;
 
-        public void Initialize(string label, Action callback, DevUILUAButton luaButton) {
+        public void Initialize(string label, Action callback, DevUILUAButton luaButton, DevUIView view) {
             this.luaButton = luaButton;
+            this.view = view;
+
             labelOutput.text = label;
 
             executeButton.onClick.AddListener(callback.Invoke);
@@ -36,6 +39,8 @@ namespace UserInterface {
             saveButton.onClick.AddListener(
                 () => ActivateEditMode(false)
             );
+
+            deleteButton.onClick.AddListener(Delete);
 
             saveButton.onClick.AddListener(SaveLUACommand);
 
@@ -55,6 +60,10 @@ namespace UserInterface {
         void SaveLUACommand() {
             luaButton.SetLuaCall(luaCommandInput.text);
             luaButton.name = labelOutput.text = nameInput.text;
+        }
+
+        void Delete() {
+            view.RemoveElement(luaButton);
         }
     }
 }

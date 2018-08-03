@@ -37,6 +37,14 @@ namespace Service.DevUIService {
         public class ScriptingConsoleClosed {
 
         }
+
+        [DataContract(IsReference = true)]
+        public class UIViewRenamed {
+           [DataMember] public string from;
+           [DataMember] public string to;
+           [DataMember] public DevUIView view;
+
+        }
         
     }
 }

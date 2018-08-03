@@ -115,7 +115,9 @@ namespace Service.DevUIService
         
         public abstract bool ViewNameExists(string viewName);
         
-        public abstract void RemoveView(string viewName);
+        public abstract void RemoveViewFromModel(DevUIView view);
+        
+        public abstract void RemoveViewToArchieve(DevUIView view);
         
         public abstract void LoadViews();
         

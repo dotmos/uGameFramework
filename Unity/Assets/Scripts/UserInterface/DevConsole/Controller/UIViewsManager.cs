@@ -6,24 +6,26 @@ using Zenject;
 using UniRx;
 using Service.DevUIService;
 using System.Linq;
+using UnityEditor;
 
 namespace UserInterface {
     public class UIViewsManager : GameComponent {
 
         public GameObject uiViewTabPrefab;
         public GameObject uiViewPrefab;
-        public GameObject uiButtonPrefab;
-        public GameObject uiLUAButtonPrefab;
         [Space]
         public Transform uiViewsContainer;
         public GMTabbar uiViewTabbar;
         [Space]
-        public GMButton addLuaButton;
+        public GMButton browseViewsButton;
+        public GMButton refreshViewsButton;
 
         [Inject]
         private Service.DevUIService.IDevUIService _devUiService;
 
-        private Dictionary<DevUIView, GMTab> uiViews = new Dictionary<DevUIView, GMTab>();
+        private Service.FileSystem.Commands.GetPathCommand getPath = new Service.FileSystem.Commands.GetPathCommand();
+
+        private Dictionary<DevUIView, UIViewController> uiViews = new Dictionary<DevUIView, UIViewController>();
 
         protected override void AfterBind() {
             base.AfterBind();
@@ -40,18 +42,18 @@ namespace UserInterface {
                 // spawn View
                 var view = evt.Value;
                 SpawnUIView(view);
-
-                if (uiViews.Count > 0) addLuaButton.interactable = true;
-                else addLuaButton.interactable = false;
             }).AddTo(this);
 
-            _eventService.OnEvent<Service.DevUIService.Events.NewUIElement>().Subscribe(evt=> {
-                if (evt.elem is DevUILUAButton) {
-                    SpawnLuaButton((DevUILUAButton)evt.elem, uiViews[evt.view].content.GetComponent<GMScrollRect>().content, evt.inEditMode);
-                }
+            //listen to remove
+            _devUiService.GetRxViews().ObserveRemove().Subscribe(evt => {
+                RemoveView(evt.Value);
             }).AddTo(this);
 
-            addLuaButton.onClick.AddListener(AddLuaButton);
+            //Button
+            browseViewsButton.onClick.AddListener(Browse);
+            //Refresh
+            refreshViewsButton.onClick.AddListener(Refresh);
+
         }
 
         /// <summary>
@@ -65,75 +67,46 @@ namespace UserInterface {
             _devUiService.AddView(name);
         }
 
-        
-
-        void AddLuaButton() {
-            DevUILUAButton newButton = new DevUILUAButton("New Command", "print('Empty Command')") { createdDynamically = true };
-            
-            GMTab activeTab = uiViewTabbar.GetActiveTab();
-            DevUIView uiView = uiViews.FirstOrDefault(u => u.Value == activeTab).Key;
-
-            if (uiView != null) {
-                uiView.AddElement(newButton);
-            } else {
-                Debug.LogWarning("Couldn't create lua button because no active uiView could be found.");
-            }
-        }
-
         /// <summary>
         /// Sets up a new ui view and adds ui elements if there are any
         /// </summary>
         /// <param name="devUIView">The dev UI view data</param>
         public void SpawnUIView(DevUIView devUIView) {
-            //Spawn 
+            //Spawn  the tab
             GameObject uiViewTabGO = Instantiate(uiViewTabPrefab) as GameObject;
             uiViewTabGO.transform.SetParent(uiViewTabbar.transform, false);
-            uiViewTabGO.name = "tab_" + devUIView.name;
-            uiViewTabGO.GetComponentInChildren<Text>().text = devUIView.name.ToUpper();
+            uiViewTabGO.name = "tab_" + devUIView.Name;
 
+            //Spawn the view
             GameObject uiViewGO = Instantiate(uiViewPrefab) as GameObject;
             uiViewGO.transform.SetParent(uiViewsContainer, false);
 
+            //Connect tab and view
             GMTab uiViewTab = uiViewTabGO.GetComponent<GMTab>();
             uiViewTab.content = uiViewGO;
             uiViewTabbar.RegisterTab(uiViewTab);
 
-            uiViews.Add(devUIView, uiViewTab);
+            UIViewController uiViewController = uiViewGO.GetComponent<UIViewController>();
+            uiViewController.Initialize(devUIView, uiViewTab);
 
-            //Setup ui elements
-            foreach(DevUIElement uiElement in devUIView.uiElements) {
-                SpawnUIElement(uiElement, devUIView);
+            uiViews.Add(devUIView, uiViewController);
+        }
+
+        void RemoveView(DevUIView view) {
+            if (uiViews.ContainsKey(view)) {
+                Destroy(uiViews[view].gameObject);
+                uiViews.Remove(view);
             }
         }
 
-        void SpawnUIElement(DevUIElement devUIElement, DevUIView view) {
-            Transform container = uiViews[view].content.GetComponent<GMScrollRect>().content;
-
-            //Spawn and initialize by type
-            if (devUIElement is DevUILUAButton) {
-                SpawnLuaButton(devUIElement as DevUILUAButton, container, false);
-            } else if (devUIElement is DevUIButton) {
-                SpawnButton(devUIElement as DevUIButton, container);
-            } else {
-                Debug.LogWarning("Tried to spawn a UI element that has no prefab for view '" + view.name + "'.");
-            }
+        void Browse() {
+            getPath.domain = Service.FileSystem.FSDomain.DevUIViews;
+            this.Publish(getPath);
+            EditorUtility.RevealInFinder(getPath.result);
         }
 
-        void SpawnLuaButton(DevUILUAButton luaButton, Transform container, bool activateInEditMode) {
-            GameObject devUIElementGO = Instantiate(uiLUAButtonPrefab) as GameObject;
-            UIViewLUAButton button = devUIElementGO.GetComponent<UIViewLUAButton>();
-            button.Initialize(luaButton.name, luaButton.Execute, luaButton);
-            devUIElementGO.transform.SetParent(container, false);
-
-            button.ActivateEditMode(activateInEditMode);
+        void Refresh() {
+            _devUiService.LoadViews();
         }
-
-        void SpawnButton(DevUIButton devButton, Transform container) {
-            GameObject devUIElementGO = Instantiate(uiButtonPrefab) as GameObject;
-            UIViewButton button = devUIElementGO.GetComponent<UIViewButton>();
-            button.Initialize(devButton.name, devButton.Execute);
-            devUIElementGO.transform.SetParent(container, false);
-        }
-
     }
 }
