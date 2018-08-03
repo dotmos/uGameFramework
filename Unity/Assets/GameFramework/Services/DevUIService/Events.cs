@@ -32,6 +32,11 @@ namespace Service.DevUIService {
         public class ScriptingConsoleOpened {
 
         }
+
+        [DataContract(IsReference = true)]
+        public class ScriptingConsoleClosed {
+
+        }
         
     }
 }

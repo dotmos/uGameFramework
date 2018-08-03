@@ -50,5 +50,5 @@ public class WriteToScriptingConsole{
 	public string text;
 }
 public class ScriptingConsoleOpened{}
-  
+public class ScriptingConsoleClosed{}
 ## service end

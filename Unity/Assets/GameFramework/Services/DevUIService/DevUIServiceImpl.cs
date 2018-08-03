@@ -109,6 +109,7 @@ namespace Service.DevUIService {
         public override void CloseScriptingConsole() {
             devConsoleActive = false;
             sceneService.DeactivateScene(developmentSceneID);
+            this.Publish(new Events.ScriptingConsoleClosed());
         }
 
         public override void ToggleScriptingConsole() {
