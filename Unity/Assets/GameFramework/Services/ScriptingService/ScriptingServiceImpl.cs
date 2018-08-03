@@ -166,7 +166,7 @@ namespace Service.Scripting {
             start = cursorPos + 1;
 
             // at last find the endposition
-            cursorPos = 0;
+            cursorPos = endPos;
             while (cursorPos < all.Length && !delimiters.Contains(all[cursorPos])) {
                 cursorPos++;
             }
