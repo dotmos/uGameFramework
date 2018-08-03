@@ -6,6 +6,7 @@ using Zenject;
 using UniRx;
 using Service.DevUIService;
 using System.Linq;
+using UnityEditor;
 
 namespace UserInterface {
     public class UIViewsManager : GameComponent {
@@ -15,9 +16,13 @@ namespace UserInterface {
         [Space]
         public Transform uiViewsContainer;
         public GMTabbar uiViewTabbar;
+        [Space]
+        public GMButton browseViewsButton;
 
         [Inject]
         private Service.DevUIService.IDevUIService _devUiService;
+
+        private Service.FileSystem.Commands.GetPathCommand getPath = new Service.FileSystem.Commands.GetPathCommand();
 
         private Dictionary<DevUIView, UIViewController> uiViews = new Dictionary<DevUIView, UIViewController>();
 
@@ -40,6 +45,9 @@ namespace UserInterface {
 
             //listen to remove
             _devUiService.GetRxViews().ObserveRemove().Subscribe(evt => { RemoveView(evt.Value); }).AddTo(this);
+
+            //Button
+            browseViewsButton.onClick.AddListener(Browse);
 
         }
 
@@ -83,6 +91,12 @@ namespace UserInterface {
             if (uiViews.ContainsKey(view)) {
                 uiViews.Remove(view);
             }
+        }
+
+        void Browse() {
+            getPath.domain = Service.FileSystem.FSDomain.DevUIViews;
+            this.Publish(getPath);
+            EditorUtility.RevealInFinder(getPath.result);
         }
     }
 }
