@@ -54,12 +54,21 @@ namespace Service.DevUIService {
 
 
 		/// <summary>
-        /// Remove View 
-        /// <param name="viewName"></param>
+        /// Remove View from data model 
+        /// <param name="view"></param>
  /// </summary>
         
 
-					void RemoveView(string viewName);
+					void RemoveViewFromModel(DevUIView view);
+
+
+		/// <summary>
+        /// Remove View from views-folder and put it to the archieve-folder 
+        /// <param name="view"></param>
+ /// </summary>
+        
+
+					void RemoveViewToArchieve(DevUIView view);
 
 
 		/// <summary>

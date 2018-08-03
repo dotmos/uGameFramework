@@ -30,7 +30,9 @@ namespace Service.DevUIService{
 
             this.OnEvent<ViewNameExistsCommand>().Subscribe(e => ViewNameExistsCommandHandler(e)).AddTo(this);
 
-            this.OnEvent<RemoveViewCommand>().Subscribe(e => RemoveViewCommandHandler(e)).AddTo(this);
+            this.OnEvent<RemoveViewFromModelCommand>().Subscribe(e => RemoveViewFromModelCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<RemoveViewToArchieveCommand>().Subscribe(e => RemoveViewToArchieveCommandHandler(e)).AddTo(this);
 
             this.OnEvent<LoadViewsCommand>().Subscribe(e => LoadViewsCommandHandler(e)).AddTo(this);
 
@@ -154,24 +156,48 @@ namespace Service.DevUIService{
 
         
         /// <summary>
-        /// Remove View
+        /// Remove View from data model
         /// </summary>
         
-        public class RemoveViewCommand  {
-            public string viewName;
+        public class RemoveViewFromModelCommand  {
+            public DevUIView view;
             
             
         }
 
-		protected void RemoveViewCommandHandler  (RemoveViewCommand cmd) {
+		protected void RemoveViewFromModelCommandHandler  (RemoveViewFromModelCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("RemoveViewCommand");
+            ptest.Start("RemoveViewFromModelCommand");
 #endif
-        _service.RemoveView(cmd.viewName);
+        _service.RemoveViewFromModel(cmd.view);
 #if PERFORMANCE_TEST
             // now stop the watches
-            ptest.Stop("RemoveViewCommand");
+            ptest.Stop("RemoveViewFromModelCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Remove View from views-folder and put it to the archieve-folder
+        /// </summary>
+        
+        public class RemoveViewToArchieveCommand  {
+            public DevUIView view;
+            
+            
+        }
+
+		protected void RemoveViewToArchieveCommandHandler  (RemoveViewToArchieveCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("RemoveViewToArchieveCommand");
+#endif
+        _service.RemoveViewToArchieve(cmd.view);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("RemoveViewToArchieveCommand");
 #endif
         }
         

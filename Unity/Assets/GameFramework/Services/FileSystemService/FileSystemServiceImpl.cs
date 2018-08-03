@@ -17,16 +17,26 @@ namespace Service.FileSystem {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
         }
 
-        public override string GetPath(FSDomain domain) {
+        public override string GetPath(FSDomain domain,string relativePart="") {
             string prefix = Application.streamingAssetsPath;
             string path = MISC_PATH;
             switch (domain) {
                 case FSDomain.ScriptingOutput: path = Application.persistentDataPath + "/scripting"; break;
                 case FSDomain.DevUIViews: path = Application.persistentDataPath + "/dev-ui/views"; break;
+                case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archieves"; break;
                 case FSDomain.RuntimeAssets: path = Application.streamingAssetsPath; break;
+                
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
-            return EnsureDirectoryExistsAndReturn(path);
+
+            if (relativePart != "") {
+                // remove leading slashes
+                while (relativePart.StartsWith("/")) {
+                    relativePart = relativePart.Substring(1);
+                }
+            }
+
+            return EnsureDirectoryExistsAndReturn(path) + (relativePart!=""?"/"+relativePart:"");
         }
 
         public override bool WriteStringToFile(string pathToFile, string data) {
@@ -64,6 +74,21 @@ namespace Service.FileSystem {
             return LoadFileAsString(GetPath(domain) + "/" + relativePathToFile);
         }
 
+        public override bool FileExists(string pathToFile) {
+            try {
+                return File.Exists(pathToFile);
+            }
+            catch (Exception e) {
+                Debug.LogException(e);
+                return false;
+            }
+        }
+
+        public override bool FileExistsInDomain(FSDomain domain, string relativePath) {
+            string absPath = GetPath(domain, relativePath);
+            return FileExists(absPath);
+        }
+
         private string EnsureDirectoryExistsAndReturn(string path) {
             try {
                 if (!Directory.Exists(path)) {
@@ -89,6 +114,20 @@ namespace Service.FileSystem {
 
         public override List<string> GetFilesInDomain(FSDomain domain, string filter = "*.*") {
             return GetFilesInAbsFolder(GetPath(domain), filter);
+        }
+
+        public override void RemoveFile(string filePath) {
+            try {
+                File.Delete(filePath);
+            }
+            catch (Exception e) {
+                Debug.LogException(e);
+            }
+        }
+
+        public override void RemoveFileInDomain(FSDomain domain, string relativePath) {
+            var path = GetPath(domain,relativePath);
+            RemoveFile(path);
         }
     }
 }

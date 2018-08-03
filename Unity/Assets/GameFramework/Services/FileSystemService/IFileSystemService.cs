@@ -21,10 +21,11 @@ namespace Service.FileSystem {
 		/// <summary>
         /// Get path as string for given domain 
         /// <param name="domain"></param>
+        /// <param name="realtivePart"></param>
  /// </summary>
         
 
-					string GetPath(FSDomain domain);
+					string GetPath(FSDomain domain,string realtivePart="");
 
 
 		/// <summary>
@@ -86,11 +87,49 @@ namespace Service.FileSystem {
 
 					List<string> GetFilesInDomain(FSDomain domain,string filter="*.*");
 
+
+		/// <summary>
+        /// Remove file from filesystem 
+        /// <param name="filePath"></param>
+ /// </summary>
+        
+
+					void RemoveFile(string filePath);
+
+
+		/// <summary>
+        /// Remove file in domain 
+        /// <param name="domain"></param>
+        /// <param name="relativePath"></param>
+ /// </summary>
+        
+
+					void RemoveFileInDomain(FSDomain domain,string relativePath);
+
+
+		/// <summary>
+        /// Check if a file exists(absolute) 
+        /// <param name="pathToFile"></param>
+ /// </summary>
+        
+
+					bool FileExists(string pathToFile);
+
+
+		/// <summary>
+        /// Check if a file exists in a domain(relative to domain-root) 
+        /// <param name="domain"></param>
+        /// <param name="relativePath"></param>
+ /// </summary>
+        
+
+					bool FileExistsInDomain(FSDomain domain,string relativePath);
+
 	}
 
 
     public enum FSDomain {
-        ScriptingOutput,RuntimeAssets,DevUIViews
+        ScriptingOutput,RuntimeAssets,DevUIViews,DevUIViewsArchieve
         
     }
 

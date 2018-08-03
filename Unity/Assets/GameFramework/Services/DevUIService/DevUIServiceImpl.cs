@@ -7,10 +7,13 @@ using UniRx;
 using System.Linq;
 using Service.Serializer;
 using UnityEngine;
+using System.IO;
 
 namespace Service.DevUIService {
 
     partial class DevUIServiceImpl : DevUIServiceBase {
+
+        public const string SUBFOLDER_ARCHIEVE = "archieve";
 
         public ReactiveCollection<DevUIView> rxViews;
 
@@ -26,6 +29,10 @@ namespace Service.DevUIService {
         [Inject]
         Service.Scene.ISceneService sceneService;
 
+        /// <summary>
+        /// A list in which all files-path of the currently loaded views is visible
+        /// </summary>
+        private List<string> viewPathsLoaded = new List<string>();
 
         // Scene loading commands
         private const string developmentSceneID = "DevelopmentConsole";
@@ -50,6 +57,16 @@ namespace Service.DevUIService {
                     ToggleScriptingConsole();
                 }
             }).AddTo(disposables);
+
+            OnEvent<Events.UIViewRenamed>().Subscribe(evt => {
+                if (evt.view.currentFilename != null) {
+                    // there is already an representation! delete it and create it new
+                    fileSystem.RemoveFile(evt.view.currentFilename);
+                    // save to default-location but force a new name
+                    SaveViewToPath(evt.view,false,true);
+                }
+            });
+
 
             // on startup create some sample data
             var rxStartup = Kernel.Instance.rxStartup;
@@ -109,6 +126,7 @@ namespace Service.DevUIService {
         public override void CloseScriptingConsole() {
             devConsoleActive = false;
             sceneService.DeactivateScene(developmentSceneID);
+            this.Publish(new Events.ScriptingConsoleClosed());
         }
 
         public override void ToggleScriptingConsole() {
@@ -129,15 +147,21 @@ namespace Service.DevUIService {
 
 
         public override DevUIView GetView(string viewName) {
-            return rxViews.Where(v => v.name == viewName).FirstOrDefault();
+            return rxViews.Where(v => v.Name == viewName).FirstOrDefault();
         }
 
-        public override void RemoveView(string viewName) {
-            var view = GetView(viewName);
-            if (view != null) {
-                rxViews.Remove(view);
-            }
+        public override void RemoveViewFromModel(DevUIView view) {
+            rxViews.Remove(view);
+            viewPathsLoaded.Remove(view.currentFilename);
         }
+
+        public override void RemoveViewToArchieve(DevUIView view) {
+            RemoveViewFromModel(view);
+            // save view to archieve path (true)
+            SaveViewToPath(view, true);
+            fileSystem.RemoveFile(view.currentFilename);
+        }
+
 
         public override bool ViewNameExists(string viewName) {
             return GetView(viewName) != null;
@@ -168,32 +192,63 @@ namespace Service.DevUIService {
             // check if we already used a viewname
             HashSet<string> usedViewNames = new HashSet<string>();
 
+            List<string> tempCurrentViewFiles = new List<string>(viewPathsLoaded);
+
             foreach (string viewFile in viewFiles) {
+                // did we already load this view? if yes, skip
+                if (tempCurrentViewFiles.Contains(viewFile)) {
+                    // remove file from temp list (the ones that stays in list are the ones to be deleted afterwards)
+                    tempCurrentViewFiles.Remove(viewFile);
+                    continue;
+                }
+
                 var viewDataAsString = fileSystem.LoadFileAsString(viewFile);
                 var viewData = serializer.DeserializeToObject<DevUIView>(viewDataAsString);
 
-                if (usedViewNames.Contains(viewData.name)) {
-                    logging.Warn("There is already already a view with the name " + viewData.name + "! This results in merged views");
+                if (usedViewNames.Contains(viewData.Name)) {
+                    logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
                 }
 
-                var view = GetView(viewData.name);
+                var view = GetView(viewData.Name);
                 if (view == null) {
                     // a new view
-                    view = AddView(viewData.name);
+                    view = AddView(viewData.Name);
                 }
-                usedViewNames.Add(viewData.name);
+                usedViewNames.Add(viewData.Name);
+                view.currentFilename = viewFile;
                 
                 foreach (var uiElem in viewData.uiElements) {
                     view.AddElement(uiElem,false);
+                }
+
+                viewPathsLoaded.Add(viewFile);
+            }
+            // are there any files left, that were loaded before, but now vanished?
+            foreach (string oldPath in tempCurrentViewFiles) {
+                var view = rxViews.Where(v => v.currentFilename == oldPath).FirstOrDefault();
+                if (view != null) {
+                    RemoveViewFromModel(view);
                 }
             }
         }
 
         public override void SaveViews() {
             foreach (var view in rxViews) {
-                var viewAsString = serializer.Serialize(view);
-                fileSystem.WriteStringToFileAtDomain(FileSystem.FSDomain.DevUIViews, view.name + ".json", viewAsString);
+                SaveViewToPath(view);
             }
+        }
+
+        private void SaveViewToPath(DevUIView view, bool saveToArchieve=false,bool forceNewFilename=false) {
+            var viewAsString = serializer.Serialize(view);
+
+            if (saveToArchieve) {
+                var saveAsFilename = DateTime.Now.ToFileTime().ToString() + view.Name + ".json";
+                fileSystem.WriteStringToFileAtDomain(FileSystem.FSDomain.DevUIViewsArchieve,saveAsFilename, viewAsString);
+            } else {
+                var saveAsFilename = (view.currentFilename == null || forceNewFilename) ? view.Name + ".json" : Path.GetFileName(view.currentFilename);
+                fileSystem.WriteStringToFileAtDomain(FileSystem.FSDomain.DevUIViews, saveAsFilename, viewAsString);
+            }
+
         }
     }
 

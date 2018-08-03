@@ -107,7 +107,7 @@ namespace Service.FileSystem
 
         
                                                           
-        public abstract string GetPath(FSDomain domain);
+        public abstract string GetPath(FSDomain domain,string realtivePart="");
         
         public abstract bool WriteStringToFile(string pathToFile,string data);
         
@@ -120,6 +120,14 @@ namespace Service.FileSystem
         public abstract List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
         
         public abstract List<string> GetFilesInDomain(FSDomain domain,string filter="*.*");
+        
+        public abstract void RemoveFile(string filePath);
+        
+        public abstract void RemoveFileInDomain(FSDomain domain,string relativePath);
+        
+        public abstract bool FileExists(string pathToFile);
+        
+        public abstract bool FileExistsInDomain(FSDomain domain,string relativePath);
         
     }
 }

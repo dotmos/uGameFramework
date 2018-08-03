@@ -5,7 +5,7 @@ using MoonSharp.Interpreter;
 namespace Service.FileSystem {  
     public interface IFileSystemService {  	
 		## "Get path as string for given domain"
-		string GetPath(?FSDomain domain);
+		string GetPath(?FSDomain domain,string realtivePart="");
 		## "Write string to file"
 		bool WriteStringToFile(string pathToFile, string data);
 		## "Write string to file at domain"
@@ -17,7 +17,15 @@ namespace Service.FileSystem {
 		## "Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
 		List<string> GetFilesInAbsFolder(string absPath, string pattern="*.*");
 		## "Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
-		List<string> GetFilesInDomain(?FSDomain domain, string filter="*.*");		
+		List<string> GetFilesInDomain(?FSDomain domain, string filter="*.*");
+		## "Remove file from filesystem"
+		void RemoveFile(string filePath);
+		## "Remove file in domain"
+		void RemoveFileInDomain(?FSDomain domain,string relativePath);
+		## "Check if a file exists(absolute)"
+		bool FileExists(string pathToFile);
+		## "Check if a file exists in a domain(relative to domain-root)"
+		bool FileExistsInDomain(?FSDomain domain,string relativePath);
     }      
 }     
 ## model
@@ -25,7 +33,8 @@ namespace Service.FileSystem {
 public enum FSDomain {
 	ScriptingOutput,
 	RuntimeAssets,
-	DevUIViews
+	DevUIViews,
+	DevUIViewsArchieve
 }  
 
 ## events 

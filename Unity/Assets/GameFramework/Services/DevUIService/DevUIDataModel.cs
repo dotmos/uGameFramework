@@ -17,12 +17,37 @@ namespace Service.DevUIService {
     /// </summary>
     [DataContract]
     public class DevUIView {
+        private ReactiveProperty<string> nameProperty=new ReactiveProperty<string>("");
+
         [DataMember]
-        public string name;
+        public string Name {
+            get { return nameProperty.Value; }
+            set {
+                if (nameProperty.Value == value) {
+                    return;
+                }
+                // tell the world that the uiname has been changed
+                var evt = new Events.UIViewRenamed() {
+                    from = nameProperty.Value,
+                    to = value,
+                    view = this
+                };
+                nameProperty.Value = value;
+                _eventsService.Publish(evt);
+            }
+        }
+
         public ReactiveCollection<DevUIElement> uiElements = new ReactiveCollection<DevUIElement>();
+
+        /// <summary>
+        /// Do not serialize. This is just meta-data
+        /// </summary>
+        public string currentFilename = null;
 
         [Inject]
         private Service.Events.IEventsService _eventsService;
+
+        private Service.DevUIService.IDevUIService _devUIService;
 
         [DataMember]
         private List<DevUIElement> DATA_persistedUiElements {
@@ -36,8 +61,8 @@ namespace Service.DevUIService {
         }
 
         public DevUIView(string name) {
-            this.name = name;
             Kernel.Instance.Inject(this);
+            this.Name = name;
         }
 
         /// <summary>
@@ -153,6 +178,56 @@ namespace Service.DevUIService {
         }
 
         
+    }
+
+    /// <summary>
+    /// DevUI-Element that let you watch a specific lua-expression at a given rate
+    /// </summary>
+    [DataContract]
+    public class DevUILuaExpression : DevUIElement
+    {
+        public float updateRateInSeconds = 2;
+
+        Service.Scripting.IScriptingService _scriptingService;
+        Func<string> luaFunc = null;
+
+        public ReactiveProperty<string> luaExpressionProperty = new ReactiveProperty<string>();
+        public ReactiveProperty<List<KeyValuePair<string,string>>> currentValue = new ReactiveProperty<List<KeyValuePair<string, string>>>();
+
+        [DataMember]
+        private string DATA_LuaExpression {
+            get { return LuaExpression; }
+            set { SetLuaExpresion(value); }
+        }
+
+
+        public string LuaExpression {
+            get { return luaExpressionProperty.Value; }
+            private set { luaExpressionProperty.Value = value; }
+        }
+
+        /// <summary>
+        /// The Action to be called when this button is pressed
+        /// </summary>
+        public DevUILuaExpression(string name) : base(name) {
+            // get the scripting-service
+            _scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+            
+            SetLuaExpresion("testValue"); // <-- this "testValue" is specified in DevUIServiceScriptingAPI and is accessable in lua)
+        }
+
+        public void SetLuaExpresion(string luaExpression) {
+            luaExpressionProperty.Value = luaExpression;
+
+            luaFunc = () => {
+                // execute the current command with the scripting service
+                return _scriptingService.ExecuteStringOnMainScript("return "+LuaExpression);
+            };
+        }
+
+        public void UpdateExpression() {
+
+        }
     }
 
 }

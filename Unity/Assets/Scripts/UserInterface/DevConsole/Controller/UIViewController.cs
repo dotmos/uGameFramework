@@ -33,7 +33,7 @@ namespace UserInterface {
             myTab = uiViewTab;
 
             //Set name
-            UpdateName(myView.name);
+            UpdateName(myView.Name);
 
             //Button events
             addLuaCommandButton.onClick.AddListener(AddLuaButton);
@@ -116,9 +116,9 @@ namespace UserInterface {
 
         //********** Naming **************//
         void UpdateName(string _name) {
-            myView.name = _name;
-            myTab.GetComponentInChildren<Text>().text = myView.name.ToUpper();
-            nameOutput.text = myView.name.ToUpper();
+            myView.Name = _name;
+            myTab.GetComponentInChildren<Text>().text = myView.Name.ToUpper();
+            nameOutput.text = myView.Name.ToUpper();
         }
 
         void ValidateName(string _name) {
@@ -135,7 +135,7 @@ namespace UserInterface {
             ValidateName(renameInputField.text);
 
             if (activate) {
-                renameInputField.text = myView.name;
+                renameInputField.text = myView.Name;
                 renameInputField.ActivateInputField();
             }
         }

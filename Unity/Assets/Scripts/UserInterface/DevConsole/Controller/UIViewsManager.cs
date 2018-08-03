@@ -73,7 +73,7 @@ namespace UserInterface {
             //Spawn  the tab
             GameObject uiViewTabGO = Instantiate(uiViewTabPrefab) as GameObject;
             uiViewTabGO.transform.SetParent(uiViewTabbar.transform, false);
-            uiViewTabGO.name = "tab_" + devUIView.name;
+            uiViewTabGO.name = "tab_" + devUIView.Name;
 
             //Spawn the view
             GameObject uiViewGO = Instantiate(uiViewPrefab) as GameObject;

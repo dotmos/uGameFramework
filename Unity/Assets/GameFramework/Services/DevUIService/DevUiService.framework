@@ -14,8 +14,10 @@ namespace Service.DevUIService {
 		("DevUIView") GetView(string viewName);
 		## "Check if view already exists"
 		bool ViewNameExists(string viewName);
-		## "Remove View"
-		void RemoveView(string viewName);
+		## "Remove View from data model"
+		void RemoveViewFromModel(("DevUIView") view);
+		## "Remove View from views-folder and put it to the archieve-folder"
+		void RemoveViewToArchieve(("DevUIView") view);
 		
 		## "Load views from views-folder"
 		void LoadViews();
@@ -31,7 +33,6 @@ namespace Service.DevUIService {
 		void ToggleScriptingConsole();
 		## "Check if console is visible at the moment"
 		bool IsScriptingConsoleVisible(); 
-		
     }   
 }      
 ## model
@@ -50,5 +51,10 @@ public class WriteToScriptingConsole{
 	public string text;
 }
 public class ScriptingConsoleOpened{}
-  
+public class ScriptingConsoleClosed{}
+public class UIViewRenamed{
+	public string from;
+	public string to;
+	public ("DevUIView") view;
+}
 ## service end
