@@ -110,9 +110,18 @@ namespace UserInterface {
             RegisterToggle(tab);
         }
 
-        public void RemoveTab(GMTab tab)
+        public void RemoveTab(GMTab tab, bool destroy = false)
         {
+            //activate tab in front
+            int index = tabs.IndexOf(tab);
+
+            if (tabs.Count > 0) {
+                ActivateTabByIndex(index - 1);
+            }
+
+            //Remove tab
             tabs.Remove(tab);
+            if (destroy) Destroy(tab.gameObject);
         }
 
         public GMTab GetActiveTab()

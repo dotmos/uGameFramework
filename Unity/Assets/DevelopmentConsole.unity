@@ -289,7 +289,7 @@ MonoBehaviour:
     m_TypeName: UserInterface.Scrollbar.GMScrollbar+ScrollEvent, uGameFramework, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Direction: 1
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
 --- !u!224 &52718071
@@ -1507,8 +1507,8 @@ MonoBehaviour:
   colorizeElements:
   - {fileID: 480304041}
   - {fileID: 571247825}
-  defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
-  highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  defaultColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  highlightColor: {r: 0.79045033, g: 0.8244578, b: 0.8773585, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
 --- !u!114 &314762441
@@ -2097,7 +2097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -2476,8 +2476,8 @@ MonoBehaviour:
   colorizeElements:
   - {fileID: 1317665902}
   - {fileID: 1416521895}
-  defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
-  highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  defaultColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  highlightColor: {r: 0.79045033, g: 0.8244578, b: 0.8773585, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
 --- !u!114 &525544451
@@ -2801,7 +2801,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3082,7 +3082,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3694,7 +3694,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3889,8 +3889,8 @@ MonoBehaviour:
   colorizeElements:
   - {fileID: 1775771439}
   - {fileID: 945767441}
-  defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
-  highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  defaultColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  highlightColor: {r: 0.79045033, g: 0.8244578, b: 0.8773585, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
 --- !u!114 &983180679
@@ -5049,17 +5049,16 @@ RectTransform:
 --- !u!114 &1244104426
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 114378953151874530, guid: 3bac349d213d53a48ac232bdf56a0d44,
-    type: 2}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1244104424}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: 11500000, guid: 4754aa3e37df0824e9b9dc407c8aaadd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 0
+    m_Mode: 3
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -5069,7 +5068,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.24648452, g: 0.25717387, b: 0.2735849, a: 1}
     m_HighlightedColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
     m_PressedColor: {r: 0.18035777, g: 0.18796726, b: 0.1981132, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.24648452, g: 0.25717387, b: 0.2735849, a: 0.45490196}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -5099,6 +5098,12 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  colorizeElements:
+  - {fileID: 2115803000}
+  defaultColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  highlightColor: {r: 0.8243592, g: 0.8524811, b: 0.8962264, a: 1}
+  pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  disabledColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
 --- !u!114 &1244104427
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5403,7 +5408,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -5736,7 +5741,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6012,7 +6017,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000015258789}
+  m_AnchoredPosition: {x: 0, y: 0.000030517578}
   m_SizeDelta: {x: 0, y: 2}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1533600368
@@ -7003,7 +7008,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -7486,7 +7491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
+  m_Color: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -7870,8 +7875,8 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   colorizeElements:
   - {fileID: 1894127010}
-  defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
-  highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  defaultColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  highlightColor: {r: 0.75725347, g: 0.79686797, b: 0.8584906, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
 --- !u!114 &1942181455
@@ -8395,8 +8400,8 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   colorizeElements:
   - {fileID: 697965875}
-  defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
-  highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  defaultColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
+  highlightColor: {r: 0.75725347, g: 0.79686797, b: 0.8584906, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
 --- !u!114 &2092294645
@@ -8520,7 +8525,7 @@ GameObject:
   - component: {fileID: 2115803001}
   - component: {fileID: 2115803000}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
