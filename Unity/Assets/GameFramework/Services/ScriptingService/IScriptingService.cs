@@ -40,6 +40,15 @@ namespace Service.Scripting {
 
 
 		/// <summary>
+        /// Load a script into the default lua-context 
+        /// <param name="fileName"></param>
+ /// </summary>
+        
+
+					DynValue ExecuteStringOnMainScriptRaw(string fileName);
+
+
+		/// <summary>
         /// Generates a list of possible proposals 
         /// <param name="currentInput"></param>
         /// <param name="cursorPos"></param>

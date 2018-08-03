@@ -28,6 +28,8 @@ namespace Service.Scripting{
 
             this.OnEvent<ExecuteFileToMainScriptCommand>().Subscribe(e => ExecuteFileToMainScriptCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<ExecuteStringOnMainScriptRawCommand>().Subscribe(e => ExecuteStringOnMainScriptRawCommandHandler(e)).AddTo(this);
+
             this.OnEvent<AutocompleteProposalsCommand>().Subscribe(e => AutocompleteProposalsCommandHandler(e)).AddTo(this);
 
         }
@@ -106,6 +108,32 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("ExecuteFileToMainScriptCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load a script into the default lua-context
+        /// </summary>
+        
+        public class ExecuteStringOnMainScriptRawCommand  {
+            public DynValue result;
+                        public string fileName;
+            
+            
+        }
+
+		protected void ExecuteStringOnMainScriptRawCommandHandler  (ExecuteStringOnMainScriptRawCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("ExecuteStringOnMainScriptRawCommand");
+#endif
+        
+            cmd.result = _service.ExecuteStringOnMainScriptRaw(cmd.fileName);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("ExecuteStringOnMainScriptRawCommand");
 #endif
         }
         

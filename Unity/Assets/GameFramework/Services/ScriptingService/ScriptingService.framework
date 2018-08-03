@@ -8,7 +8,11 @@ namespace Service.Scripting {
 		## "Execute a string into the default-lua-context"
 		string ExecuteStringOnMainScript(string luaCode);
 		## "Load a script into the default lua-context" 
-		string ExecuteFileToMainScript(string fileName);  
+		string ExecuteFileToMainScript(string fileName);
+		
+		## "Load a script into the default lua-context" 
+		("DynValue") ExecuteStringOnMainScriptRaw(string fileName);
+		  
 		## "Generates a list of possible proposals"
 		("Proposal") AutocompleteProposals(string currentInput,int cursorPos);
 

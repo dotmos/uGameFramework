@@ -41,9 +41,14 @@ namespace Service.Scripting {
             }
         }
 
+        public override DynValue ExecuteStringOnMainScriptRaw(string luaCode) {
+            var result = mainScript.DoString(luaCode);
+            return result;
+        }
+
         public override string ExecuteStringOnMainScript(string luaCode) {
             try {
-                var result = mainScript.DoString(luaCode);
+                var result = ExecuteStringOnMainScriptRaw(luaCode);
                 return result.ToString();
             }
             catch (ScriptRuntimeException ex) {
