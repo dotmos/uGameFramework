@@ -103,9 +103,9 @@ namespace UserInterface {
         }
 
         void Browse() {
-            getPath.domain = Service.FileSystem.FSDomain.DevUIViews;
+            getPath.domain = Service.FileSystem.FSDomain.DevUIViewsArchieve;
             this.Publish(getPath);
-            EditorUtility.RevealInFinder(getPath.result + "/views");
+            EditorUtility.RevealInFinder(getPath.result);
         }
 
         void Refresh() {
