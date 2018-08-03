@@ -61,8 +61,10 @@ namespace UserInterface {
         }
 
         public void ApplyCurrentProposal() {
-            ProposalElement currentProposalElement = currentProposal.proposalElements[currentSelectedElementID];
-            ApplyProposal(currentProposalElement);
+            if (currentProposal != null && currentSelectedElementID < currentProposal.proposalElements.Count) {
+                ProposalElement currentProposalElement = currentProposal.proposalElements[currentSelectedElementID];
+                ApplyProposal(currentProposalElement);
+            }
         }
 
         /// <summary>

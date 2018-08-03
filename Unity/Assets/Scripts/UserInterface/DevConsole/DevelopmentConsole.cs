@@ -70,7 +70,7 @@ namespace UserInterface {
                             autoCompleteWindow.SwitchElement(1);
                         }
                     }
-                } else if (Input.GetKeyDown(KeyCode.Tab)) {
+                } else if (Input.GetKeyDown(KeyCode.Tab) && consoleInput.isFocused) {
                     autoCompleteWindow.ApplyCurrentProposal();
                 }
 
