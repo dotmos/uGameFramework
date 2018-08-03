@@ -45,7 +45,9 @@ namespace UserInterface {
             }).AddTo(this);
 
             //listen to remove
-            _devUiService.GetRxViews().ObserveRemove().Subscribe(evt => { RemoveView(evt.Value); }).AddTo(this);
+            _devUiService.GetRxViews().ObserveRemove().Subscribe(evt => {
+                RemoveView(evt.Value);
+            }).AddTo(this);
 
             //Button
             browseViewsButton.onClick.AddListener(Browse);
@@ -92,6 +94,7 @@ namespace UserInterface {
 
         void RemoveView(DevUIView view) {
             if (uiViews.ContainsKey(view)) {
+                Destroy(uiViews[view].gameObject);
                 uiViews.Remove(view);
             }
         }
@@ -103,7 +106,7 @@ namespace UserInterface {
         }
 
         void Refresh() {
-
+            _devUiService.LoadViews();
         }
     }
 }

@@ -157,9 +157,9 @@ namespace Service.DevUIService {
 
         public override void RemoveViewToArchieve(DevUIView view) {
             RemoveViewFromModel(view);
+            fileSystem.RemoveFile(view.currentFilename);
             // save view to archieve path (true)
             SaveViewToPath(view, true);
-            fileSystem.RemoveFile(view.currentFilename);
         }
 
 
@@ -242,13 +242,15 @@ namespace Service.DevUIService {
             var viewAsString = serializer.Serialize(view);
 
             if (saveToArchieve) {
-                var saveAsFilename = DateTime.Now.ToFileTime().ToString() + view.Name + ".json";
+                var saveAsFilename = DateTime.Now.ToFileTime() +"-" +view.Name + ".json";
                 fileSystem.WriteStringToFileAtDomain(FileSystem.FSDomain.DevUIViewsArchieve,saveAsFilename, viewAsString);
+                view.currentFilename = fileSystem.GetPath(FileSystem.FSDomain.DevUIViewsArchieve, saveAsFilename);
             } else {
                 var saveAsFilename = (view.currentFilename == null || forceNewFilename) ? view.Name + ".json" : Path.GetFileName(view.currentFilename);
                 fileSystem.WriteStringToFileAtDomain(FileSystem.FSDomain.DevUIViews, saveAsFilename, viewAsString);
+                view.currentFilename = fileSystem.GetPath(FileSystem.FSDomain.DevUIViews,saveAsFilename);
             }
-
+            
         }
     }
 

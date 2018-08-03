@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using Zenject;
 
 namespace UserInterface {
     public class UIViewController : GameComponent {
@@ -27,6 +28,9 @@ namespace UserInterface {
         private GMTab myTab;
 
         private Dictionary<DevUIElement, GameObject> uiElements = new Dictionary<DevUIElement, GameObject>();
+
+        [Inject]
+        IDevUIService _devUIService;
 
         public void Initialize(DevUIView uiView, GMTab uiViewTab) {
             myView = uiView;
@@ -111,7 +115,11 @@ namespace UserInterface {
 
         //********** Archive ***************//
         void ArchiveView() {
+            _devUIService.RemoveViewToArchieve(myView);
+        }
 
+        private void OnDestroy() {
+            Destroy(myTab.gameObject);
         }
 
         //********** Naming **************//
