@@ -47,6 +47,7 @@ namespace UserInterface {
                 ()=> ToggleNamingMode(true)
             );
             renameInputField.onValueChanged.AddListener(ValidateName);
+            archiveButton.onClick.AddListener(ArchiveView);
 
             //Setup ui elements
             foreach (DevUIElement uiElement in uiView.uiElements) {
@@ -106,6 +107,11 @@ namespace UserInterface {
                 Destroy(uiElements[element].gameObject);
                 uiElements.Remove(element);
             }
+        }
+
+        //********** Archive ***************//
+        void ArchiveView() {
+
         }
 
         //********** Naming **************//

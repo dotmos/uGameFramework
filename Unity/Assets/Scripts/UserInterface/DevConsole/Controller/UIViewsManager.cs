@@ -18,6 +18,7 @@ namespace UserInterface {
         public GMTabbar uiViewTabbar;
         [Space]
         public GMButton browseViewsButton;
+        public GMButton refreshViewsButton;
 
         [Inject]
         private Service.DevUIService.IDevUIService _devUiService;
@@ -48,6 +49,8 @@ namespace UserInterface {
 
             //Button
             browseViewsButton.onClick.AddListener(Browse);
+            //Refresh
+            refreshViewsButton.onClick.AddListener(Refresh);
 
         }
 
@@ -97,6 +100,10 @@ namespace UserInterface {
             getPath.domain = Service.FileSystem.FSDomain.DevUIViews;
             this.Publish(getPath);
             EditorUtility.RevealInFinder(getPath.result);
+        }
+
+        void Refresh() {
+
         }
     }
 }
