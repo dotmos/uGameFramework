@@ -21,6 +21,17 @@ namespace Service.DevUIService {
            [DataMember] public bool inEditMode;
 
         }
+
+        [DataContract(IsReference = true)]
+        public class WriteToScriptingConsole {
+           [DataMember] public string text;
+
+        }
+
+        [DataContract(IsReference = true)]
+        public class ScriptingConsoleOpened {
+
+        }
         
     }
 }

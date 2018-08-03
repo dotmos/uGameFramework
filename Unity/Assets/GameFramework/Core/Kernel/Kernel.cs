@@ -17,6 +17,9 @@ public partial class Kernel : SceneContext {
     static bool loadingKernelScene = false;
     public static bool applicationQuitting = false;
 
+    public ReactivePriorityExecutionList rxStartup = new ReactivePriorityExecutionList();
+    public ReactivePriorityExecutionList rxShutDown = new ReactivePriorityExecutionList();
+
     public static ReactiveProperty<Kernel> InstanceProperty = new ReactiveProperty<Kernel>();
     public static Kernel Instance {
         get{
@@ -54,18 +57,7 @@ public partial class Kernel : SceneContext {
 
     new void Awake(){
         Instance = this;
-        PreInstall += () => { Debug.Log("PREINSTALL"); };
-        PostInstall += () => {
-            eventService = Container.Resolve<Service.Events.IEventsService>();
-
-            Debug.Log("POSTINSTALL");
-        };
-        PreResolve += () => {
-            eventService = Container.Resolve<Service.Events.IEventsService>();
-            Debug.Log("PRERESOLVE");
-        };
-        PostResolve += () => { eventService.Publish(new Events.OnAllServicesInstalled()); Debug.Log("POSTRESOLVE"); };
-
+ 
         base.Awake();
     }
 
@@ -73,9 +65,36 @@ public partial class Kernel : SceneContext {
         //Resolve disposableManager
         dManager = Container.Resolve<DisposableManager>();
         //Let the program know, that Kernel has finished loading
-        eventService = Container.Resolve<Service.Events.IEventsService>();
-        eventService.Publish(new Events.KernelReadyEvent());
-        Debug.Log("KERNEL REALLY READY?");
+
+
+        // first start rxStartup-queue
+        // if this is finished, start initial gamestate
+        rxStartup
+            .RxExecute()
+            .SelectMany(_ => {
+                var initialGameStateName = GetInitialGamestateName();
+                if (initialGameStateName == null) {
+                    Debug.LogWarning("No inital gamestate specified!");
+                    return Observable.Return(true);
+                } else {
+                    var gameStateService = Container.Resolve<Service.GameStateService.IGameStateService>();
+                    var initialGameState = gameStateService.GetGameState(initialGameStateName);
+                    if (initialGameState == null) {
+                        Debug.LogWarning("Could not find initial gamestate with name:" + initialGameStateName);
+                        return Observable.Return(true);
+                    }
+                    return gameStateService.StartGameState(initialGameState).Do(__ => { Debug.Log("Started initial gamestate:" + initialGameStateName); });
+                }
+            })
+            .Last()
+            .Take(1)
+            .Subscribe(_ => {
+                Debug.Log("Startup done!");
+            });
+    }
+
+    public virtual String GetInitialGamestateName() {
+        return null;
     }
 
     void OnApplicationFocus(bool hasFocus) {
@@ -92,9 +111,16 @@ public partial class Kernel : SceneContext {
     private void OnApplicationQuit() {
         SetOnApplicationQuitSettings();
 
-        if (eventService != null) {
+        rxShutDown
+            .RxExecute()
+            .Take(1)
+            .Subscribe(_ => {
+                Debug.Log("Shutdown complete!");
+            });
+
+        /*if (eventService != null) {
             eventService.Publish(new Events.OnApplicationQuit());
-        }  
+        }  */
     }
 
     // since there seems to be no defined way to hit the very first OnApplicationQuit

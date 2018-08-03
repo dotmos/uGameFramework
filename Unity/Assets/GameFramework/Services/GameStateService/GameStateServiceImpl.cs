@@ -140,7 +140,7 @@ namespace Service.GameStateService {
             }));
             startupSequence.Add(gamestate.DoOnEnter());
 
-            return Observable.Concat(startupSequence);
+            return Observable.Concat(startupSequence).Last();
         }
 
         public override IObservable<bool> StopGameState(GameState gamestate) {

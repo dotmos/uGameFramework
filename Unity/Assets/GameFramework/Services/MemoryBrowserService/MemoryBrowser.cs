@@ -21,6 +21,8 @@ namespace Service.MemoryBrowserService {
 
         [Inject]
         Scripting.IScriptingService scripting;
+        [Inject]
+        Service.DevUIService.IDevUIService devUiService;
 
         public ReactiveCollection<object> rxBreadcrumbs = new ReactiveCollection<object>();
         public ReactiveProperty<object> currentProperty = new ReactiveProperty<object>();
@@ -265,11 +267,11 @@ namespace Service.MemoryBrowserService {
         public void OutputToConsole() {
             foreach (var p in rxCurrentSnapShot) {
                 if (p.Value == null) {
-                    scripting.WriteToScriptingConsole(p.Key + " = null");
+                    devUiService.WriteToScriptingConsole(p.Key + " = null");
                 } else if (IsSimple(p.Value)) {
-                    scripting.WriteToScriptingConsole(p.Key + " = " + p.Value);
+                    devUiService.WriteToScriptingConsole(p.Key + " = " + p.Value);
                 } else {
-                    scripting.WriteToScriptingConsole(p.Key + " = [object|"+p.Value.GetType().Name+"]");
+                    devUiService.WriteToScriptingConsole(p.Key + " = [object|"+p.Value.GetType().Name+"]");
                 }
             }
         }

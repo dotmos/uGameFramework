@@ -121,6 +121,16 @@ namespace Service.DevUIService
         
         public abstract void SaveViews();
         
+        public abstract void WriteToScriptingConsole(string text);
+        
+        public abstract void OpenScriptingConsole();
+        
+        public abstract void CloseScriptingConsole();
+        
+        public abstract void ToggleScriptingConsole();
+        
+        public abstract bool IsScriptingConsoleVisible();
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

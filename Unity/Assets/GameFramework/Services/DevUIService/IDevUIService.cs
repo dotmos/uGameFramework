@@ -77,6 +77,47 @@ namespace Service.DevUIService {
 
 					void SaveViews();
 
+
+		/// <summary>
+        /// Output to console 
+        /// <param name="text"></param>
+ /// </summary>
+        
+
+					void WriteToScriptingConsole(string text);
+
+
+		/// <summary>
+        /// Open the console 
+ /// </summary>
+        
+
+					void OpenScriptingConsole();
+
+
+		/// <summary>
+        /// Close the console 
+ /// </summary>
+        
+
+					void CloseScriptingConsole();
+
+
+		/// <summary>
+        /// Toggle the console visibility 
+ /// </summary>
+        
+
+					void ToggleScriptingConsole();
+
+
+		/// <summary>
+        /// Check if console is visible at the moment 
+ /// </summary>
+        
+
+					bool IsScriptingConsoleVisible();
+
 	}
 
 

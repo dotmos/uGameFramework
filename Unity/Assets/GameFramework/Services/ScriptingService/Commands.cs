@@ -22,15 +22,7 @@ namespace Service.Scripting{
         void Initialize([Inject] IScriptingService service) {
             _service = service;
             
-            this.OnEvent<OpenScriptingConsoleCommand>().Subscribe(e => OpenScriptingConsoleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CloseScriptingConsoleCommand>().Subscribe(e => CloseScriptingConsoleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<ToggleScriptingConsoleCommand>().Subscribe(e => ToggleScriptingConsoleCommandHandler(e)).AddTo(this);
-
             this.OnEvent<GetMainScriptCommand>().Subscribe(e => GetMainScriptCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<IsScriptingConsoleVisibleCommand>().Subscribe(e => IsScriptingConsoleVisibleCommandHandler(e)).AddTo(this);
 
             this.OnEvent<ExecuteStringOnMainScriptCommand>().Subscribe(e => ExecuteStringOnMainScriptCommandHandler(e)).AddTo(this);
 
@@ -38,77 +30,6 @@ namespace Service.Scripting{
 
             this.OnEvent<AutocompleteProposalsCommand>().Subscribe(e => AutocompleteProposalsCommandHandler(e)).AddTo(this);
 
-            this.OnEvent<WriteToScriptingConsoleCommand>().Subscribe(e => WriteToScriptingConsoleCommandHandler(e)).AddTo(this);
-
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class OpenScriptingConsoleCommand  {
-
-            
-        }
-
-		protected void OpenScriptingConsoleCommandHandler  (OpenScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("OpenScriptingConsoleCommand");
-#endif
-        _service.OpenScriptingConsole();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("OpenScriptingConsoleCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class CloseScriptingConsoleCommand  {
-
-            
-        }
-
-		protected void CloseScriptingConsoleCommandHandler  (CloseScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CloseScriptingConsoleCommand");
-#endif
-        _service.CloseScriptingConsole();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CloseScriptingConsoleCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class ToggleScriptingConsoleCommand  {
-
-            
-        }
-
-		protected void ToggleScriptingConsoleCommandHandler  (ToggleScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("ToggleScriptingConsoleCommand");
-#endif
-        _service.ToggleScriptingConsole();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("ToggleScriptingConsoleCommand");
-#endif
         }
         
 
@@ -133,31 +54,6 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetMainScriptCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class IsScriptingConsoleVisibleCommand  {
-            public bool result;
-            
-            
-        }
-
-		protected void IsScriptingConsoleVisibleCommandHandler  (IsScriptingConsoleVisibleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("IsScriptingConsoleVisibleCommand");
-#endif
-        
-            cmd.result = _service.IsScriptingConsoleVisible();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("IsScriptingConsoleVisibleCommand");
 #endif
         }
         
@@ -237,30 +133,6 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("AutocompleteProposalsCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// Output to console
-        /// </summary>
-        
-        public class WriteToScriptingConsoleCommand  {
-            public string text;
-            
-            
-        }
-
-		protected void WriteToScriptingConsoleCommandHandler  (WriteToScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("WriteToScriptingConsoleCommand");
-#endif
-        _service.WriteToScriptingConsole(cmd.text);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("WriteToScriptingConsoleCommand");
 #endif
         }
         

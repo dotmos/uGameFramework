@@ -26,7 +26,7 @@ namespace Service.FileSystem {
             FileSystemServiceImpl instance;
 
             [Inject]
-            Service.Scripting.IScriptingService scripting;
+            Service.DevUIService.IDevUIService devUIService;
 
             public API( FileSystemServiceImpl instance) {
                 this.instance = instance;
@@ -36,9 +36,9 @@ namespace Service.FileSystem {
             public const string DEFAULT = "TOM";
 
             public void OutputFolders() {
-                scripting.WriteToScriptingConsole("FileSystem-Folders:");
+                devUIService.WriteToScriptingConsole("FileSystem-Folders:");
                 foreach (var fsType in Enum.GetValues(typeof(FSDomain)).Cast<FSDomain>()) {
-                    scripting.WriteToScriptingConsole(fsType.ToString() + " => " + instance.GetPath(fsType));
+                    devUIService.WriteToScriptingConsole(fsType.ToString() + " => " + instance.GetPath(fsType));
                 }
             }
 

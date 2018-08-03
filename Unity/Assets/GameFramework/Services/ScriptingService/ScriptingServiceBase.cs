@@ -107,23 +107,13 @@ namespace Service.Scripting
 
         
                                                           
-        public abstract void OpenScriptingConsole();
-        
-        public abstract void CloseScriptingConsole();
-        
-        public abstract void ToggleScriptingConsole();
-        
         public abstract Script GetMainScript();
-        
-        public abstract bool IsScriptingConsoleVisible();
         
         public abstract string ExecuteStringOnMainScript(string luaCode);
         
         public abstract string ExecuteFileToMainScript(string fileName);
         
         public abstract Proposal AutocompleteProposals(string currentInput,int cursorPos);
-        
-        public abstract void WriteToScriptingConsole(string text);
         
     }
 }

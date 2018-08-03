@@ -1,19 +1,19 @@
-﻿using UnityEngine;
-using UniRx;
+﻿//using UnityEngine;
+//using UniRx;
 
 
-public class OnKernelReady : GameComponent {
+//public class OnKernelReady : GameComponent {
 
-     protected override void AfterBind()
-    {
-        base.AfterBind();
+//     protected override void AfterBind()
+//    {
+//        base.AfterBind();
 
-        Observable.NextFrame().DelayFrame(1).Subscribe(e => { _OnKernelReady(); }).AddTo(this); ;
-    }
+//        Observable.NextFrame().DelayFrame(1).Subscribe(e => { _OnKernelReady(); }).AddTo(this); ;
+//    }
 
-    void _OnKernelReady(){
-        Debug.Log("Kernel ready!");
+//    void _OnKernelReady(){
+//        Debug.Log("Kernel ready!");
 
-        //Kernel is ready, you can "start" your game now
-    }
-}
+//        //Kernel is ready, you can "start" your game now
+//    }
+//}

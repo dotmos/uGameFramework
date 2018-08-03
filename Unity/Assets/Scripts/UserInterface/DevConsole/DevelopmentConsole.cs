@@ -38,11 +38,11 @@ namespace UserInterface {
             consoleInput.onEndEdit.AddListener(OnEndEdit);
             closeButton.onClick.AddListener(CloseConsole);
 
-            this.OnEvent<Service.Scripting.Events.WriteToScriptingConsole>().Subscribe(e => {
+            this.OnEvent<Service.DevUIService.Events.WriteToScriptingConsole>().Subscribe(e => {
                 AddToText(e.text);
             }).AddTo(this);
              
-            this.OnEvent<Service.Scripting.Events.ScriptingConsoleOpened>().Subscribe(e => {
+            this.OnEvent<Service.DevUIService.Events.ScriptingConsoleOpened>().Subscribe(e => {
                 consoleInput.ActivateInputField();
             }).AddTo(this);
 
@@ -276,7 +276,7 @@ namespace UserInterface {
         }
 
         public void CloseConsole() {
-            this.Publish(new Service.Scripting.Commands.CloseScriptingConsoleCommand());
+            this.Publish(new Service.DevUIService.Commands.CloseScriptingConsoleCommand());
         }
     }
 }

@@ -21,6 +21,17 @@ namespace Service.DevUIService {
 		void LoadViews();
 		## "Save views and its dynamically created elements"
 		void SaveViews();
+		## "Output to console"
+		void WriteToScriptingConsole(string text);
+		## "Open the console"
+		void OpenScriptingConsole();
+		## "Close the console"
+		void CloseScriptingConsole();
+		## "Toggle the console visibility"
+		void ToggleScriptingConsole();
+		## "Check if console is visible at the moment"
+		bool IsScriptingConsoleVisible(); 
+		
     }   
 }      
 ## model
@@ -34,5 +45,10 @@ public class NewUIElement {
 	public ("DevUIView") view;
 	public bool inEditMode;
 }
+
+public class WriteToScriptingConsole{
+	public string text;
+}
+public class ScriptingConsoleOpened{}
   
 ## service end

@@ -4,26 +4,18 @@ using MoonSharp.Interpreter;
 
 namespace Service.Scripting {
     public interface IScriptingService {  	
-		void OpenScriptingConsole();
-		void CloseScriptingConsole();
-		void ToggleScriptingConsole();
 		("Script") GetMainScript();
-		bool IsScriptingConsoleVisible(); 
 		## "Execute a string into the default-lua-context"
 		string ExecuteStringOnMainScript(string luaCode);
 		## "Load a script into the default lua-context" 
 		string ExecuteFileToMainScript(string fileName);  
 		## "Generates a list of possible proposals"
 		("Proposal") AutocompleteProposals(string currentInput,int cursorPos);
-		## "Output to console"
-		void WriteToScriptingConsole(string text);
+
 		
 		//T GetComponent<T>(UID entity) where T : IComponent
     }  
 }      
 ## events 
-public class WriteToScriptingConsole{
-	public string text;
-}
-public class ScriptingConsoleOpened{}
+
 ## service end

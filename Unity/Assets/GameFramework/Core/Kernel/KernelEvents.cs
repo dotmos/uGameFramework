@@ -5,8 +5,9 @@ using Zenject;
 public partial class Kernel : SceneContext {
     //Kernel events
     public class Events{
-        public class KernelReadyEvent{
-        }
+        //public class KernelReadyEvent{
+        //}
+
         /// <summary>
         /// Fired when the user tabs into the game
         /// </summary>
@@ -16,18 +17,6 @@ public partial class Kernel : SceneContext {
         /// Fired when user tabs out of the game
         /// </summary>
         public class OnApplicationLostFocus {
-        }
-
-        /// <summary>
-        /// Fired the application is quitted
-        /// </summary>
-        public class OnApplicationQuit {
-        }
-
-        /// <summary>
-        /// Fired when all services got installed by zenject
-        /// </summary>
-        public class OnAllServicesInstalled {
         }
     }
 }

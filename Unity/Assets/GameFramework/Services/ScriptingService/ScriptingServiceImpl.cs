@@ -19,17 +19,6 @@ namespace Service.Scripting {
         //private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
         private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' '};
 
-        // Scene loading commands
-        private const string developmentSceneID = "DevelopmentConsole";
-        private Scene.Commands.ActivateSceneCommand activateDevelopmentConsole = new Scene.Commands.ActivateSceneCommand() { sceneID = developmentSceneID };
-        private Scene.Commands.DeactivateSceneCommand deactivateDevelopmentConsole = new Scene.Commands.DeactivateSceneCommand() { sceneID = developmentSceneID };
-        private Scene.Commands.LoadSceneCommand loadDevelopmentConsole = new Scene.Commands.LoadSceneCommand() {
-            sceneID = developmentSceneID,
-            additive = true,
-            asynchron = false,
-            makeActive = false
-        };
-        private bool devConsoleActive = false;
 
         /// <summary>
         /// Is the gameconsole enabled?
@@ -42,20 +31,6 @@ namespace Service.Scripting {
                 //scriptingComponent = GameObject.Find("/ScriptingConsole").GetComponent<ScriptingConsoleComponent>();
                 // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
                 mainScript = new Script();
-
-                // TODO: get rid of EveryUpdate
-                Observable.EveryUpdate().Subscribe(_ => {
-                    if (UnityEngine.Input.GetKeyDown(KeyCode.F8)) {
-                        ToggleScriptingConsole();
-                    }
-                }).AddTo(disposables);
-
-                // Load our development console scene
-                Publish(loadDevelopmentConsole);
-                //TODO: This is a workaround to close the dev console on start. Usually the loadDevelopmentConsole command published above should load the scene deactivated (makeActive set to false) which doesn't seem to work.
-                Observable.NextFrame().Subscribe(e => {
-                    this.Publish(new Service.Scripting.Commands.CloseScriptingConsoleCommand());
-                }).AddTo(disposables);
 
                 // TODO: get rid of nextframe
                 Observable.NextFrame().Subscribe(_ => ActivateDefaultScripting("script")).AddTo(disposables);
@@ -259,36 +234,13 @@ namespace Service.Scripting {
             }
         }
 
-        public override void WriteToScriptingConsole(string text) {
-            this.Publish(new Events.WriteToScriptingConsole() { text = text });
-        }
 
-        public override void OpenScriptingConsole() {
-            devConsoleActive = true;
-            Publish(activateDevelopmentConsole);
-            this.Publish(new Events.ScriptingConsoleOpened());
-        }
-
-		public override void CloseScriptingConsole() {
-            devConsoleActive = false;
-            Publish(deactivateDevelopmentConsole);
-        }
-
-        public override void ToggleScriptingConsole() {
-            if (!devConsoleActive)  {
-                this.Publish(new Service.Scripting.Commands.OpenScriptingConsoleCommand());
-            } else {
-                this.Publish(new Service.Scripting.Commands.CloseScriptingConsoleCommand());
-            }
-        }
 
         public override Script GetMainScript() {
             return mainScript;
         }
 
-        public override bool IsScriptingConsoleVisible() {
-            return devConsoleActive;
-        }
+
 
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed

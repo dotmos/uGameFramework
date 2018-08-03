@@ -11,16 +11,19 @@ using Zenject;
 /// Some priorities default priorities
 /// </summary>
 public partial class Priorities {
-    public const int PRIORITY_EARLY = 1024;
-    public const int PRIORITY_DEFAULT = 512;
-    public const int PRIORITY_LATE = 128;
+    public const int PRIORITY_VERY_EARLY = 4000;
+    public const int PRIORITY_EARLY = 2000;
+    public const int PRIORITY_DEFAULT = 1000;
+    public const int PRIORITY_LATE = 500;
+    public const int PRIORITY_VERY_LATE = 100;
 }
 
 public class ReactivePriorityExecutionList : IDisposable
 {
-         
+    private bool injected = false;
+    
+
     public ReactivePriorityExecutionList() {
-        Kernel.Instance.Inject(this);
     }
 
     public interface IContext {
@@ -92,6 +95,11 @@ public class ReactivePriorityExecutionList : IDisposable
     }
 
     public PriorityListElement Add(IObservable<bool> call, int priority=Priorities.PRIORITY_DEFAULT) {
+        if (!injected) {
+            Kernel.Instance.Inject(this);
+            injected = true;
+        }
+
         if (actionOnly) {
             Debug.LogError("You tried to add IObservable queue-element to action-only priority-list (prio:" + priority+") skipping....");
             return null;
@@ -107,6 +115,11 @@ public class ReactivePriorityExecutionList : IDisposable
     }
 
     public PriorityListElement Add(Action call, int priority = Priorities.PRIORITY_DEFAULT) {
+        if (!injected) {
+            Kernel.Instance.Inject(this);
+            injected = true;
+        }
+
         // get a priority-list element from the pool
         var priorityListElem = PriorityListElement.Pool.Spawn();
         // set the data
@@ -123,6 +136,11 @@ public class ReactivePriorityExecutionList : IDisposable
     /// </summary>
     /// <returns></returns>
     public IObservable<bool> RxExecute() {
+        if (!injected) {
+            Kernel.Instance.Inject(this);
+            injected = true;
+        }
+
         if (!isDirty || rxCurrent==null) {
             // no changes => nothing to do!
             return rxCurrent;
