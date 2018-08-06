@@ -16,7 +16,7 @@ namespace Service.DevUIService {
     /// Data model for DevUIViews
     /// </summary>
     [DataContract]
-    public class DevUIView {
+    public class DevUIView : IDisposable {
         private ReactiveProperty<string> nameProperty=new ReactiveProperty<string>("");
 
         [DataMember]
@@ -86,6 +86,13 @@ namespace Service.DevUIService {
             uiElements.Remove(elem);
         }
 
+        public virtual void Dispose() {
+            foreach (var elem in uiElements) {
+                elem.Dispose();
+            }
+            uiElements.Clear();
+        }
+
     }
 
     /// <summary>
@@ -93,7 +100,7 @@ namespace Service.DevUIService {
     /// </summary>
     /// 
     [DataContract]
-    public class DevUIElement {
+    public class DevUIElement : IDisposable {
         /// <summary>
         /// The name of this DevUI-Element
         /// </summary>
@@ -110,6 +117,7 @@ namespace Service.DevUIService {
             this.name = name;
             Kernel.Instance.Inject(this);
         }
+        public virtual void Dispose() { }
 
     }
 
@@ -177,22 +185,44 @@ namespace Service.DevUIService {
             };
         }
 
-        
+        public override void Dispose() {
+            luaCommandProperty.Dispose();
+        }
+    }
+
+    [DataContract]
+    public class DevUIKeyValue : DevUIElement
+    {
+        /// <summary>
+        /// The reactive property to keep track of the current value
+        /// </summary>
+        public ReactiveProperty<string> valueProperty = new ReactiveProperty<string>("");
+        public string Value {
+            get { return valueProperty.Value; }
+            set { valueProperty.Value = value; }
+        }
+
+        public DevUIKeyValue(string name,string value="") : base(name) {
+            Value = value;
+        }
+
+        public override void Dispose() {
+            valueProperty.Dispose();
+        }
     }
 
     /// <summary>
     /// DevUI-Element that let you watch a specific lua-expression at a given rate
     /// </summary>
     [DataContract]
-    public class DevUILuaExpression : DevUIElement
+    public class DevUILuaExpression : DevUIKeyValue
     {
         public float updateRateInSeconds = 2;
 
         Service.Scripting.IScriptingService _scriptingService;
-        Func<List<KeyValuePair<string,string>>> luaFunc = null;
+        Func<string> luaFunc = null;
 
         public ReactiveProperty<string> luaExpressionProperty = new ReactiveProperty<string>();
-        public ReactiveProperty<List<KeyValuePair<string,string>>> currentValue = new ReactiveProperty<List<KeyValuePair<string, string>>>();
 
         [DataMember]
         private string DATA_LuaExpression {
@@ -221,15 +251,25 @@ namespace Service.DevUIService {
 
             luaFunc = () => {
                 // execute the current command with the scripting service
-                var result = _scriptingService.ExecuteStringOnMainScriptRaw("return "+LuaExpression);
-                var output = new List<KeyValuePair<string, string>>();
-                output.Add(new KeyValuePair<string, string>("result", result.ToString()));
-                return output;
+                var result = _scriptingService.ExecuteStringOnMainScript("return "+LuaExpression);
+                return result;
             };
         }
 
+        /// <summary>
+        /// Call the lua-func at set the result as value
+        /// </summary>
         public void UpdateExpression() {
+            if (luaFunc == null) {
+                return;
+            }
+            var result = luaFunc();
+            Value = result;
+        }
 
+        public override void Dispose() {
+            base.Dispose();
+            luaExpressionProperty.Dispose();
         }
     }
 

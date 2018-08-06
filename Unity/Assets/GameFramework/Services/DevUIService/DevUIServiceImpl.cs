@@ -184,6 +184,10 @@ namespace Service.DevUIService {
 
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed
+            foreach (var view in rxViews) {
+                view.Dispose();
+            }
+            rxViews.Clear();
         }
 
         public override void LoadViews() {
