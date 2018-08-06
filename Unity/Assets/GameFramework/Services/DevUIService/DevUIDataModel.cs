@@ -189,7 +189,7 @@ namespace Service.DevUIService {
         public float updateRateInSeconds = 2;
 
         Service.Scripting.IScriptingService _scriptingService;
-        Func<string> luaFunc = null;
+        Func<List<KeyValuePair<string,string>>> luaFunc = null;
 
         public ReactiveProperty<string> luaExpressionProperty = new ReactiveProperty<string>();
         public ReactiveProperty<List<KeyValuePair<string,string>>> currentValue = new ReactiveProperty<List<KeyValuePair<string, string>>>();
@@ -221,7 +221,10 @@ namespace Service.DevUIService {
 
             luaFunc = () => {
                 // execute the current command with the scripting service
-                return _scriptingService.ExecuteStringOnMainScript("return "+LuaExpression);
+                var result = _scriptingService.ExecuteStringOnMainScriptRaw("return "+LuaExpression);
+                var output = new List<KeyValuePair<string, string>>();
+                output.Add(new KeyValuePair<string, string>("result", result.ToString()));
+                return output;
             };
         }
 

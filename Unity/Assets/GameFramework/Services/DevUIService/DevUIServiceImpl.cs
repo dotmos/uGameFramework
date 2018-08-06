@@ -13,7 +13,7 @@ namespace Service.DevUIService {
 
     partial class DevUIServiceImpl : DevUIServiceBase {
 
-        public const string SUBFOLDER_ARCHIEVE = "archieve";
+        public const string SUBFOLDER_ARCHIEVE = "archive";
 
         public ReactiveCollection<DevUIView> rxViews;
 

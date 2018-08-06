@@ -17,7 +17,7 @@ namespace Service.Scripting {
 
         private Script mainScript;
         //private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
-        private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' '};
+        private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' ','+'};
 
 
         /// <summary>
@@ -41,9 +41,14 @@ namespace Service.Scripting {
             }
         }
 
+        public override DynValue ExecuteStringOnMainScriptRaw(string luaCode) {
+            var result = mainScript.DoString(luaCode);
+            return result;
+        }
+
         public override string ExecuteStringOnMainScript(string luaCode) {
             try {
-                var result = mainScript.DoString(luaCode);
+                var result = ExecuteStringOnMainScriptRaw(luaCode);
                 return result.ToString();
             }
             catch (ScriptRuntimeException ex) {
@@ -161,9 +166,14 @@ namespace Service.Scripting {
             start = cursorPos + 1;
 
             // at last find the endposition
-            cursorPos = 0;
-            while (cursorPos < all.Length && !delimiters.Contains(all[cursorPos])) {
-                cursorPos++;
+            cursorPos = endPos>0?endPos:0;
+            try {
+                while (cursorPos < all.Length && !delimiters.Contains(all[cursorPos])) {
+                    cursorPos++;
+                }
+            }
+            catch (Exception e) {
+                Debug.LogException(e);
             }
             endPos = cursorPos;
         }

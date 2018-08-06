@@ -25,7 +25,8 @@ namespace UserInterface {
         public GameObject uiLUAButtonPrefab;
 
         private DevUIView myView;
-        private GMTab myTab;
+        [HideInInspector]
+        public GMTab myTab;
 
         private Dictionary<DevUIElement, GameObject> uiElements = new Dictionary<DevUIElement, GameObject>();
 
@@ -116,10 +117,6 @@ namespace UserInterface {
         //********** Archive ***************//
         void ArchiveView() {
             _devUIService.RemoveViewToArchieve(myView);
-        }
-
-        private void OnDestroy() {
-            Destroy(myTab.gameObject);
         }
 
         //********** Naming **************//

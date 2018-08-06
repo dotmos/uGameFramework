@@ -94,13 +94,16 @@ namespace UserInterface {
 
         void RemoveView(DevUIView view) {
             if (uiViews.ContainsKey(view)) {
+                //Remove tab
+                uiViewTabbar.RemoveTab(uiViews[view].myTab, true);
+                //Destroy uiView
                 Destroy(uiViews[view].gameObject);
                 uiViews.Remove(view);
             }
         }
 
         void Browse() {
-            getPath.domain = Service.FileSystem.FSDomain.DevUIViews;
+            getPath.domain = Service.FileSystem.FSDomain.DevUIViewsArchieve;
             this.Publish(getPath);
             EditorUtility.RevealInFinder(getPath.result);
         }
