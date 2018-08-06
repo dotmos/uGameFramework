@@ -55,13 +55,13 @@ public partial class Kernel : SceneContext {
         Container.Inject(injectable);
     }
 
-    new void Awake(){
+    new protected virtual void Awake(){
         Instance = this;
  
         base.Awake();
     }
 
-    void Start(){
+    protected virtual void Start(){
         //Resolve disposableManager
         dManager = Container.Resolve<DisposableManager>();
         //Let the program know, that Kernel has finished loading
