@@ -73,7 +73,7 @@ namespace Service.DevUIService {
 
             // For testing data that is already present when the DevConsole gets active add test-data at very early stage
             rxStartup.Add(() => {
-                var win = AddView("ServiceDEVUI");
+                var win = CreateView("ServiceDEVUI");
                 win.AddElement(new DevUIButton("kickit", () => {
                     UnityEngine.Debug.Log("KICKIT");
                 }));
@@ -168,12 +168,12 @@ namespace Service.DevUIService {
         }
 
 
-        public override DevUIView AddView(string viewName) {
+        public override DevUIView CreateView(string viewName,bool dynamicallyCreated=false) {
             var view = GetView(viewName);
             if (view != null) {
                 return view;
             }
-            var newView = new DevUIView(viewName);
+            var newView = new DevUIView(viewName,dynamicallyCreated);
             rxViews.Add(newView);
             return newView;
         }
@@ -216,7 +216,7 @@ namespace Service.DevUIService {
                 var view = GetView(viewData.Name);
                 if (view == null) {
                     // a new view
-                    view = AddView(viewData.Name);
+                    view = CreateView(viewData.Name);
                 }
                 usedViewNames.Add(viewData.Name);
                 view.currentFilename = viewFile;

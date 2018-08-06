@@ -109,7 +109,7 @@ namespace Service.DevUIService
                                                           
         public abstract ReactiveCollection<DevUIView> GetRxViews();
         
-        public abstract DevUIView AddView(string viewName);
+        public abstract DevUIView CreateView(string viewName,bool dynamicallyCreated=false);
         
         public abstract DevUIView GetView(string viewName);
         

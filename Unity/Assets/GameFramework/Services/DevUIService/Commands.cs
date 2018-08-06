@@ -24,7 +24,7 @@ namespace Service.DevUIService{
             
             this.OnEvent<GetRxViewsCommand>().Subscribe(e => GetRxViewsCommandHandler(e)).AddTo(this);
 
-            this.OnEvent<AddViewCommand>().Subscribe(e => AddViewCommandHandler(e)).AddTo(this);
+            this.OnEvent<CreateViewCommand>().Subscribe(e => CreateViewCommandHandler(e)).AddTo(this);
 
             this.OnEvent<GetViewCommand>().Subscribe(e => GetViewCommandHandler(e)).AddTo(this);
 
@@ -81,23 +81,24 @@ namespace Service.DevUIService{
         /// Add/Create view with name
         /// </summary>
         
-        public class AddViewCommand  {
+        public class CreateViewCommand  {
             public DevUIView result;
                         public string viewName;
+                        public bool dynamicallyCreated=false;
             
             
         }
 
-		protected void AddViewCommandHandler  (AddViewCommand cmd) {
+		protected void CreateViewCommandHandler  (CreateViewCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("AddViewCommand");
+            ptest.Start("CreateViewCommand");
 #endif
         
-            cmd.result = _service.AddView(cmd.viewName);
+            cmd.result = _service.CreateView(cmd.viewName,cmd.dynamicallyCreated);
 #if PERFORMANCE_TEST
             // now stop the watches
-            ptest.Stop("AddViewCommand");
+            ptest.Stop("CreateViewCommand");
 #endif
         }
         

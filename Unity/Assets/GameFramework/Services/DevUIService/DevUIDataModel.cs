@@ -19,6 +19,8 @@ namespace Service.DevUIService {
     public class DevUIView : IDisposable {
         private ReactiveProperty<string> nameProperty=new ReactiveProperty<string>("");
 
+        public readonly bool createdDynamically;
+
         [DataMember]
         public string Name {
             get { return nameProperty.Value; }
@@ -60,9 +62,10 @@ namespace Service.DevUIService {
             }
         }
 
-        public DevUIView(string name) {
+        public DevUIView(string name,bool dynamicallyCreated=false) {
             Kernel.Instance.Inject(this);
             this.Name = name;
+            this.createdDynamically = dynamicallyCreated;
         }
 
         /// <summary>
