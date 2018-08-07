@@ -23,7 +23,7 @@ namespace Service.DevUIService {
         private ReactiveProperty<string> nameProperty=new ReactiveProperty<string>("");
 
         [DataMember]
-        public readonly bool createdDynamically;
+        public bool createdDynamically;
 
         [DataMember]
         public string Name {

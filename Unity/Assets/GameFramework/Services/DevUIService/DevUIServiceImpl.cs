@@ -86,7 +86,10 @@ namespace Service.DevUIService {
 
                 win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
 
+                win.AddElement(new DevUIKeyValue("KeyValue", "0"));
+
                 logging.Info("Something is good", "org.tt");
+
             },Priorities.PRIORITY_VERY_EARLY); // Init Test-Data at an early stage
 
             rxStartup.Add(UtilsObservable.LoadScene(developmentSceneID),Priorities.PRIORITY_EARLY);

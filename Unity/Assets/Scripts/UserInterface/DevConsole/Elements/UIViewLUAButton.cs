@@ -7,14 +7,9 @@ using UnityEngine.UI;
 using UniRx;
 
 namespace UserInterface {
-    public class UIViewLUAButton : GameComponent {
+    public class UIViewLUAButton : UIViewEditableElement {
 
-        public GameObject outputMode;
-        public GameObject editMode;
-        [Space]
         public GMButton executeButton;
-        public GMButton editButton;
-        public GMButton saveButton;
         public GMButton deleteButton;
         [Space]
         public GMInputField luaCommandInput;
@@ -24,7 +19,9 @@ namespace UserInterface {
         private DevUILUAButton luaButton;
         private DevUIView view;
 
-        public void Initialize(string label, Action callback, DevUILUAButton luaButton, DevUIView view) {
+        public virtual void Initialize(string label, Action callback, DevUILUAButton luaButton, DevUIView view) {
+            base.Initialize();
+
             this.luaButton = luaButton;
             this.view = view;
 
@@ -32,17 +29,12 @@ namespace UserInterface {
 
             executeButton.onClick.AddListener(callback.Invoke);
 
-            editButton.onClick.AddListener(
-                () => ActivateEditMode(true)
-            );
-
-            saveButton.onClick.AddListener(
-                () => ActivateEditMode(false)
-            );
-
-            deleteButton.onClick.AddListener(Delete);
-
-            saveButton.onClick.AddListener(SaveLUACommand);
+            //Setup buttons
+            if (luaButton.createdDynamically) {
+                deleteButton.onClick.AddListener(Delete);
+            } else {
+                IsEditable = false;
+            }
 
             luaCommandInput.text = luaButton.LuaCommand;
             nameInput.text = luaButton.name;
@@ -52,12 +44,9 @@ namespace UserInterface {
             }).AddTo(this);
         }
 
-        public void ActivateEditMode(bool activate) {
-            editMode.SetActive(activate);
-            outputMode.SetActive(!activate);
-        }
+        protected override void OnSave() {
+            base.OnSave();
 
-        void SaveLUACommand() {
             luaButton.SetLuaCall(luaCommandInput.text);
             luaButton.name = labelOutput.text = nameInput.text;
         }

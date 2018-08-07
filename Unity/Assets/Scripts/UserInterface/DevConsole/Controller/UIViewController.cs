@@ -18,11 +18,13 @@ namespace UserInterface {
         public GMButton renameButton;
         public GMButton archiveButton;
         public GMButton addLuaCommandButton;
-        public GMButton addTickingExpression;
+        public GMButton addLuaExpressionButton;
         [Space]
         public Transform contentContainer;
         public GameObject uiButtonPrefab;
         public GameObject uiLUAButtonPrefab;
+        public GameObject uiKeyValueOutputPrefab;
+        public GameObject uiLUAExpressionPrefab;
 
         private DevUIView myView;
         [HideInInspector]
@@ -42,17 +44,25 @@ namespace UserInterface {
 
             //Button events
             addLuaCommandButton.onClick.AddListener(AddLuaButton);
-            saveNameButton.onClick.AddListener(
-                () => {
-                    UpdateName(renameInputField.text);
-                    ToggleNamingMode(false);
-                }
-            );
-            renameButton.onClick.AddListener(
-                ()=> ToggleNamingMode(true)
-            );
-            renameInputField.onValueChanged.AddListener(ValidateName);
-            archiveButton.onClick.AddListener(ArchiveView);
+            addLuaExpressionButton.onClick.AddListener(AddLuaExpression);
+
+            //Setup buttons if this UI Views is created dynamically from script. If this is not the case deactivate the buttons to rename or archive the ui view.
+            if (uiView.createdDynamically) {
+                saveNameButton.onClick.AddListener(
+                    () => {
+                        UpdateName(renameInputField.text);
+                        ToggleNamingMode(false);
+                    }
+                );
+                renameButton.onClick.AddListener(
+                    () => ToggleNamingMode(true)
+                );
+                renameInputField.onValueChanged.AddListener(ValidateName);
+                archiveButton.onClick.AddListener(ArchiveView);
+            } else {
+                renameButton.gameObject.SetActive(false);
+                archiveButton.gameObject.SetActive(false);
+            }
 
             //Setup ui elements
             foreach (DevUIElement uiElement in uiView.uiElements) {
@@ -61,7 +71,9 @@ namespace UserInterface {
 
             //Add listener
             _eventService.OnEvent<Service.DevUIService.Events.NewUIElement>().Where(u => u.view == myView).Subscribe(evt => {
-                if (evt.elem is DevUILUAButton) {
+                if (evt.elem is DevUILuaExpression) {
+                    SpawnLuaExpression((DevUILuaExpression)evt.elem, evt.inEditMode);
+                } else if (evt.elem is DevUILUAButton) {
                     SpawnLuaButton((DevUILUAButton)evt.elem, evt.inEditMode);
                 }
             }).AddTo(this);
@@ -78,12 +90,21 @@ namespace UserInterface {
             myView.AddElement(newButton);
         }
 
+        void AddLuaExpression() {
+            DevUILuaExpression newButton = new DevUILuaExpression("No Name", 5f) { createdDynamically = true };
+            myView.AddElement(newButton);
+        }
+
         void SpawnUIElement(DevUIElement devUIElement) {
             //Spawn and initialize by type
             if (devUIElement is DevUILUAButton) {
                 SpawnLuaButton(devUIElement as DevUILUAButton, false);
             } else if (devUIElement is DevUIButton) {
                 SpawnButton(devUIElement as DevUIButton);
+            } else if (devUIElement is DevUILuaExpression) {
+                SpawnLuaExpression(devUIElement as DevUILuaExpression, false);
+            } else if (devUIElement is DevUIKeyValue) {
+                SpawnKeyValueOutput(devUIElement as DevUIKeyValue);
             } else {
                 Debug.LogWarning("Tried to spawn a UI element that has no prefab for view!");
             }
@@ -107,6 +128,24 @@ namespace UserInterface {
             uiElements.Add(devButton, devUIElementGO);
         }
 
+        void SpawnKeyValueOutput(DevUIKeyValue devKeyValue) {
+            GameObject devUIElementGO = Instantiate(uiKeyValueOutputPrefab) as GameObject;
+            UIViewKeyValueOutput keyValueOutput = devUIElementGO.GetComponent<UIViewKeyValueOutput>();
+            keyValueOutput.Initialize(devKeyValue);
+            devUIElementGO.transform.SetParent(contentContainer, false);
+            uiElements.Add(devKeyValue, devUIElementGO);
+        }
+
+        void SpawnLuaExpression(DevUILuaExpression luaExpression, bool activateInEditMode) {
+            GameObject devUIElementGO = Instantiate(uiLUAExpressionPrefab) as GameObject;
+            UIViewLUAExpression luaExpressionUI = devUIElementGO.GetComponent<UIViewLUAExpression>();
+            luaExpressionUI.Initialize(luaExpression, myView);
+            devUIElementGO.transform.SetParent(contentContainer, false);
+            uiElements.Add(luaExpression, devUIElementGO);
+
+            luaExpressionUI.ActivateEditMode(activateInEditMode);
+        }
+
         void RemoveUIElement(DevUIElement element) {
             if (uiElements.ContainsKey(element)) {
                 Destroy(uiElements[element].gameObject);
@@ -122,8 +161,8 @@ namespace UserInterface {
         //********** Naming **************//
         void UpdateName(string _name) {
             myView.Name = _name;
-            myTab.GetComponentInChildren<Text>().text = myView.Name.ToUpper();
-            nameOutput.text = myView.Name.ToUpper();
+            myTab.GetComponentInChildren<Text>().text = myView.Name;
+            nameOutput.text = myView.Name;
         }
 
         void ValidateName(string _name) {

@@ -438,7 +438,7 @@ GameObject:
   - component: {fileID: 114771117192200194}
   - component: {fileID: 114940966811461650}
   m_Layer: 5
-  m_Name: button_addTickingExpression
+  m_Name: button_addLuaExpression
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -454,6 +454,7 @@ GameObject:
   - component: {fileID: 224821356768378914}
   - component: {fileID: 222189260396257078}
   - component: {fileID: 114298129312798884}
+  - component: {fileID: 114572930808242210}
   m_Layer: 5
   m_Name: Footer
   m_TagString: Untagged
@@ -665,7 +666,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Add lua button
+  m_Text: Add LUA Button
 --- !u!114 &114062869083059396
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -927,12 +928,17 @@ MonoBehaviour:
   renameButton: {fileID: 114705134005326944}
   archiveButton: {fileID: 114843790047513690}
   addLuaCommandButton: {fileID: 114754293238434074}
-  addTickingExpression: {fileID: 114940966811461650}
+  addLuaExpressionButton: {fileID: 114940966811461650}
   contentContainer: {fileID: 224902872884984566}
   uiButtonPrefab: {fileID: 1700580319215624, guid: e3ecb18817c5db24691257f5b383a4b6,
     type: 2}
-  uiLUAButtonPrefab: {fileID: 1764234938857226, guid: 332b6f85a811560459718917a0254218,
+  uiLUAButtonPrefab: {fileID: 1764234938857226, guid: c3e710f6f26a6d04b84c29a992b25035,
     type: 2}
+  uiKeyValueOutputPrefab: {fileID: 1200075855926366, guid: d1e76e234e1119746a3120c26ac44b73,
+    type: 2}
+  uiLUAExpressionPrefab: {fileID: 1764234938857226, guid: 332b6f85a811560459718917a0254218,
+    type: 2}
+  myTab: {fileID: 0}
 --- !u!114 &114247922823326924
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1316,6 +1322,28 @@ MonoBehaviour:
   highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   pressedColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
   disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
+--- !u!114 &114572930808242210
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1850907233616380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -405508275, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 2
+    m_Right: 2
+    m_Top: 2
+    m_Bottom: 2
+  m_ChildAlignment: 0
+  m_Spacing: 2
+  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandHeight: 1
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
 --- !u!114 &114574328291869106
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1517,8 +1545,8 @@ MonoBehaviour:
     m_TypeName: UserInterface.Scrollbar.GMScrollbar+ScrollEvent, uGameFramework, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Direction: 1
-  m_Value: 0
-  m_Size: 0.99999994
+  m_Value: 1
+  m_Size: 0.9999999
   m_NumberOfSteps: 0
 --- !u!114 &114705134005326944
 MonoBehaviour:
@@ -1691,7 +1719,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Add ticking expression
+  m_Text: Add LUA Expression
 --- !u!114 &114771117192200194
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2238,10 +2266,10 @@ RectTransform:
   m_Father: {fileID: 224821356768378914}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.5, y: 0}
-  m_SizeDelta: {x: -3, y: -4}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 313, y: -14}
+  m_SizeDelta: {x: 206, y: 24}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224174336267762090
 RectTransform:
@@ -2353,10 +2381,10 @@ RectTransform:
   m_Father: {fileID: 224821356768378914}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.5, y: 0}
-  m_SizeDelta: {x: -3, y: -4}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 105, y: -14}
+  m_SizeDelta: {x: 206, y: 24}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224362154336228338
 RectTransform:
@@ -2584,7 +2612,7 @@ RectTransform:
   m_Father: {fileID: 224403949803765564}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.00000011920929}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 8, y: 8}

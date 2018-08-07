@@ -17,6 +17,7 @@ namespace UserInterface {
         public Transform uiViewsContainer;
         public GMTabbar uiViewTabbar;
         [Space]
+        public GMButton pickObjectFromSceneButton;
         public GMButton browseViewsButton;
         public GMButton refreshViewsButton;
 
@@ -53,7 +54,8 @@ namespace UserInterface {
             browseViewsButton.onClick.AddListener(Browse);
             //Refresh
             refreshViewsButton.onClick.AddListener(Refresh);
-
+            //Pick from Scene
+            pickObjectFromSceneButton.onClick.AddListener(PickObjectFromScene);
         }
 
         /// <summary>
@@ -65,6 +67,10 @@ namespace UserInterface {
                 name = "view_" + uiViews.Count;
             }
             _devUiService.CreateView(name,true);
+        }
+
+        void PickObjectFromScene() {
+
         }
 
         /// <summary>
