@@ -78,6 +78,8 @@ namespace Service.DevUIService {
                     UnityEngine.Debug.Log("KICKIT");
                 }));
 
+                win.AddElement(new DevUILuaExpression("key", 0.5f));
+
                 win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
 
                 logging.Info("Something is good", "org.tt");

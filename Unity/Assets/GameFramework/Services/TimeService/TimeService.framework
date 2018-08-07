@@ -1,0 +1,31 @@
+## service start
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+using Service.GameStateService;
+
+namespace Service.TimeService {
+	
+	
+    public interface ITimeService {
+    	## "Adds a timer in the global update-method and calls the callback n-times (or infinite till application end)"
+    	TimerElement CreateGlobalTimer(float interval,("Action")callback,int repeatTimes,string info="");
+//		## "Adds a timer to the specified gamestate"
+//    	void AddGameStateTimer(("GameState") gs,float interval,("Action")callback,int repeatTimes=0,string info="");
+    	void RemoveGlobalTimer(TimerElement timer);
+    }   
+}      
+## model
+ 
+public class TimerElement {
+	public string info;
+	public float timeLeft;
+	public float interval;
+	public int repeatTimes;
+	public ("Action") timerCallback;
+}
+
+## events 
+
+
+  
+## service end

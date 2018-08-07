@@ -9,6 +9,7 @@ using UniRx;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Linq;
+using Service.TimeService;
 
 namespace Service.DevUIService {
 
@@ -220,9 +221,15 @@ namespace Service.DevUIService {
     [DataContract]
     public class DevUILuaExpression : DevUIKeyValue
     {
+        [Inject]
+        private Service.TimeService.ITimeService timeService;
+        [Inject]
+        Service.Scripting.IScriptingService _scriptingService;
+
         public float updateRateInSeconds = 2;
 
-        Service.Scripting.IScriptingService _scriptingService;
+        private TimerElement timer;
+
         Func<string> luaFunc = null;
 
         public ReactiveProperty<string> luaExpressionProperty = new ReactiveProperty<string>();
@@ -242,11 +249,19 @@ namespace Service.DevUIService {
         /// <summary>
         /// The Action to be called when this button is pressed
         /// </summary>
-        public DevUILuaExpression(string name) : base(name) {
-            // get the scripting-service
-            _scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
-            
+        public DevUILuaExpression(string name, float interval) : base(name) {
+            SetInterval(interval);            
             SetLuaExpresion("testValue"); // <-- this "testValue" is specified in DevUIServiceScriptingAPI and is accessable in lua)
+        }
+
+        public void SetInterval(float f) {
+            if (timer == null) {
+                timer = timeService.CreateGlobalTimer(f, () => {
+                    UpdateExpression();
+                },0);
+            }
+            timer.interval = f;
+            timer.timeLeft = f;
         }
 
         public void SetLuaExpresion(string luaExpression) {
@@ -273,6 +288,10 @@ namespace Service.DevUIService {
         public override void Dispose() {
             base.Dispose();
             luaExpressionProperty.Dispose();
+            if (timer != null) {
+                timeService.RemoveGlobalTimer(timer);
+                timer = null;
+            }
         }
     }
 
