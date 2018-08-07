@@ -33,7 +33,10 @@ namespace Service.DevUIService {
 		void ToggleScriptingConsole();
 		## "Check if console is visible at the moment"
 		bool IsScriptingConsoleVisible(); 
-    }    
+		
+		## "Start entity picking mode"
+		void StartPickingEntity();
+    }   
 }      
 ## model
 
@@ -56,5 +59,8 @@ public class UIViewRenamed{
 	public string from;
 	public string to;
 	public ("DevUIView") view;
+}
+public class PickedEntity{
+	public ("ECS.UID") entity;
 }
 ## service end

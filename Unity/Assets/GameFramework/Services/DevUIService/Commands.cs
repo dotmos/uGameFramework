@@ -48,6 +48,8 @@ namespace Service.DevUIService{
 
             this.OnEvent<IsScriptingConsoleVisibleCommand>().Subscribe(e => IsScriptingConsoleVisibleCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<StartPickingEntityCommand>().Subscribe(e => StartPickingEntityCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -363,6 +365,29 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("IsScriptingConsoleVisibleCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Start entity picking mode
+        /// </summary>
+        
+        public class StartPickingEntityCommand  {
+
+            
+        }
+
+		protected void StartPickingEntityCommandHandler  (StartPickingEntityCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("StartPickingEntityCommand");
+#endif
+        _service.StartPickingEntity();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("StartPickingEntityCommand");
 #endif
         }
         
