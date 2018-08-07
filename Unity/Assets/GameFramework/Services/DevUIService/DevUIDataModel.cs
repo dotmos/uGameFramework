@@ -200,13 +200,19 @@ namespace Service.DevUIService {
     [DataContract]
     public class DevUIKeyValue : DevUIElement
     {
+        public Action<string> OnValueChangeRequested {
+            get; set;
+        }
+
         /// <summary>
         /// The reactive property to keep track of the current value
         /// </summary>
         public ReactiveProperty<string> valueProperty = new ReactiveProperty<string>("");
         public string Value {
             get { return valueProperty.Value; }
-            set { valueProperty.Value = value; }
+            set {
+                valueProperty.Value = value;
+            }
         }
 
         public DevUIKeyValue(string name,string value="") : base(name) {
@@ -216,6 +222,17 @@ namespace Service.DevUIService {
         public override void Dispose() {
             valueProperty.Dispose();
         }
+
+        public void RequestValueChange(string newValue) {
+            if (OnValueChangeRequested == null) {
+                // no special handling? just set the value
+                Value = newValue;
+            } else {
+                // there is a custom handling for this (e.g. set the value in the memory-browser which might trigger setting the Value....)
+                OnValueChangeRequested(newValue);
+            }
+        }
+
     }
 
     /// <summary>
@@ -229,6 +246,7 @@ namespace Service.DevUIService {
         [Inject]
         Service.Scripting.IScriptingService _scriptingService;
 
+        [DataMember]
         public float updateRateInSeconds = 2;
 
         private TimerElement timer;

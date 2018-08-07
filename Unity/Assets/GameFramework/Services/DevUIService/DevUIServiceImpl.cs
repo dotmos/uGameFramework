@@ -9,6 +9,8 @@ using Service.Serializer;
 using UnityEngine;
 using System.IO;
 using System.Threading;
+using ECS;
+using Service.MemoryBrowserService;
 
 namespace Service.DevUIService {
 
@@ -29,6 +31,8 @@ namespace Service.DevUIService {
 
         [Inject]
         Service.Scene.ISceneService sceneService;
+
+        ECS.IEntityManager entityManager;
 
         /// <summary>
         /// A list in which all files-path of the currently loaded views is visible
@@ -128,6 +132,11 @@ namespace Service.DevUIService {
                 SaveViews();
             });
 
+
+            OnEvent<Events.PickedEntity>().Subscribe(evt => {
+                var view = CreateViewFromEntity(evt.entity);
+
+            }).AddTo(disposables);
 
             
         }
@@ -242,30 +251,32 @@ namespace Service.DevUIService {
                     var viewDataAsString = fileSystem.LoadFileAsString(viewFile);
                     return viewDataAsString;
                 }).ObserveOnMainThread().Select(fileData => {
-                    var viewData = serializer.DeserializeToObject<DevUIView>(fileData);
+                    if (fileData != null) {
+                        var viewData = serializer.DeserializeToObject<DevUIView>(fileData);
 
-                    if (usedViewNames.Contains(viewData.Name)) {
-                        logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
+                        if (usedViewNames.Contains(viewData.Name)) {
+                            logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
+                        }
+
+                        var view = GetView(viewData.Name);
+                        if (view == null) {
+                            // a new view
+                            view = CreateView(viewData.Name);
+                        }
+                        usedViewNames.Add(viewData.Name);
+                        view.currentFilename = viewFile;
+
+                        foreach (var uiElem in viewData.uiElements) {
+                            view.AddElement(uiElem, false);
+                        }
+
+                        viewPathsLoaded.Add(viewFile);
                     }
-
-                    var view = GetView(viewData.Name);
-                    if (view == null) {
-                        // a new view
-                        view = CreateView(viewData.Name);
-                    }
-                    usedViewNames.Add(viewData.Name);
-                    view.currentFilename = viewFile;
-
-                    foreach (var uiElem in viewData.uiElements) {
-                        view.AddElement(uiElem, false);
-                    }
-
-                    viewPathsLoaded.Add(viewFile);
                     return "";
                 }).Select(_ => { progress += progressFactor; return progress; }));
             }
 
-            result.Finally(() => {
+            result = result.Finally(() => {
                 // are there any files left, that were loaded before, but now vanished?
                 foreach (string oldPath in tempCurrentViewFiles) {
                     var view = rxViews.Where(v => v.currentFilename == oldPath).FirstOrDefault();
@@ -275,11 +286,14 @@ namespace Service.DevUIService {
                 }
             });
 
-            return result;
+            return result.ObserveOnMainThread();
         }
 
         public override void SaveViews() {
             foreach (var view in rxViews) {
+                if (!view.createdDynamically) {
+                    continue;
+                }
                 SaveViewToPath(view);
             }
         }
@@ -327,6 +341,62 @@ namespace Service.DevUIService {
                 }
             });
             AddDisposable(pickingEntityDisposable);
+        }
+
+        public override DevUIView CreateViewFromEntity(UID entity) {
+            if (entityManager == null) {
+                entityManager = Kernel.Instance.Container.Resolve<IEntityManager>();
+            }
+
+            if (entityManager == null) {
+                Debug.LogError("Could not locate entity-manager");
+            }
+
+            var components = entityManager.GetAllComponents(entity);
+
+            var resultView = CreateView("entity-" + entity.ID, false);
+
+            List<MemoryBrowser> mBrowsers = new List<MemoryBrowser>();
+            foreach (var comp in components) {
+                var mB = new MemoryBrowser(comp);
+
+                var dict = new Dictionary<string, DevUIKeyValue>();
+
+                foreach (string key in mB.rxCurrentSnapShot.Keys) {
+                    object obj = mB.rxCurrentSnapShot[key];
+
+                    if (obj == null || MemoryBrowser.IsSimple(obj.GetType()) || obj is Vector3 || obj is Vector2 || obj is Vector4) {
+                        var uiKV = new DevUIKeyValue(key, obj==null?"null":obj.ToString());
+                        uiKV.OnValueChangeRequested = (newVal) => {
+                            mB.SetValue(key, newVal);
+                            entityManager.EntityModified(entity);
+                        };
+                        resultView.AddElement(uiKV);
+                        dict[key] = uiKV;
+                    }
+                }
+
+                if (dict.Count > 0) {
+                    mB.rxCurrentSnapShot
+                        .ObserveReplace()
+                        .Subscribe(evt => {
+                            if (evt.OldValue == evt.NewValue) {
+                                return;
+                            }
+
+                            string key = evt.Key;
+                            if (dict.ContainsKey(key)) {
+                                var uiKV = dict[key];
+                                uiKV.Value = evt.NewValue.ToString();
+                            }
+                        });
+                }
+                //TODO: .AddTo();
+
+                mBrowsers.Add(mB);
+            }
+
+            return resultView;
         }
     }
 

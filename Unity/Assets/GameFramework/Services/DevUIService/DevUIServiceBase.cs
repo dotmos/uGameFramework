@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using ECS;
 
 
 using UniRx;
@@ -134,6 +135,8 @@ namespace Service.DevUIService
         public abstract bool IsScriptingConsoleVisible();
         
         public abstract void StartPickingEntity();
+        
+        public abstract DevUIView CreateViewFromEntity(UID entity);
         
     }
 }

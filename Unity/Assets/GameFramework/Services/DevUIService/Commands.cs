@@ -2,6 +2,7 @@
 using Service.Events;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using ECS;
 
 using System;
 using Zenject;
@@ -49,6 +50,8 @@ namespace Service.DevUIService{
             this.OnEvent<IsScriptingConsoleVisibleCommand>().Subscribe(e => IsScriptingConsoleVisibleCommandHandler(e)).AddTo(this);
 
             this.OnEvent<StartPickingEntityCommand>().Subscribe(e => StartPickingEntityCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<CreateViewFromEntityCommand>().Subscribe(e => CreateViewFromEntityCommandHandler(e)).AddTo(this);
 
         }
         
@@ -390,6 +393,32 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("StartPickingEntityCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class CreateViewFromEntityCommand  {
+            public DevUIView result;
+                        public UID entity;
+            
+            
+        }
+
+		protected void CreateViewFromEntityCommandHandler  (CreateViewFromEntityCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("CreateViewFromEntityCommand");
+#endif
+        
+            cmd.result = _service.CreateViewFromEntity(cmd.entity);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("CreateViewFromEntityCommand");
 #endif
         }
         

@@ -70,7 +70,7 @@ namespace UserInterface {
         }
 
         void PickObjectFromScene() {
-
+            _devUiService.StartPickingEntity();
         }
 
         /// <summary>

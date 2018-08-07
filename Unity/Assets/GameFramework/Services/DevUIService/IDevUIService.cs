@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using ECS;
 
 using static Service.DevUIService.Events;
 using UniRx;
@@ -135,6 +136,9 @@ namespace Service.DevUIService {
         
 
 					void StartPickingEntity();
+
+
+					DevUIView CreateViewFromEntity(UID entity);
 
 	}
 

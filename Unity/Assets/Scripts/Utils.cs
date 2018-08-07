@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UniRx;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
 
@@ -170,6 +171,59 @@ public static class UtilsExtensions
             observer.OnCompleted();
             return null;
         });
+    }
+
+    public static Vector2 StringToVector2(string sVector) {
+        sVector = sVector.Replace(" ", "");
+        // Remove the parentheses
+        if (sVector.StartsWith("(") && sVector.EndsWith(")")) {
+            sVector = sVector.Substring(1, sVector.Length - 2);
+        }
+
+        // split the items
+        string[] sArray = sVector.Split(',');
+
+        Vector2 result = new Vector2(
+            float.Parse(sArray[0]),
+            float.Parse(sArray[1]));
+
+        return result;
+    }
+    public static Vector3 StringToVector3(string sVector) {
+        // Remove the parentheses
+        sVector = sVector.Replace(" ", "");
+        if (sVector.StartsWith("(") && sVector.EndsWith(")")) {
+            sVector = sVector.Substring(1, sVector.Length - 2);
+        }
+
+        // split the items
+        string[] sArray = sVector.Split(',');
+
+        Vector3 result = new Vector3(
+            float.Parse(sArray[0]),
+            float.Parse(sArray[1]),
+            float.Parse(sArray[2]));
+
+        return result;
+    }
+    public static Vector4 StringToVector4(string sVector) {
+        sVector = sVector.Replace(" ", "");
+        // Remove the parentheses
+        if (sVector.StartsWith("(") && sVector.EndsWith(")")) {
+            sVector = sVector.Substring(1, sVector.Length - 2);
+        }
+
+        // split the items
+        string[] sArray = sVector.Split(',');
+
+        // store as a Vector3
+        Vector4 result = new Vector4(
+            float.Parse(sArray[0]),
+            float.Parse(sArray[1]),
+            float.Parse(sArray[2]),
+            float.Parse(sArray[3]));
+
+        return result;
     }
 
 }

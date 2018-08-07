@@ -1,6 +1,7 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using ECS;
 
 namespace Service.DevUIService {
 	
@@ -36,6 +37,8 @@ namespace Service.DevUIService {
 		
 		## "Start entity picking mode"
 		void StartPickingEntity();
+		
+		("DevUIView") CreateViewFromEntity(("UID") entity);
     }   
 }      
 ## model

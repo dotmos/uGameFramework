@@ -40,7 +40,9 @@ namespace UserInterface {
             base.OnSave();
 
             valueOutput.text = keyValue.Value;
-            //TODO: Use the value: valueInput.text;
+
+            // request value-change, the model will know what to do
+            keyValue.RequestValueChange(valueInput.text);
         }
     }
 }

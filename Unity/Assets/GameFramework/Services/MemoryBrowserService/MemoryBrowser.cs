@@ -185,7 +185,12 @@ namespace Service.MemoryBrowserService {
                 } else {
                     var field = obj.GetType().GetField(valueName);
                     if (field != null) {
-                        field.SetValue(obj, Convert.ChangeType(newValueAsString, field.FieldType));
+                        if (field.FieldType == typeof(Vector3)) {
+                            field.SetValue(obj, UtilsExtensions.StringToVector3(newValueAsString));
+                        } else {
+                            // simple types
+                            field.SetValue(obj, Convert.ChangeType(newValueAsString, field.FieldType));
+                        }
                     } else {
                         var prop = obj.GetType().GetProperty(valueName);
                         if (prop != null) {

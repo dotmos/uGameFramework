@@ -75,6 +75,8 @@ namespace UserInterface {
                     SpawnLuaExpression((DevUILuaExpression)evt.elem, evt.inEditMode);
                 } else if (evt.elem is DevUILUAButton) {
                     SpawnLuaButton((DevUILUAButton)evt.elem, evt.inEditMode);
+                } else if (evt.elem is DevUIKeyValue) {
+                    SpawnKeyValueOutput((DevUIKeyValue)evt.elem);
                 }
             }).AddTo(this);
 
