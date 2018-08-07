@@ -33,7 +33,7 @@ namespace Service.DevUIService {
 		void ToggleScriptingConsole();
 		## "Check if console is visible at the moment"
 		bool IsScriptingConsoleVisible(); 
-    }   
+    }    
 }      
 ## model
 

@@ -13,6 +13,8 @@ using Service.TimeService;
 
 namespace Service.DevUIService {
 
+
+
     /// <summary>
     /// Data model for DevUIViews
     /// </summary>
@@ -20,6 +22,7 @@ namespace Service.DevUIService {
     public class DevUIView : IDisposable {
         private ReactiveProperty<string> nameProperty=new ReactiveProperty<string>("");
 
+        [DataMember]
         public readonly bool createdDynamically;
 
         [DataMember]
