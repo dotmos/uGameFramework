@@ -211,7 +211,8 @@ namespace Service.DevUIService{
         /// </summary>
         
         public class LoadViewsCommand  {
-
+            public IObservable<float> result;
+            
             
         }
 
@@ -220,7 +221,8 @@ namespace Service.DevUIService{
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("LoadViewsCommand");
 #endif
-        _service.LoadViews();
+        
+            cmd.result = _service.LoadViews();
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadViewsCommand");

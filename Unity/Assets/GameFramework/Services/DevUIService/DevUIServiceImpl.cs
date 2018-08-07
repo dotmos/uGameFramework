@@ -8,6 +8,7 @@ using System.Linq;
 using Service.Serializer;
 using UnityEngine;
 using System.IO;
+using System.Threading;
 
 namespace Service.DevUIService {
 
@@ -95,7 +96,7 @@ namespace Service.DevUIService {
                 win.AddElement(luaExpression);
                 luaExpression.valueProperty.Subscribe(val => {
                     logging.Info("val:" + val);
-                });
+                }).AddTo(disposables);
 
                 win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
 
@@ -114,15 +115,11 @@ namespace Service.DevUIService {
             }, Priorities.PRIORITY_DEFAULT); // with using PRIORITY_DEFAULT which is called after the PRIORITY_EARLY-Block it is ensured that the scene is fully loaded, before this block is executed
 
 
-            rxStartup.Add(() => {
-                try {
-                    LoadViews();
-                }
-                catch (Exception e) {
-                    logging.Error("Could not load Views!");
-                    UnityEngine.Debug.LogException(e);
-                }
-            },Priorities.PRIORITY_DEFAULT); // Default Priority
+            rxStartup.Add(LoadViews().Do(pr=> {
+                logging.Info("progress:" + pr);
+            }).Last().Select(_=>true)
+
+            ,Priorities.PRIORITY_DEFAULT); // Default Priority
 
 
 
@@ -220,50 +217,65 @@ namespace Service.DevUIService {
             rxViews.Clear();
         }
 
-        public override void LoadViews() {
-            var viewFiles = fileSystem.GetFilesInDomain(FileSystem.FSDomain.DevUIViews,"*.json");
+        public override IObservable<float> LoadViews() {
+            var viewFiles = fileSystem.GetFilesInDomain(FileSystem.FSDomain.DevUIViews, "*.json");
+
+            float progressFactor = 1.0f / viewFiles.Count;
+            float progress = 0;
+            var result = Observable.Return(progressFactor);
 
             // check if we already used a viewname
             HashSet<string> usedViewNames = new HashSet<string>();
 
             List<string> tempCurrentViewFiles = new List<string>(viewPathsLoaded);
-
+            
             foreach (string viewFile in viewFiles) {
-                // did we already load this view? if yes, skip
-                if (tempCurrentViewFiles.Contains(viewFile)) {
-                    // remove file from temp list (the ones that stays in list are the ones to be deleted afterwards)
-                    tempCurrentViewFiles.Remove(viewFile);
-                    continue;
-                }
+                result = result.Concat(Observable.Start(() => {
+                    Debug.Log("thread: " + Thread.CurrentThread.Name);
+                    // did we already load this view? if yes, skip
+                    if (tempCurrentViewFiles.Contains(viewFile)) {
+                        // remove file from temp list (the ones that stays in list are the ones to be deleted afterwards)
+                        tempCurrentViewFiles.Remove(viewFile);
+                        return null;
+                    }
 
-                var viewDataAsString = fileSystem.LoadFileAsString(viewFile);
-                var viewData = serializer.DeserializeToObject<DevUIView>(viewDataAsString);
+                    var viewDataAsString = fileSystem.LoadFileAsString(viewFile);
+                    return viewDataAsString;
+                }).ObserveOnMainThread().Select(fileData => {
+                    var viewData = serializer.DeserializeToObject<DevUIView>(fileData);
 
-                if (usedViewNames.Contains(viewData.Name)) {
-                    logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
-                }
+                    if (usedViewNames.Contains(viewData.Name)) {
+                        logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
+                    }
 
-                var view = GetView(viewData.Name);
-                if (view == null) {
-                    // a new view
-                    view = CreateView(viewData.Name);
-                }
-                usedViewNames.Add(viewData.Name);
-                view.currentFilename = viewFile;
-                
-                foreach (var uiElem in viewData.uiElements) {
-                    view.AddElement(uiElem,false);
-                }
+                    var view = GetView(viewData.Name);
+                    if (view == null) {
+                        // a new view
+                        view = CreateView(viewData.Name);
+                    }
+                    usedViewNames.Add(viewData.Name);
+                    view.currentFilename = viewFile;
 
-                viewPathsLoaded.Add(viewFile);
+                    foreach (var uiElem in viewData.uiElements) {
+                        view.AddElement(uiElem, false);
+                    }
+
+                    viewPathsLoaded.Add(viewFile);
+                    return "";
+                }).Select(_ => { progress += progressFactor; return progress; }));
             }
-            // are there any files left, that were loaded before, but now vanished?
-            foreach (string oldPath in tempCurrentViewFiles) {
-                var view = rxViews.Where(v => v.currentFilename == oldPath).FirstOrDefault();
-                if (view != null) {
-                    RemoveViewFromModel(view);
+
+            result.Finally(() => {
+                // are there any files left, that were loaded before, but now vanished?
+                foreach (string oldPath in tempCurrentViewFiles) {
+                    var view = rxViews.Where(v => v.currentFilename == oldPath).FirstOrDefault();
+                    if (view != null) {
+                        RemoveViewFromModel(view);
+                    }
                 }
-            }
+            });
+
+            return result;
         }
 
         public override void SaveViews() {

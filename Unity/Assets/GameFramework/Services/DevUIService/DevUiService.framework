@@ -20,7 +20,7 @@ namespace Service.DevUIService {
 		void RemoveViewToArchieve(("DevUIView") view);
 		
 		## "Load views from views-folder"
-		void LoadViews();
+		("IObservable<float>") LoadViews();
 		## "Save views and its dynamically created elements"
 		void SaveViews();
 		## "Output to console"

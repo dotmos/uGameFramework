@@ -119,7 +119,7 @@ namespace Service.DevUIService
         
         public abstract void RemoveViewToArchieve(DevUIView view);
         
-        public abstract void LoadViews();
+        public abstract IObservable<float> LoadViews();
         
         public abstract void SaveViews();
         

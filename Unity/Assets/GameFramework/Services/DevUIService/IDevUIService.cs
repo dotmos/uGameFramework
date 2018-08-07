@@ -77,7 +77,7 @@ namespace Service.DevUIService {
  /// </summary>
         
 
-					void LoadViews();
+					IObservable<float> LoadViews();
 
 
 		/// <summary>

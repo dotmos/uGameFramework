@@ -115,7 +115,16 @@ namespace UserInterface {
         }
 
         void Refresh() {
-            _devUiService.LoadViews();
+            // TODO show progress-thingy
+            _devUiService.LoadViews()
+                .Finally(()=> {
+                    // finally is called when the observable finished
+                    // disable progress-thingy
+                })
+                .Subscribe(progress=> {
+                    // set progress-thingy value
+                    Debug.Log("Progress:" + progress);
+                }).AddTo(this);
         }
     }
 }
