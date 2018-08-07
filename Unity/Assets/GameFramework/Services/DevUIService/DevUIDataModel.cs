@@ -251,7 +251,7 @@ namespace Service.DevUIService {
         /// </summary>
         public DevUILuaExpression(string name, float interval) : base(name) {
             SetInterval(interval);            
-            SetLuaExpresion("testValue"); // <-- this "testValue" is specified in DevUIServiceScriptingAPI and is accessable in lua)
+            SetLuaExpresion("testValue..'-'..math.random()"); // <-- this "testValue" is specified in DevUIServiceScriptingAPI and is accessable in lua)
         }
 
         public void SetInterval(float f) {

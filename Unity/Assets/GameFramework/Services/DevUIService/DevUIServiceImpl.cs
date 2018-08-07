@@ -78,7 +78,11 @@ namespace Service.DevUIService {
                     UnityEngine.Debug.Log("KICKIT");
                 }));
 
-                win.AddElement(new DevUILuaExpression("key", 0.5f));
+                var luaExpression = new DevUILuaExpression("key", 2.5f);
+                win.AddElement(luaExpression);
+                luaExpression.valueProperty.Subscribe(val => {
+                    logging.Info("val:" + val);
+                });
 
                 win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
 
