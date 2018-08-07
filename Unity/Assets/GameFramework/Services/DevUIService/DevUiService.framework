@@ -66,4 +66,7 @@ public class UIViewRenamed{
 public class PickedEntity{
 	public ("ECS.UID") entity;
 }
+public class UIViewFocused {
+	public ("DevUIView") focusedView;
+}
 ## service end

@@ -22,6 +22,8 @@ namespace Service.DevUIService {
     public class DevUIView : IDisposable {
         private ReactiveProperty<string> nameProperty=new ReactiveProperty<string>("");
 
+        public CompositeDisposable disposables = new CompositeDisposable();
+
         [DataMember]
         public bool createdDynamically;
 
@@ -98,6 +100,7 @@ namespace Service.DevUIService {
                 elem.Dispose();
             }
             uiElements.Clear();
+            disposables.Clear();
         }
 
     }

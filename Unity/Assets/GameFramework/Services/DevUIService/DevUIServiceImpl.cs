@@ -32,6 +32,9 @@ namespace Service.DevUIService {
         [Inject]
         Service.Scene.ISceneService sceneService;
 
+        [Inject]
+        Service.TimeService.ITimeService timeService;
+
         ECS.IEntityManager entityManager;
 
         /// <summary>
@@ -189,6 +192,7 @@ namespace Service.DevUIService {
         public override void RemoveViewFromModel(DevUIView view) {
             rxViews.Remove(view);
             viewPathsLoaded.Remove(view.currentFilename);
+            view.Dispose();
         }
 
         public override void RemoveViewToArchieve(DevUIView view) {
@@ -389,11 +393,18 @@ namespace Service.DevUIService {
                                 var uiKV = dict[key];
                                 uiKV.Value = evt.NewValue.ToString();
                             }
-                        });
+                        })
+                        .AddTo(resultView.disposables); // when the view is disposed, also dispose this subscription
                 }
-                //TODO: .AddTo();
 
                 mBrowsers.Add(mB);
+
+                // Poll the data at a this interval for every component
+                // TODO: Make this more efficient: only the view that is in focus!?
+                timeService.CreateGlobalTimer(1.0f, () => {
+                    mB.UpdateCurrentSnapshot();
+                    logging.Info("UPDATED SNAPSHOT");
+                }, 0);
             }
 
             return resultView;

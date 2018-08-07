@@ -52,6 +52,12 @@ namespace Service.DevUIService {
            [DataMember] public ECS.UID entity;
 
         }
+
+        [DataContract(IsReference = true)]
+        public class UIViewFocused {
+           [DataMember] public DevUIView focusedView;
+
+        }
         
     }
 }
