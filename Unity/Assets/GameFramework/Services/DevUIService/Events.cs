@@ -45,6 +45,12 @@ namespace Service.DevUIService {
            [DataMember] public DevUIView view;
 
         }
+
+        [DataContract(IsReference = true)]
+        public class PickedEntity {
+           [DataMember] public ECS.UID entity;
+
+        }
         
     }
 }

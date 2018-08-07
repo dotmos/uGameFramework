@@ -133,6 +133,8 @@ namespace Service.DevUIService
         
         public abstract bool IsScriptingConsoleVisible();
         
+        public abstract void StartPickingEntity();
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

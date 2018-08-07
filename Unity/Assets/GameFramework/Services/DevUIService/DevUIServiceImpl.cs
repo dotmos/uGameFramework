@@ -46,6 +46,19 @@ namespace Service.DevUIService {
         };*/
         private bool devConsoleActive = false;
 
+        /// <summary>
+        /// Currently in entity pick mode?
+        /// </summary>
+        bool pickingEntity = false;
+        UnityEngine.Camera _mainCamera = null;
+        UnityEngine.Camera MainCamera {
+            get {
+                if (_mainCamera == null) {
+                    _mainCamera = UnityEngine.Camera.main;
+                }
+                return _mainCamera;
+            }
+        }
 
         protected override void AfterInitialize() {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
@@ -117,15 +130,23 @@ namespace Service.DevUIService {
             this.Publish(new Events.WriteToScriptingConsole() { text = text });
         }
 
+        void _ShowScriptingConsole() {
+            sceneService.ActivateScene(developmentSceneID);
+        }
+
+        void _HideScriptingConsole() {
+            sceneService.DeactivateScene(developmentSceneID);
+        }
+
         public override void OpenScriptingConsole() {
             devConsoleActive = true;
-            sceneService.ActivateScene(developmentSceneID);
+            _ShowScriptingConsole();
             this.Publish(new Events.ScriptingConsoleOpened());
         }
 
         public override void CloseScriptingConsole() {
             devConsoleActive = false;
-            sceneService.DeactivateScene(developmentSceneID);
+            _HideScriptingConsole();
             this.Publish(new Events.ScriptingConsoleClosed());
         }
 
@@ -251,6 +272,36 @@ namespace Service.DevUIService {
                 view.currentFilename = fileSystem.GetPath(FileSystem.FSDomain.DevUIViews,saveAsFilename);
             }
             
+        }
+
+        public override void StartPickingEntity() {
+            _HideScriptingConsole();
+            pickingEntity = true;
+            IDisposable pickingEntityDisposable = null;
+            pickingEntityDisposable = Observable.EveryUpdate().Subscribe(e => {
+                if (UnityEngine.Input.GetMouseButtonDown(0)) {
+                    RaycastHit hitInfo;
+                    if(Physics.Raycast(MainCamera.ScreenPointToRay(UnityEngine.Input.mousePosition), out hitInfo, 100)){
+                        ECS.MonoEntity entity = hitInfo.collider.GetComponent<ECS.MonoEntity>();
+                        if(entity != null) {
+                            //Clicked on an entity
+                            Debug.Log("Picked entity:" + entity.Entity.ID);
+                            this.Publish(new Events.PickedEntity() { entity = entity.Entity });
+                        }
+                        
+                    }
+
+                    _ShowScriptingConsole();
+                    pickingEntity = false;
+                    pickingEntityDisposable.Dispose();
+                }
+                else if (UnityEngine.Input.GetKeyDown(KeyCode.Escape)) {
+                    _ShowScriptingConsole();
+                    pickingEntity = false;
+                    pickingEntityDisposable.Dispose();
+                }
+            });
+            AddDisposable(pickingEntityDisposable);
         }
     }
 

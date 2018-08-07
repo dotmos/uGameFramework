@@ -127,6 +127,14 @@ namespace Service.DevUIService {
 
 					bool IsScriptingConsoleVisible();
 
+
+		/// <summary>
+        /// Start entity picking mode 
+ /// </summary>
+        
+
+					void StartPickingEntity();
+
 	}
 
 
