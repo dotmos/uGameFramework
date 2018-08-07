@@ -29,10 +29,11 @@ namespace Service.DevUIService {
 		/// <summary>
         /// Add/Create view with name 
         /// <param name="viewName"></param>
+        /// <param name="dynamicallyCreated"></param>
  /// </summary>
         
 
-					DevUIView AddView(string viewName);
+					DevUIView CreateView(string viewName,bool dynamicallyCreated=false);
 
 
 		/// <summary>

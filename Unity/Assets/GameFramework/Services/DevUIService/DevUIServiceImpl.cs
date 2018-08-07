@@ -86,10 +86,16 @@ namespace Service.DevUIService {
 
             // For testing data that is already present when the DevConsole gets active add test-data at very early stage
             rxStartup.Add(() => {
-                var win = AddView("ServiceDEVUI");
+                var win = CreateView("ServiceDEVUI");
                 win.AddElement(new DevUIButton("kickit", () => {
                     UnityEngine.Debug.Log("KICKIT");
                 }));
+
+                var luaExpression = new DevUILuaExpression("key", 2.5f);
+                win.AddElement(luaExpression);
+                luaExpression.valueProperty.Subscribe(val => {
+                    logging.Info("val:" + val);
+                });
 
                 win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
 
@@ -189,12 +195,12 @@ namespace Service.DevUIService {
         }
 
 
-        public override DevUIView AddView(string viewName) {
+        public override DevUIView CreateView(string viewName,bool dynamicallyCreated=false) {
             var view = GetView(viewName);
             if (view != null) {
                 return view;
             }
-            var newView = new DevUIView(viewName);
+            var newView = new DevUIView(viewName,dynamicallyCreated);
             rxViews.Add(newView);
             return newView;
         }
@@ -205,6 +211,10 @@ namespace Service.DevUIService {
 
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed
+            foreach (var view in rxViews) {
+                view.Dispose();
+            }
+            rxViews.Clear();
         }
 
         public override void LoadViews() {
@@ -233,7 +243,7 @@ namespace Service.DevUIService {
                 var view = GetView(viewData.Name);
                 if (view == null) {
                     // a new view
-                    view = AddView(viewData.Name);
+                    view = CreateView(viewData.Name);
                 }
                 usedViewNames.Add(viewData.Name);
                 view.currentFilename = viewFile;

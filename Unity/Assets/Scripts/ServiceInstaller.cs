@@ -24,6 +24,9 @@ public class ServiceInstaller : MonoInstaller {
         // Logging
         Service.LoggingService.ServiceInstaller.Install(Container);
 
+        // Time-Service
+        Service.TimeService.ServiceInstaller.Install(Container);
+
         //optional services (see "Services" folder for more, or write your own)
         //Input
         Service.Input.ServiceInstaller.Install(Container);

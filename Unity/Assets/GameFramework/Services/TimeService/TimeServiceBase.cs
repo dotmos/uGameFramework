@@ -6,14 +6,15 @@
 using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using Service.GameStateService;
 
 
 using UniRx;
 using Zenject;
 
-namespace Service.DevUIService
+namespace Service.TimeService
 {
-    public  abstract class DevUIServiceBase : IDevUIService, IDisposable
+    public  abstract class TimeServiceBase : ITimeService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
@@ -55,7 +56,7 @@ namespace Service.DevUIService
                 cmdGetScript.result.Globals[name] = this;
             }
             catch (Exception e) {
-                UnityEngine.Debug.LogError("Error activating default scripting for Service.DevUIService with lua-name:" + name);
+                UnityEngine.Debug.LogError("Error activating default scripting for Service.TimeService with lua-name:" + name);
                 UnityEngine.Debug.LogException(e);
             }
         }
@@ -107,33 +108,9 @@ namespace Service.DevUIService
 
         
                                                           
-        public abstract ReactiveCollection<DevUIView> GetRxViews();
+        public abstract TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
         
-        public abstract DevUIView CreateView(string viewName,bool dynamicallyCreated=false);
-        
-        public abstract DevUIView GetView(string viewName);
-        
-        public abstract bool ViewNameExists(string viewName);
-        
-        public abstract void RemoveViewFromModel(DevUIView view);
-        
-        public abstract void RemoveViewToArchieve(DevUIView view);
-        
-        public abstract void LoadViews();
-        
-        public abstract void SaveViews();
-        
-        public abstract void WriteToScriptingConsole(string text);
-        
-        public abstract void OpenScriptingConsole();
-        
-        public abstract void CloseScriptingConsole();
-        
-        public abstract void ToggleScriptingConsole();
-        
-        public abstract bool IsScriptingConsoleVisible();
-        
-        public abstract void StartPickingEntity();
+        public abstract void RemoveGlobalTimer(TimerElement timer);
         
     }
 }

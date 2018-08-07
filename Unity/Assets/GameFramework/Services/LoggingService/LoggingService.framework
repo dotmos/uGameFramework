@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 
+
 namespace Service.LoggingService {
 	
 	
@@ -16,7 +17,7 @@ namespace Service.LoggingService {
     }   
 }      
 ## model
-
+ 
 public enum DebugType {
 	info,warning,error,severe,native
 }

@@ -64,7 +64,7 @@ namespace UserInterface {
             if (name == null || _devUiService.ViewNameExists(name)) {
                 name = "view_" + uiViews.Count;
             }
-            _devUiService.AddView(name);
+            _devUiService.CreateView(name,true);
         }
 
         /// <summary>
