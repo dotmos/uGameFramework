@@ -265,8 +265,7 @@ namespace Service.DevUIService {
                         var view = GetView(viewData.Name);
                         if (view == null) {
                             // a new view
-                            view = CreateView(viewData.Name);
-                            view.createdDynamically = viewData.createdDynamically;
+                            view = CreateView(viewData.Name, viewData.createdDynamically);
                             view.extensionAllowed = viewData.extensionAllowed;
                         }
                         usedViewNames.Add(viewData.Name);
@@ -363,8 +362,12 @@ namespace Service.DevUIService {
             var resultView = CreateView("entity-" + entity.ID, false);
             resultView.extensionAllowed = false;
 
+
             List<MemoryBrowser> mBrowsers = new List<MemoryBrowser>();
             foreach (var comp in components) {
+                var compButton = new DevUIButton(comp.GetType().ToString(), () => { });
+                resultView.AddElement(compButton);
+
                 var mB = new MemoryBrowser(comp);
 
                 var dict = new Dictionary<string, DevUIKeyValue>();
@@ -398,6 +401,9 @@ namespace Service.DevUIService {
                             }
                         })
                         .AddTo(resultView.disposables); // when the view is disposed, also dispose this subscription
+                } else {
+                    // TODO: no button if we cannot show any values?
+                    resultView.RemoveElement(compButton);
                 }
 
                 mBrowsers.Add(mB);
