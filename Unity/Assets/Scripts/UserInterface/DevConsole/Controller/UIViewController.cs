@@ -10,6 +10,7 @@ namespace UserInterface {
     public class UIViewController : GameComponent {
         public Text nameOutput;
         public GameObject defaultMode;
+        public GameObject extensionButtonGroup;
         [Space]
         public GMInputField renameInputField;
         public GMButton saveNameButton;
@@ -19,6 +20,8 @@ namespace UserInterface {
         public GMButton archiveButton;
         public GMButton addLuaCommandButton;
         public GMButton addLuaExpressionButton;
+        public GMButton applyAllButton;
+        public GMButton applyAllAndCloseButton;
         [Space]
         public Transform contentContainer;
         public GameObject uiButtonPrefab;
@@ -42,9 +45,17 @@ namespace UserInterface {
             //Set name
             UpdateName(myView.Name);
 
+            //Check if we want to have extension buttons
+            extensionButtonGroup.SetActive(uiView.extensionAllowed);
+
             //Button events
-            addLuaCommandButton.onClick.AddListener(AddLuaButton);
-            addLuaExpressionButton.onClick.AddListener(AddLuaExpression);
+            if (uiView.extensionAllowed) {
+                addLuaCommandButton.onClick.AddListener(AddLuaButton);
+                addLuaExpressionButton.onClick.AddListener(AddLuaExpression);
+            }
+
+            applyAllButton.onClick.AddListener(ApplyAll);
+            applyAllAndCloseButton.onClick.AddListener(ApplyAllAndClose);
 
             //Setup buttons if this UI Views is created dynamically from script. If this is not the case deactivate the buttons to rename or archive the ui view.
             if (uiView.createdDynamically) {
@@ -85,6 +96,25 @@ namespace UserInterface {
             }).AddTo(this);
 
             ToggleNamingMode(false);
+        }
+
+        void ApplyAll() {
+            UIViewEditableElement editableElement = null;
+
+            //Iterate through all ui elements. If it is an editable UI element save it!
+            foreach (GameObject uiGO in uiElements.Values) {
+                editableElement = uiGO.GetComponent<UIViewEditableElement>();
+                if (editableElement != null && editableElement.isInEditMode) {
+                    editableElement.Save();
+                }
+                editableElement = null;
+            }
+        }
+
+        void ApplyAllAndClose() {
+            ApplyAll();
+
+            this.Publish(new Service.DevUIService.Commands.CloseScriptingConsoleCommand());
         }
 
         void AddLuaButton() {

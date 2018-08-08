@@ -12,6 +12,9 @@ namespace UserInterface {
 
         private bool isEditable;
 
+        [HideInInspector]
+        public bool isInEditMode;
+
         protected bool IsEditable {
             get {
                 return isEditable;
@@ -37,21 +40,27 @@ namespace UserInterface {
         void MakeEditable(bool isEditable) {
             if (isEditable) {
                 //Edit button
-                editButton.onClick.AddListener(
-                    () => ActivateEditMode(true)
-                );
-                editButton.onClick.AddListener(OnEdit);
+                editButton.onClick.AddListener(Edit);
                 editButton.gameObject.SetActive(true);
 
                 //Save button
-                saveButton.onClick.AddListener(
-                    () => ActivateEditMode(false)
-                );
-                saveButton.onClick.AddListener(OnSave);
+                saveButton.onClick.AddListener(Save);
             } else {
                 editButton.gameObject.SetActive(false);
                 ActivateEditMode(false);
             }
+        }
+
+        public void Save() {
+            ActivateEditMode(false);
+            isInEditMode = false;
+            OnSave();
+        }
+
+        public void Edit() {
+            ActivateEditMode(true);
+            isInEditMode = true;
+            OnEdit();
         }
     }
 }
