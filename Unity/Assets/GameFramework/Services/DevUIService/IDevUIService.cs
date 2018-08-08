@@ -31,10 +31,11 @@ namespace Service.DevUIService {
         /// Add/Create view with name 
         /// <param name="viewName"></param>
         /// <param name="dynamicallyCreated"></param>
+        /// <param name="extensionAllowed"></param>
  /// </summary>
         
 
-					DevUIView CreateView(string viewName,bool dynamicallyCreated=false);
+					DevUIView CreateView(string viewName,bool dynamicallyCreated=false,bool extensionAllowed=true);
 
 
 		/// <summary>

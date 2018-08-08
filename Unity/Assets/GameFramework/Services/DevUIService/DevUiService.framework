@@ -10,7 +10,7 @@ namespace Service.DevUIService {
     	## "Get ReaciveDictionar of all views"  
     	("ReactiveCollection<DevUIView>") GetRxViews();	
     	## "Add/Create view with name"
-		("DevUIView") CreateView(string viewName,bool dynamicallyCreated=False);
+		("DevUIView") CreateView(string viewName,bool dynamicallyCreated=False, bool extensionAllowed=True);
 		## "Get a view by name"
 		("DevUIView") GetView(string viewName);
 		## "Check if view already exists"

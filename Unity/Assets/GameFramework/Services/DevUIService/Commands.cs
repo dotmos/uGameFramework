@@ -90,6 +90,7 @@ namespace Service.DevUIService{
             public DevUIView result;
                         public string viewName;
                         public bool dynamicallyCreated=false;
+                        public bool extensionAllowed=true;
             
             
         }
@@ -100,7 +101,7 @@ namespace Service.DevUIService{
             ptest.Start("CreateViewCommand");
 #endif
         
-            cmd.result = _service.CreateView(cmd.viewName,cmd.dynamicallyCreated);
+            cmd.result = _service.CreateView(cmd.viewName,cmd.dynamicallyCreated,cmd.extensionAllowed);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("CreateViewCommand");

@@ -208,12 +208,13 @@ namespace Service.DevUIService {
         }
 
 
-        public override DevUIView CreateView(string viewName,bool dynamicallyCreated=false) {
+        public override DevUIView CreateView(string viewName,bool dynamicallyCreated=false, bool extensionAllowed=true) {
             var view = GetView(viewName);
             if (view != null) {
                 return view;
             }
             var newView = new DevUIView(viewName,dynamicallyCreated);
+            newView.extensionAllowed = extensionAllowed;
             rxViews.Add(newView);
             return newView;
         }
@@ -359,8 +360,8 @@ namespace Service.DevUIService {
 
             var components = entityManager.GetAllComponents(entity);
 
-            var resultView = CreateView("entity-" + entity.ID, false);
-            resultView.extensionAllowed = false;
+            var resultView = CreateView("entity-" + entity.ID, false,false);
+            
 
 
             List<MemoryBrowser> mBrowsers = new List<MemoryBrowser>();
