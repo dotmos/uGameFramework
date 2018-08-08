@@ -23,7 +23,7 @@ namespace Service.FileSystem {
             switch (domain) {
                 case FSDomain.ScriptingOutput: path = Application.persistentDataPath + "/scripting"; break;
                 case FSDomain.DevUIViews: path = Application.persistentDataPath + "/dev-ui/views"; break;
-                case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archieves"; break;
+                case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archives"; break;
                 case FSDomain.RuntimeAssets: path = Application.streamingAssetsPath; break;
                 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
@@ -118,7 +118,9 @@ namespace Service.FileSystem {
 
         public override void RemoveFile(string filePath) {
             try {
-                File.Delete(filePath);
+                if (FileExists(filePath)) {
+                    File.Delete(filePath);
+                }
             }
             catch (Exception e) {
                 Debug.LogException(e);

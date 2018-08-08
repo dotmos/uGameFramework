@@ -88,7 +88,7 @@ namespace Service.Scripting {
                         var declaringType = (member.Value as OverloadedMethodMemberDescriptor).DeclaringType;
 
                         try {
-                            var m1 = declaringType.GetMethod(member.Key, new[] { typeof(string) });
+                            var m1 = declaringType.GetMethod(member.Key);
                             //var m1 = declaringType.GetMethod(member.Key);
 
                             if (m1 == null) {
