@@ -295,7 +295,7 @@ namespace Service.DevUIService {
 
         public override void SaveViews() {
             foreach (var view in rxViews) {
-                if (!view.createdDynamically) {
+                if (!view.extensionAllowed) {
                     continue;
                 }
                 SaveViewToPath(view);
@@ -359,6 +359,7 @@ namespace Service.DevUIService {
             var components = entityManager.GetAllComponents(entity);
 
             var resultView = CreateView("entity-" + entity.ID, false);
+            resultView.extensionAllowed = false;
 
             List<MemoryBrowser> mBrowsers = new List<MemoryBrowser>();
             foreach (var comp in components) {

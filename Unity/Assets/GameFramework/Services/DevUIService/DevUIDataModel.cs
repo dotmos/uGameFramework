@@ -28,6 +28,9 @@ namespace Service.DevUIService {
         public bool createdDynamically;
 
         [DataMember]
+        public bool extensionAllowed=true;
+
+        [DataMember]
         public string Name {
             get { return nameProperty.Value; }
             set {
