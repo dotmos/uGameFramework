@@ -12,6 +12,7 @@ namespace UserInterface {
         /// first or - if set - default tab. This should be deactivated if the behaviour is handled from outside.
         /// </summary>
         public bool deactivateDefaultOnEnableBehaviour;
+        public bool activateNewTabsOnAdd = true;
         public GMTab defaultTab;
 
         private List<GMTab> tabs = new List<GMTab>();
@@ -108,6 +109,10 @@ namespace UserInterface {
             tabs.Add(tab);
             tab.Initialize(this);
             RegisterToggle(tab);
+
+            if (activateNewTabsOnAdd) {
+                ActivateTab(tab);
+            }
         }
 
         public void RemoveTab(GMTab tab, bool destroy = false)
