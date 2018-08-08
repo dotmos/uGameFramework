@@ -282,6 +282,8 @@ namespace Service.DevUIService {
         }
 
         public void SetInterval(float f) {
+            updateRateInSeconds = f;
+
             if (timer == null) {
                 timer = timeService.CreateGlobalTimer(f, () => {
                     UpdateExpression();
