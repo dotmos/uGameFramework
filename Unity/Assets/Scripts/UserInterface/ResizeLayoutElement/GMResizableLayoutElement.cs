@@ -15,12 +15,12 @@ namespace UserInterface {
             layoutElement.minHeight = Mathf.Clamp(layoutElement.minHeight + yStep, minimumDimensions.y, maximumDimensions.y);
         }
 
-        public void AlighTop() {
+        public void AlignTop() {
             layoutElement.minWidth = maximumDimensions.x;
             layoutElement.minHeight = minimumDimensions.y;
         }
 
-        public void AlighLeft() {
+        public void AlignLeft() {
             layoutElement.minWidth = minimumDimensions.x;
             layoutElement.minHeight = maximumDimensions.y;
         }
