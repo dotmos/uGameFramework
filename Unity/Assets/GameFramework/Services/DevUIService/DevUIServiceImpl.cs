@@ -266,6 +266,8 @@ namespace Service.DevUIService {
                         if (view == null) {
                             // a new view
                             view = CreateView(viewData.Name);
+                            view.createdDynamically = viewData.createdDynamically;
+                            view.extensionAllowed = viewData.extensionAllowed;
                         }
                         usedViewNames.Add(viewData.Name);
                         view.currentFilename = viewFile;
