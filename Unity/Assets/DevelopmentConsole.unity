@@ -569,7 +569,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000045776367, y: 0}
+  m_AnchoredPosition: {x: -0.00012207031, y: 0}
   m_SizeDelta: {x: -366, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &95446948
@@ -737,7 +737,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0.000061035156}
+  m_AnchoredPosition: {x: 0, y: 0.000030517578}
   m_SizeDelta: {x: 0, y: 4}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &125724965
@@ -982,7 +982,7 @@ MonoBehaviour:
     m_TypeName: UserInterface.Scrollbar.GMScrollbar+ScrollEvent, uGameFramework, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_Direction: 1
-  m_Value: 0
+  m_Value: 1
   m_Size: 0.99999994
   m_NumberOfSteps: 0
 --- !u!114 &150908308
@@ -1900,7 +1900,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.18035777, g: 0.18796726, b: 0.1981132, a: 1}
     m_HighlightedColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
     m_PressedColor: {r: 0.24648452, g: 0.25717387, b: 0.2735849, a: 1}
-    m_DisabledColor: {r: 0.18035777, g: 0.18796726, b: 0.1981132, a: 1}
+    m_DisabledColor: {r: 0.18039216, g: 0.18039216, b: 0.19607845, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1931,8 +1931,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 487184321}
-        m_MethodName: SetActive
+      - m_Target: {fileID: 487184323}
+        m_MethodName: set_interactable
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1950,7 +1950,7 @@ MonoBehaviour:
   defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
   highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
-  disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
+  disabledColor: {r: 0.15686275, g: 0.15686275, b: 0.17254902, a: 0.39215687}
 --- !u!114 &430574757
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2540,7 +2540,7 @@ MonoBehaviour:
     m_NormalColor: {r: 0.18035777, g: 0.18796726, b: 0.1981132, a: 1}
     m_HighlightedColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
     m_PressedColor: {r: 0.24648452, g: 0.25717387, b: 0.2735849, a: 1}
-    m_DisabledColor: {r: 0.18035777, g: 0.18796726, b: 0.1981132, a: 1}
+    m_DisabledColor: {r: 0.18039216, g: 0.18039216, b: 0.19607845, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -2571,8 +2571,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 430574754}
-        m_MethodName: SetActive
+      - m_Target: {fileID: 430574756}
+        m_MethodName: set_interactable
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2590,7 +2590,7 @@ MonoBehaviour:
   defaultColor: {r: 0.3245372, g: 0.34313178, b: 0.3679245, a: 1}
   highlightColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
   pressedColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 1}
-  disabledColor: {r: 0.6156863, g: 0.6509804, b: 0.7058824, a: 0.39215687}
+  disabledColor: {r: 0.15686275, g: 0.15686275, b: 0.17254902, a: 0.39215687}
 --- !u!114 &487184324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5777,7 +5777,7 @@ RectTransform:
   m_Father: {fileID: 20432864}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.000000059604645}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 8, y: 8}
@@ -8725,6 +8725,7 @@ GameObject:
   - component: {fileID: 2057337270}
   - component: {fileID: 2057337272}
   - component: {fileID: 2057337271}
+  - component: {fileID: 2057337273}
   m_Layer: 5
   m_Name: LeftContent
   m_TagString: Untagged
@@ -8789,6 +8790,18 @@ MonoBehaviour:
   m_FlexibleWidth: 6
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &2057337273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2057337269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23b734e2812b331428da36be14dae979, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  draggableObject: {fileID: 451475277}
 --- !u!1 &2065912631
 GameObject:
   m_ObjectHideFlags: 0

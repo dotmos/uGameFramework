@@ -76,5 +76,9 @@ namespace UserInterface {
             target.anchoredPosition = Vector3.zero;
             RestrictToScreen();
         }
+
+        public void SetTargetPosition(Vector2 position) {
+            target.anchoredPosition = position;
+        }
     }
 }
