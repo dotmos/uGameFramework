@@ -34,5 +34,13 @@ namespace ECS {
         public void EntityModified() {
             GetEntityManager().EntityModified(Entity);
         }
+
+        public bool HasEntityComponent<T>() where T:ECS.IComponent {
+            return GetEntityManager().HasComponent<T>(Entity);
+        }
+
+        public T GetEntityComponent<T>() where T : ECS.IComponent {
+            return GetEntityManager().GetComponent<T>(Entity);
+        }
     }
 }
