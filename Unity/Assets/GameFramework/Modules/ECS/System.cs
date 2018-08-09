@@ -10,7 +10,6 @@ namespace ECS {
 
         protected List<UID> validEntities;
         protected List<TComponents> componentsToProcess;
-        protected Dictionary<UID, IDisposable> processUpdates;
 
         private CompositeDisposable disposables;
 
@@ -21,7 +20,6 @@ namespace ECS {
         public System(IEntityManager entityManager) {
             validEntities = new List<UID>();
             componentsToProcess = new List<TComponents>();
-            processUpdates = new Dictionary<UID, IDisposable>();
             disposables = new CompositeDisposable();
 
             SetEntityManager(entityManager);
@@ -94,11 +92,6 @@ namespace ECS {
             //Add components to process
             TComponents components = _GetEntityComponents(entity);
             componentsToProcess.Add(components);
-            //Add rx process update
-            IObservable<TComponents> processUpdate = SetupProcessUpdate(components);
-            if (processUpdate != null) {
-                processUpdates.Add(entity, processUpdate.Subscribe(e => Process(e)));
-            }
         }
 
         void UnregisterEntity(UID entity) {
@@ -108,12 +101,6 @@ namespace ECS {
             TComponents components = componentsToProcess.Find(o => o.Entity.ID == _entityID);
             if (components != null) {
                 componentsToProcess.Remove(components);
-            }
-            //Remove rx process update
-            if (processUpdates.ContainsKey(entity)) {
-                processUpdates[entity].Dispose();
-                processUpdates[entity] = null;
-                processUpdates.Remove(entity);
             }
             validEntities.Remove(entity);
         }
@@ -142,16 +129,7 @@ namespace ECS {
         /// </summary>
         /// <param name="components"></param>
         protected virtual void Process(TComponents components) { }
-
-        /// <summary>
-        /// Optional rx binding for entity processing. If not set, you have to manually call Process() for entity components (i.e. in an update loop)
-        /// </summary>
-        /// <param name="components"></param>
-        /// <returns></returns>
-        protected virtual IObservable<TComponents> SetupProcessUpdate(TComponents components) {
-            return null;
-        }
-
+        
         public void AddDisposable(IDisposable disposable) {
             disposables.Add(disposable);
         }
@@ -163,12 +141,7 @@ namespace ECS {
             entityManager = null;
 
             validEntities.Clear();
-            componentsToProcess.Clear();
-
-            foreach(IDisposable i in processUpdates.Values) {
-                i.Dispose();
-            }
-            processUpdates.Clear();
+            componentsToProcess.Clear();           
         }
     }
 }
