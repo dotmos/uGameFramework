@@ -55,7 +55,7 @@ namespace Systems {
         protected override void AfterBind() {
             base.AfterBind();
 
-            Observable.EveryUpdate().Subscribe(e => ProcessAll()).AddTo(this);
+            //Observable.EveryUpdate().Subscribe(e => ProcessAll()).AddTo(this);
         }
 
         protected override void Process(/*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/ components) {
