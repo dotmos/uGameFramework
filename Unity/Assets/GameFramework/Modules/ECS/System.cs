@@ -81,6 +81,10 @@ namespace ECS {
             }
         }
 
+        public void ProcessSystem() {
+            ProcessAll();
+        }
+
         /// <summary>
         /// Sets the entity manager of this system
         /// </summary>

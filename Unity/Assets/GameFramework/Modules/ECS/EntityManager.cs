@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -37,6 +38,13 @@ namespace ECS {
             foreach(ISystem s in RegisterSystemsOnStartup()) {
                 RegisterSystem(s);
             }
+
+            //Start processing systems every frame
+            Observable.EveryUpdate().Subscribe(e => {
+                foreach(ISystem s in _systems) {
+                    s.ProcessSystem();
+                }
+            });
         }
 
         /// <summary>

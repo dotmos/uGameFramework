@@ -111,7 +111,10 @@ namespace UserInterface {
         void Browse() {
             getPath.domain = Service.FileSystem.FSDomain.DevUIViewsArchieve;
             this.Publish(getPath);
+            //TODO: This will not work in build! Try to use something like System.Diagnostics.Process.Start("explorer.exe","/select,"+path); instead
+#if UNITY_EDITOR
             EditorUtility.RevealInFinder(getPath.result);
+#endif
         }
 
         void Refresh() {
