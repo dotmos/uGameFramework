@@ -2,11 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
+using Zenject;
 
 namespace ECS {
     public abstract class System<TComponents> : IDisposable, ISystem where TComponents : ISystemComponents, new(){
 
         public IEntityManager entityManager { get; private set; }
+
+        Service.Events.IEventsService eventService;
 
         protected List<UID> validEntities;
         protected List<TComponents> componentsToProcess;
@@ -26,7 +29,16 @@ namespace ECS {
 
             PreBind();
 
+            Kernel.Instance.Inject(this);
+
             AfterBind();
+        }
+
+        [Inject]
+        void OnInject(
+            [Inject] Service.Events.IEventsService eventService
+            ) {
+            this.eventService = eventService;
         }
         
         protected virtual void PreBind() {
@@ -34,6 +46,28 @@ namespace ECS {
         }
 
         protected virtual void AfterBind() {
+        }
+
+        /// <summary>
+        /// Publish the specified global event.
+        /// </summary>
+        /// <param name="evt">Evt.</param>
+        protected void Publish(object evt) {
+            eventService.Publish(evt);
+        }
+        protected void Publish(object evt, Subject<object> eventStream) {
+            eventService.Publish(evt, eventStream);
+        }
+
+        /// <summary>
+        /// Subscribe to a global event of type TEvent
+        /// </summary>
+        /// <typeparam name="TEvent">The 1st type parameter.</typeparam>
+        protected IObservable<TEvent> OnEvent<TEvent>() {
+            return eventService.OnEvent<TEvent>();
+        }
+        protected IObservable<TEvent> OnEvent<TEvent>(Subject<object> eventStream) {
+            return eventService.OnEvent<TEvent>(eventStream);
         }
 
         /// <summary>

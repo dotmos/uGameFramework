@@ -225,7 +225,7 @@ namespace ECS {
         /// <returns></returns>
         public bool HasComponent<T>(UID entity) where T: IComponent {
             if (EntityExists(entity)) {
-                //TODO: This is slow. Rethink how entities/components are stored.
+                //TODO: This is "slow" and produces garbage. Rethink how entities/components are stored.
                 IComponent c = _entities[entity].Find(o => o is T);
                 if (c != null) {
                     return true;
@@ -236,7 +236,7 @@ namespace ECS {
 
         public bool HasComponent(UID entity, IComponent component) {
             if (EntityExists(entity)) {
-                //TODO: This is slow. Rethink how entities/components are stored.
+                //TODO: This is "slow" and produces garbage. Rethink how entities/components are stored.
                 IComponent c = _entities[entity].Find(o => o == component);
                 if (c != null) {
                     return true;
