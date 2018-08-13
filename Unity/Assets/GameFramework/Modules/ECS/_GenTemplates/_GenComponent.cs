@@ -26,7 +26,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*name:comment*//*endname*/    
 /// </summary>
     /*name:attributes*//*endname*/
-    public /*name:type*/State/*endname*/ /*name:name*/state/*endname*/;
+    public /*name:type*/State/*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
 /*endblock:field*/
 }
 
