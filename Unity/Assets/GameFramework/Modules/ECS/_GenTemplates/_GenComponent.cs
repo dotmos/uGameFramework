@@ -11,9 +11,17 @@ using UnityEngine;
 [System.Serializable]
 public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS.Component {
 /*block:enum*/
+/// <summary>
+/*name:comment*//*endname*/
+/// </summary>
     public enum /*name:enumName*/State/*endname*/ : int
     {
- /*block:entry*/        /*name:entryName*/state1/*endname*/ /*name:entryNumber*//*endname*/,
+        /*block:entry*//*block:comment*/
+/// <summary>
+/*name:comment*//*endname*/
+/// </summary>/*endblock:comment*/
+        /*name:entryName*/
+        state1/*endname*/ /*name:entryNumber*//*endname*/,
  /*endblock:entry*/
  /*block:rip*/        state2 = 1,
         state3 = 2,
