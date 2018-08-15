@@ -82,7 +82,7 @@ namespace Service.FileSystem{
         public class WriteStringToFileCommand  {
             public bool result;
                         public string pathToFile;
-                        public string data;
+                        public string thedata;
             
             
         }
@@ -93,7 +93,7 @@ namespace Service.FileSystem{
             ptest.Start("WriteStringToFileCommand");
 #endif
         
-            cmd.result = _service.WriteStringToFile(cmd.pathToFile,cmd.data);
+            cmd.result = _service.WriteStringToFile(cmd.pathToFile,cmd.thedata);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("WriteStringToFileCommand");
@@ -110,7 +110,7 @@ namespace Service.FileSystem{
             public bool result;
                         public FSDomain domain;
                         public string relativePathToFile;
-                        public string data;
+                        public string thedata;
             
             
         }
@@ -121,7 +121,7 @@ namespace Service.FileSystem{
             ptest.Start("WriteStringToFileAtDomainCommand");
 #endif
         
-            cmd.result = _service.WriteStringToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.data);
+            cmd.result = _service.WriteStringToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.thedata);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("WriteStringToFileAtDomainCommand");

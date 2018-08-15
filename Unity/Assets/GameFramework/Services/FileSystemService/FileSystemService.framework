@@ -7,9 +7,9 @@ namespace Service.FileSystem {
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain,string realtivePart="");
 		## "Write string to file"
-		bool WriteStringToFile(string pathToFile, string data);
+		bool WriteStringToFile(string pathToFile, string thedata);
 		## "Write string to file at domain"
-		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string data); 
+		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string thedata); 
 		## "Load file as string"
 		string LoadFileAsString(string pathToFile);
 		## "Load file as string from domain"

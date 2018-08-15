@@ -109,9 +109,9 @@ namespace Service.FileSystem
                                                           
         public abstract string GetPath(FSDomain domain,string realtivePart="");
         
-        public abstract bool WriteStringToFile(string pathToFile,string data);
+        public abstract bool WriteStringToFile(string pathToFile,string thedata);
         
-        public abstract bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string data);
+        public abstract bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
         
         public abstract string LoadFileAsString(string pathToFile);
         

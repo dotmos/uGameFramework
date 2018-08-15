@@ -31,22 +31,22 @@ namespace Service.FileSystem {
 		/// <summary>
         /// Write string to file 
         /// <param name="pathToFile"></param>
-        /// <param name="data"></param>
+        /// <param name="thedata"></param>
  /// </summary>
         
 
-					bool WriteStringToFile(string pathToFile,string data);
+					bool WriteStringToFile(string pathToFile,string thedata);
 
 
 		/// <summary>
         /// Write string to file at domain 
         /// <param name="domain"></param>
         /// <param name="relativePathToFile"></param>
-        /// <param name="data"></param>
+        /// <param name="thedata"></param>
  /// </summary>
         
 
-					bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string data);
+					bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
 
 
 		/// <summary>
