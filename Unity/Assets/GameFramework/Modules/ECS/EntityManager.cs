@@ -120,7 +120,7 @@ namespace ECS {
                     _lastComponentId = _startComponentID;
                 }
 
-                if (_recycledEntityIds.Count > 0) {
+                if (_recycledComponentIds.Count > 0) {
                     id = _recycledComponentIds.Dequeue();
                 }
                 else {
