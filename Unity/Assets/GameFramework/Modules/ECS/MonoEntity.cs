@@ -42,5 +42,10 @@ namespace ECS {
         public T GetEntityComponent<T>() where T : ECS.IComponent {
             return GetEntityManager().GetComponent<T>(Entity);
         }
+
+        private void OnDestroy() {
+            ECS.UID _entity = this.Entity;
+            GetEntityManager().DestroyEntity(ref _entity);
+        }
     }
 }
