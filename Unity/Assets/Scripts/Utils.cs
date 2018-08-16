@@ -45,10 +45,11 @@ public interface IExecutionWrapper
 
 public class UtilsObservable
 {
-    public static IObservable<bool> LoadScene(string sceneName) {
+    public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
         return Observable.Create<bool>((observer) => {
             var async = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             async.completed += (val) => {
+                if(makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 observer.OnNext(true);
                 observer.OnCompleted();
             };
