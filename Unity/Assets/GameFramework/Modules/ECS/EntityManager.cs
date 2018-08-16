@@ -26,6 +26,8 @@ namespace ECS {
         private int _lastComponentId { get; set; }
         static readonly int _startComponentID = 1;
 
+        bool applicationIsQuitting = false;
+
         public EntityManager() {
             _entities = new Dictionary<UID, List<IComponent>>();
             _systems = new List<ISystem>();
@@ -45,6 +47,8 @@ namespace ECS {
                     s.ProcessSystem();
                 }
             });
+
+            UnityEngine.Application.quitting += () => { applicationIsQuitting = true; };
         }
 
         /// <summary>
@@ -87,6 +91,8 @@ namespace ECS {
         /// </summary>
         /// <param name="entityID"></param>
         public void DestroyEntity(ref UID entity) {
+            if (applicationIsQuitting) return;
+
             if (EntityExists(entity)) {
                 _entities[entity].Clear();
                 EntityModified(entity);
@@ -171,10 +177,14 @@ namespace ECS {
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         public void RemoveComponent<T>(UID entity) where T : IComponent {
+            if (applicationIsQuitting) return;
+
             RemoveComponent(entity, GetComponent<T>(entity));
         }
         public void RemoveComponent(UID entity, IComponent component) {
-            if(component != null && EntityExists(entity) && HasComponent(entity, component)) {
+            if (applicationIsQuitting) return;
+
+            if (component != null && EntityExists(entity) && HasComponent(entity, component)) {
                 _entities[entity].Remove(component);
                 component.Entity.SetID(-1);
                 EntityModified(entity);
@@ -185,7 +195,9 @@ namespace ECS {
         /// Disposes the component, freeing it's ID and calling Dispose()
         /// </summary>
         /// <param name="component"></param>
-        public void DisposeComponent(ref IComponent component) {
+        public void DisposeComponent(IComponent component) {
+            if (applicationIsQuitting) return;
+
             RemoveComponent(component.Entity, component);
             _recycledComponentIds.Enqueue(component.ID.ID);
             component.ID = new UID(-1);

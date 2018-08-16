@@ -31,5 +31,9 @@ namespace ECS {
         public void ComponentModified() {
             EntityManager().EntityModified(monoEntity.Entity);
         }
+
+        private void OnDestroy() {
+            if(Application.isPlaying) monoEntity.GetEntityManager().DisposeComponent(component);
+        }
     }
 }

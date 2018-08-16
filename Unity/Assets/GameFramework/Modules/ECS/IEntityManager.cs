@@ -21,7 +21,7 @@ namespace ECS {
 
         void SetupComponentID(IComponent component);
 
-        void DisposeComponent(ref IComponent component);
+        void DisposeComponent(IComponent component);
 
         void RegisterSystem(ISystem system);
         void UnregisterSystem(ISystem system);
