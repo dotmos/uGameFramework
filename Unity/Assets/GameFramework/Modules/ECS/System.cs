@@ -11,8 +11,9 @@ namespace ECS {
 
         Service.Events.IEventsService eventService;
 
-        protected List<UID> validEntities;
-        protected List<TComponents> componentsToProcess;
+        //protected List<UID> validEntities;
+        protected HashSet<UID> validEntities;
+        protected HashSet<TComponents> componentsToProcess;
 
         private CompositeDisposable disposables;
 
@@ -21,8 +22,8 @@ namespace ECS {
         }
 
         public System(IEntityManager entityManager) {
-            validEntities = new List<UID>();
-            componentsToProcess = new List<TComponents>();
+            validEntities = new HashSet<UID>();
+            componentsToProcess = new HashSet<TComponents>();
             disposables = new CompositeDisposable();
 
             SetEntityManager(entityManager);
@@ -74,10 +75,16 @@ namespace ECS {
         /// Process all entities
         /// </summary>
         protected virtual void ProcessAll() {
+            /*
             for(int i=0; i<componentsToProcess.Count; ++i) {
                 //TComponents c = componentsToProcess[i];
                 Process(componentsToProcess[i]);
                 //componentsToProcess[i] = c;
+            }
+            */
+
+            foreach(TComponents c in componentsToProcess) {
+                Process(c);
             }
         }
 
@@ -108,6 +115,9 @@ namespace ECS {
         public virtual void EntityModified(UID entity) {
             bool valid = IsEntityValid(entity);
             bool wasValid = validEntities.Contains(entity);
+            //if(validEntities.Find(v => v.ID == entity.ID).ID > 0) {
+            //    wasValid = true;
+            //}
 
             //UnityEngine.Debug.Log(entity.ID + "valid: "+valid);
 
@@ -136,10 +146,13 @@ namespace ECS {
             //UnityEngine.Debug.Log(entity.ID + " invalid! Removing from system!");
             //Remove components to process
             int _entityID = entity.ID;
+            /*
             TComponents components = componentsToProcess.Find(o => o.Entity.ID == _entityID);
             if (components != null) {
                 componentsToProcess.Remove(components);
             }
+            */
+            componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
             validEntities.Remove(entity);
         }
 
