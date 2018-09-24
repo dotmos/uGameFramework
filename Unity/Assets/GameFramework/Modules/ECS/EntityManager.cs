@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UniRx;
+using System.Linq;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -11,25 +12,32 @@ namespace ECS {
         /// </summary>
         //This is super cache unfriendly.
         //TODO: Make cache friendly and do not use a list of components, but use a list of ids, targeting component arrays of same component type. I.e. one array per component type
-        Dictionary<UID, List<IComponent>> _entities;
+        private readonly Dictionary<UID, HashSet<IComponent>> _entities;
+        private readonly HashSet<int> _entityIDs;
 
         /// <summary>
         /// List of all registered systems
         /// </summary>
-        List<ISystem> _systems;
+        private readonly List<ISystem> _systems;
 
-        private Queue<int> _recycledEntityIds;
+        private readonly Queue<int> _recycledEntityIds;
         private int _lastEntityId { get; set; }
         static readonly int _startEntityID = 1;
 
-        private Queue<int> _recycledComponentIds;
+        private readonly Queue<int> _recycledComponentIds;
         private int _lastComponentId { get; set; }
         static readonly int _startComponentID = 1;
 
         bool applicationIsQuitting = false;
 
+        /// <summary>
+        /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
+        /// </summary>
+        public bool AutoCallEntityModified { get; set; }
+
         public EntityManager() {
-            _entities = new Dictionary<UID, List<IComponent>>();
+            _entities = new Dictionary<UID, HashSet<IComponent>>();
+            _entityIDs = new HashSet<int>();
             _systems = new List<ISystem>();
             _recycledEntityIds = new Queue<int>();
             _recycledComponentIds = new Queue<int>();
@@ -81,7 +89,8 @@ namespace ECS {
             UID uid = new UID(id);
             //UnityEngine.Debug.Log(uid.ID);
 
-            _entities.Add(uid, new List<IComponent>());
+            _entities.Add(uid, new HashSet<IComponent>());
+            _entityIDs.Add(uid.ID);
 
             return uid;
         }
@@ -95,7 +104,8 @@ namespace ECS {
 
             if (EntityExists(entity)) {
                 _entities[entity].Clear();
-                EntityModified(entity);
+                _entityIDs.Remove(entity.ID);
+                _EntityModified(entity);
                 _entities[entity] = null;
                 _entities.Remove(entity);
                 _recycledEntityIds.Enqueue(entity.ID);
@@ -109,7 +119,9 @@ namespace ECS {
         /// <param name="entityID"></param>
         /// <returns></returns>
         public bool EntityExists(UID entity) {
-            return _entities.ContainsKey(entity);
+            //return _entities.ContainsKey(entity);
+
+            return _entityIDs.Contains(entity.ID);
         }
 
         /// <summary>
@@ -164,7 +176,7 @@ namespace ECS {
                 component.Entity = entity;
                 SetupComponentID(component);
                 _entities[entity].Add(component);
-                EntityModified(entity);
+                _EntityModified(entity);
                 //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
                 return component;
             }
@@ -187,7 +199,7 @@ namespace ECS {
             if (component != null && EntityExists(entity) && HasComponent(entity, component)) {
                 _entities[entity].Remove(component);
                 component.Entity.SetID(-1);
-                EntityModified(entity);
+                _EntityModified(entity);
             }
         }
         
@@ -213,7 +225,16 @@ namespace ECS {
         public T GetComponent<T>(UID entity) where T : IComponent{
             if (EntityExists(entity)) {
                 //TODO: This is slow. Rethink how entities are stored.
-                IComponent c = _entities[entity].Find(o => o is T);
+                //IComponent c = _entities[entity].Find(o => o is T);
+
+                //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
+                IComponent c = null;// 
+                foreach(IComponent comp in _entities[entity]) {
+                    if(comp is T) {
+                        c = comp;
+                        break;
+                    }
+                }
                 if(c != null) {
                     return (T)c;
                 }
@@ -231,7 +252,7 @@ namespace ECS {
         /// <returns></returns>
         public List<IComponent> GetAllComponents(UID entity) {
             if (EntityExists(entity)) {
-                return _entities[entity];
+                return _entities[entity].ToList();
             } else {
                 return null;
             }
@@ -246,7 +267,16 @@ namespace ECS {
         public bool HasComponent<T>(UID entity) where T: IComponent {
             if (EntityExists(entity)) {
                 //TODO: This is "slow" and produces garbage. Rethink how entities/components are stored.
-                IComponent c = _entities[entity].Find(o => o is T);
+                //IComponent c = _entities[entity].Find(o => o is T);
+
+                //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
+                IComponent c = null;// 
+                foreach (IComponent comp in _entities[entity]) {
+                    if (comp is T) {
+                        c = comp;
+                        break;
+                    }
+                }
                 if (c != null) {
                     return true;
                 }
@@ -257,10 +287,13 @@ namespace ECS {
         public bool HasComponent(UID entity, IComponent component) {
             if (EntityExists(entity)) {
                 //TODO: This is "slow" and produces garbage. Rethink how entities/components are stored.
-                IComponent c = _entities[entity].Find(o => o == component);
-                if (c != null) {
-                    return true;
-                }
+                //IComponent c = _entities[entity].Find(o => o == component);
+                //if (c != null) {
+                //    return true;
+                //}
+
+                //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
+                return _entities[entity].Contains(component);
             }
             return false;
         }
@@ -295,9 +328,29 @@ namespace ECS {
         /// Call whenever an entity is modified and systems need to update.
         /// </summary>
         /// <param name="entity"></param>
+        void _EntityModified(UID entity) {
+            if (AutoCallEntityModified) {
+                EntityModified(entity);
+            }
+        }
+
+        /// <summary>
+        /// Call whenever an entity is modified and systems need to update.
+        /// </summary>
+        /// <param name="entity"></param>
         public virtual void EntityModified(UID entity) {
-            for(int i=0; i<_systems.Count; ++i) {
+            for (int i = 0; i < _systems.Count; ++i) {
                 _systems[i].EntityModified(entity);
+            }
+        }
+
+        /// <summary>
+        /// Manually tell manager to update all systems with given entities. No need to call this, if manager is set to autoCallEntityModified
+        /// </summary>
+        /// <param name="entities"></param>
+        public virtual void EntitiesModified(List<UID> entities) {
+            for(int i=0; i<entities.Count; ++i) {
+                EntityModified(entities[i]);
             }
         }
     }

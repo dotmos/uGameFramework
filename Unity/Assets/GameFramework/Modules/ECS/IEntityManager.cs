@@ -2,6 +2,8 @@
 
 namespace ECS {
     public interface IEntityManager {
+        bool AutoCallEntityModified { get; set; }
+
         UID CreateEntity();
         bool EntityExists(UID entity);
         void DestroyEntity(ref UID entity);
@@ -27,5 +29,6 @@ namespace ECS {
         void UnregisterSystem(ISystem system);
 
         void EntityModified(UID entity);
+        void EntitiesModified(List<UID> entity);
     }
 }
