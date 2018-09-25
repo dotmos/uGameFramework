@@ -36,6 +36,18 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*name:attributes*//*endname*/
     public /*name:type*/State/*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
 /*endblock:field*/
+
+    /// <summary>
+    /// Copy values from other component. Shallow copy.
+    /// </summary>
+    /// <param name="target"></param>
+    public override void CopyValues(ECS.IComponent otherComponent) {
+        base.CopyValues(otherComponent);
+
+        /*name:ComponentName*/GenTemplateComponent/*endname*/ component = (/*name:ComponentName*/GenTemplateComponent/*endname*/)otherComponent;
+/*block:copyField*/        this./*name:name*/state/*endname*/ = component./*name:name*/state/*endname*/;
+/*endblock:copyField*/
+    }
 }
 
 
