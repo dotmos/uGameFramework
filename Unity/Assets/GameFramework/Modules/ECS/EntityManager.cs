@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using System.Linq;
+using System.Reflection;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -33,7 +34,7 @@ namespace ECS {
         /// <summary>
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
         /// </summary>
-        public bool AutoCallEntityModified { get; set; }
+        public bool AutoCallEntityModified { get; set; } = true;
 
         public EntityManager() {
             _entities = new Dictionary<UID, HashSet<IComponent>>();
@@ -45,7 +46,7 @@ namespace ECS {
             _lastComponentId = _startComponentID;
 
             //Register systems
-            foreach(ISystem s in RegisterSystemsOnStartup()) {
+            foreach (ISystem s in RegisterSystemsOnStartup()) {
                 RegisterSystem(s);
             }
 
@@ -183,6 +184,40 @@ namespace ECS {
             return null;
         }
 
+        public IComponent AddComponent(UID entity, Type componentType) {
+            if (EntityExists(entity)) {
+                if (!HasComponent(entity, componentType)) {
+                    ConstructorInfo ctor = componentType.GetConstructor(System.Type.EmptyTypes);
+                    if (ctor != null) {
+                        object componentObject = ctor.Invoke(null);
+                        IComponent component = (IComponent)componentObject;
+                        SetupComponentID(component);
+                        return component;
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Creates a shallow copy of the component
+        /// </summary>
+        /// <param name="componentToClone"></param>
+        /// <returns></returns>
+        public IComponent CloneComponent(IComponent componentToClone) {
+            ConstructorInfo ctor = componentToClone.GetType().GetConstructor(System.Type.EmptyTypes);
+            if (ctor != null) {
+                object componentObject = ctor.Invoke(null);
+                IComponent component = (IComponent)componentObject;
+                //componentToClone.CopyFields(component);
+                component.CopyValues(componentToClone);
+                component.ID = new UID();
+                SetupComponentID(component);
+                return component;
+            }
+            return null;
+        }
+
         /// <summary>
         /// Removes the component from the entity
         /// </summary>
@@ -298,6 +333,21 @@ namespace ECS {
             return false;
         }
 
+        public bool HasComponent(UID entity, Type componentType) {
+            if (EntityExists(entity)) {
+                IComponent c = null;// 
+                foreach (IComponent comp in _entities[entity]) {
+                    if (comp.GetType() == componentType) {
+                        c = comp;
+                        break;
+                    }
+                }
+                if (c != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         /// <summary>
         /// Register a system with the entity manager

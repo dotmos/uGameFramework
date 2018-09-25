@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ECS {
     public interface IEntityManager {
@@ -10,6 +11,9 @@ namespace ECS {
 
         T AddComponent<T>(UID entity) where T : IComponent, new();
         IComponent AddComponent(UID entity, IComponent component);
+        IComponent AddComponent(UID entity, Type componentType);
+
+        IComponent CloneComponent(IComponent componentToClone);
 
         void RemoveComponent<T>(UID entity) where T : IComponent;
         void RemoveComponent(UID entity, IComponent component);
@@ -20,6 +24,7 @@ namespace ECS {
 
         bool HasComponent<T>(UID entity) where T : IComponent;
         bool HasComponent(UID entity, IComponent component);
+        bool HasComponent(UID entity, Type componentType);
 
         void SetupComponentID(IComponent component);
 

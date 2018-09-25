@@ -9,12 +9,16 @@ namespace ECS {
     /// Helper class for setting up data / adding components through Unity's inspector
     /// </summary>
     /// <typeparam name="TComponent"></typeparam>
-    public class MonoComponent<TComponent> : MonoBehaviour where TComponent : IComponent, new(){
+    public class MonoComponent<TComponent> : MonoBehaviour, IMonoComponent where TComponent : IComponent, new(){
         //public UID Entity {get; set;}
         private MonoEntity monoEntity;
 
         public TComponent component;
-        
+
+        public IComponent GetComponent() {
+            return component;
+        }
+
         protected virtual void Awake() {
             monoEntity = GetComponent<MonoEntity>();
             if(monoEntity == null) {

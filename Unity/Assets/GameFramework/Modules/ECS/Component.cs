@@ -40,6 +40,9 @@ namespace ECS {
             wasConstructed = true;
         }
 
+        public virtual void CopyValues(IComponent target) {
+        }
+
         public virtual void Dispose() {
         }
     }
