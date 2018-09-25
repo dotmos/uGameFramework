@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using System.Linq;
-using System.Reflection;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -187,13 +186,8 @@ namespace ECS {
         public IComponent AddComponent(UID entity, Type componentType) {
             if (EntityExists(entity)) {
                 if (!HasComponent(entity, componentType)) {
-                    ConstructorInfo ctor = componentType.GetConstructor(System.Type.EmptyTypes);
-                    if (ctor != null) {
-                        object componentObject = ctor.Invoke(null);
-                        IComponent component = (IComponent)componentObject;
-                        SetupComponentID(component);
-                        return component;
-                    }
+                    IComponent component = CreateComponentFromType(componentType);
+                    return AddComponent(entity, component);
                 }
             }
             return null;
@@ -205,6 +199,7 @@ namespace ECS {
         /// <param name="componentToClone"></param>
         /// <returns></returns>
         public IComponent CloneComponent(IComponent componentToClone) {
+            /*
             ConstructorInfo ctor = componentToClone.GetType().GetConstructor(System.Type.EmptyTypes);
             if (ctor != null) {
                 object componentObject = ctor.Invoke(null);
@@ -215,7 +210,21 @@ namespace ECS {
                 SetupComponentID(component);
                 return component;
             }
+            */
+            if(componentToClone != null) {
+                IComponent newComponent = CreateComponentFromType(componentToClone.GetType());
+                newComponent.CopyValues(componentToClone);
+                newComponent.ID = new UID();
+                SetupComponentID(newComponent);
+                return newComponent;
+            }
+
             return null;
+        }
+
+        IComponent CreateComponentFromType(Type componentType) {
+            IComponent newComponent = (IComponent)Activator.CreateInstance(componentType);
+            return newComponent;
         }
 
         /// <summary>
