@@ -13,7 +13,7 @@ namespace ECS {
 
         //protected List<UID> validEntities;
         protected HashSet<UID> validEntities;
-        protected HashSet<TComponents> componentsToProcess;
+        protected List<TComponents> componentsToProcess; //Was hashset in the past, but hashsets were super slow when multithreading systems. Testcase showed 28ms (hashset) vs 14ms (list)!
 
         private CompositeDisposable disposables;
 
@@ -23,7 +23,7 @@ namespace ECS {
 
         public System(IEntityManager entityManager) {
             validEntities = new HashSet<UID>();
-            componentsToProcess = new HashSet<TComponents>();
+            componentsToProcess = new List<TComponents>();
             disposables = new CompositeDisposable();
 
             SetEntityManager(entityManager);
@@ -146,13 +146,14 @@ namespace ECS {
             //UnityEngine.Debug.Log(entity.ID + " invalid! Removing from system!");
             //Remove components to process
             int _entityID = entity.ID;
-            /*
+            
+            //TODO: Find a faster way to remove the components.
             TComponents components = componentsToProcess.Find(o => o.Entity.ID == _entityID);
             if (components != null) {
                 componentsToProcess.Remove(components);
             }
-            */
-            componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
+            
+            //componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
             validEntities.Remove(entity);
         }
 
