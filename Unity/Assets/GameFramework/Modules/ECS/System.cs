@@ -23,7 +23,7 @@ namespace ECS {
 
         public System(IEntityManager entityManager) {
             validEntities = new HashSet<UID>();
-            componentsToProcess = new List<TComponents>();
+            componentsToProcess = new List<TComponents>(65535); //Initial size is ushort. Will allocate more, if needed.
             disposables = new CompositeDisposable();
 
             SetEntityManager(entityManager);
