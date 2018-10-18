@@ -120,6 +120,7 @@ namespace ECS {
         /// <returns></returns>
         public bool EntityExists(UID entity) {
             //return _entities.ContainsKey(entity);
+            if (entity.ID == 0) return false;
 
             return _entityIDs.Contains(entity.ID);
         }
