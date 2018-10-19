@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace ECS {
     public interface IEntityManager {
+        void Initialize();
+
         bool AutoCallEntityModified { get; set; }
 
         UID CreateEntity();

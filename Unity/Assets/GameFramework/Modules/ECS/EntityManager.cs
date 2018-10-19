@@ -43,7 +43,12 @@ namespace ECS {
             _recycledComponentIds = new Queue<int>();
             _lastEntityId = _startEntityID;
             _lastComponentId = _startComponentID;
+        }
 
+        /// <summary>
+        /// Initialize the entity manager
+        /// </summary>
+        public virtual void Initialize() {
             //Register systems
             foreach (ISystem s in RegisterSystemsOnStartup()) {
                 RegisterSystem(s);
@@ -51,7 +56,7 @@ namespace ECS {
 
             //Start processing systems every frame
             Observable.EveryUpdate().Subscribe(e => {
-                foreach(ISystem s in _systems) {
+                foreach (ISystem s in _systems) {
                     s.ProcessSystem();
                 }
             });
