@@ -12,6 +12,7 @@ using static Service.GameStateService.Events;
 using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace Service.GameStateService {
     public interface IGameStateService {
@@ -67,7 +68,7 @@ namespace Service.GameStateService {
 
 
     [DataContract(IsReference = true)]
-    public class GSContext {
+    public partial class GSContext {
 
     }
 

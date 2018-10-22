@@ -12,6 +12,7 @@ using static Service.FileSystem.Events;
 using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace Service.FileSystem {
     public interface IFileSystemService {

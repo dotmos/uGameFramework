@@ -167,6 +167,8 @@ namespace ECS {
         private TComponents _GetEntityComponents(UID entity) {
             TComponents tc = new TComponents();
             tc.Entity = entity;
+            // TODO: Get rid of this again
+            tc.EntityManager = entityManager;
             return GetEntityComponents(tc, entity);
         }
         /// <summary>

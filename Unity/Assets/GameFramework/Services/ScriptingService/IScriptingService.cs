@@ -12,6 +12,7 @@ using static Service.Scripting.Events;
 using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace Service.Scripting {
     public interface IScriptingService {

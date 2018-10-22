@@ -13,6 +13,7 @@ using static Service.TimeService.Events;
 using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace Service.TimeService {
     public interface ITimeService {
@@ -38,7 +39,7 @@ namespace Service.TimeService {
 
 
     [DataContract(IsReference = true)]
-    public class TimerElement {
+    public partial class TimerElement {
         [DataMember]public string info ;
         [DataMember]public float timeLeft ;
         [DataMember]public float interval ;

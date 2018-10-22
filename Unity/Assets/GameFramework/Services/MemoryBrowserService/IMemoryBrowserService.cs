@@ -12,6 +12,7 @@ using static Service.MemoryBrowserService.Events;
 using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace Service.MemoryBrowserService {
     public interface IMemoryBrowserService {

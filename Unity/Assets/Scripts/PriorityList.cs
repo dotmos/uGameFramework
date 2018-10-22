@@ -136,7 +136,7 @@ public class ReactivePriorityExecutionList : IDisposable
     /// </summary>
     /// <returns></returns>
     public IObservable<bool> RxExecute() {
-        if (!injected) {
+        if (!injected && Kernel.Instance!=null) {
             Kernel.Instance.Inject(this);
             injected = true;
         }

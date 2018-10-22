@@ -12,6 +12,7 @@ using static Service.LoggingService.Events;
 using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace Service.LoggingService {
     public interface ILoggingService {

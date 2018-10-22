@@ -10,6 +10,7 @@ using static Service.AsyncManager.Events;
 using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 
 namespace Service.AsyncManager {
     public interface IAsyncManager {

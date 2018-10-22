@@ -16,6 +16,7 @@ namespace Systems {
 
     public partial class /*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/ : ECS.ISystemComponents {
         public UID Entity { get; set; }
+        public IEntityManager EntityManager { get; set; }
 
 /*block:systemComponent*/
 /*block:comment*//// <summary>
