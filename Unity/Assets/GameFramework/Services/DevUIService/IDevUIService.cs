@@ -140,7 +140,7 @@ namespace Service.DevUIService {
 					void StartPickingEntity();
 
 
-					DevUIView CreateViewFromEntity(UID entity);
+					DevUIView CreateViewFromEntity(UID entity,string name="");
 
 	}
 

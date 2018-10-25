@@ -406,6 +406,7 @@ namespace Service.DevUIService{
         public class CreateViewFromEntityCommand  {
             public DevUIView result;
                         public UID entity;
+                        public string name="";
             
             
         }
@@ -416,7 +417,7 @@ namespace Service.DevUIService{
             ptest.Start("CreateViewFromEntityCommand");
 #endif
         
-            cmd.result = _service.CreateViewFromEntity(cmd.entity);
+            cmd.result = _service.CreateViewFromEntity(cmd.entity,cmd.name);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("CreateViewFromEntityCommand");

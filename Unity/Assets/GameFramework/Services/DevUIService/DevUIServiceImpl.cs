@@ -93,7 +93,7 @@ namespace Service.DevUIService {
             var rxStartup = Kernel.Instance.rxStartup;
 
             // For testing data that is already present when the DevConsole gets active add test-data at very early stage
-            rxStartup.Add(() => {
+            /*rxStartup.Add(() => {
                 var win = CreateView("ServiceDEVUI");
                 win.AddElement(new DevUIButton("kickit", () => {
                     UnityEngine.Debug.Log("KICKIT");
@@ -112,6 +112,7 @@ namespace Service.DevUIService {
                 logging.Info("Something is good", "org.tt");
 
             },Priorities.PRIORITY_VERY_EARLY); // Init Test-Data at an early stage
+            */
 
             rxStartup.Add(UtilsObservable.LoadScene(developmentSceneID),Priorities.PRIORITY_EARLY);
 
@@ -349,7 +350,7 @@ namespace Service.DevUIService {
             AddDisposable(pickingEntityDisposable);
         }
 
-        public override DevUIView CreateViewFromEntity(UID entity) {
+        public override DevUIView CreateViewFromEntity(UID entity,string name="") {
             if (entityManager == null) {
                 entityManager = Kernel.Instance.Container.Resolve<IEntityManager>();
             }
@@ -360,7 +361,7 @@ namespace Service.DevUIService {
 
             var components = entityManager.GetAllComponents(entity);
 
-            var resultView = CreateView("entity-" + entity.ID, false,false);
+            var resultView = CreateView((name==null||name=="")?"entity-" + entity.ID : name, false,false);
             
 
 

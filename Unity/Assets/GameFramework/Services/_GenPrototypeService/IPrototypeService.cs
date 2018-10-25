@@ -40,6 +40,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 /*endblock:modelEnum*/
 /*block:modelClass*/
     [DataContract(IsReference = true)]
+    [System.Serializable]
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
 /*block:field*/        [DataMember]/*name:scope*/public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
 /*endblock:field*/

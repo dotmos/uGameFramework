@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UserInterface.Scrollbar;
 using Service.Scripting;
 using UniRx;
+using System;
 
 namespace UserInterface {
     public class AutoCompletionWindow : GameComponent {
@@ -50,14 +51,22 @@ namespace UserInterface {
         /// </summary>
         /// <param name="proposalElement"></param>
         public void ApplyProposal(ProposalElement proposalElement) {
+            if (currentProposal == null) return;
+
             ClearItems();
 
             currentSelectedElementID = 0;
-
-            string beginning = consoleInput.text.Substring(0, currentProposal.replaceStringStart);
-            string end = consoleInput.text.Substring(currentProposal.replaceStringEnd, consoleInput.text.Length - currentProposal.replaceStringEnd);
-            consoleInput.text = beginning + proposalElement.full + end;
-            consoleInput.caretPosition = currentProposal.replaceStringStart + proposalElement.full.Length;
+            try {
+                string beginning = consoleInput.text.Substring(0, currentProposal.replaceStringStart);
+                string end = consoleInput.text.Substring(currentProposal.replaceStringEnd, consoleInput.text.Length - currentProposal.replaceStringEnd);
+                consoleInput.text = beginning + proposalElement.full + end;
+                consoleInput.caretPosition = currentProposal.replaceStringStart + proposalElement.full.Length;
+            }
+            catch (Exception e) {
+                Debug.Log("Problem with autocompletion:");
+                Debug.LogException(e);
+                currentProposal = null;
+            }
         }
 
         public void ApplyCurrentProposal() {
@@ -79,8 +88,12 @@ namespace UserInterface {
 
         void SelectElementByIndex(int index) {
             if (proposalItems.Count > 0) {
-                //Deselect previous item
-                if (currentSelectedElementID > -1) proposalItems[currentSelectedElementID].DeselectItem();
+                try {
+                    //Deselect previous item
+                    if (currentSelectedElementID > -1) proposalItems[currentSelectedElementID].DeselectItem();
+                }
+                catch (Exception e) { }
+
                 //Store current index
                 currentSelectedElementID = index;
                 //Select new item

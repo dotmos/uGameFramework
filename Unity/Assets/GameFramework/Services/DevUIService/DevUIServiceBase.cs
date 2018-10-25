@@ -94,7 +94,7 @@ namespace Service.DevUIService
 
         bool isDisposed = false;
 
-        public void Dispose() {
+        public virtual void Dispose() {
             if (isDisposed || Kernel.applicationQuitting) return;
             isDisposed = true;
             disposables.Dispose();
@@ -136,7 +136,7 @@ namespace Service.DevUIService
         
         public abstract void StartPickingEntity();
         
-        public abstract DevUIView CreateViewFromEntity(UID entity);
+        public abstract DevUIView CreateViewFromEntity(UID entity,string name="");
         
     }
 }

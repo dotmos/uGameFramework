@@ -35,9 +35,13 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         protected override void InitAPI() {
             var cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
             Publish(cmdGetScript);
-            var api = new API(this);
-            Kernel.Instance.Inject(api);
-            cmdGetScript.result.Globals[/*name|dq:scriptName*/"GS"/*endname*/] = api;
+            
+            //For manual/custom scripting uncomment following lines and comment DefaultScripting
+            
+            //var api = new API(this);
+            //Kernel.Instance.Inject(api);
+            //cmdGetScript.result.Globals[/*name|dq:scriptName*/"GS"/*endname*/] = api;
+            ActivateDefaultScripting(/*name|dq:scriptName*/"GS"/*endname*/);
         }
 
 

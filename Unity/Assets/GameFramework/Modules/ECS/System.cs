@@ -15,6 +15,15 @@ namespace ECS {
         protected HashSet<UID> validEntities;
         protected List<TComponents> componentsToProcess; //Was hashset in the past, but hashsets were super slow when multithreading systems. Testcase showed 28ms (hashset) vs 14ms (list)!
 
+        /// <summary>
+        /// Temporarily store newly registered Component(packs) here, when a new entity got valid
+        /// </summary>
+        protected List<TComponents> newComponents;
+        /// <summary>
+        /// Temporarily store entities that got invalid
+        /// </summary>
+        protected List<UID> removedEntities;
+
         private CompositeDisposable disposables;
 
         public System() : this(null) {
@@ -25,6 +34,8 @@ namespace ECS {
             validEntities = new HashSet<UID>();
             componentsToProcess = new List<TComponents>(65535); //Initial size is ushort. Will allocate more, if needed.
             disposables = new CompositeDisposable();
+            newComponents = new List<TComponents>();
+            removedEntities = new List<UID>();
 
             SetEntityManager(entityManager);
 
@@ -71,6 +82,22 @@ namespace ECS {
             return eventService.OnEvent<TEvent>(eventStream);
         }
 
+
+        /// <summary>
+        /// initialize newly registered entities and their components
+        /// </summary>
+        /// <param name="registeredComponents"></param>
+        protected virtual void OnRegistered(List<TComponents> newRegisteredComponents) {
+        }
+
+        /// <summary>
+        /// handle entities removed from the system
+        /// </summary>
+        /// <param name="unregisteredEntities"></param>
+        protected virtual void OnUnregistered(List<UID> unregisteredEntities) {
+        }
+
+
         /// <summary>
         /// Process all entities
         /// </summary>
@@ -89,8 +116,18 @@ namespace ECS {
         }
 
         public void ProcessSystem() {
+            if (newComponents.Count > 0) {
+                OnRegistered(newComponents);
+                newComponents.Clear();
+            }
+            if (removedEntities.Count > 0) {
+                OnUnregistered(removedEntities);
+                removedEntities.Clear();
+            }
             ProcessAll();
         }
+
+
 
         /// <summary>
         /// Sets the entity manager of this system
@@ -140,6 +177,8 @@ namespace ECS {
             //Add components to process
             TComponents components = _GetEntityComponents(entity);
             componentsToProcess.Add(components);
+
+            newComponents.Add(components);
         }
 
         void UnregisterEntity(UID entity) {
@@ -155,6 +194,7 @@ namespace ECS {
             
             //componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
             validEntities.Remove(entity);
+            removedEntities.Add(entity);
         }
 
         /// <summary>
@@ -168,7 +208,7 @@ namespace ECS {
             TComponents tc = new TComponents();
             tc.Entity = entity;
             // TODO: Get rid of this again
-            tc.EntityManager = entityManager;
+            //tc.EntityManager = entityManager;
             return GetEntityComponents(tc, entity);
         }
         /// <summary>

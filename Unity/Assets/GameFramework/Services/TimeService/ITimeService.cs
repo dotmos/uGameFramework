@@ -39,6 +39,7 @@ namespace Service.TimeService {
 
 
     [DataContract(IsReference = true)]
+    [System.Serializable]
     public partial class TimerElement {
         [DataMember]public string info ;
         [DataMember]public float timeLeft ;

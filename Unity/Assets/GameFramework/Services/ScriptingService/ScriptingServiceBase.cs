@@ -93,7 +93,7 @@ namespace Service.Scripting
 
         bool isDisposed = false;
 
-        public void Dispose() {
+        public virtual void Dispose() {
             if (isDisposed || Kernel.applicationQuitting) return;
             isDisposed = true;
             disposables.Dispose();

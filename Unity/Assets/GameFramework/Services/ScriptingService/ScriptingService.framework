@@ -15,7 +15,7 @@ namespace Service.Scripting {
 		  
 		## "Generates a list of possible proposals"
 		("Proposal") AutocompleteProposals(string currentInput,int cursorPos);
-
+ 
 		
 		//T GetComponent<T>(UID entity) where T : IComponent
     }  

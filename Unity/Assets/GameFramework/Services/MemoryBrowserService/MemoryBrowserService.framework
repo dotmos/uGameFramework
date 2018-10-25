@@ -12,7 +12,7 @@ namespace Service.MemoryBrowserService {
 		## "Get Reactive Dictionary with a memory-browsers(key=name value=MemoryBrowser)"
 		("ReactiveDictionary<string, MemoryBrowser>") rxGetAllBrowsers();		
     }  
-}      
+}       
 ## model
 
 ## events 

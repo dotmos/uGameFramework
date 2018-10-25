@@ -68,6 +68,7 @@ namespace Service.GameStateService {
 
 
     [DataContract(IsReference = true)]
+    [System.Serializable]
     public partial class GSContext {
 
     }

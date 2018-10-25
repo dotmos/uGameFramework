@@ -4,7 +4,7 @@ using MoonSharp.Interpreter;
 using Service.GameStateService;
 
 namespace Service.TimeService {
-	
+	 
 	
     public interface ITimeService {
     	## "Adds a timer in the global update-method and calls the callback n-times (or infinite till application end)"
@@ -14,7 +14,7 @@ namespace Service.TimeService {
     	void RemoveGlobalTimer(TimerElement timer);
     }   
 }      
-## model
+## model 
  
 public class TimerElement {
 	public string info;

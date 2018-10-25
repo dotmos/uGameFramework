@@ -4,7 +4,7 @@ using MoonSharp.Interpreter;
 
 
 namespace Service.LoggingService {
-	
+	 
 	
     public interface ILoggingService {
     	void AddLog(?DebugType debugType,string message,string domain="");
