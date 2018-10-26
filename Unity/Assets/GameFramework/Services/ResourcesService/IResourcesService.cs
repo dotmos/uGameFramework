@@ -12,7 +12,7 @@ namespace Service.Resources{
         void PreloadResources(List<ResourcesData> resources);
         void UnloadResources();
 
-        UnityEngine.Object Load(string path);
-        T Load<T>(string path) where T : UnityEngine.Object;
+        UnityEngine.Object Get(string path);
+        T Get<T>(string path) where T : UnityEngine.Object;
     }
 }

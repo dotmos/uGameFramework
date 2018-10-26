@@ -15,6 +15,8 @@ namespace Service.Resources{
         IEventsService _eventService;
         Events.ResourcesPreloadedEvent resourcesUpdatedEvent = new Events.ResourcesPreloadedEvent();
 
+        Dictionary<string, UnityEngine.Object> resourcesCache = new Dictionary<string, UnityEngine.Object>();
+
         /// <summary>
         /// Create a new instance of ResourcesService.
         /// </summary>
@@ -83,36 +85,44 @@ namespace Service.Resources{
             yield break;
         }
 
-        public T Load<T>(string path) where T : UnityEngine.Object
+        public T Get<T>(string path) where T : UnityEngine.Object
         {
             if (string.IsNullOrEmpty(path))
                 return default(T);
+
+            //Access resources cache
+            if (resourcesCache.ContainsKey(path)) {
+                return (T)resourcesCache[path];
+            }
+
+            T result = null;
 
             //Retrive bundle key
             int _cutIndex = path.LastIndexOf("/");
             //This is definitely not inside an assetbundle, try to load from resources
             if (_cutIndex < 0) {
-                //try to load from client folder
-                T _object = UnityEngine.Resources.Load<T>(path);
-                if (_object == null) //Last resort: Load from Resources folder
-                    return UnityEngine.Resources.Load<T>(path);
-                else
-                    return _object;
-            }
-            string _key = path.Remove(path.LastIndexOf("/"));
-            string _assetName = path.Remove(0, path.LastIndexOf("/") + 1);
-            //Try to load asset from bundle
-            if (bundles.ContainsKey(_key)) {
-                return bundles[_key].LoadAsset<T>(_assetName);
+                //try to load from resources folder
+                result = UnityEngine.Resources.Load<T>(path);
             }
 
+            if(result == null) {
+                string _key = path.Remove(path.LastIndexOf("/"));
+                string _assetName = path.Remove(0, path.LastIndexOf("/") + 1);
+                //Try to load asset from bundle
+                if (bundles.ContainsKey(_key)) {
+                    result = bundles[_key].LoadAsset<T>(_assetName);
+                }
+            }
+            
             //Last chance: Try to load asset from Resources
-            return UnityEngine.Resources.Load<T>(path);
+            if(result == null) result = UnityEngine.Resources.Load<T>(path);
+            resourcesCache.Add(path, result);
+            return result;
         }
 
-        public UnityEngine.Object Load(string path)
+        public UnityEngine.Object Get(string path)
         {
-            return Load<UnityEngine.Object>(path);
+            return Get<UnityEngine.Object>(path);
         }
     }
 }
