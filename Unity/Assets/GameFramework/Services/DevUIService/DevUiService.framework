@@ -34,7 +34,6 @@ namespace Service.DevUIService {
 		void ToggleScriptingConsole();
 		## "Check if console is visible at the moment"
 		bool IsScriptingConsoleVisible(); 
-		
 		## "Start entity picking mode"
 		void StartPickingEntity();
 		

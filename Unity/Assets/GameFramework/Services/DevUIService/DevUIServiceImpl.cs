@@ -11,8 +11,11 @@ using System.IO;
 using System.Threading;
 using ECS;
 using Service.MemoryBrowserService;
+using System.Collections;
 
 namespace Service.DevUIService {
+
+    public interface IDevUIVisible { }
 
     partial class DevUIServiceImpl : DevUIServiceBase {
 
@@ -41,6 +44,8 @@ namespace Service.DevUIService {
         /// A list in which all files-path of the currently loaded views is visible
         /// </summary>
         private List<string> viewPathsLoaded = new List<string>();
+
+        private Dictionary<Type, Func<object, string>> typeConverter = new Dictionary<Type, Func<object, string>>();
 
         // Scene loading commands
         private const string developmentSceneID = "DevelopmentConsole";
@@ -385,6 +390,24 @@ namespace Service.DevUIService {
                         };
                         resultView.AddElement(uiKV);
                         dict[key] = uiKV;
+                    } 
+                    else if (obj is IDevUIVisible) {
+                        var uiKV = new DevUIKeyValue(key, obj == null ? "null" : "'"+obj.ToString()+"'");
+                        resultView.AddElement(uiKV);
+                        // TODO: Detect changes in custom-type
+                    } else if (obj is IList && ((IList)obj).Count>0) { 
+                        var thelist = (IList)obj;
+                        var firstElement = thelist[0];
+                        if (firstElement is IDevUIVisible) {
+                            resultView.AddElement(new DevUIButton(key + "(List)",null));
+
+                            for (int i = 0; i < thelist.Count; i++) {
+                                var listObj = thelist[i];
+                                var uiKV = new DevUIKeyValue(key, i+"| "+listObj == null ? "null" : "'" + listObj.ToString() + "'");
+                                resultView.AddElement(uiKV);
+                                // TODO: detect list changes    
+                            }
+                        }
                     }
                 }
 
@@ -420,6 +443,7 @@ namespace Service.DevUIService {
 
             return resultView;
         }
+
     }
 
 

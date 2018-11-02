@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 
 namespace ECS {
-    public class Component : IComponent, IDisposable {
+    public abstract class Component : IComponent, IDisposable {
         /// <summary>
         /// The unique ID of this component. Will be set by EntityManager when component is first added to an entity or by manually calling EntityManager.SetComponentID
         /// </summary>
@@ -40,8 +40,9 @@ namespace ECS {
             wasConstructed = true;
         }
 
-        public virtual void CopyValues(IComponent target) {
-        }
+        public abstract void CopyValues(IComponent target);
+
+        public abstract IComponent Clone();
 
         public virtual void Dispose() {
         }

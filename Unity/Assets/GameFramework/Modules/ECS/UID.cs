@@ -16,5 +16,12 @@ namespace ECS {
         public void SetID(int ID) {
             this.ID = ID;
         }
+
+        public bool IsNull() {
+            return ID == -1;
+        }
+
+        public static readonly UID UIDNULL = new UID() { ID = -1 };
     }
+
 }

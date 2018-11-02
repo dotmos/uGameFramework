@@ -4,5 +4,6 @@
         UID Entity { get; set; }
 
         void CopyValues(IComponent otherComponent);
+        IComponent Clone();
     }
 }

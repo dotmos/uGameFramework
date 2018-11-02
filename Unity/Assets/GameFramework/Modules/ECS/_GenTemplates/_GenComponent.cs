@@ -1,12 +1,13 @@
 
-using System ;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using ECS;
 /*name:using*/ /*endname*/
 
 /// <summary>
 /*name:componentComment*/ /*endname*/
-/// </summary>
+                          /// </summary>
 [System.Serializable]
 public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS.Component {
 /*block:enum*/
@@ -41,11 +42,15 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /// </summary>
     /// <param name="target"></param>
     public override void CopyValues(ECS.IComponent otherComponent) {
-        base.CopyValues(otherComponent);
-
         /*name:ComponentName*/GenTemplateComponent/*endname*/ component = (/*name:ComponentName*/GenTemplateComponent/*endname*/)otherComponent;
 /*block:copyField*/        this./*name:name*/state/*endname*/ = component./*name:name*/state/*endname*/;
 /*endblock:copyField*/
+    }
+
+    public override IComponent Clone() {
+        var clone = new  /*name:ComponentName*/GenTemplateComponent/*endname*/();
+        clone.CopyValues(this);
+        return clone;
     }
 }
 
@@ -55,5 +60,13 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 public class GenTemplateComponent2 : ECS.Component
 {
     public float time;
+
+    public override IComponent Clone() {
+        throw new NotImplementedException();
+    }
+
+    public override void CopyValues(IComponent target) {
+        throw new NotImplementedException();
+    }
 }
 /*endblock:rip*/
