@@ -355,6 +355,86 @@ namespace Service.DevUIService {
             AddDisposable(pickingEntityDisposable);
         }
 
+
+        private MemoryBrowser Create(DevUIView resultView, object viewObject,bool autoupdate=false, Action<object,object> onValueChanged=null) {
+            var compButton = new DevUIButton(viewObject.GetType().ToString(), () => { });
+            resultView.AddElement(compButton);
+
+            var mB = new MemoryBrowser(viewObject);
+
+            var dict = new Dictionary<string, DevUIKeyValue>();
+
+            foreach (string key in mB.rxCurrentSnapShot.Keys) {
+                object obj = mB.rxCurrentSnapShot[key];
+
+                if (obj == null || MemoryBrowser.IsSimple(obj.GetType()) || obj is Vector3 || obj is Vector2 || obj is Vector4) {
+                    var uiKV = new DevUIKeyValue(key, obj == null ? "null" : obj.ToString());
+                    uiKV.OnValueChangeRequested = (newVal) => {
+                        mB.SetValue(key, newVal);
+                        if (onValueChanged != null) {
+                            onValueChanged(key, newVal);
+                        }
+                    };
+                    resultView.AddElement(uiKV);
+                    dict[key] = uiKV;
+                } else if (obj is IDevUIVisible) {
+                    var uiKV = new DevUIKeyValue(key, obj == null ? "null" : "'" + obj.ToString() + "'");
+                    resultView.AddElement(uiKV);
+                    // TODO: Detect changes in custom-type
+                } else if (obj is IList && ((IList)obj).Count > 0) {
+                    var thelist = (IList)obj;
+                    var firstElement = thelist[0];
+                    if (firstElement is IDevUIVisible) {
+                        resultView.AddElement(new DevUIButton(key + "(List)", null));
+
+                        for (int i = 0; i < thelist.Count; i++) {
+                            var listObj = thelist[i];
+                            var uiKV = new DevUIKeyValue(key, i + "| " + listObj == null ? "null" : "'" + listObj.ToString() + "'");
+                            resultView.AddElement(uiKV);
+                            // TODO: detect list changes    
+                        }
+                    }
+                }
+
+            }
+
+            if (autoupdate && dict.Count > 0) {
+                mB.rxCurrentSnapShot
+                    .ObserveReplace()
+                    .Subscribe(evt => {
+                        if (evt.OldValue == evt.NewValue) {
+                            return;
+                        }
+
+                        string key = evt.Key;
+                        if (dict.ContainsKey(key)) {
+                            var uiKV = dict[key];
+                            uiKV.Value = evt.NewValue.ToString();
+                        }
+                    })
+                    .AddTo(resultView.disposables); // when the view is disposed, also dispose this subscription
+            } else {
+                // TODO: no button if we cannot show any values?
+                resultView.RemoveElement(compButton);
+            }
+
+
+            // Poll the data at a this interval for every component
+            // TODO: Make this more efficient: only the view that is in focus!?
+            timeService.CreateGlobalTimer(1.0f, () => {
+                mB.UpdateCurrentSnapshot();
+                logging.Info("UPDATED SNAPSHOT");
+            }, 0);
+
+            return mB;
+        }
+
+        public override DevUIView CreateViewFromPOCO(object viewObject, string name) {
+            var resultView = CreateView(name, false, false);
+            Create(resultView, viewObject);
+            return resultView;
+        }
+
         public override DevUIView CreateViewFromEntity(UID entity,string name="") {
             if (entityManager == null) {
                 entityManager = Kernel.Instance.Container.Resolve<IEntityManager>();
@@ -372,73 +452,10 @@ namespace Service.DevUIService {
 
             List<MemoryBrowser> mBrowsers = new List<MemoryBrowser>();
             foreach (var comp in components) {
-                var compButton = new DevUIButton(comp.GetType().ToString(), () => { });
-                resultView.AddElement(compButton);
-
-                var mB = new MemoryBrowser(comp);
-
-                var dict = new Dictionary<string, DevUIKeyValue>();
-
-                foreach (string key in mB.rxCurrentSnapShot.Keys) {
-                    object obj = mB.rxCurrentSnapShot[key];
-
-                    if (obj == null || MemoryBrowser.IsSimple(obj.GetType()) || obj is Vector3 || obj is Vector2 || obj is Vector4) {
-                        var uiKV = new DevUIKeyValue(key, obj==null?"null":obj.ToString());
-                        uiKV.OnValueChangeRequested = (newVal) => {
-                            mB.SetValue(key, newVal);
-                            entityManager.EntityModified(entity);
-                        };
-                        resultView.AddElement(uiKV);
-                        dict[key] = uiKV;
-                    } 
-                    else if (obj is IDevUIVisible) {
-                        var uiKV = new DevUIKeyValue(key, obj == null ? "null" : "'"+obj.ToString()+"'");
-                        resultView.AddElement(uiKV);
-                        // TODO: Detect changes in custom-type
-                    } else if (obj is IList && ((IList)obj).Count>0) { 
-                        var thelist = (IList)obj;
-                        var firstElement = thelist[0];
-                        if (firstElement is IDevUIVisible) {
-                            resultView.AddElement(new DevUIButton(key + "(List)",null));
-
-                            for (int i = 0; i < thelist.Count; i++) {
-                                var listObj = thelist[i];
-                                var uiKV = new DevUIKeyValue(key, i+"| "+listObj == null ? "null" : "'" + listObj.ToString() + "'");
-                                resultView.AddElement(uiKV);
-                                // TODO: detect list changes    
-                            }
-                        }
-                    }
-                }
-
-                if (dict.Count > 0) {
-                    mB.rxCurrentSnapShot
-                        .ObserveReplace()
-                        .Subscribe(evt => {
-                            if (evt.OldValue == evt.NewValue) {
-                                return;
-                            }
-
-                            string key = evt.Key;
-                            if (dict.ContainsKey(key)) {
-                                var uiKV = dict[key];
-                                uiKV.Value = evt.NewValue.ToString();
-                            }
-                        })
-                        .AddTo(resultView.disposables); // when the view is disposed, also dispose this subscription
-                } else {
-                    // TODO: no button if we cannot show any values?
-                    resultView.RemoveElement(compButton);
-                }
-
+                var mB = Create(resultView, comp,true, (key, value) => {
+                    entityManager.EntityModified(entity);
+                });
                 mBrowsers.Add(mB);
-
-                // Poll the data at a this interval for every component
-                // TODO: Make this more efficient: only the view that is in focus!?
-                timeService.CreateGlobalTimer(1.0f, () => {
-                    mB.UpdateCurrentSnapshot();
-                    logging.Info("UPDATED SNAPSHOT");
-                }, 0);
             }
 
             return resultView;

@@ -142,6 +142,9 @@ namespace Service.DevUIService {
 
 					DevUIView CreateViewFromEntity(UID entity,string name="");
 
+
+					DevUIView CreateViewFromPOCO(object entity,string name);
+
 	}
 
 

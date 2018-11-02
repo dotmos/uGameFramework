@@ -2,6 +2,11 @@
 using System.Runtime.Serialization;
 
 namespace ECS {
+    // Attribute to the a supported component-field(list/dictionary) to get an new instance. e.g. a new List BUT with the same values. This is not a deep copy
+    [AttributeUsage(AttributeTargets.Field)]
+    public class NewInstance : Attribute {
+    }
+
     public abstract class Component : IComponent, IDisposable {
         /// <summary>
         /// The unique ID of this component. Will be set by EntityManager when component is first added to an entity or by manually calling EntityManager.SetComponentID

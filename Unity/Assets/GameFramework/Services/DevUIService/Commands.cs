@@ -53,6 +53,8 @@ namespace Service.DevUIService{
 
             this.OnEvent<CreateViewFromEntityCommand>().Subscribe(e => CreateViewFromEntityCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<CreateViewFromPOCOCommand>().Subscribe(e => CreateViewFromPOCOCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -421,6 +423,33 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("CreateViewFromEntityCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class CreateViewFromPOCOCommand  {
+            public DevUIView result;
+                        public object entity;
+                        public string name;
+            
+            
+        }
+
+		protected void CreateViewFromPOCOCommandHandler  (CreateViewFromPOCOCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("CreateViewFromPOCOCommand");
+#endif
+        
+            cmd.result = _service.CreateViewFromPOCO(cmd.entity,cmd.name);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("CreateViewFromPOCOCommand");
 #endif
         }
         

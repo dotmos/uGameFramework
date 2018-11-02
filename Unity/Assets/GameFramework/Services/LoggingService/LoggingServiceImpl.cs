@@ -43,6 +43,9 @@ namespace Service.LoggingService {
 
 		//docs come here
 		public override void AddLog(DebugType debugType,string message,string domain="") {
+            // TODO: remove this:
+            if (true) return;
+
             var newLog = new LogData() {
                 domain = domain,
                 message = message,
