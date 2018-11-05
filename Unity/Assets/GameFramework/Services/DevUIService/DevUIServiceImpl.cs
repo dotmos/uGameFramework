@@ -238,7 +238,7 @@ namespace Service.DevUIService {
         }
 
         public override IObservable<float> LoadViews() {
-            var viewFiles = fileSystem.GetFilesInDomain(FileSystem.FSDomain.DevUIViews, "*.json");
+            var viewFiles = fileSystem.GetFilesInDomain(FileSystem.FSDomain.DevUIViews,"", "*.json");
 
             float progressFactor = 1.0f / viewFiles.Count;
             float progress = 0;

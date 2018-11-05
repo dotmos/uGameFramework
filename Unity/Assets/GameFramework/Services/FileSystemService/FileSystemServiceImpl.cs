@@ -13,18 +13,23 @@ namespace Service.FileSystem {
 
         public readonly string MISC_PATH = Application.persistentDataPath + "/default";
 
+        /// <summary>
+        /// cache the unity-paths here since you cannot use those in a thread
+        /// </summary>
+        private string streamingAssetsPath = Application.streamingAssetsPath;
+        private string persistentDataPath = Application.persistentDataPath;
+
         protected override void AfterInitialize() {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
         }
 
         public override string GetPath(FSDomain domain,string relativePart="") {
-            string prefix = Application.streamingAssetsPath;
             string path = MISC_PATH;
             switch (domain) {
-                case FSDomain.ScriptingOutput: path = Application.persistentDataPath + "/scripting"; break;
-                case FSDomain.DevUIViews: path = Application.persistentDataPath + "/dev-ui/views"; break;
+                case FSDomain.ScriptingOutput: path = persistentDataPath + "/scripting"; break;
+                case FSDomain.DevUIViews: path = persistentDataPath + "/dev-ui/views"; break;
                 case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archives"; break;
-                case FSDomain.RuntimeAssets: path = Application.streamingAssetsPath; break;
+                case FSDomain.RuntimeAssets: path = streamingAssetsPath; break;
                 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
@@ -112,8 +117,8 @@ namespace Service.FileSystem {
             return new List<string>(Directory.GetFiles(absPath, pattern, SearchOption.TopDirectoryOnly));
         }
 
-        public override List<string> GetFilesInDomain(FSDomain domain, string filter = "*.*") {
-            return GetFilesInAbsFolder(GetPath(domain), filter);
+        public override List<string> GetFilesInDomain(FSDomain domain, string innerDomainPath="",string filter = "*.*") {
+            return GetFilesInAbsFolder(GetPath(domain,innerDomainPath), filter);
         }
 
         public override void RemoveFile(string filePath) {
