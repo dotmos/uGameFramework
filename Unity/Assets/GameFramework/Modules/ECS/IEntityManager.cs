@@ -5,6 +5,8 @@ namespace ECS {
     public interface IEntityManager {
         void Initialize();
 
+        void Tick(float deltaTime);
+
         bool AutoCallEntityModified { get; set; }
 
         UID CreateEntity();
