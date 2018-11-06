@@ -77,7 +77,7 @@ namespace ECS {
         public virtual void Tick(float deltaTime) {
             if (isInitialized) {
                 for (int i = 0; i < _systems.Count; ++i) {
-                    _systems[i].ProcessSystem();
+                    _systems[i].ProcessSystem(deltaTime);
                 }
             }
         }

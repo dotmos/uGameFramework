@@ -101,7 +101,7 @@ namespace ECS {
         /// <summary>
         /// Process all entities
         /// </summary>
-        protected virtual void ProcessAll() {
+        protected virtual void ProcessAll(float deltaTime) {
             /*
             for(int i=0; i<componentsToProcess.Count; ++i) {
                 //TComponents c = componentsToProcess[i];
@@ -115,7 +115,7 @@ namespace ECS {
             }
         }
 
-        public void ProcessSystem() {
+        public void ProcessSystem(float deltaTime) {
             if (newComponents.Count > 0) {
                 OnRegistered(newComponents);
                 newComponents.Clear();
@@ -124,7 +124,7 @@ namespace ECS {
                 OnUnregistered(removedEntities);
                 removedEntities.Clear();
             }
-            ProcessAll();
+            ProcessAll(deltaTime);
         }
 
 
