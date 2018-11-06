@@ -82,11 +82,12 @@ namespace Service.FileSystem {
 		/// <summary>
         /// Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks ) 
         /// <param name="domain"></param>
+        /// <param name="innerDomainPath"></param>
         /// <param name="filter"></param>
  /// </summary>
         
 
-					List<string> GetFilesInDomain(FSDomain domain,string filter="*.*");
+					List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*");
 
 
 		/// <summary>

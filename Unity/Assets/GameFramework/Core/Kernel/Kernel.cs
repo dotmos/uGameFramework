@@ -90,11 +90,16 @@ public partial class Kernel : SceneContext {
             .Take(1)
             .Subscribe(_ => {
                 Debug.Log("Startup done!");
+                OnKernelReady();
             });
     }
 
     public virtual String GetInitialGamestateName() {
         return null;
+    }
+
+    protected virtual void OnKernelReady() {
+
     }
 
     void OnApplicationFocus(bool hasFocus) {

@@ -30,6 +30,8 @@ namespace ECS {
 
         bool applicationIsQuitting = false;
 
+        bool isInitialized = false;
+
         /// <summary>
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
         /// </summary>
@@ -54,14 +56,30 @@ namespace ECS {
                 RegisterSystem(s);
             }
 
+            /*
             //Start processing systems every frame
             Observable.EveryUpdate().Subscribe(e => {
                 foreach (ISystem s in _systems) {
                     s.ProcessSystem();
                 }
             });
+            */
 
             UnityEngine.Application.quitting += () => { applicationIsQuitting = true; };
+
+            isInitialized = true;
+        }
+
+        /// <summary>
+        /// Updates all systems for this frame
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        public virtual void Tick(float deltaTime) {
+            if (isInitialized) {
+                for (int i = 0; i < _systems.Count; ++i) {
+                    _systems[i].ProcessSystem(deltaTime);
+                }
+            }
         }
 
         /// <summary>

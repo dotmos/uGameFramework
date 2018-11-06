@@ -22,9 +22,8 @@ namespace ECS {
         void EntityModified(UID entity);
 
         void AddDisposable(IDisposable disposable);
-
-        //TODO: Current workaround for linearity. using Observable.EveryUpdate() in the AfterBind of each system does not work as intended/is not deterministic/not linear. So currently the entitymanager calls ProcessSystem for all systems.
-        void ProcessSystem();
+        
+        void ProcessSystem(float deltaTime);
     }
 }
 
