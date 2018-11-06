@@ -119,7 +119,7 @@ namespace Service.FileSystem
         
         public abstract List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
         
-        public abstract List<string> GetFilesInDomain(FSDomain domain,string filter="*.*");
+        public abstract List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*");
         
         public abstract void RemoveFile(string filePath);
         

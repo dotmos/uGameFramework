@@ -217,6 +217,7 @@ namespace Service.FileSystem{
         public class GetFilesInDomainCommand  {
             public List<string> result;
                         public FSDomain domain;
+                        public string innerDomainPath="";
                         public string filter="*.*";
             
             
@@ -228,7 +229,7 @@ namespace Service.FileSystem{
             ptest.Start("GetFilesInDomainCommand");
 #endif
         
-            cmd.result = _service.GetFilesInDomain(cmd.domain,cmd.filter);
+            cmd.result = _service.GetFilesInDomain(cmd.domain,cmd.innerDomainPath,cmd.filter);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetFilesInDomainCommand");
