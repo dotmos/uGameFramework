@@ -12,7 +12,7 @@ namespace Service.TimeService {
 //		## "Adds a timer to the specified gamestate"
 //    	void AddGameStateTimer(("GameState") gs,float interval,("Action")callback,int repeatTimes=0,string info="");
     	void RemoveGlobalTimer(TimerElement timer);
-    }   
+    }    
 }      
 ## model 
  
@@ -23,7 +23,7 @@ public class TimerElement {
 	public int repeatTimes;
 	public ("Action") timerCallback;
 }
-
+ 
 ## events 
 
 

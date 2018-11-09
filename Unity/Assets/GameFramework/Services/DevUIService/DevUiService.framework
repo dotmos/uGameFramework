@@ -5,7 +5,7 @@ using ECS;
 
 namespace Service.DevUIService {
 	
-	  
+	   
     public interface IDevUIService {
     	## "Get ReaciveDictionar of all views"  
     	("ReactiveCollection<DevUIView>") GetRxViews();	
@@ -38,7 +38,7 @@ namespace Service.DevUIService {
 		void StartPickingEntity();
 		
 		("DevUIView") CreateViewFromEntity(("UID") entity,string name="");
-		("DevUIView") CreateViewFromPOCO(object entity,string name);
+		("DevUIView") CreateViewFromPOCO(object entity,string name); 
     }   
 }      
 ## model

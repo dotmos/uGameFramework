@@ -22,6 +22,12 @@ namespace Service.DevUIService
 
         protected CompositeDisposable disposables = new CompositeDisposable();
 
+        protected ReactivePriorityExecutionList rxOnStartup {
+            get { return Kernel.Instance.rxStartup; }
+        }
+        protected ReactivePriorityExecutionList rxOnShutdown {
+            get { return Kernel.Instance.rxShutDown; }
+        }
 
         [Inject]
         void Initialize( 
