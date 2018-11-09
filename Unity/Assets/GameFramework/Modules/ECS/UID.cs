@@ -21,6 +21,14 @@ namespace ECS {
             return ID == -1;
         }
 
+        public override bool Equals(object obj) {
+            if (obj is UID) {
+                return ((UID)obj).ID == ID;
+            } else {
+                return base.Equals(obj);
+            }
+        }
+
         public static readonly UID UIDNULL = new UID() { ID = -1 };
     }
 
