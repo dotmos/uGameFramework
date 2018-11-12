@@ -26,6 +26,7 @@ namespace Service.FileSystem {
         public override string GetPath(FSDomain domain,string relativePart="") {
             string path = MISC_PATH;
             switch (domain) {
+                case FSDomain.ConfigFolder: path = persistentDataPath+"/config"; break;
                 case FSDomain.ScriptingOutput: path = persistentDataPath + "/scripting"; break;
                 case FSDomain.DevUIViews: path = persistentDataPath + "/dev-ui/views"; break;
                 case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archives"; break;

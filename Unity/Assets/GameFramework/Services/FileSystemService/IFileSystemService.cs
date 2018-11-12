@@ -131,7 +131,7 @@ namespace Service.FileSystem {
 
 
     public enum FSDomain {
-        ScriptingOutput,RuntimeAssets,DevUIViews,DevUIViewsArchieve
+        ScriptingOutput,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder
         
     }
 

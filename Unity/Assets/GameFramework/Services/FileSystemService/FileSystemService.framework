@@ -34,7 +34,8 @@ public enum FSDomain {
 	ScriptingOutput,
 	RuntimeAssets,
 	DevUIViews,
-	DevUIViewsArchieve
+	DevUIViewsArchieve,
+	ConfigFolder
 }  
 
 ## events 
