@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
 
 namespace UserInterface {
-    public class DataScrollView : MonoBehaviour, IResizeListener {
+    public class DataScrollView : MonoBehaviour, IResizeListener, IScrollHandler {
 
         public GameObject cellTemplate;
         public RectTransform viewport;
         public TableLayoutGroup table;
+        public float scrollSensitivity = 1f;
         public UserInterface.Scrollbar.GMScrollbar verticalScrollbar;
 
         private const int extraRows = 2;
@@ -154,6 +156,10 @@ namespace UserInterface {
 
         public void OnResize() {
             InitializeTable();
+        }
+
+        public void OnScroll(PointerEventData eventData) {
+            verticalScrollbar.value += eventData.scrollDelta.y * scrollSensitivity;
         }
     }
 }
