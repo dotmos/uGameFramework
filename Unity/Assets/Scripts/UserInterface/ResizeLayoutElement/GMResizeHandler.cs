@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,6 +10,8 @@ namespace UserInterface {
 
         public GMResizableLayoutElement target;
         public HandlerType handlerType;
+
+        private List<IResizeListener> resizeListeners = new List<IResizeListener>();
 
         public enum HandlerType {
             BottomRight,
@@ -26,12 +29,24 @@ namespace UserInterface {
         void Start() {
             eventTrigger = GetComponent<EventTrigger>();
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.Drag, OnDrag);
+            EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.EndDrag, OnEndDrag);
+
+            var listeners = FindObjectsOfType<MonoBehaviour>().OfType<IResizeListener>();
+            foreach (IResizeListener listener in listeners) {
+                resizeListeners.Add(listener);
+            }
         }
 
         void OnDrag(BaseEventData data) {
             PointerEventData ped = (PointerEventData)data;
 
             target.ResizeLayoutElement(Mathf.Round(ped.delta.x * handlerScaleStrategy[handlerType].x), Mathf.Round(ped.delta.y * handlerScaleStrategy[handlerType].y));
+        }
+
+        void OnEndDrag(BaseEventData data) {
+            foreach(IResizeListener listener in resizeListeners) {
+                listener.OnResize();
+            }
         }
     }
 }
