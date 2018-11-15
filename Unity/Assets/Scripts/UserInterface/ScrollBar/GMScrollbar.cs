@@ -193,6 +193,9 @@ namespace UserInterface.Scrollbar {
         }
 
         void Set(float input, bool sendCallback) {
+            //If our scrollbar is full size we don't have content to scroll
+            if (size == 1) return;
+
             float currentValue = m_Value;
             // Clamp the input
             m_Value = Mathf.Clamp01(input);

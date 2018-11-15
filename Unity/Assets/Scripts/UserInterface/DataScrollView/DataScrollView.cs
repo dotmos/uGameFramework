@@ -37,7 +37,10 @@ namespace UserInterface {
 
         protected List<List<GameObject>> rowObjects = new List<List<GameObject>>();
 
-        private bool isReady;
+        /// <summary>
+        /// This is the key to start the engine... vroooooom!!!
+        /// </summary>
+        protected bool isReady;
 
         // Use this for initialization
         protected virtual void Awake() {
@@ -76,7 +79,8 @@ namespace UserInterface {
             GetViewportSize();
 
             rowHeight = table.MinimumRowHeight + table.RowSpacing;
-            rowCount = Mathf.CeilToInt(viewportHeight / rowHeight) + extraRows;
+            rowCount = Mathf.CeilToInt(viewportHeight / rowHeight);
+            rowCount = Mathf.Clamp(rowCount, 0, dataCount) + extraRows;
 
             contentHeight = (table.padding.top + table.padding.bottom) + (rowCount * rowHeight) - table.RowSpacing;
             contentWidth = table.padding.left + table.padding.right;
@@ -171,12 +175,16 @@ namespace UserInterface {
 
         protected void UpdateVerticalScrollPosition(float normalizedScrollValue) {
             if (tableRectTransform == null) return;
-            //We have to invert the scroll value as GMScrollbar only supports bottom to top scrolling
 
-            float scrollValue = (1f - normalizedScrollValue);
-            topOffset = topDataIndex * rowHeight - viewportOffset * scrollValue;
-            float yValue = scrollValue * (scrollHeight + extraRows * rowHeight) - topOffset;
-            tableRectTransform.anchoredPosition = new Vector2(tableRectTransform.anchoredPosition.x, yValue);
+            if (scrollHeight > 0) {
+                //We have to invert the scroll value as GMScrollbar only supports bottom to top scrolling
+                float scrollValue = (1f - normalizedScrollValue);
+                topOffset = topDataIndex * rowHeight - viewportOffset * scrollValue;
+                float yValue = scrollValue * (scrollHeight + extraRows * rowHeight) - topOffset;
+                tableRectTransform.anchoredPosition = new Vector2(tableRectTransform.anchoredPosition.x, yValue);
+            } else {
+                tableRectTransform.anchoredPosition = new Vector2(tableRectTransform.anchoredPosition.x, 0);
+            }
         }
 
         /// <summary>
@@ -185,24 +193,32 @@ namespace UserInterface {
         float scrollWidth;
 
         void OnScrollHorizontal(float normalizedScrollValue) {
-            if (tableRectTransform == null) return;
-            //We have to invert the scroll value as GMScrollbar only supports right to left scrolling
-            float scrollValue = (1f - normalizedScrollValue);
 
-            float xValue = scrollValue * scrollWidth;
-            tableRectTransform.anchoredPosition = new Vector2(-xValue ,tableRectTransform.anchoredPosition.y);
+            if (scrollWidth > 0) {
+                if (tableRectTransform == null) return;
+                //We have to invert the scroll value as GMScrollbar only supports right to left scrolling
+                float scrollValue = (1f - normalizedScrollValue);
+
+                float xValue = scrollValue * scrollWidth;
+                tableRectTransform.anchoredPosition = new Vector2(-xValue, tableRectTransform.anchoredPosition.y);
+            } else {
+                tableRectTransform.anchoredPosition = new Vector2(0, tableRectTransform.anchoredPosition.y);
+            }
         }
 
         void UpdateVerticalScrollbar() {
-            verticalScrollbar.size = Mathf.Clamp(rowCount / dataCount, 0.1f, 1f);
+            verticalScrollbar.size = Mathf.Clamp((float)rowCount / (float)dataCount, 0.1f, 1f);
+            if (verticalScrollbar.size == 1) verticalScrollbar.value = 1;
         }
 
         void UpdateHorizontalScrollbar() {
             horizontalScollbar.size = Mathf.Clamp(viewportWidth / contentWidth, 0.1f, 1f);
+            if (horizontalScollbar.size == 1) horizontalScollbar.value = 1;
         }
 
         public void OnScroll(PointerEventData eventData) {
-            verticalScrollbar.value += eventData.scrollDelta.y * scrollSensitivity;
+            if (verticalScrollbar.size == 1) verticalScrollbar.value = 1;
+            else verticalScrollbar.value += eventData.scrollDelta.y * (scrollSensitivity * (1f - verticalScrollbar.size));
         }
 
         #endregion
@@ -215,7 +231,7 @@ namespace UserInterface {
         void UpdateTopDataIndex(bool fireCallback = true) {
             //We have to invert the scroll value as GMScrollbar only supports bottom to top scrolling
             float scrollValue = (1f - verticalScrollbar.value);
-            topDataIndex = Mathf.FloorToInt(Mathf.Clamp((dataCount - rowCount + extraRows) * scrollValue, 0, dataCount - rowCount + extraRows));
+            topDataIndex = Mathf.Clamp(Mathf.FloorToInt((dataCount - rowCount + extraRows) * scrollValue), 0, dataCount - rowCount + extraRows);
 
             //Fire callback if top data index changed
             if (topDataIndex != lastTopDataIndex) {

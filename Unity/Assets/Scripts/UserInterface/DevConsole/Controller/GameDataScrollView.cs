@@ -24,10 +24,10 @@ namespace UserInterface {
             base.Awake();
 
             //Demo Data
-            List<float> demoColumns = new List<float>() { 200, 200, 300, 500, 500 };
+            List<float> demoColumns = new List<float>() { 200, 200, 300 };
             List<List<DataCellObject>> demoData = new List<List<DataCellObject>>();
 
-            for (int i = 0; i < 50; ++i) {
+            for (int i = 0; i < 25; ++i) {
                 List<DataCellObject> rowData = new List<DataCellObject>();
 
                 for (int k = 0; k < demoColumns.Count; ++k) {
@@ -75,7 +75,7 @@ namespace UserInterface {
         }
 
         private void OnEnable() {
-            InitializeTable();
+            if (isReady) InitializeTable();
         }
 
         //Cell data output happens here, when a  row is added
@@ -87,6 +87,8 @@ namespace UserInterface {
             for (int i = 0; i < row.Count; ++i) {
                 GameDataCell cell = row[i].GetComponent<GameDataCell>();
                 dataRow.Add(cell);
+
+                Debug.Log("Topdataindex: " + topDataIndex + ", rowIndex" + rowIndex);
 
                 //Fill row with data if we have data for this data index
                 if (topDataIndex + rowIndex < dataCount) {

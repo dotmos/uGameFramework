@@ -6,11 +6,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UserInterface {
-    public class GameDataCell : MonoBehaviour {
+    public class GameDataCell : MonoBehaviour, IPointerClickHandler {
         public GMInputField output;
         public Dropdown dropdown;
 
-        private EventTrigger eventTrigger;
+        private bool isClickable;
 
         GameDataScrollView.DataCellObject dataCellObject;
 
@@ -48,13 +48,13 @@ namespace UserInterface {
             RemoveCallbacks();
 
             output.text = str;
-            output.readOnly = !editable;
+            output.targetGraphic.raycastTarget = editable;
+            isClickable = !editable;
 
             output.gameObject.SetActive(true);
             dropdown.gameObject.SetActive(false);
 
             if (editable) output.onEndEdit.AddListener(OnInputChanged);
-            else AddClickCallback();
         }
 
         public void SetupDropdown(List<string> dropdownValues) {
@@ -77,20 +77,16 @@ namespace UserInterface {
             dropdown.onValueChanged.AddListener(OnDropdownChanged);
         }
 
-        void AddClickCallback() {
-            eventTrigger = output.GetComponent<EventTrigger>();
-            if (eventTrigger == null) eventTrigger = output.gameObject.AddComponent<EventTrigger>();
-
-            EventTrigger.Entry entry = new EventTrigger.Entry();
-            entry.eventID = EventTriggerType.PointerUp;
-            entry.callback.AddListener((eventData) => { OnClick(); });
-            eventTrigger.triggers.Add(entry);
-        }
 
         void RemoveCallbacks() {
-            if (eventTrigger != null) Destroy(eventTrigger);
             output.onEndEdit.RemoveListener(OnInputChanged);
             dropdown.onValueChanged.RemoveListener(OnDropdownChanged);
+        }
+
+        public void OnPointerClick(PointerEventData eventData) {
+            if (isClickable && eventData.button == PointerEventData.InputButton.Left) {
+                OnClick();
+            }
         }
     }
 }
