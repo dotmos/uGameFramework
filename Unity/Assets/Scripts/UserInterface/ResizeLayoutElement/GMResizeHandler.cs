@@ -46,8 +46,6 @@ namespace UserInterface {
         }
 
         void OnEndDrag(BaseEventData data) {
-            Debug.Log(resizeListeners.Count);
-
             foreach(IResizeListener listener in resizeListeners) {
                 listener.OnResize();
             }
