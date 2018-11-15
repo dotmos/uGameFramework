@@ -9,8 +9,124 @@ using MoonSharp.Interpreter.Interop;
 using System.IO;
 using System.Linq;
 using System.Collections;
+using System.Reflection;
 
 namespace Service.MemoryBrowserService {
+
+    public class DataBrowser {
+        /// <summary>
+        /// Attribute to mark a class to be processed with UIDBInclude-Attributes
+        /// </summary>
+        public class UIDataBrowser : Attribute { }
+
+        /// <summary>
+        /// Tag fields and properties to be included into the databrowser
+        /// </summary>
+        public class UIDBInclude : Attribute {
+            public enum Type {
+                readAndWrite,
+                onlyread
+                //,inline // this obj/list should be visualize along with the root. 
+            }
+
+            public string visualName = null;
+
+            public Type type = Type.readAndWrite;
+
+            public int colOrder = 255;
+
+            public float width = 100;
+        }
+
+        private static UIDBInclude GetAttribute(FieldInfo fI) {
+            UIDBInclude attrib = (UIDBInclude)Attribute.GetCustomAttribute(fI, typeof(UIDBInclude));
+            return attrib;
+        }
+
+        private static UIDBInclude GetAttribute(PropertyInfo pI) {
+            UIDBInclude attrib = (UIDBInclude)Attribute.GetCustomAttribute(pI, typeof(UIDBInclude));
+            return attrib;
+        }
+
+        private static bool IsManaged(object obj) {
+            return Attribute.GetCustomAttribute(obj.GetType(),typeof(UIDataBrowser)) != null;
+        }
+
+        public static bool SetValue(object obj,string valueName, string newValueAsString) {
+            var field = obj.GetType().GetField(valueName);
+            if (field != null) {
+                if (field.FieldType == typeof(Vector2)) {
+                    field.SetValue(obj, UtilsExtensions.StringToVector2(newValueAsString));
+                }
+                else if (field.FieldType == typeof(Vector3)) {
+                    field.SetValue(obj, UtilsExtensions.StringToVector3(newValueAsString));
+                } 
+                else if (field.FieldType.IsEnum) {
+                    var enumVal = Enum.Parse(field.FieldType, newValueAsString);
+                    field.SetValue(obj, enumVal);
+                }
+                else {
+                    // simple types
+                    field.SetValue(obj, Convert.ChangeType(newValueAsString, field.FieldType));
+                }
+            } 
+            else {
+                var prop = obj.GetType().GetProperty(valueName);
+                if (prop != null) {
+                    if (prop.PropertyType == typeof(Vector2)) {
+                        prop.SetValue(obj, UtilsExtensions.StringToVector2(newValueAsString));
+                    } else if (field.FieldType == typeof(Vector3)) {
+                        prop.SetValue(obj, UtilsExtensions.StringToVector3(newValueAsString));
+                    } else {
+                        prop.SetValue(obj, Convert.ChangeType(newValueAsString, prop.PropertyType));
+                    }
+                } else {
+                    Debug.LogError("MemoryBrowser: Tried to set unknown value with name " + valueName );
+                    return false;
+                }
+
+                // try property
+            }
+            return true;
+        }
+
+        public static void Traverse(object obj,Action<string,object,MemoryBrowser.ElementType,UIDBInclude> callback) {
+            bool isManaged = IsManaged(obj);
+
+            // process fields
+            foreach (var field in obj.GetType().GetFields()) {
+                var val = field.GetValue(obj);
+                var elemType = MemoryBrowser.GetElementType(val);
+                if (!isManaged) {
+                    // not managed ==> all elements are part of the table
+                    callback(field.Name, val, elemType,null);
+                } else {
+                    var attrib = GetAttribute(field);
+                    if (attrib != null) {
+                        callback(field.Name, val, elemType, attrib);
+                    }
+                }
+            }
+            // process properties
+            foreach (var prop in obj.GetType().GetProperties()) {
+                var val = prop.GetValue(obj);
+                var elemType = MemoryBrowser.GetElementType(obj);
+                if (!isManaged) {
+                    // not managed ==> all elements are part of the table
+                    callback(prop.Name, val, elemType, null);
+                } else {
+                    var attrib = GetAttribute(prop);
+                    if (attrib != null) {
+                        callback(prop.Name, val, elemType, attrib);
+                    }
+                }
+            }
+        }
+                        
+    }
+
+
+
 
     public class MemoryBrowser : IDisposable {
 
@@ -50,8 +166,8 @@ namespace Service.MemoryBrowserService {
 
         }
 
-        public ElementType GetElementType(object obj) {
-            obj = obj==null?Current:obj;
+        public static ElementType GetElementType(object obj) {
+            //obj = obj==null?Current:obj;
 
             if (obj == null) {
                 return ElementType.nullType;

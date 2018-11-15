@@ -19,13 +19,13 @@ namespace UserInterface {
 
             switch (dataCellObject.cellType) {
                 case GameDataScrollView.DataCellObject.CellType.Output:
-                    SetOutput(dataCellObject.value.ToString());
+                    SetOutput(dataCellObject.value==null?"":dataCellObject.value.ToString());
                     break;
                 case GameDataScrollView.DataCellObject.CellType.EditableOutput:
-                    SetOutput(dataCellObject.value.ToString(), true);
+                    SetOutput(dataCellObject.value == null ? "null" : dataCellObject.value.ToString(), true);
                     break;
                 case GameDataScrollView.DataCellObject.CellType.Dropdown:
-                    SetupDropdown(dataCellObject.value as List<string>);
+                    SetupDropdown(dataCellObject.dropdownValues as List<string>, dataCellObject.value==null?0:(int)dataCellObject.value);
                     break;
                 default:
                     break;
@@ -33,15 +33,24 @@ namespace UserInterface {
         }
 
         void OnDropdownChanged(int index) {
-            dataCellObject.callback();
+            if (dataCellObject.callback == null) {
+                return;
+            }
+            dataCellObject.callback(dataCellObject.dropdownValues[index]);
         }
 
         void OnClick() {
-            dataCellObject.callback();
+            if (dataCellObject.callback == null) {
+                return;
+            }
+            dataCellObject.callback(null);
         }
 
         void OnInputChanged(string newValue) {
-            dataCellObject.callback();
+            if (dataCellObject.callback == null) {
+                return;
+            }
+            dataCellObject.callback(newValue);
         }
 
         public void SetOutput(string str, bool editable = false) {
@@ -57,7 +66,7 @@ namespace UserInterface {
             if (editable) output.onEndEdit.AddListener(OnInputChanged);
         }
 
-        public void SetupDropdown(List<string> dropdownValues) {
+        public void SetupDropdown(List<string> dropdownValues,int currentValue) {
             RemoveCallbacks();
 
             dropdown.ClearOptions();
@@ -70,6 +79,7 @@ namespace UserInterface {
             }
 
             dropdown.options = dataList;
+            dropdown.value = currentValue;
 
             output.gameObject.SetActive(false);
             dropdown.gameObject.SetActive(true);

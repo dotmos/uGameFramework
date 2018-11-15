@@ -149,6 +149,14 @@ namespace Service.DevUIService {
 
 
 
+    [DataContract(IsReference = true)]
+    [System.Serializable]
+    public partial class HistoryElement {
+        [DataMember]public System.Collections.IList objectList ;
+        [DataMember]public string historyTitle ;
+
+    }
+
 }
 ///////////////////////////////////////////////////////////////////////
 //

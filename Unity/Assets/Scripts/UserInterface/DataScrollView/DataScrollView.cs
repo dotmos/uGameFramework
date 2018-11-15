@@ -5,9 +5,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
+using static UserInterface.GameDataScrollView;
 
 namespace UserInterface {
-    public class DataScrollView : MonoBehaviour, IResizeListener, IScrollHandler {
+    public class DataScrollView : GameComponent, IResizeListener, IScrollHandler {
 
         public GameObject cellTemplate;
         public RectTransform viewport;
@@ -43,18 +44,18 @@ namespace UserInterface {
         protected bool isReady;
 
         // Use this for initialization
-        protected virtual void Awake() {
+        protected override void AfterBind() {
             cellTemplate.SetActive(false);
 
             tableRectTransform = table.transform as RectTransform;
         }
 
-        public void Setup(List<float> columns, int dataCount) {
+        public void Setup(List<ColumnDefinition> columns, int dataCount) {
             this.dataCount = dataCount;
             table.ColumnWidths = new float[columns.Count];
 
             for (int c = 0; c < columns.Count; ++c) {
-                table.ColumnWidths[c] = columns[c];
+                table.ColumnWidths[c] = columns[c].width;
             }
 
             verticalScrollbar.value = 1;

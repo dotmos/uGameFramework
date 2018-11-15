@@ -185,8 +185,9 @@ public static class UtilsExtensions
         string[] sArray = sVector.Split(',');
 
         Vector2 result = new Vector2(
-            float.Parse(sArray[0]),
-            float.Parse(sArray[1]));
+                                float.Parse(sArray[0].Trim()),
+                                float.Parse(sArray[1].Trim())
+                        );
 
         return result;
     }

@@ -16,6 +16,14 @@ namespace Service.DevUIService {
     public class Events {
         
         [DataContract(IsReference = true)]
+        public class NewDataTable {
+           [DataMember] public System.Collections.IList objectList;
+           [DataMember] public List<HistoryElement> history;
+           [DataMember] public string tableTitle;
+
+        }
+
+        [DataContract(IsReference = true)]
         public class NewUIElement {
            [DataMember] public DevUIElement elem;
            [DataMember] public DevUIView view;
