@@ -104,8 +104,10 @@ namespace UserInterface {
 
             //Horizontal
             scrollWidth = contentWidth - viewportWidth;
+            OnScrollHorizontal(horizontalScollbar.value);
 
             UpdateTopDataIndex(false);
+
             StartCoroutine("UpdateRows");
         }
 

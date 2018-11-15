@@ -88,8 +88,6 @@ namespace UserInterface {
                 GameDataCell cell = row[i].GetComponent<GameDataCell>();
                 dataRow.Add(cell);
 
-                Debug.Log("Topdataindex: " + topDataIndex + ", rowIndex" + rowIndex);
-
                 //Fill row with data if we have data for this data index
                 if (topDataIndex + rowIndex < dataCount) {
                     cell.Initialize(data[topDataIndex + rowIndex][i]);
