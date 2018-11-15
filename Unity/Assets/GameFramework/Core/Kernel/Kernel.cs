@@ -15,6 +15,8 @@ public partial class Kernel : SceneContext {
     DisposableManager dManager;
 
     static bool loadingKernelScene = false;
+    public static string overrideSceneName = null;
+
     public static bool applicationQuitting = false;
 
     public ReactivePriorityExecutionList rxStartup = new ReactivePriorityExecutionList();
@@ -28,7 +30,9 @@ public partial class Kernel : SceneContext {
             // Seems like OnApplicationQuit is sometimes wrongly called, causing a reload of the Kernel Scene.
             // Loading the Kernel Scene should only happen from inside the editor, if the kernel scene was not initially loaded
             if (InstanceProperty.Value == null && !loadingKernelScene && SceneManager.GetActiveScene().name != "Kernel" && !applicationQuitting){
-
+                #if UNITY_EDITOR
+                overrideSceneName = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene().name;
+                #endif
                 System.Diagnostics.StackFrame frame = new System.Diagnostics.StackFrame(1);
                 var method = frame.GetMethod();
                 var type = method.DeclaringType;
