@@ -37,7 +37,6 @@ namespace UserInterface {
         }
 
         void OnClick() {
-            output.DeactivateInputField();
             dataCellObject.callback();
         }
 
@@ -50,7 +49,6 @@ namespace UserInterface {
 
             output.text = str;
             output.readOnly = !editable;
-            output.interactable = editable;
 
             output.gameObject.SetActive(true);
             dropdown.gameObject.SetActive(false);

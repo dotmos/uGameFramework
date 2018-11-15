@@ -13,6 +13,7 @@ namespace UserInterface {
         public TableLayoutGroup table;
         public float scrollSensitivity = 1f;
         public UserInterface.Scrollbar.GMScrollbar verticalScrollbar;
+        public UserInterface.Scrollbar.GMScrollbar horizontalScollbar;
 
         private const int extraRows = 2;
         private const int extraColumns = 2;
@@ -26,6 +27,7 @@ namespace UserInterface {
         private float viewportHeight;
         private float viewportWidth;
         private float contentHeight;
+        private float contentWidth;
         private RectTransform tableRectTransform;
 
         protected List<List<GameObject>> dataRowObjects = new List<List<GameObject>>();
@@ -48,6 +50,7 @@ namespace UserInterface {
             }
 
             verticalScrollbar.value = 1;
+            horizontalScollbar.value = 1;
 
             isReady = true;
         }
@@ -57,6 +60,7 @@ namespace UserInterface {
             if (!isReady || dataCount == 0) return;
 
             verticalScrollbar.onValueChanged.RemoveListener(OnScrollVertical);
+            horizontalScollbar.onValueChanged.RemoveListener(OnScrollHorizontal);
 
             //Destroy old rows
             if (dataRowObjects.Count > 0) {
@@ -73,6 +77,11 @@ namespace UserInterface {
             UpdateTableSizeData();
 
             contentHeight = table.padding.top + table.padding.bottom;
+            contentWidth = 0f;
+
+            foreach(float width in table.ColumnWidths) {
+                contentWidth += width;
+            }
 
             //Add rows
             for (int i = 0; i < dataCount; ++i) {
@@ -87,14 +96,20 @@ namespace UserInterface {
 
             //Set scrollbar correctly
             UpdateVerticalScrollbar();
+            UpdateHorizontalScrollbar();
 
             //Set scroll values
+            //Vertical
             rowHeight = table.MinimumRowHeight + table.RowSpacing;
             scrollHeight = (dataCount * rowHeight + (table.padding.top + table.padding.bottom - table.RowSpacing)) - contentHeight;
             viewportOffset = rowHeight - (viewportHeight % rowHeight);
             viewportOffset = viewportOffset == table.MinimumRowHeight ? 0 : viewportOffset;
+
+            //Horizontal
+            scrollWidth = contentWidth - viewportWidth;
   
             verticalScrollbar.onValueChanged.AddListener(OnScrollVertical);
+            horizontalScollbar.onValueChanged.AddListener(OnScrollHorizontal);
         }
 
         void AddRow() {
@@ -126,9 +141,20 @@ namespace UserInterface {
 
             topOffset = topDataIndex * rowHeight - viewportOffset * scrollValue;
             float yValue = scrollValue * (scrollHeight + extraRows * rowHeight) - topOffset;
-            tableRectTransform.anchoredPosition = new Vector2(0, yValue);
+            tableRectTransform.anchoredPosition = new Vector2(tableRectTransform.anchoredPosition.x, yValue);
 
             UpdateRowOutput();
+        }
+
+        float scrollWidth;
+
+        protected virtual void OnScrollHorizontal(float normalizedScrollValue) {
+            if (tableRectTransform == null) return;
+            //We have to invert the scroll value as GMScrollbar only supports right to left scrolling
+            float scrollValue = (1f - normalizedScrollValue);
+
+            float xValue = scrollValue * scrollWidth;
+            tableRectTransform.anchoredPosition = new Vector2(-xValue ,tableRectTransform.anchoredPosition.y);
         }
 
         protected virtual void UpdateRowOutput() {
@@ -152,6 +178,10 @@ namespace UserInterface {
 
         void UpdateVerticalScrollbar() {
             verticalScrollbar.size = Mathf.Clamp(dataRowObjects.Count / dataCount, 0.1f, 1f);
+        }
+
+        void UpdateHorizontalScrollbar() {
+            horizontalScollbar.size = Mathf.Clamp(viewportWidth / contentWidth, 0.1f, 1f);
         }
 
         public void OnResize() {

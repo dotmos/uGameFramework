@@ -14,6 +14,7 @@ namespace UserInterface {
         public class DataCellObject {
             public CellType cellType;
             public object value;
+            public object dropdownValue;
             public Action callback;
 
             public enum CellType { Output, EditableOutput, Dropdown };
@@ -23,7 +24,7 @@ namespace UserInterface {
             base.Awake();
 
             //Demo Data
-            List<float> demoColumns = new List<float>() { 200, 200, 300 };
+            List<float> demoColumns = new List<float>() { 200, 200, 300, 500, 500 };
             List<List<DataCellObject>> demoData = new List<List<DataCellObject>>();
 
             for (int i = 0; i < 50; ++i) {
@@ -47,6 +48,18 @@ namespace UserInterface {
                         dataCellObject.cellType = DataCellObject.CellType.Dropdown;
                         dataCellObject.value = new List<string>() { DataCellObject.CellType.Dropdown.ToString(), DataCellObject.CellType.EditableOutput.ToString(), DataCellObject.CellType.Output.ToString() };
                         dataCellObject.callback = () => Debug.Log("Changed dropdown value of column 2 in row " + i.ToString());
+                    }
+
+                    if (k == 3) {
+                        dataCellObject.cellType = DataCellObject.CellType.Output;
+                        dataCellObject.value = "Row " + i;
+                        dataCellObject.callback = () => Debug.Log("Clicked column 0 in row " + i.ToString());
+                    }
+
+                    if (k == 4) {
+                        dataCellObject.cellType = DataCellObject.CellType.Output;
+                        dataCellObject.value = "Row " + i;
+                        dataCellObject.callback = () => Debug.Log("Clicked column 0 in row " + i.ToString());
                     }
 
                     rowData.Add(dataCellObject);
