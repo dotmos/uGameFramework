@@ -66,7 +66,9 @@ namespace UserInterface {
             isReady = true;
         }
 
-        void OnDisable() {
+        protected virtual void OnEnable() {}
+
+        protected virtual void OnDisable() {
             if (isUpdating) StopCoroutine("UpdateRows");
         }
 

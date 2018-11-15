@@ -74,9 +74,26 @@ namespace UserInterface {
             InitializeTable();
         }
 
-        private void OnEnable() {
+        protected override void OnEnable() {
+            base.OnEnable();
+
             if (isReady) InitializeTable();
         }
+
+        protected override void OnDisable() {
+            base.OnDisable();
+
+            for (int i = 0; i < dataRows.Count; ++i) {
+                for(int c = 0; c < dataRows[i].Count; ++c) {
+                    Destroy(dataRows[i][c].gameObject);
+                    Destroy(rowObjects[i][c].gameObject);
+                }
+            }
+
+            dataRows.Clear();
+            rowObjects.Clear();
+        }
+
 
         //Cell data output happens here, when a  row is added
         protected override void OnRowAdded(List<GameObject> row, int rowIndex) {
