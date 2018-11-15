@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,13 +20,17 @@ namespace UserInterface {
         private const int extraColumns = 2;
 
         protected int dataCount = 10;
+        //The amount of rows that are needed to fill the viewport
+        protected int rowCount = 0;
 
-        //The index of data that is on top of the table elements
+        //The index of data that is on top of the table elements / in the first table row.
         protected int topDataIndex = 0;
 
         private Vector3[] fourTableCorners;
+        //The sizes of the viewport. This is the visible area
         private float viewportHeight;
         private float viewportWidth;
+        //The sizes of the content. This is the rect that is scrolled. It's overlapping the viewport slightly as it has some additional rows for recycling elements.
         private float contentHeight;
         private float contentWidth;
         private RectTransform tableRectTransform;
@@ -52,15 +57,54 @@ namespace UserInterface {
             verticalScrollbar.value = 1;
             horizontalScollbar.value = 1;
 
+            verticalScrollbar.onValueChanged.AddListener(OnScrollVertical);
+            horizontalScollbar.onValueChanged.AddListener(OnScrollHorizontal);
+
             isReady = true;
         }
 
 
         protected virtual void InitializeTable() {
+            if (isUpdating) StopCoroutine("AddRows");
+
             if (!isReady || dataCount == 0) return;
 
-            verticalScrollbar.onValueChanged.RemoveListener(OnScrollVertical);
-            horizontalScollbar.onValueChanged.RemoveListener(OnScrollHorizontal);
+            GetViewportSize();
+
+            rowHeight = table.MinimumRowHeight + table.RowSpacing;
+            rowCount = Mathf.CeilToInt(viewportHeight / rowHeight) + extraRows;
+
+            contentHeight = (table.padding.top + table.padding.bottom) + (rowCount * rowHeight) - table.RowSpacing;
+            contentWidth = table.padding.left + table.padding.right;
+
+            foreach (float width in table.ColumnWidths) {
+                contentWidth += width + table.ColumnSpacing;
+            }
+
+            //Remove the last columnSpacing from contentWidth
+            contentWidth -= table.ColumnSpacing;
+
+            //Set scrollbar correctly
+            UpdateVerticalScrollbar();
+            UpdateHorizontalScrollbar();
+
+            //Set scroll values
+            //Vertical
+            scrollHeight = (dataCount * rowHeight + (table.padding.top + table.padding.bottom - table.RowSpacing)) - contentHeight;
+            viewportOffset = rowHeight - (viewportHeight % rowHeight);
+            viewportOffset = viewportOffset == table.MinimumRowHeight ? 0 : viewportOffset;
+
+            //Horizontal
+            scrollWidth = contentWidth - viewportWidth;
+
+            UpdateTopDataIndex(false);
+            StartCoroutine("AddRows");
+        }
+
+        private bool isUpdating;
+
+        IEnumerator AddRows() {
+            isUpdating = true;
 
             //Destroy old rows
             if (dataRowObjects.Count > 0) {
@@ -74,42 +118,14 @@ namespace UserInterface {
                 dataRowObjects = new List<List<GameObject>>();
             }
 
-            UpdateTableSizeData();
-
-            contentHeight = table.padding.top + table.padding.bottom;
-            contentWidth = 0f;
-
-            foreach(float width in table.ColumnWidths) {
-                contentWidth += width;
-            }
-
-            //Add rows
-            for (int i = 0; i < dataCount; ++i) {
+            //Add new rows
+            while (dataRowObjects.Count < rowCount) {
                 AddRow();
 
-                contentHeight += table.MinimumRowHeight;
-                //Add extra rows
-                if (contentHeight >= viewportHeight + (table.MinimumRowHeight * extraRows)) break;
-                //Add spacing if we are not done yet
-                contentHeight += table.RowSpacing;
+                yield return null;
             }
 
-            //Set scrollbar correctly
-            UpdateVerticalScrollbar();
-            UpdateHorizontalScrollbar();
-
-            //Set scroll values
-            //Vertical
-            rowHeight = table.MinimumRowHeight + table.RowSpacing;
-            scrollHeight = (dataCount * rowHeight + (table.padding.top + table.padding.bottom - table.RowSpacing)) - contentHeight;
-            viewportOffset = rowHeight - (viewportHeight % rowHeight);
-            viewportOffset = viewportOffset == table.MinimumRowHeight ? 0 : viewportOffset;
-
-            //Horizontal
-            scrollWidth = contentWidth - viewportWidth;
-  
-            verticalScrollbar.onValueChanged.AddListener(OnScrollVertical);
-            horizontalScollbar.onValueChanged.AddListener(OnScrollHorizontal);
+            isUpdating = false;
         }
 
         void AddRow() {
@@ -125,30 +141,43 @@ namespace UserInterface {
             }
 
             dataRowObjects.Add(_row);
+            OnRowAdded(_row, dataRowObjects.Count - 1);
         }
 
+        protected virtual void OnRowAdded(List<GameObject> row, int rowIndex) { }
+
+
+#region SCROLLING
+
+        /// <summary>
+        /// Everything concerning vertical scrolling
+        /// </summary>
         float scrollHeight;
         float rowHeight;
         float viewportOffset;
         float topOffset;
 
-        protected virtual void OnScrollVertical(float normalizedScrollValue) {
+        void OnScrollVertical(float normalizedScrollValue) {
+            UpdateTopDataIndex();
+            UpdateVerticalScrollPosition(normalizedScrollValue);
+        }
+
+        protected void UpdateVerticalScrollPosition(float normalizedScrollValue) {
             if (tableRectTransform == null) return;
             //We have to invert the scroll value as GMScrollbar only supports bottom to top scrolling
+
             float scrollValue = (1f - normalizedScrollValue);
-
-            topDataIndex = Mathf.FloorToInt(Mathf.Clamp((dataCount - dataRowObjects.Count + extraRows) * scrollValue, 0, dataCount - dataRowObjects.Count + extraRows));
-
             topOffset = topDataIndex * rowHeight - viewportOffset * scrollValue;
             float yValue = scrollValue * (scrollHeight + extraRows * rowHeight) - topOffset;
             tableRectTransform.anchoredPosition = new Vector2(tableRectTransform.anchoredPosition.x, yValue);
-
-            UpdateRowOutput();
         }
 
+        /// <summary>
+        /// Everything concerning horizontal scrolling
+        /// </summary>
         float scrollWidth;
 
-        protected virtual void OnScrollHorizontal(float normalizedScrollValue) {
+        void OnScrollHorizontal(float normalizedScrollValue) {
             if (tableRectTransform == null) return;
             //We have to invert the scroll value as GMScrollbar only supports right to left scrolling
             float scrollValue = (1f - normalizedScrollValue);
@@ -157,39 +186,54 @@ namespace UserInterface {
             tableRectTransform.anchoredPosition = new Vector2(-xValue ,tableRectTransform.anchoredPosition.y);
         }
 
-        protected virtual void UpdateRowOutput() {
-            int rowsToHide = (topDataIndex + extraRows) - (dataCount - dataRowObjects.Count + extraRows);
-
-            if (rowsToHide >= 0) {
-                for(int i = 0; i < extraRows; ++i) {
-                    foreach(GameObject dataCell in dataRowObjects[dataRowObjects.Count - (i + 1)]) {
-                        dataCell.SetActive(i < rowsToHide ? false : true);
-                    }
-                }
-            }
-        }
-
-        void UpdateTableSizeData() {
-            fourTableCorners = new Vector3[4];
-            viewport.GetWorldCorners(fourTableCorners);
-            viewportHeight = (fourTableCorners[1].y - fourTableCorners[0].y) / table.transform.lossyScale.y;
-            viewportWidth = (fourTableCorners[2].x - fourTableCorners[1].x) / table.transform.lossyScale.x;
-        }
-
         void UpdateVerticalScrollbar() {
-            verticalScrollbar.size = Mathf.Clamp(dataRowObjects.Count / dataCount, 0.1f, 1f);
+            verticalScrollbar.size = Mathf.Clamp(rowCount / dataCount, 0.1f, 1f);
         }
 
         void UpdateHorizontalScrollbar() {
             horizontalScollbar.size = Mathf.Clamp(viewportWidth / contentWidth, 0.1f, 1f);
         }
 
-        public void OnResize() {
-            InitializeTable();
-        }
-
         public void OnScroll(PointerEventData eventData) {
             verticalScrollbar.value += eventData.scrollDelta.y * scrollSensitivity;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Updates the index of the data that is filled into the top row based on the position of the vertical scrollbar
+        /// </summary>
+        int lastTopDataIndex = 0;
+
+        void UpdateTopDataIndex(bool fireCallback = true) {
+            //We have to invert the scroll value as GMScrollbar only supports bottom to top scrolling
+            float scrollValue = (1f - verticalScrollbar.value);
+            topDataIndex = Mathf.FloorToInt(Mathf.Clamp((dataCount - rowCount + extraRows) * scrollValue, 0, dataCount - rowCount + extraRows));
+
+            //Fire callback if top data index changed
+            if (topDataIndex != lastTopDataIndex) {
+                if (fireCallback) OnTopDataIndexChanged(topDataIndex);
+                lastTopDataIndex = topDataIndex;
+            }
+        }
+
+        protected virtual void OnTopDataIndexChanged(int newIndex) {}
+
+        /// <summary>
+        /// Sets the correct size of the viewport
+        /// </summary>
+        void GetViewportSize() {
+            fourTableCorners = new Vector3[4];
+            viewport.GetWorldCorners(fourTableCorners);
+            viewportHeight = (fourTableCorners[1].y - fourTableCorners[0].y) / table.transform.lossyScale.y;
+            viewportWidth = (fourTableCorners[2].x - fourTableCorners[1].x) / table.transform.lossyScale.x;
+        }
+
+        /// <summary>
+        /// This is called when a draghandler is used to resize the window (via interface)
+        /// </summary>
+        public void OnResize() {
+            InitializeTable();
         }
     }
 }

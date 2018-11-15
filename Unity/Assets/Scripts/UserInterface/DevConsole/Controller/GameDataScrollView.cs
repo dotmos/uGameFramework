@@ -79,36 +79,54 @@ namespace UserInterface {
         }
 
         protected override void InitializeTable() {
-            base.InitializeTable();
-
             dataRows.Clear();
             dataRows = new List<List<GameDataCell>>();
 
-            //Cache data rows with data cell component
-            foreach (List<GameObject> dataRowObject in dataRowObjects) {
-                List<GameDataCell> dataRow = new List<GameDataCell>();
-
-                foreach (GameObject dataCellObject in dataRowObject) {
-                    dataRow.Add(dataCellObject.GetComponent<GameDataCell>());
-                }
-
-                dataRows.Add(dataRow);
-            }
-
-            //Update scroll value
-            OnScrollVertical(verticalScrollbar.value);
+            base.InitializeTable();
         }
 
-        protected override void UpdateRowOutput() {
-            base.UpdateRowOutput();
+        //Cell data output happens here, when a  row is added
+        protected override void OnRowAdded(List<GameObject> row, int rowIndex) {
+            base.OnRowAdded(row, rowIndex);
 
-            for (int i = 0; i < dataRows.Count; ++i) {
-                if (topDataIndex + i >= dataCount) break;
+            List<GameDataCell> dataRow = new List<GameDataCell>();
 
-                for (int k = 0; k < data[topDataIndex + i].Count; ++k) {
-                    dataRows[i][k].Initialize(data[topDataIndex + i][k]);
+            for (int i = 0; i < row.Count; ++i) {
+                GameDataCell cell = row[i].GetComponent<GameDataCell>();
+                dataRow.Add(cell);
+
+                //Fill row with data if we have data for this data index
+                if (topDataIndex + rowIndex < dataCount) {
+                    cell.Initialize(data[topDataIndex + rowIndex][i]);
+                    if (!cell.gameObject.activeSelf) cell.gameObject.SetActive(true);
+                } else {
+                    cell.gameObject.SetActive(false);
                 }
             }
+
+            dataRows.Add(dataRow);
+
+            UpdateVerticalScrollPosition(verticalScrollbar.value);
+        }
+
+        protected override void OnTopDataIndexChanged(int newIndex) {
+            base.OnTopDataIndexChanged(newIndex);
+
+            for (int i = 0; i < rowCount; ++i) {
+                if (topDataIndex + i < dataCount) {
+                    for (int k = 0; k < data[topDataIndex + i].Count; ++k) {
+                        GameDataCell dataCell = dataRows[i][k];
+                        dataCell.Initialize(data[topDataIndex + i][k]);
+                        if (!dataCell.gameObject.activeSelf) dataCell.gameObject.SetActive(true);
+                    }
+                } else {
+                    foreach (GameObject dataCell in dataRowObjects[i]) {
+                        dataCell.SetActive(false);
+                    }
+                }
+            }
+
+            UpdateVerticalScrollPosition(verticalScrollbar.value);
         }
     }
 }
