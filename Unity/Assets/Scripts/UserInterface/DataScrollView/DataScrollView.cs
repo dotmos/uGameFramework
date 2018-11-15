@@ -19,7 +19,7 @@ namespace UserInterface {
         private const int extraRows = 2;
         private const int extraColumns = 2;
 
-        protected int dataCount = 10;
+        protected int dataCount = 0;
         //The amount of rows that are needed to fill the viewport
         protected int rowCount = 0;
 
@@ -35,7 +35,7 @@ namespace UserInterface {
         private float contentWidth;
         private RectTransform tableRectTransform;
 
-        protected List<List<GameObject>> dataRowObjects = new List<List<GameObject>>();
+        protected List<List<GameObject>> rowObjects = new List<List<GameObject>>();
 
         private bool isReady;
 
@@ -63,11 +63,15 @@ namespace UserInterface {
             isReady = true;
         }
 
+        void OnDisable() {
+            if (isUpdating) StopCoroutine("UpdateRows");
+        }
+
 
         protected virtual void InitializeTable() {
-            if (isUpdating) StopCoroutine("AddRows");
+            if (isUpdating) StopCoroutine("UpdateRows");
 
-            if (!isReady || dataCount == 0) return;
+            if (!isReady || !gameObject.activeSelf) return;
 
             GetViewportSize();
 
@@ -98,33 +102,26 @@ namespace UserInterface {
             scrollWidth = contentWidth - viewportWidth;
 
             UpdateTopDataIndex(false);
-            StartCoroutine("AddRows");
+            StartCoroutine("UpdateRows");
         }
 
         private bool isUpdating;
 
-        IEnumerator AddRows() {
+        IEnumerator UpdateRows() {
             isUpdating = true;
 
-            //Destroy old rows
-            if (dataRowObjects.Count > 0) {
-                foreach (List<GameObject> row in dataRowObjects) {
-                    foreach (GameObject cell in row) {
-                        Destroy(cell.gameObject);
-                    }
-                }
-
-                dataRowObjects.Clear();
-                dataRowObjects = new List<List<GameObject>>();
-            }
-
-            //Add new rows
-            while (dataRowObjects.Count < rowCount) {
-                AddRow();
+            //Add or remove rows to match row count
+            while (rowObjects.Count != rowCount) {
+                if (rowObjects.Count < rowCount) AddRow();
+                else RemoveRow(rowObjects.Last());
 
                 yield return null;
             }
 
+            yield return new WaitForEndOfFrame();
+
+            OnTopDataIndexChanged(topDataIndex);
+            OnScrollVertical(verticalScrollbar.value);
             isUpdating = false;
         }
 
@@ -135,16 +132,26 @@ namespace UserInterface {
             for (int i = 0; i < table.ColumnWidths.Length; ++i) {
                 GameObject cellGO = Instantiate(cellTemplate);
                 cellGO.SetActive(true);
-                cellGO.name = "row" + dataRowObjects.Count + "_column" + i;
+                cellGO.name = "row" + rowObjects.Count + "_column" + i;
                 cellGO.transform.SetParent(table.transform, false);
                 _row.Add(cellGO);
             }
 
-            dataRowObjects.Add(_row);
-            OnRowAdded(_row, dataRowObjects.Count - 1);
+            rowObjects.Add(_row);
+            OnRowAdded(_row, rowObjects.Count - 1);
+        }
+
+        void RemoveRow(List<GameObject> row) {
+            foreach (GameObject cell in row) {
+                Destroy(cell.gameObject);
+            }
+
+            OnRowRemoved(rowObjects.IndexOf(row));
+            rowObjects.Remove(row);
         }
 
         protected virtual void OnRowAdded(List<GameObject> row, int rowIndex) { }
+        protected virtual void OnRowRemoved(int rowIndex) { }
 
 
 #region SCROLLING

@@ -78,13 +78,6 @@ namespace UserInterface {
             InitializeTable();
         }
 
-        protected override void InitializeTable() {
-            dataRows.Clear();
-            dataRows = new List<List<GameDataCell>>();
-
-            base.InitializeTable();
-        }
-
         //Cell data output happens here, when a  row is added
         protected override void OnRowAdded(List<GameObject> row, int rowIndex) {
             base.OnRowAdded(row, rowIndex);
@@ -105,8 +98,12 @@ namespace UserInterface {
             }
 
             dataRows.Add(dataRow);
+        }
 
-            UpdateVerticalScrollPosition(verticalScrollbar.value);
+        protected override void OnRowRemoved(int rowIndex) {
+            base.OnRowRemoved(rowIndex);
+
+            dataRows.RemoveAt(rowIndex);
         }
 
         protected override void OnTopDataIndexChanged(int newIndex) {
@@ -120,13 +117,11 @@ namespace UserInterface {
                         if (!dataCell.gameObject.activeSelf) dataCell.gameObject.SetActive(true);
                     }
                 } else {
-                    foreach (GameObject dataCell in dataRowObjects[i]) {
+                    foreach (GameObject dataCell in rowObjects[i]) {
                         dataCell.SetActive(false);
                     }
                 }
             }
-
-            UpdateVerticalScrollPosition(verticalScrollbar.value);
         }
     }
 }

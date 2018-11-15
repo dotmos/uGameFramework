@@ -8,7 +8,7 @@ namespace UserInterface {
     [AddComponentMenu(NamingHelper.ResizeHandler.Name, 34)]
     public class GMResizeHandler : MonoBehaviour {
 
-        public GMResizableLayoutElement target;
+        public List<GMResizableLayoutElement> targets = new List<GMResizableLayoutElement>();
         public HandlerType handlerType;
 
         private List<IResizeListener> resizeListeners = new List<IResizeListener>();
@@ -26,7 +26,7 @@ namespace UserInterface {
 
         private EventTrigger eventTrigger;
 
-        void Start() {
+        void Awake() {
             eventTrigger = GetComponent<EventTrigger>();
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.Drag, OnDrag);
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.EndDrag, OnEndDrag);
@@ -40,10 +40,14 @@ namespace UserInterface {
         void OnDrag(BaseEventData data) {
             PointerEventData ped = (PointerEventData)data;
 
-            target.ResizeLayoutElement(Mathf.Round(ped.delta.x * handlerScaleStrategy[handlerType].x), Mathf.Round(ped.delta.y * handlerScaleStrategy[handlerType].y));
+            foreach (GMResizableLayoutElement target in targets) {
+                target.ResizeLayoutElement(Mathf.Round(ped.delta.x * handlerScaleStrategy[handlerType].x), Mathf.Round(ped.delta.y * handlerScaleStrategy[handlerType].y));
+            }
         }
 
         void OnEndDrag(BaseEventData data) {
+            Debug.Log(resizeListeners.Count);
+
             foreach(IResizeListener listener in resizeListeners) {
                 listener.OnResize();
             }
