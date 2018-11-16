@@ -39,8 +39,7 @@ namespace UserInterface {
 
 
         private void SetupData(DataTable dataTable) {
-            // TODO:
-            // ClearTable();
+            ClearTable();
             data = dataTable.rows;
             Setup(dataTable.columnDef, dataTable.rows.Count);
             InitializeTable();
@@ -244,8 +243,12 @@ namespace UserInterface {
         protected override void OnDisable() {
             base.OnDisable();
 
+            ClearTable();
+        }
+
+        void ClearTable() {
             for (int i = 0; i < dataRows.Count; ++i) {
-                for(int c = 0; c < dataRows[i].Count; ++c) {
+                for (int c = 0; c < dataRows[i].Count; ++c) {
                     Destroy(dataRows[i][c].gameObject);
                     Destroy(rowObjects[i][c].gameObject);
                 }
