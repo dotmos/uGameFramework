@@ -870,7 +870,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00012207031, y: 0}
+  m_AnchoredPosition: {x: -0.00010681152, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &95446948
@@ -2351,7 +2351,7 @@ GameObject:
   - component: {fileID: 375907613}
   - component: {fileID: 375907612}
   m_Layer: 5
-  m_Name: GMTab
+  m_Name: GMTab_TopLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6423,6 +6423,7 @@ GameObject:
   - component: {fileID: 951920089}
   - component: {fileID: 951920093}
   - component: {fileID: 951920092}
+  - component: {fileID: 951920094}
   - component: {fileID: 951920091}
   - component: {fileID: 951920090}
   m_Layer: 5
@@ -6522,6 +6523,22 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 951920088}
   m_CullTransparentMesh: 0
+--- !u!114 &951920094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 951920088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccbda6bc86a16d44697cabdaf36ec360, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  disposeOnDestroy: 1
+  destroyOnDispose: 1
+  bindOnAwake: 1
+  tabbar: {fileID: 951920091}
+  tabTemplate: {fileID: 375907613}
 --- !u!1 &968144372
 GameObject:
   m_ObjectHideFlags: 0

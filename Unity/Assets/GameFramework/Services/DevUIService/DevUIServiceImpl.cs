@@ -114,23 +114,6 @@ namespace Service.DevUIService {
 
             ,Priorities.PRIORITY_DEFAULT); // Default Priority
 
-            rxOnStartup.Add(() => {
-                var view = CreateView("DataBrowser");
-
-                var dbTopLevels = GetDataBrowserTopLevelElements();
-                foreach (var topLevel in dbTopLevels) {
-                    view.AddElement(new DevUIButton(topLevel.topLevelName, () => {
-                        // trigger event to output the building def list
-                        _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
-                            objectList = topLevel.objectList,
-                            tableTitle = topLevel.topLevelName
-                        });
-                    }));
-
-                }
-            },Priorities.PRIORITY_VERY_LATE);
-
-
             // on shutdown persist the current views
             Kernel.Instance.rxShutDown.Add(() => {
                 SaveViews();

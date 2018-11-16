@@ -63,14 +63,8 @@ namespace UserInterface {
                 history = new List<HistoryElement>();
             }
 
-            // create one flag that can be checked in the rows-loop
-            List<DataCellObject> titleRow = new List<DataCellObject>();
-            dataTable.rows.Add(titleRow);
 
             bool addBackButton = history != null && history.Count > 0;
-            bool addTitle = true;
-
-            
 
             // fake-headers-row:
             List<DataCellObject> header = new List<DataCellObject>();
@@ -87,6 +81,7 @@ namespace UserInterface {
                             width = meta == null ? 100.0f : meta.width,
                             colName = (meta == null || meta.visualName == null) ? varName : meta.visualName
                         };
+
                         dataTable.columnDef.Add(headerElement);
 
                         // --------fake headers------------
@@ -97,37 +92,23 @@ namespace UserInterface {
                         });
                         // --------------------------------
 
-                        if (addBackButton) {
-                            // --------- back-button-column ------------------------
-                            addBackButton = false;
-                            titleRow.Add(new DataCellObject() {
-                                value = "BACK",
-                                cellType = DataCellObject.CellType.Output,
-                                callback = (st) => {
-                                    var backObject = history[0];
-                                    history.RemoveAt(0);
-                                    _eventService.Publish(new Service.DevUIService.Events.NewDataTable {
-                                        objectList = backObject.objectList,
-                                        tableTitle = backObject.historyTitle,
-                                        history = history
-                                    });
-                                }
-                            });
-                        } else if (addTitle) {
-                            // ------------ title - column -----------------------------
-                            addTitle = false;
-                            titleRow.Add(new DataCellObject() {
-                                value = title==null?"":title,
-                                cellType = DataCellObject.CellType.Output,
-                                callback = (st) => {
-                                    Debug.Log("You clicked the title");
-                                }
-                            });
-                        } else {
-                            titleRow.Add(new DataCellObject() {
-                                value="",cellType=DataCellObject.CellType.Output
-                            });
-                        }
+                        //if (addBackButton) {
+                        //    // --------- back-button-column ------------------------
+                        //    addBackButton = false;
+                        //    titleRow.Add(new DataCellObject() {
+                        //        value = "BACK",
+                        //        cellType = DataCellObject.CellType.Output,
+                        //        callback = (st) => {
+                        //            var backObject = history[0];
+                        //            history.RemoveAt(0);
+                        //            _eventService.Publish(new Service.DevUIService.Events.NewDataTable {
+                        //                objectList = backObject.objectList,
+                        //                tableTitle = backObject.historyTitle,
+                        //                history = history
+                        //            });
+                        //        }
+                        //    });
+                        //}
                     }
 
                     if ( varObj==null || MemoryBrowser.IsSimple(varObj.GetType())||varObj is Vector2||varObj is Vector3) {

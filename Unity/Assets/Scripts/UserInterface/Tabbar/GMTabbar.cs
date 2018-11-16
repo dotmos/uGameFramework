@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,6 +19,8 @@ namespace UserInterface {
         private List<GMTab> tabs = new List<GMTab>();
 
         private GMTab activeTab;
+
+        private List<Action> valueChangedListeners = new List<Action>();
 
         protected override void Start() {
             base.Start();
@@ -140,6 +143,25 @@ namespace UserInterface {
         public void SetAsActiveTab(GMTab tab)
         {
             activeTab = tab;
+            OnValueChanged();
+        }
+
+        void OnValueChanged() {
+            foreach(Action listener in valueChangedListeners) {
+                listener();
+            }
+        }
+
+        public void AddValueChangedListener(Action callback) {
+            if (!valueChangedListeners.Contains(callback)) {
+                valueChangedListeners.Add(callback);
+            }
+        }
+
+        public void RemoveValueChangedListener(Action callback) {
+            if (valueChangedListeners.Contains(callback)) {
+                valueChangedListeners.Remove(callback);
+            }
         }
     }
 }
