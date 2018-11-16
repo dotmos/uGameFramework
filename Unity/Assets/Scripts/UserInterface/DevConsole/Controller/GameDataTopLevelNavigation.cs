@@ -10,6 +10,7 @@ namespace UserInterface {
     public class GameDataTopLevelNavigation : GameComponent {
         public GMTabbar tabbar;
         public GMTab tabTemplate;
+        public GameDataBreadcrumpNavigation breadcrumpNavigation;
 
         Commands.GetDataBrowserTopLevelElementsCommand getTopLevels = new Commands.GetDataBrowserTopLevelElementsCommand();
 
@@ -76,6 +77,8 @@ namespace UserInterface {
                     tableTitle = topLevel.topLevelName,
                     history = new List<HistoryElement>()
                 });
+
+                if (breadcrumpNavigation != null) breadcrumpNavigation.ClearBreadcrumps();
             }
         }
     }

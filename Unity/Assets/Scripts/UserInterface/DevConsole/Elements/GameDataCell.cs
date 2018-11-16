@@ -6,12 +6,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UserInterface {
-    public class GameDataCell : MonoBehaviour, IPointerClickHandler {
+    public class GameDataCell : MonoBehaviour {
         public GMInputField output;
+        public GMButton button;
         public Dropdown dropdown;
         public Image cellBackground;
-
-        private bool isClickable;
 
         public List<GameDataCellConfig> cellConfigs = new List<GameDataCellConfig>();
 
@@ -38,6 +37,9 @@ namespace UserInterface {
                     break;
                 case GameDataScrollView.DataCellObject.CellType.Header:
                     SetOutput(dataCellObject.value == null ? "" : dataCellObject.value.ToString().ToUpper());
+                    break;
+                case GameDataScrollView.DataCellObject.CellType.Button:
+                    SetButton(dataCellObject.value == null ? "" : dataCellObject.value.ToString());
                     break;
                 default:
                     break;
@@ -77,20 +79,31 @@ namespace UserInterface {
             dataCellObject.value = newValue;
         }
 
+        void SetButton(string str) {
+            RemoveCallbacks();
+
+            button.gameObject.SetActive(true);
+            output.gameObject.SetActive(false);
+            dropdown.gameObject.SetActive(false);
+
+            button.GetComponentInChildren<Text>().text = str;
+            button.onClick.AddListener(OnClick);
+        }
+
         public void SetOutput(string str, bool editable = false) {
             RemoveCallbacks();
 
             output.text = str;
             output.targetGraphic.raycastTarget = editable;
-            isClickable = !editable;
 
+            button.gameObject.SetActive(false);
             output.gameObject.SetActive(true);
             dropdown.gameObject.SetActive(false);
 
             if (editable) output.onEndEdit.AddListener(OnInputChanged);
         }
 
-        public void SetupDropdown(List<string> dropdownValues,int currentValue) {
+        public void SetupDropdown(List<string> dropdownValues, int currentValue) {
             RemoveCallbacks();
 
             dropdown.ClearOptions();
@@ -105,6 +118,7 @@ namespace UserInterface {
             dropdown.options = dataList;
             dropdown.value = currentValue;
 
+            button.gameObject.SetActive(false);
             output.gameObject.SetActive(false);
             dropdown.gameObject.SetActive(true);
 
@@ -113,14 +127,9 @@ namespace UserInterface {
 
 
         void RemoveCallbacks() {
+            button.onClick.RemoveListener(OnClick);
             output.onEndEdit.RemoveListener(OnInputChanged);
             dropdown.onValueChanged.RemoveListener(OnDropdownChanged);
-        }
-
-        public void OnPointerClick(PointerEventData eventData) {
-            if (isClickable && eventData.button == PointerEventData.InputButton.Left) {
-                OnClick();
-            }
         }
     }
 }

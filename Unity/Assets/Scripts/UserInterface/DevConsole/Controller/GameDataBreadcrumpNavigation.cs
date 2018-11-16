@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using System.Linq;
 
 namespace UserInterface {
     public class GameDataBreadcrumpNavigation : GameComponent {
@@ -21,13 +22,9 @@ namespace UserInterface {
         }
 
         void CreateBreadcrumps(Events.NewDataTable dataTable) {
-            //Clear old
-            ClearBreadcrumps();
-
             //Set title of current sheet
             SetCurrentTableName(dataTable.tableTitle);
 
-            //Create breadcrumps
             if (dataTable.history == null) return;
 
             foreach (HistoryElement history in dataTable.history) {
@@ -54,7 +51,7 @@ namespace UserInterface {
             currentTitleOutput.text = name;
         }
         
-        void ClearBreadcrumps() {
+        public void ClearBreadcrumps() {
             foreach(GMButton breadcrump in breadcrumps.Keys) {
                 Destroy(breadcrump.gameObject);
             }
@@ -63,6 +60,22 @@ namespace UserInterface {
         }
 
         void OpenBreadcrump(HistoryElement history) {
+            //Destroy all breadcrumps after the one clicked
+            GMButton button = breadcrumps.FirstOrDefault(b => b.Value == history).Key;
+            if (button != null) {
+                int childIndex = button.transform.GetSiblingIndex();
+
+                for (int i = transform.childCount - 1; i >= childIndex; --i) {
+                    Transform breadcrump = transform.GetChild(i);
+                    GMButton _button = breadcrump.GetComponent<GMButton>();
+
+                    if (_button != null) {
+                        breadcrumps.Remove(_button);
+                        Destroy(_button.gameObject);
+                    }
+                }
+            }
+
             this.Publish(new Service.DevUIService.Events.NewDataTable() {
                 // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
                 objectList = history.objectList,

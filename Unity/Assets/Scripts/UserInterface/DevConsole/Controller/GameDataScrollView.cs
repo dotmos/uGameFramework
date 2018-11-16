@@ -91,24 +91,6 @@ namespace UserInterface {
                             callback = (st) => { Debug.Log("Pressed the header:" + headerElement.colName); }
                         });
                         // --------------------------------
-
-                        //if (addBackButton) {
-                        //    // --------- back-button-column ------------------------
-                        //    addBackButton = false;
-                        //    titleRow.Add(new DataCellObject() {
-                        //        value = "BACK",
-                        //        cellType = DataCellObject.CellType.Output,
-                        //        callback = (st) => {
-                        //            var backObject = history[0];
-                        //            history.RemoveAt(0);
-                        //            _eventService.Publish(new Service.DevUIService.Events.NewDataTable {
-                        //                objectList = backObject.objectList,
-                        //                tableTitle = backObject.historyTitle,
-                        //                history = history
-                        //            });
-                        //        }
-                        //    });
-                        //}
                     }
 
                     if ( varObj==null || MemoryBrowser.IsSimple(varObj.GetType())||varObj is Vector2||varObj is Vector3) {
@@ -164,7 +146,7 @@ namespace UserInterface {
                                     });
                                     return;
                                 },
-                                cellType = DataCellObject.CellType.Output
+                                cellType = DataCellObject.CellType.Button
                             };
                             rowData.Add(rowElem);
                         }
@@ -191,7 +173,7 @@ namespace UserInterface {
                                     });
                                     return;
                                 },
-                                cellType = DataCellObject.CellType.Output
+                                cellType = DataCellObject.CellType.Button
                             };
                             rowData.Add(rowElem);
                         }
