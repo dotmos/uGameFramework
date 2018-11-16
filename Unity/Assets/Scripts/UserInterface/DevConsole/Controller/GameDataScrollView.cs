@@ -21,7 +21,7 @@ namespace UserInterface {
             public List<string> dropdownValues;
             public Action<string> callback;
 
-            public enum CellType { Output, EditableOutput, Dropdown };
+            public enum CellType { Output, EditableOutput, Dropdown, Button, Header, Subdata };
         }
 
         [Serializable]
@@ -92,7 +92,7 @@ namespace UserInterface {
                         // --------fake headers------------
                         header.Add(new DataCellObject() {
                             value = headerElement.colName,
-                            cellType = DataCellObject.CellType.Output,
+                            cellType = DataCellObject.CellType.Header,
                             callback = (st) => { Debug.Log("Pressed the header:" + headerElement.colName); }
                         });
                         // --------------------------------

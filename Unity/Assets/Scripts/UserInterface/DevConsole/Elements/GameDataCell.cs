@@ -9,8 +9,17 @@ namespace UserInterface {
     public class GameDataCell : MonoBehaviour, IPointerClickHandler {
         public GMInputField output;
         public Dropdown dropdown;
+        public Image cellBackground;
 
         private bool isClickable;
+
+        public List<GameDataCellConfig> cellConfigs = new List<GameDataCellConfig>();
+
+        [System.Serializable]
+        public class GameDataCellConfig {
+            public GameDataScrollView.DataCellObject.CellType type;
+            public Color cellBackground;
+        }
 
         GameDataScrollView.DataCellObject dataCellObject;
 
@@ -27,8 +36,20 @@ namespace UserInterface {
                 case GameDataScrollView.DataCellObject.CellType.Dropdown:
                     SetupDropdown(dataCellObject.dropdownValues as List<string>, dataCellObject.value==null?0:(int)dataCellObject.value);
                     break;
+                case GameDataScrollView.DataCellObject.CellType.Header:
+                    SetOutput(dataCellObject.value == null ? "" : dataCellObject.value.ToString().ToUpper());
+                    break;
                 default:
                     break;
+            }
+
+            UpdateVisualsByType(dataCellObject.cellType);
+        }
+
+        void UpdateVisualsByType(GameDataScrollView.DataCellObject.CellType type) {
+            GameDataCellConfig config = cellConfigs.Find(c => c.type == type);
+            if (config != null) {
+                cellBackground.color = config.cellBackground;
             }
         }
 
