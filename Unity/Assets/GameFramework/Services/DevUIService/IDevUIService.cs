@@ -145,9 +145,23 @@ namespace Service.DevUIService {
 
 					DevUIView CreateViewFromPOCO(object entity,string name);
 
+
+					void CreateDataBrowserTopLevelElement(string name,System.Collections.IList objectList);
+
+
+					List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
+
 	}
 
 
+
+    [DataContract(IsReference = true)]
+    [System.Serializable]
+    public partial class DataBrowserTopLevel {
+        [DataMember]public string topLevelName ;
+        [DataMember]public System.Collections.IList objectList ;
+
+    }
 
     [DataContract(IsReference = true)]
     [System.Serializable]

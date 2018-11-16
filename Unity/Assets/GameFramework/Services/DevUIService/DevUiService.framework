@@ -40,10 +40,16 @@ namespace Service.DevUIService {
 		("DevUIView") CreateViewFromEntity(("UID") entity,string name="");
 		("DevUIView") CreateViewFromPOCO(object entity,string name); 
 		
-		
+		void CreateDataBrowserTopLevelElement(string name,("System.Collections.IList") objectList);
+		List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
     }   
 }      
 ## model
+
+public class DataBrowserTopLevel{
+	public string topLevelName;
+	public ("System.Collections.IList") objectList;
+}
 
 public class HistoryElement {
     public ("System.Collections.IList") objectList;

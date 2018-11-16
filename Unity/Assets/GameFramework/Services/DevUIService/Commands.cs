@@ -55,6 +55,10 @@ namespace Service.DevUIService{
 
             this.OnEvent<CreateViewFromPOCOCommand>().Subscribe(e => CreateViewFromPOCOCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<CreateDataBrowserTopLevelElementCommand>().Subscribe(e => CreateDataBrowserTopLevelElementCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<GetDataBrowserTopLevelElementsCommand>().Subscribe(e => GetDataBrowserTopLevelElementsCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -450,6 +454,56 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("CreateViewFromPOCOCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class CreateDataBrowserTopLevelElementCommand  {
+            public string name;
+                        public System.Collections.IList objectList;
+            
+            
+        }
+
+		protected void CreateDataBrowserTopLevelElementCommandHandler  (CreateDataBrowserTopLevelElementCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("CreateDataBrowserTopLevelElementCommand");
+#endif
+        _service.CreateDataBrowserTopLevelElement(cmd.name,cmd.objectList);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("CreateDataBrowserTopLevelElementCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class GetDataBrowserTopLevelElementsCommand  {
+            public List<DataBrowserTopLevel> result;
+            
+            
+        }
+
+		protected void GetDataBrowserTopLevelElementsCommandHandler  (GetDataBrowserTopLevelElementsCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("GetDataBrowserTopLevelElementsCommand");
+#endif
+        
+            cmd.result = _service.GetDataBrowserTopLevelElements();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("GetDataBrowserTopLevelElementsCommand");
 #endif
         }
         

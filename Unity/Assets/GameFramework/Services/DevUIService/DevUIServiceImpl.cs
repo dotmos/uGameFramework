@@ -73,6 +73,8 @@ namespace Service.DevUIService {
             }
         }
 
+        private List<DataBrowserTopLevel> dataBrowserTopLevelElements = new List<DataBrowserTopLevel>();
+
         protected override void AfterInitialize() {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
             rxViews = new ReactiveCollection<DevUIView>();
@@ -97,28 +99,6 @@ namespace Service.DevUIService {
             // on startup create some sample data
             var rxStartup = Kernel.Instance.rxStartup;
 
-            // For testing data that is already present when the DevConsole gets active add test-data at very early stage
-            /*rxStartup.Add(() => {
-                var win = CreateView("ServiceDEVUI");
-                win.AddElement(new DevUIButton("kickit", () => {
-                    UnityEngine.Debug.Log("KICKIT");
-                }));
-
-                var luaExpression = new DevUILuaExpression("key", 2.5f);
-                win.AddElement(luaExpression);
-                luaExpression.valueProperty.Subscribe(val => {
-                    logging.Info("val:" + val);
-                }).AddTo(disposables);
-
-                win.AddElement(new DevUILUAButton("kickit-lua", "print('tom')"));
-
-                win.AddElement(new DevUIKeyValue("KeyValue", "0"));
-
-                logging.Info("Something is good", "org.tt");
-
-            },Priorities.PRIORITY_VERY_EARLY); // Init Test-Data at an early stage
-            */
-
             rxStartup.Add(UtilsObservable.LoadScene(developmentSceneID),Priorities.PRIORITY_EARLY);
 
             //TODO: This is a workaround to close the dev console on start. Usually the loadDevelopmentConsole command published above should load the scene deactivated (makeActive set to false) which doesn't seem to work.
@@ -134,6 +114,21 @@ namespace Service.DevUIService {
 
             ,Priorities.PRIORITY_DEFAULT); // Default Priority
 
+            rxOnStartup.Add(() => {
+                var view = CreateView("DataBrowser");
+
+                var dbTopLevels = GetDataBrowserTopLevelElements();
+                foreach (var topLevel in dbTopLevels) {
+                    view.AddElement(new DevUIButton(topLevel.topLevelName, () => {
+                        // trigger event to output the building def list
+                        _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
+                            objectList = topLevel.objectList,
+                            tableTitle = topLevel.topLevelName
+                        });
+                    }));
+
+                }
+            },Priorities.PRIORITY_VERY_LATE);
 
 
             // on shutdown persist the current views
@@ -459,6 +454,17 @@ namespace Service.DevUIService {
             }
 
             return resultView;
+        }
+
+        public override void CreateDataBrowserTopLevelElement(string name, IList objectList) {
+            dataBrowserTopLevelElements.Add(new DataBrowserTopLevel() {
+                topLevelName = name,
+                objectList = objectList
+            });
+        }
+
+        public override List<DataBrowserTopLevel> GetDataBrowserTopLevelElements() {
+            return dataBrowserTopLevelElements;
         }
 
     }

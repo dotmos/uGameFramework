@@ -333,20 +333,25 @@ namespace UserInterface {
         }
 
         protected override void OnTopDataIndexChanged(int newIndex) {
-            base.OnTopDataIndexChanged(newIndex);
+            try {
+                base.OnTopDataIndexChanged(newIndex);
 
-            for (int i = 0; i < rowCount; ++i) {
-                if (topDataIndex + i < dataCount) {
-                    for (int k = 0; k < data[topDataIndex + i].Count; ++k) {
-                        GameDataCell dataCell = dataRows[i][k];
-                        dataCell.Initialize(data[topDataIndex + i][k]);
-                        if (!dataCell.gameObject.activeSelf) dataCell.gameObject.SetActive(true);
-                    }
-                } else {
-                    foreach (GameObject dataCell in rowObjects[i]) {
-                        dataCell.SetActive(false);
+                for (int i = 0; i < rowCount; ++i) {
+                    if (topDataIndex + i < dataCount) {
+                        for (int k = 0; k < data[topDataIndex + i].Count; ++k) {
+                            GameDataCell dataCell = dataRows[i][k];
+                            dataCell.Initialize(data[topDataIndex + i][k]);
+                            if (!dataCell.gameObject.activeSelf) dataCell.gameObject.SetActive(true);
+                        }
+                    } else {
+                        foreach (GameObject dataCell in rowObjects[i]) {
+                            dataCell.SetActive(false);
+                        }
                     }
                 }
+            }
+            catch (Exception e) {
+                Debug.LogException(e);
             }
         }
     }

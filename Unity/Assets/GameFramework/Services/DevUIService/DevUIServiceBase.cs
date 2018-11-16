@@ -146,6 +146,10 @@ namespace Service.DevUIService
         
         public abstract DevUIView CreateViewFromPOCO(object entity,string name);
         
+        public abstract void CreateDataBrowserTopLevelElement(string name,System.Collections.IList objectList);
+        
+        public abstract List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////
