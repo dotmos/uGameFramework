@@ -233,54 +233,6 @@ namespace UserInterface {
                 SetupData(dataTable);
             }).AddTo(this);
 
-            //var dataTable = new DataTable();
-
-            ////Demo Data
-            //dataTable.columnDef = new List<float>() { 200, 200, 300 };
-            
-
-            //for (int i = 0; i < 25; ++i) {
-            //    List<DataCellObject> rowData = new List<DataCellObject>();
-
-            //    for (int k = 0; k < dataTable.columnDef.Count; ++k) {
-            //        DataCellObject dataCellObject = new DataCellObject();
-            //        if (k == 0) {
-            //            dataCellObject.cellType = DataCellObject.CellType.Output;
-            //            dataCellObject.value = "Row " + i;
-            //            dataCellObject.callback = () => Debug.Log("Clicked column 0 in row " + i.ToString());
-            //        }
-
-            //        if (k == 1) {
-            //            dataCellObject.cellType = DataCellObject.CellType.EditableOutput;
-            //            dataCellObject.value = "Cell " + k;
-            //            dataCellObject.callback = () => Debug.Log("Edited column 1 in row " + i.ToString());
-            //        }
-
-            //        if (k == 2) {
-            //            dataCellObject.cellType = DataCellObject.CellType.Dropdown;
-            //            dataCellObject.value = new List<string>() { DataCellObject.CellType.Dropdown.ToString(), DataCellObject.CellType.EditableOutput.ToString(), DataCellObject.CellType.Output.ToString() };
-            //            dataCellObject.callback = () => Debug.Log("Changed dropdown value of column 2 in row " + i.ToString());
-            //        }
-
-            //        if (k == 3) {
-            //            dataCellObject.cellType = DataCellObject.CellType.Output;
-            //            dataCellObject.value = "Row " + i;
-            //            dataCellObject.callback = () => Debug.Log("Clicked column 0 in row " + i.ToString());
-            //        }
-
-            //        if (k == 4) {
-            //            dataCellObject.cellType = DataCellObject.CellType.Output;
-            //            dataCellObject.value = "Row " + i;
-            //            dataCellObject.callback = () => Debug.Log("Clicked column 0 in row " + i.ToString());
-            //        }
-
-            //        rowData.Add(dataCellObject);
-            //    }
-
-            //    dataTable.rows.Add(rowData);
-            //}
-
-      //      SetupData(dataTable);
         }
 
         protected override void OnEnable() {

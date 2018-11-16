@@ -25,8 +25,9 @@ namespace Service.MemoryBrowserService {
         public class UIDBInclude : Attribute {
             public enum Type {
                 readAndWrite,
-                onlyread
-                //,inline // this obj/list should be visualize along with the root. 
+                onlyread,
+                isHeader,
+                subdata // this obj/list should be visualize along with the root. 
             }
 
             public string visualName = null;

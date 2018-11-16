@@ -36,7 +36,9 @@ namespace UserInterface {
             if (dataCellObject.callback == null) {
                 return;
             }
-            dataCellObject.callback(dataCellObject.dropdownValues[index]);
+            var val = dataCellObject.dropdownValues[index];
+            dataCellObject.callback(val);
+            dataCellObject.value = val;
         }
 
         void OnClick() {
@@ -51,6 +53,7 @@ namespace UserInterface {
                 return;
             }
             dataCellObject.callback(newValue);
+            dataCellObject.value = newValue;
         }
 
         public void SetOutput(string str, bool editable = false) {
