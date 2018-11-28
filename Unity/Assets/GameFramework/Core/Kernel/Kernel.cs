@@ -59,6 +59,10 @@ public partial class Kernel : SceneContext {
         Container.Inject(injectable);
     }
 
+    public T Resolve<T>() {
+        return Container.Resolve<T>();
+    }
+
     new protected virtual void Awake(){
         Instance = this;
  
