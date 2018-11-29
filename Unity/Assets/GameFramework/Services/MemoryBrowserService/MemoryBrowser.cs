@@ -109,7 +109,7 @@ namespace Service.MemoryBrowserService {
                 }
             }
             // process properties
-            foreach (var prop in obj.GetType().GetProperties()) {
+        /*    foreach (var prop in obj.GetType().GetProperties()) {
                 var val = prop.GetValue(obj);
                 var elemType = MemoryBrowser.GetElementType(obj);
                 if (!isManaged) {
@@ -121,7 +121,7 @@ namespace Service.MemoryBrowserService {
                         callback(prop.Name, val, elemType, attrib);
                     }
                 }
-            }
+            }*/
         }
                         
     }

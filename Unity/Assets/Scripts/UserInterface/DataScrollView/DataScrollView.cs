@@ -77,7 +77,7 @@ namespace UserInterface {
         protected virtual void InitializeTable() {
             if (isUpdating) StopCoroutine("UpdateRows");
 
-            if (!isReady || !gameObject.activeSelf) return;
+            if (!isReady || !gameObject.activeInHierarchy) return;
 
             GetViewportSize();
 
