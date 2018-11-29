@@ -155,7 +155,7 @@ namespace UserInterface {
                                 } else if (varObj.GetType() == typeof(bool)) {
                                     rowElem.cellType = DataCellObject.CellType.Dropdown;
                                     rowElem.dropdownValues = new List<string> { "false", "true" };
-                                    rowElem.value = ((bool)varObj) ? 0 : 1;
+                                    rowElem.value = ((bool)varObj) ? 1 : 0;
                                 } else {
                                     rowElem.cellType = DataCellObject.CellType.EditableOutput;
                                 }
