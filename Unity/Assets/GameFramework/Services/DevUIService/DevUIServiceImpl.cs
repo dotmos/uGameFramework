@@ -93,7 +93,7 @@ namespace Service.DevUIService {
                     // save to default-location but force a new name
                     SaveViewToPath(evt.view,false,true);
                 }
-            });
+            }).AddTo(disposables);
 
 
             // on startup create some sample data

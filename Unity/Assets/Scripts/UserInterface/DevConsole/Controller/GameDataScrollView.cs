@@ -6,6 +6,7 @@ using UniRx;
 using Service.MemoryBrowserService;
 using System.Linq;
 using Service.DevUIService;
+using System.Text;
 
 namespace UserInterface {
     public class GameDataScrollView : DataScrollView {
@@ -21,7 +22,7 @@ namespace UserInterface {
             public List<string> dropdownValues;
             public Action<string> callback;
 
-            public enum CellType { Output, EditableOutput, Dropdown, Button, Header, Subdata };
+            public enum CellType { Output, EditableOutput, Dropdown, Button, Header, Subdata,Empty };
         }
 
         [Serializable]
@@ -43,6 +44,17 @@ namespace UserInterface {
             data = dataTable.rows;
             Setup(dataTable.columnDef, dataTable.rows.Count);
             InitializeTable();
+        }
+
+        private string outputListAsStrings(IList theList) {
+            StringBuilder stb = new StringBuilder();
+            for (int i = 0; i < theList.Count; i++) {
+                if (i > 0) {
+                    stb.Append(",");
+                }
+                stb.Append(theList[i].ToString());
+            }
+            return stb.ToString();
         }
 
         /// <summary>
@@ -70,120 +82,166 @@ namespace UserInterface {
             List<DataCellObject> header = new List<DataCellObject>();
             dataTable.rows.Add(header);
             for (int rowNr=0; rowNr < list.Count; rowNr++) {
-                var rowObj = list[rowNr];
+                var rowObject = list[rowNr];
 
-                List<DataCellObject> rowData = new List<DataCellObject>();
+                List<DataCellObject> rowDataList = new List<DataCellObject>();
 
-                DataBrowser.Traverse(rowObj, (varName, varObj, type, meta) => {
-                    if (rowNr == 0) {
-                        // define the columns in the first row
-                        var headerElement = new ColumnDefinition() {
-                            width = meta == null ? 100.0f : meta.width,
-                            colName = (meta == null || meta.visualName == null) ? varName : meta.visualName
-                        };
-
-                        dataTable.columnDef.Add(headerElement);
-
-                        // --------fake headers------------
-                        header.Add(new DataCellObject() {
-                            value = headerElement.colName,
-                            cellType = DataCellObject.CellType.Header,
-                            callback = (st) => { Debug.Log("Pressed the header:" + headerElement.colName); }
-                        });
-                        // --------------------------------
-                    }
-
-                    if ( varObj==null || MemoryBrowser.IsSimple(varObj.GetType())||varObj is Vector2||varObj is Vector3) {
-                        // SIMPLE TYPE-HANDLING (int,string,enums,bool,...)
-                        var rowElem = new DataCellObject() {
-                            value = varObj,
-                            callback = (newVal) => {
-                                if (newVal == null) {
-                                    // selection of readonly-cell
-                                    return;
-                                }
-                                // try to set the value of this field/property
-                                bool successful = DataBrowser.SetValue(rowObj, varName, newVal);
-                                Debug.Log("Setting var " + varName + " to new Value:" + newVal + " [" + (successful ? "success" : "fail") + "]");
-                            }
-
-                        };
-
-                        var onlyread = varObj==null || (meta != null && meta.type == DataBrowser.UIDBInclude.Type.onlyread);
-
-                        if (onlyread) {
-                            rowElem.cellType = DataCellObject.CellType.Output;
-                        } else {
-                            if (varObj is Enum) {
-                                rowElem.cellType = DataCellObject.CellType.Dropdown;
-                                rowElem.dropdownValues = new List<string>(Enum.GetNames(varObj.GetType()));
-                                rowElem.value = (int)varObj;
-                            } else if (varObj.GetType() == typeof(bool)) {
-                                rowElem.cellType = DataCellObject.CellType.Dropdown;
-                                rowElem.dropdownValues = new List<string> { "false", "true" };
-                                rowElem.value = ((bool)varObj) ? 0 : 1;
-                            } else {
-                                rowElem.cellType = DataCellObject.CellType.EditableOutput;
-                            }
-                        }
-                        rowData.Add(rowElem);
-                    } else {
-                        // NOT SIMPLE TYPES ( Object-Instances, List, Dict...)
-                        if (type == MemoryBrowser.ElementType.objectType) {
-
-                            // REFERENCE - LINK : OBJECT
-
-                            var rowElem = new DataCellObject() {
-                                value = "LINK",
-                                callback = (newVal) => {
-                                    Debug.Log("Go to REF:"+varObj.ToString());
-                                    history.Add(new HistoryElement() { historyTitle = title, objectList = list });
-                                    _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
-                                        // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
-                                        objectList = new ArrayList() { varObj },
-                                        history = history,
-                                        tableTitle = varName+":"+varObj.GetType().Name
-                                    });
-                                    return;
-                                },
-                                cellType = DataCellObject.CellType.Button
+                Action<object, List<DataCellObject>> traverseObj = null;
+                traverseObj = (rowObj,rowData) => {
+                    DataBrowser.Traverse(rowObj, (varName, varObj, type, meta) => {
+                        Debug.Log(varName + " : " + varObj);
+                        if (rowNr == 0) {
+                            // define the columns in the first row
+                            var headerElement = new ColumnDefinition() {
+                                width = meta == null ? 100.0f : meta.width,
+                                colName = (meta == null || meta.visualName == null) ? varName : meta.visualName
                             };
-                            rowData.Add(rowElem);
+
+                            dataTable.columnDef.Add(headerElement);
+
+                            // --------fake headers------------
+                            header.Add(new DataCellObject() {
+                                value = headerElement.colName,
+                                cellType = DataCellObject.CellType.Header,
+                                callback = (st) => { Debug.Log("Pressed the header:" + headerElement.colName); }
+                            });
+                            // --------------------------------
                         }
-                        else if (type == MemoryBrowser.ElementType.listType) {
 
-                            // REFERENCE-LINK: LIST
-
-                            var theList = (IList)varObj;
+                        // traverse another list and add the whole data in one DataCellObject
+                        /*if (meta!=null && meta.type == DataBrowser.UIDBInclude.Type.subdata) {
+                            if (type == MemoryBrowser.ElementType.listType) {
+                                var subList = (IList)varObj;
+                                List<List<DataCellObject>> subdata = new List<List<DataCellObject>>();
+                                for (int i = 0; i < subList.Count; i++) {
+                                    var subListElem = subList[i];
+                                    List<DataCellObject> subRowData = new List<DataCellObject>();
+                                    traverseObj(subListElem, subRowData);
+                                    subdata.Add(subRowData);
+                                }
+                                var rowElem = new DataCellObject() {
+                                    cellType = DataCellObject.CellType.Subdata,
+                                    value = subdata
+                                };
+                                rowData.Add(rowElem);
+                            }
+                        }
+                        else */
+                        if (varObj == null || MemoryBrowser.IsSimple(varObj.GetType()) || varObj is Vector2 || varObj is Vector3) {
+                            // SIMPLE TYPE-HANDLING (int,string,enums,bool,...)
                             var rowElem = new DataCellObject() {
-                                value = "List[" + theList.Count + "]",
+                                value = varObj,
                                 callback = (newVal) => {
-                                    Debug.Log("Cannot go into empty lists");
-
-                                    if (theList.Count == 0) {
-                                        //
+                                    if (newVal == null) {
+                                        // selection of readonly-cell
                                         return;
                                     }
-                                    history.Add(new HistoryElement() { historyTitle = title, objectList = list });
-                                    _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
-                                        // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
-                                        objectList =  (IList)varObj,
-                                        history = history,
-                                        tableTitle = varName + ":" + varObj.GetType().Name
-                                    });
-                                    return;
-                                },
-                                cellType = DataCellObject.CellType.Button
-                            };
-                            rowData.Add(rowElem);
-                        }
-                    }
+                                    // try to set the value of this field/property
+                                    bool successful = DataBrowser.SetValue(rowObj, varName, newVal);
+                                    Debug.Log("Setting var " + varName + " to new Value:" + newVal + " [" + (successful ? "success" : "fail") + "]");
+                                }
 
-                });
-                dataTable.rows.Add(rowData);
+                            };
+
+                            var onlyread = varObj == null || (meta != null && meta.type == DataBrowser.UIDBInclude.Type.onlyread);
+
+                            if (onlyread) {
+                                rowElem.cellType = DataCellObject.CellType.Output;
+                            } else {
+                                if (varObj is Enum) {
+                                    rowElem.cellType = DataCellObject.CellType.Dropdown;
+                                    rowElem.dropdownValues = new List<string>(Enum.GetNames(varObj.GetType()));
+                                    rowElem.value = (int)varObj;
+                                } else if (varObj.GetType() == typeof(bool)) {
+                                    rowElem.cellType = DataCellObject.CellType.Dropdown;
+                                    rowElem.dropdownValues = new List<string> { "false", "true" };
+                                    rowElem.value = ((bool)varObj) ? 0 : 1;
+                                } else {
+                                    rowElem.cellType = DataCellObject.CellType.EditableOutput;
+                                }
+                            }
+                            rowData.Add(rowElem);
+                        } else {
+                            // NOT SIMPLE TYPES ( Object-Instances, List, Dict...)
+                            if (type == MemoryBrowser.ElementType.objectType) {
+
+                                // REFERENCE - LINK : OBJECT
+                                string cellTitle = (meta != null && meta.type == DataBrowser.UIDBInclude.Type.subdata)
+                                                ? "( "+(varObj.ToString() )+" )"
+                                                : "LINK";
+                                var rowElem = new DataCellObject() {
+                                    value = cellTitle,
+                                    callback = (newVal) => {
+                                        Debug.Log("Go to REF:" + varObj.ToString());
+                                        history.Add(new HistoryElement() { historyTitle = title, objectList = list });
+                                        _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
+                                            // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
+                                            objectList = new ArrayList() { varObj },
+                                            history = history,
+                                            tableTitle = varName + ":" + varObj.GetType().Name
+                                        });
+                                        return;
+                                    },
+                                    cellType = DataCellObject.CellType.Button
+                                };
+                                rowData.Add(rowElem);
+                            } else if (type == MemoryBrowser.ElementType.listType) {
+
+                                // REFERENCE-LINK: LIST
+                                var theList = (IList)varObj;
+
+
+
+                                string cellTitle = (meta != null && meta.type == DataBrowser.UIDBInclude.Type.subdata)
+                                                ? "( "+( outputListAsStrings(theList) )+" )"
+                                                : "List[" + theList.Count + "]";
+
+                                
+                                var rowElem = new DataCellObject() {
+                                    value = cellTitle,
+                                    callback = (newVal) => {
+                                        Debug.Log("Cannot go into empty lists");
+
+                                        if (theList.Count == 0) {
+                                            //
+                                            return;
+                                        }
+                                        history.Add(new HistoryElement() { historyTitle = title, objectList = list });
+                                        _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
+                                            // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
+                                            objectList = (IList)varObj,
+                                            history = history,
+                                            tableTitle = varName + ":" + varObj.GetType().Name
+                                        });
+                                        return;
+                                    },
+                                    cellType = DataCellObject.CellType.Button
+                                };
+                                rowData.Add(rowElem);
+                            }
+                        }
+                    });
+
+                };
+                traverseObj(rowObject,rowDataList);
+
+                Func<int,List<DataCellObject>> CreateEmptyLine = (amount)=>{
+                    var result = new List<DataCellObject>(amount);
+                    for (int i = 0; i < amount; i++) {
+                        result.Add(new DataCellObject() {
+                            cellType = DataCellObject.CellType.Empty
+                        });
+                    }
+                    return result;
+                };
+
+
+                dataTable.rows.Add(rowDataList);
             }
             return dataTable;
         }
+
+        
 
         protected override void AfterBind() {
             base.AfterBind();
