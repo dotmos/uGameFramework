@@ -17,10 +17,11 @@
  * Be sure to place in an Editor folder inside Assets.
  */
 
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
 using System;
-using System.Collections;
 using System.Reflection;
 
 /**
@@ -81,7 +82,7 @@ public class GradientHDREditorDrawer : PropertyDrawer {
         }
     }
 }
-
+#endif
 /**
  * Use this [GradientHDRAttribute] Attribute on Gradient fields to enable HDR Gradient UI.
  */
