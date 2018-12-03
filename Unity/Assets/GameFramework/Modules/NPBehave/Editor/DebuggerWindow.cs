@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace NPBehave
 {
+#if UNITY_EDITOR
     public class DebuggerWindow : EditorWindow
     {
         private const int nestedPadding = 10;
@@ -381,4 +382,5 @@ namespace NPBehave
             }
         }
     }
+#endif
 }

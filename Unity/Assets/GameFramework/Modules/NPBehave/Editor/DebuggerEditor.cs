@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace NPBehave
 {
+#if UNITY_EDITOR
     [CustomEditor(typeof(Debugger))]
     public class DebuggerEditor : Editor
     {
@@ -20,4 +21,5 @@ namespace NPBehave
             }
         }
     }
+#endif
 }
