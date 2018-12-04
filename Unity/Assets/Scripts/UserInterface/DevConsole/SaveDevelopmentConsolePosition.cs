@@ -11,7 +11,7 @@ namespace UserInterface {
         protected override void AfterBind() {
             base.AfterBind();
 
-            this.OnEvent<Service.DevUIService.Events.ScriptingConsoleOpened>().Subscribe(e => RestorePosition()).AddTo(this);
+            this.OnEvent<Service.DevUIService.Events.ScriptingConsoleOpened>().DelayFrame(1).Subscribe(e => RestorePosition()).AddTo(this);
             this.OnEvent<Service.DevUIService.Events.ScriptingConsoleClosed>().Subscribe(e => SavePosition()).AddTo(this);
         }
 
@@ -20,7 +20,7 @@ namespace UserInterface {
 
             if (dragHandler != null) {
                 Vector2 restoredPosition = new Vector2(PlayerPrefs.GetFloat("DevelopmentConsole_PositionX"), PlayerPrefs.GetFloat("DevelopmentConsole_PositionY"));
-                dragHandler.target.anchoredPosition = restoredPosition;
+                dragHandler.SetTargetPosition(restoredPosition);
             }
         }
 

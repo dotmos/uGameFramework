@@ -41,6 +41,9 @@ namespace UserInterface {
 
         private void SetupData(DataTable dataTable) {
             ClearTable();
+            if (dataTable == null) {
+                return;
+            }
             data = dataTable.rows;
             Setup(dataTable.columnDef, dataTable.rows.Count);
             InitializeTable();

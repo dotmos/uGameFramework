@@ -23,6 +23,8 @@ namespace UserInterface {
         }
 
         void Start() {
+            Debug.Log(GetDevConsoleSize());
+
             target.pivot = new Vector2(0, 1);
 
             eventTrigger = GetComponent<EventTrigger>();
@@ -58,9 +60,16 @@ namespace UserInterface {
         }
 
         void RestrictToScreen() {
-            float minY = -Screen.height / Canvas.scaleFactor + target.sizeDelta.y;
-            float maxX = Screen.width / Canvas.scaleFactor - target.sizeDelta.x;
+            if (!target.gameObject.activeInHierarchy) return;
 
+            Vector2 devConsoleSize = GetDevConsoleSize();
+
+            if (devConsoleSize == Vector2.zero) {
+                devConsoleSize = new Vector2(target.sizeDelta.x, target.sizeDelta.y);
+            }
+
+            float minY = -Screen.height + devConsoleSize.y;
+            float maxX = Screen.width - devConsoleSize.x;
 
             float clampedX = Mathf.Clamp(target.anchoredPosition.x, 0f, maxX);
             float clampedY = Mathf.Clamp(target.anchoredPosition.y, minY, 0f);
@@ -79,6 +88,17 @@ namespace UserInterface {
 
         public void SetTargetPosition(Vector2 position) {
             target.anchoredPosition = position;
+            RestrictToScreen();
+        }
+
+        Vector2 GetDevConsoleSize() {
+            Vector3[] v = new Vector3[4];
+            target.GetWorldCorners(v);
+
+            float height = Mathf.Abs(v[0].y - v[1].y);
+            float width = v[2].x - v[1].x;
+
+            return new Vector2(width, height);
         }
     }
 }
