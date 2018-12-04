@@ -64,9 +64,12 @@ namespace UserInterface {
 
             Vector2 devConsoleSize = GetDevConsoleSize();
 
-            float minY = -Screen.height / Canvas.scaleFactor + devConsoleSize.y;
-            float maxX = Screen.width / Canvas.scaleFactor - devConsoleSize.x;
+            if (devConsoleSize == Vector2.zero) {
+                devConsoleSize = new Vector2(target.sizeDelta.x, target.sizeDelta.y);
+            }
 
+            float minY = -Screen.height + devConsoleSize.y;
+            float maxX = Screen.width - devConsoleSize.x;
 
             float clampedX = Mathf.Clamp(target.anchoredPosition.x, 0f, maxX);
             float clampedY = Mathf.Clamp(target.anchoredPosition.y, minY, 0f);
