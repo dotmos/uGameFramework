@@ -12,9 +12,7 @@ namespace UnityEngine {
         /// <param name="eulerAngles"></param>
         /// <returns></returns>
         public static Vector3 RotateAroundPivot(this Vector3 point, Vector3 pivot, Vector3 eulerAngles) {
-            Vector3 dir = point - pivot;
-            dir = Quaternion.Euler(eulerAngles) * dir;
-            return dir + pivot;
+            return RotatePointAroundPivot(point, pivot, eulerAngles);
         }
 
         /// <summary>
@@ -27,6 +25,30 @@ namespace UnityEngine {
         public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 eulerAngles) {
             Vector3 dir = point - pivot;
             dir = Quaternion.Euler(eulerAngles) * dir;
+            return dir + pivot;
+        }
+
+        /// <summary>
+        /// Rotate the point around a pivot and return the result
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="pivot"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public static Vector3 RotateAroundPivot(this Vector3 point, Vector3 pivot, Quaternion rotation) {
+            return RotatePointAroundPivot(point, pivot, rotation);
+        }
+
+        /// <summary>
+        /// Rotate the point around a pivot and return the result
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="pivot"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion rotation) {
+            Vector3 dir = point - pivot;
+            dir = rotation * dir;
             return dir + pivot;
         }
     }
