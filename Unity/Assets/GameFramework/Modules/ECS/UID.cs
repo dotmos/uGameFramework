@@ -29,7 +29,7 @@ namespace ECS {
             }
         }
 
-        public static readonly UID UIDNULL = new UID() { ID = -1 };
+        public static readonly UID NULL = new UID() { ID = -1 };
     }
 
 }
