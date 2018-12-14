@@ -29,6 +29,14 @@ namespace ECS {
             }
         }
 
+        public static bool operator ==(UID c1, UID c2) {
+            return c1.ID == c2.ID;
+        }
+
+        public static bool operator !=(UID c1, UID c2) {
+            return c1.ID != c2.ID;
+        }
+
         public static readonly UID NULL = new UID() { ID = -1 };
     }
 
