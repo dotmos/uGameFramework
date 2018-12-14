@@ -111,7 +111,13 @@ namespace ECS {
             */
 
             foreach(TComponents c in componentsToProcess) {
-                Process(c);
+                try {
+                    Process(c);
+                }
+                catch (Exception e){
+                    UnityEngine.Debug.Log("There was a problem in process all in system:"+GetType());
+                    UnityEngine.Debug.LogException(e);
+                }
             }
         }
 
@@ -120,11 +126,20 @@ namespace ECS {
                 OnRegistered(newComponents);
                 newComponents.Clear();
             }
-            if (removedEntities.Count > 0) {
+            if (removedEntities.Count > 0)
+            {
                 OnUnregistered(removedEntities);
                 removedEntities.Clear();
             }
-            ProcessAll(deltaTime);
+            try
+            {
+                ProcessAll(deltaTime);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.Log("There was a problem in process-all in system:" + GetType());
+                UnityEngine.Debug.LogException(e);
+            }
         }
 
 
