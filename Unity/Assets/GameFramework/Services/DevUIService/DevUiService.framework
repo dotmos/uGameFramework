@@ -42,6 +42,10 @@ namespace Service.DevUIService {
 		
 		void CreateDataBrowserTopLevelElement(string name,("System.Collections.IList") objectList);
 		List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
+		## "map one object type to another"
+		void AddDataBrowserObjectConverter(("Type") objType, ("Func<object,object>") converter);
+		## "try to convert the inObject, if no conversion is possible return the inObject"
+		object DataBrowserConvertObject(object inObject);
     }   
 }      
 ## model

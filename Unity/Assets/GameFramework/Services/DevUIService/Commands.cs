@@ -59,6 +59,10 @@ namespace Service.DevUIService{
 
             this.OnEvent<GetDataBrowserTopLevelElementsCommand>().Subscribe(e => GetDataBrowserTopLevelElementsCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<AddDataBrowserObjectConverterCommand>().Subscribe(e => AddDataBrowserObjectConverterCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<DataBrowserConvertObjectCommand>().Subscribe(e => DataBrowserConvertObjectCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -504,6 +508,57 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetDataBrowserTopLevelElementsCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// map one object type to another
+        /// </summary>
+        
+        public class AddDataBrowserObjectConverterCommand  {
+            public Type objType;
+                        public Func<object,object> converter;
+            
+            
+        }
+
+		protected void AddDataBrowserObjectConverterCommandHandler  (AddDataBrowserObjectConverterCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("AddDataBrowserObjectConverterCommand");
+#endif
+        _service.AddDataBrowserObjectConverter(cmd.objType,cmd.converter);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("AddDataBrowserObjectConverterCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// try to convert the inObject, if no conversion is possible return the inObject
+        /// </summary>
+        
+        public class DataBrowserConvertObjectCommand  {
+            public object result;
+                        public object inObject;
+            
+            
+        }
+
+		protected void DataBrowserConvertObjectCommandHandler  (DataBrowserConvertObjectCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("DataBrowserConvertObjectCommand");
+#endif
+        
+            cmd.result = _service.DataBrowserConvertObject(cmd.inObject);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("DataBrowserConvertObjectCommand");
 #endif
         }
         

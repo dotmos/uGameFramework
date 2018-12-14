@@ -7,6 +7,7 @@ using Service.MemoryBrowserService;
 using System.Linq;
 using Service.DevUIService;
 using System.Text;
+using Zenject;
 
 namespace UserInterface {
     public class GameDataScrollView : DataScrollView {
@@ -14,6 +15,9 @@ namespace UserInterface {
         private List<List<GameDataCell>> dataRows = new List<List<GameDataCell>>();
         //The virtual rows that we put into the spawned cells on scrolling
         private List<List<DataCellObject>> data = new List<List<DataCellObject>>();
+
+        [Inject]
+        private Service.DevUIService.IDevUIService devui;
 
         [System.Serializable]
         public class DataCellObject {
@@ -49,7 +53,7 @@ namespace UserInterface {
             InitializeTable();
         }
 
-        private string outputListAsStrings(IList theList) {
+        public static string OutputListAsStrings(IList theList) {
             StringBuilder stb = new StringBuilder();
             for (int i = 0; i < theList.Count; i++) {
                 if (i > 0) {
@@ -86,6 +90,8 @@ namespace UserInterface {
             dataTable.rows.Add(header);
             for (int rowNr=0; rowNr < list.Count; rowNr++) {
                 var rowObject = list[rowNr];
+                // try to convert this object if there is an converter registered(e.g. UID)
+                rowObject = devui.DataBrowserConvertObject(rowObject);
 
                 List<DataCellObject> rowDataList = new List<DataCellObject>();
 
@@ -196,7 +202,7 @@ namespace UserInterface {
 
 
                                 string cellTitle = (meta != null && meta.type == DataBrowser.UIDBInclude.Type.subdata)
-                                                ? "( "+( outputListAsStrings(theList) )+" )"
+                                                ? "( "+( OutputListAsStrings(theList) )+" )"
                                                 : "List[" + theList.Count + "]";
 
                                 

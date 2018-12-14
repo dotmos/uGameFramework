@@ -151,6 +151,25 @@ namespace Service.DevUIService {
 
 					List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
 
+
+		/// <summary>
+        /// map one object type to another 
+        /// <param name="objType"></param>
+        /// <param name="converter"></param>
+ /// </summary>
+        
+
+					void AddDataBrowserObjectConverter(Type objType,Func<object,object> converter);
+
+
+		/// <summary>
+        /// try to convert the inObject, if no conversion is possible return the inObject 
+        /// <param name="inObject"></param>
+ /// </summary>
+        
+
+					object DataBrowserConvertObject(object inObject);
+
 	}
 
 

@@ -45,7 +45,7 @@ namespace Service.DevUIService {
         /// </summary>
         private List<string> viewPathsLoaded = new List<string>();
 
-        private Dictionary<Type, Func<object, string>> typeConverter = new Dictionary<Type, Func<object, string>>();
+        private Dictionary<Type, Func<object, object>> typeConverter = new Dictionary<Type, Func<object, object>>();
 
         // Scene loading commands
         private const string developmentSceneID = "DevelopmentConsole";
@@ -445,6 +445,19 @@ namespace Service.DevUIService {
                 objectList = objectList
             });
         }
+
+        public override void AddDataBrowserObjectConverter(Type objType, Func<object, object> converter) {
+            typeConverter[objType] = converter;
+        }
+
+        public override object DataBrowserConvertObject(object inObject) {
+            var inType = inObject.GetType();
+            if (typeConverter.ContainsKey(inType)) {
+                return typeConverter[inType](inObject);
+            }
+            return inObject;
+        }
+
 
         public override List<DataBrowserTopLevel> GetDataBrowserTopLevelElements() {
             return dataBrowserTopLevelElements;

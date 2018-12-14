@@ -150,6 +150,10 @@ namespace Service.DevUIService
         
         public abstract List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
         
+        public abstract void AddDataBrowserObjectConverter(Type objType,Func<object,object> converter);
+        
+        public abstract object DataBrowserConvertObject(object inObject);
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////
