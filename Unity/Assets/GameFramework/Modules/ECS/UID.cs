@@ -18,7 +18,7 @@ namespace ECS {
         }
 
         public bool IsNull() {
-            return ID == -1;
+            return ID == 0;
         }
 
         public override bool Equals(object obj) {
@@ -36,8 +36,12 @@ namespace ECS {
         public static bool operator !=(UID c1, UID c2) {
             return c1.ID != c2.ID;
         }
+        /*
+        public override int GetHashCode() {
+            return ID;
+        }*/
 
-        public static readonly UID NULL = new UID() { ID = -1 };
+        public static readonly UID NULL = new UID() { ID = 0 };
     }
 
 }
