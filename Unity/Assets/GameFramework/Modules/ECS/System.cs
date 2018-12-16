@@ -174,14 +174,14 @@ namespace ECS {
             //UnityEngine.Debug.Log(entity.ID + "valid: "+valid);
 
             if(valid && wasValid) {
-                UnregisterEntity(entity);
+                UnregisterEntity(entity,false);
                 RegisterEntity(entity);
             }
             if (valid && !wasValid) {
                 RegisterEntity(entity);
             }
             if (!valid && wasValid) {
-                UnregisterEntity(entity);
+                UnregisterEntity(entity,true);
             }
         }
         
@@ -196,7 +196,12 @@ namespace ECS {
             newComponents.Add(components);
         }
 
-        void UnregisterEntity(UID entity) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="gotInvalid"></param>
+        void UnregisterEntity(UID entity, bool gotInvalid) {
             //UnityEngine.Debug.Log(entity.ID + " invalid! Removing from system!");
             //Remove components to process
             int _entityID = entity.ID;
@@ -209,7 +214,10 @@ namespace ECS {
             
             //componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
             validEntities.Remove(entity);
-            removedEntities.Add(entity);
+            if (gotInvalid) {
+                // only add entiy to removedEntities if it got invalid (and will be really removed from the valid entities and not readded immediately)
+                removedEntities.Add(entity);
+            }
         }
 
         /// <summary>
