@@ -38,6 +38,8 @@ namespace Service.GameStateService
             public Func<bool> func = null;
         }
 
+        protected ECS.IEntityManager entityManager;
+
         /// <summary>
         /// The gamestateDisposable that get emptied when
         /// </summary>
@@ -186,6 +188,10 @@ namespace Service.GameStateService
         /// </summary>
         /// <returns></returns>
         public IObservable<bool> DoOnEnter(GSContext ctx=null) {
+            if (entityManager == null) {
+                entityManager = Kernel.Instance.Container.Resolve<ECS.IEntityManager>();
+            }
+
             this.currentContext = ctx==null ? CreateDefaultContext() : ctx;
 
             CurrentState = GSStatus.starting;
