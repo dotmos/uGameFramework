@@ -81,6 +81,7 @@ public partial class Kernel : SceneContext {
             .RxExecute()
             .SelectMany(_ => {
                 var initialGameStateName = GetInitialGamestateName();
+                var initialGameStateCtx = GetInitialGamestateContext();
                 if (initialGameStateName == null) {
                     Debug.LogWarning("No inital gamestate specified!");
                     return Observable.Return(true);
@@ -91,7 +92,7 @@ public partial class Kernel : SceneContext {
                         Debug.LogWarning("Could not find initial gamestate with name:" + initialGameStateName);
                         return Observable.Return(true);
                     }
-                    return gameStateService.StartGameState(initialGameState).Do(__ => { Debug.Log("Started initial gamestate:" + initialGameStateName); });
+                    return gameStateService.StartGameState(initialGameState, initialGameStateCtx).Do(__ => { Debug.Log("Started initial gamestate:" + initialGameStateName); });
                 }
             })
             .Last()
@@ -103,6 +104,10 @@ public partial class Kernel : SceneContext {
     }
 
     public virtual String GetInitialGamestateName() {
+        return null;
+    }
+
+    public virtual Service.GameStateService.GSContext GetInitialGamestateContext() {
         return null;
     }
 

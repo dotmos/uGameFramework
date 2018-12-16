@@ -138,7 +138,7 @@ namespace Service.GameStateService {
                 // make sure the new gamestate is set before OnEnter-calls are executed
                 CurrentGameState = gamestate;
             }));
-            startupSequence.Add(gamestate.DoOnEnter());
+            startupSequence.Add(gamestate.DoOnEnter(ctx));
 
             return Observable.Concat(startupSequence).Last();
         }
