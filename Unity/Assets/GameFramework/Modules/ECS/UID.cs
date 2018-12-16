@@ -36,10 +36,10 @@ namespace ECS {
         public static bool operator !=(UID c1, UID c2) {
             return c1.ID != c2.ID;
         }
-        /*
+
         public override int GetHashCode() {
             return ID;
-        }*/
+        }
 
         public static readonly UID NULL = new UID() { ID = 0 };
     }
