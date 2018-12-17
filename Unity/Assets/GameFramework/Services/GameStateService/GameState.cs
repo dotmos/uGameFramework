@@ -176,6 +176,13 @@ namespace Service.GameStateService
         public GameState(string name) {
             Kernel.Instance.Inject(this);
             this.GamestateName = name;
+            // set the gamestate for the corresponding events
+            this.evtAfterEnter.gameState = this;
+            this.evtAfterExit.gameState = this;
+            this.evtAfterTick.gameState = this;
+            this.evtBeforeEnter.gameState = this;
+            this.evtBeforeExit.gameState = this;
+            this.evtBeforeTick.gameState = this;
         }
 
         protected GSContext CreateDefaultContext() {
