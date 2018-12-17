@@ -23,6 +23,7 @@ namespace ECS {
         void RemoveComponent(UID entity, IComponent component);
 
         T GetComponent<T>(UID entity) where T : IComponent;
+        T GetComponentFromPrefab<T>(UnityEngine.GameObject prefab);
 
         List<IComponent> GetAllComponents(UID entity);
 

@@ -132,8 +132,23 @@ namespace ECS {
                 _entities[entity] = null;
                 _entities.Remove(entity);
                 _recycledEntityIds.Enqueue(entity.ID);
-                entity.ID = -1;
+                entity.ID = 0; // make it NULL
             }
+        }
+
+        /// <summary>
+        /// Get a component from the prefab. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="prefab"></param>
+        /// <returns></returns>
+        public T GetComponentFromPrefab<T>(UnityEngine.GameObject prefab) {
+            foreach (ECS.IMonoComponent mc in prefab.GetComponents<ECS.IMonoComponent>()) {
+                if (mc.GetComponent().GetType() == typeof(T)) {
+                    return (T)mc.GetComponent();
+                }
+            }
+            return default(T);
         }
 
         /// <summary>
