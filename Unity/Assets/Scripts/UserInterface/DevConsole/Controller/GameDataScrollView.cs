@@ -42,7 +42,6 @@ namespace UserInterface {
             public List<List<DataCellObject>> rows = new List<List<DataCellObject>>();
         }
 
-
         private void SetupData(DataTable dataTable) {
             ClearTable();
             if (dataTable == null) {
@@ -92,7 +91,6 @@ namespace UserInterface {
                 var rowObject = list[rowNr];
                 // try to convert this object if there is an converter registered(e.g. UID)
                 rowObject = devui.DataBrowserConvertObject(rowObject);
-
                 List<DataCellObject> rowDataList = new List<DataCellObject>();
 
                 Action<object, List<DataCellObject>> traverseObj = null;
@@ -172,7 +170,7 @@ namespace UserInterface {
                             rowData.Add(rowElem);
                         } else {
                             // NOT SIMPLE TYPES ( Object-Instances, List, Dict...)
-                            if (type == MemoryBrowser.ElementType.objectType) {
+                            if (type == MemoryBrowser.ElementType.objectType || type == MemoryBrowser.ElementType.dictType) {
 
                                 // REFERENCE - LINK : OBJECT
                                 string cellTitle = (meta != null && meta.type == DataBrowser.UIDBInclude.Type.subdata)
@@ -181,11 +179,12 @@ namespace UserInterface {
                                 var rowElem = new DataCellObject() {
                                     value = cellTitle,
                                     callback = (newVal) => {
+                                        var objList = new ArrayList() { varObj };
                                         Debug.Log("Go to REF:" + varObj.ToString());
                                         history.Add(new HistoryElement() { historyTitle = title, objectList = list });
                                         _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
                                             // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
-                                            objectList = new ArrayList() { varObj },
+                                            objectList = objList,
                                             history = history,
                                             tableTitle = varName + ":" + varObj.GetType().Name
                                         });

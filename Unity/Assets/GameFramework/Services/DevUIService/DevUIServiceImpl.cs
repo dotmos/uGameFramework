@@ -452,8 +452,10 @@ namespace Service.DevUIService {
 
         public override object DataBrowserConvertObject(object inObject) {
             var inType = inObject.GetType();
-            if (typeConverter.ContainsKey(inType)) {
-                return typeConverter[inType](inObject);
+            foreach (var converterType in typeConverter.Keys) {
+                if (converterType.IsInstanceOfType(inObject)) {
+                    return typeConverter[converterType](inObject);
+                }
             }
             return inObject;
         }
