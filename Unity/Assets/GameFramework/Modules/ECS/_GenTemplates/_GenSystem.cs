@@ -58,15 +58,18 @@ namespace Systems {
     public partial class /*name:implName*/GenTemplateSystem/*endname*/ : /*name:baseName*/GenTemplateSystemBase/*endname*/
     {
 
-        protected override void AfterBind() {
-            base.AfterBind();
+        private void ProcessAtIndex(int index, float deltaTime) {
+            /*name:systemComponentsName*/ GenTemplateSystemComponents/*endname*/ components = componentsToProcess[index];
 
-            //Observable.EveryUpdate().Subscribe(e => ProcessAll()).AddTo(this);
+            // add the system-logic here
         }
 
-        protected override void Process(/*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/ components) {
-            base.Process(components);
-            // add the system-logic here
+        protected override void ProcessAll(float deltaTime) {
+            base.ProcessAll(deltaTime);
+
+            for(int i=0; i<componentsToProcess.Count; ++i) {
+                ProcessAtIndex(i, deltaTime);
+            }
         }
     }
 /*endblock:implPart*/
