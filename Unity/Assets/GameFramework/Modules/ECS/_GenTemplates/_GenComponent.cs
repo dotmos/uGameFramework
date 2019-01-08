@@ -37,7 +37,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public /*name:type*/State/*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
     /*endblock:field*/
 
-    public override void OnConstruct() {
+    protected override void OnConstruct() {
         base.OnConstruct();
 
 /*block:newInstance*/        this./*name:name*/state/*endname*/ = new /*name:type*/State()/*endname*/;
