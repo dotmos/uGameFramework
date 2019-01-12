@@ -1,0 +1,1 @@
+ /e/win/gentlymad/AfterTheEnd/UnityProject/AfterTheEnd/Assets/Modules/uGameFramework/Unity/Assets/GameFramework/Modules/flatbuffers/bin/flatc.exe --csharp --gen-compare --reflect-types --reflect-names interal.fbs 

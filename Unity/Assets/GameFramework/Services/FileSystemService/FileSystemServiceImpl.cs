@@ -27,10 +27,12 @@ namespace Service.FileSystem {
             string path = MISC_PATH;
             switch (domain) {
                 case FSDomain.ConfigFolder: path = persistentDataPath+"/config"; break;
+                case FSDomain.SaveGames: path = persistentDataPath + "/savegame"; break;
                 case FSDomain.ScriptingOutput: path = persistentDataPath + "/scripting"; break;
                 case FSDomain.DevUIViews: path = persistentDataPath + "/dev-ui/views"; break;
                 case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archives"; break;
                 case FSDomain.RuntimeAssets: path = streamingAssetsPath; break;
+
                 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
@@ -63,6 +65,24 @@ namespace Service.FileSystem {
             return WriteStringToFile(GetPath(domain) + "/" + relativePathToFile, data);
         }
 
+        public override bool WriteBytesToFile(string pathToFile, byte[] bytes) {
+            // TODO: Ensure Directory?
+            // TODO: Use the PC3-bulletproof writing version
+            try {
+                File.WriteAllBytes(pathToFile, bytes);
+                return true;
+            }
+            catch (Exception e) {
+                Debug.LogError("There was a problem using WriteBytesToFile with " + pathToFile + "=>DATA:\n" + bytes);
+                Debug.LogException(e);
+                return false;
+            }
+        }
+
+        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes) {
+            return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes);
+        }
+
         public override string LoadFileAsString(string pathToFile) {
             try {
                 var result = File.ReadAllText(pathToFile);
@@ -74,6 +94,22 @@ namespace Service.FileSystem {
                 return null;
             }
 
+        }
+
+        public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile) {
+            return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile);
+        }
+
+        public override byte[] LoadFileAsBytes(string pathToFile) {
+            try {
+                var result = File.ReadAllBytes(pathToFile);
+                return result;
+            }
+            catch (Exception e) {
+                Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
+                Debug.LogException(e);
+                return null;
+            }
         }
 
         public override string LoadFileAsStringAtDomain(FSDomain domain, string relativePathToFile) {

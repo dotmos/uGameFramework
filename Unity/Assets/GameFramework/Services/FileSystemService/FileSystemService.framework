@@ -6,6 +6,10 @@ namespace Service.FileSystem {
     public interface IFileSystemService {  	
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain,string realtivePart="");
+		## "Write bytes to file"
+		bool WriteBytesToFile(string pathToFile, ("byte[]") bytes);
+		## "Write bytes to file at domain"
+		bool WriteBytesToFileAtDomain(?FSDomain domain, string relativePathToFile, ("byte[]") bytes); 
 		## "Write string to file"
 		bool WriteStringToFile(string pathToFile, string thedata);
 		## "Write string to file at domain"
@@ -14,6 +18,10 @@ namespace Service.FileSystem {
 		string LoadFileAsString(string pathToFile);
 		## "Load file as string from domain"
 		string LoadFileAsStringAtDomain(?FSDomain domain, string relativePathToFile);
+		## "Load file as bytes"
+		("byte[]") LoadFileAsBytes(string pathToFile);
+		## "Load file as string from domain"
+		("byte[]") LoadFileAsBytesAtDomain(?FSDomain domain, string relativePathToFile);
 		## "Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
 		List<string> GetFilesInAbsFolder(string absPath, string pattern="*.*");
 		## "Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
@@ -35,7 +43,8 @@ public enum FSDomain {
 	RuntimeAssets,
 	DevUIViews,
 	DevUIViewsArchieve,
-	ConfigFolder
+	ConfigFolder,
+	SaveGames
 }  
 
 ## events 

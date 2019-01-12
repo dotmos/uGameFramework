@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using FlatBuffers;
+using Serial;
+
 
 namespace ECS {
     /// <summary>
     /// Unique ID
     /// </summary>
-    public struct UID {
+    public struct UID : IFBSerializable  {
 
         public int ID;
 
@@ -42,6 +45,25 @@ namespace ECS {
         }
 
         public static readonly UID NULL = new UID() { ID = 0 };
+
+
+
+        public Offset<Serial.FBUID> Serialize(FlatBufferBuilder builder) {
+            return Serial.FBUID.CreateFBUID(builder, ID);
+        }
+
+        public void Deserialize(object incoming) {
+            var data = (Serial.FBUID)incoming;
+            ID = data.Id;
+        }
+
+        int IFBSerializable.Serialize(FlatBufferBuilder builder) {
+            return Serial.FBUID.CreateFBUID(builder,ID).Value;
+        }
+
+        public void Deserialize(ByteBuffer buf) {
+            throw new System.NotImplementedException();
+        }
     }
 
 }

@@ -155,6 +155,19 @@ public class DefaultReactiveExecutionWrapper : IReactiveExecutionWrapper
 
 }
 
+public class DebugUtils {
+    /// <summary>
+    /// Call this method the debugger for some reason finds no breakpoint. you can use conditional
+    /// breakpoints for different values you give as paramter
+    /// </summary>
+    /// <param name="val"></param>
+    public static void DebugJump(string outputString, bool output = false) {
+        if (output) {
+            Debug.Log(outputString);
+        }
+    }
+}
+
 public static class UtilsExtensions
 {
     public static IObservable<bool> ToObservable(this Action act) {
@@ -227,6 +240,8 @@ public static class UtilsExtensions
 
         return result;
     }
+
+
 
 }
 

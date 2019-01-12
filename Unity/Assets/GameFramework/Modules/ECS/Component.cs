@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using FlatBuffers;
+using Service.Serializer;
 
 namespace ECS {
     // Attribute to the a supported component-field(list/dictionary) to get an new instance. e.g. a new List BUT with the same values. This is not a deep copy
@@ -50,6 +52,20 @@ namespace ECS {
         public abstract IComponent Clone();
 
         public virtual void Dispose() {
+        }
+
+        public int Serialize(FlatBufferBuilder builder) {
+            return Serial.FBComponent.CreateFBComponent(builder, ID.Serialize(builder), Entity.Serialize(builder), wasConstructed).Value;
+        }
+
+        public void Deserialize(object incoming) {
+            var data = (Serial.FBComponent)incoming;
+            ID = FlatbufferSerializer.GetOrCreateDeserialize<UID>(data.Id);
+            Entity = FlatbufferSerializer.GetOrCreateDeserialize<UID>(data.Entity);
+        }
+
+        public void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
         }
     }
 }

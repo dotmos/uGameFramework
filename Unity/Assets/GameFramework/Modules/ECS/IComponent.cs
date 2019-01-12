@@ -1,5 +1,5 @@
 ﻿namespace ECS {
-    public interface IComponent : System.IDisposable{
+    public interface IComponent : System.IDisposable, IFBSerializable{
         UID ID { get; set; }
         UID Entity { get; set; }
 

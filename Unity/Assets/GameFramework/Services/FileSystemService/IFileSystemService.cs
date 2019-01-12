@@ -30,6 +30,27 @@ namespace Service.FileSystem {
 
 
 		/// <summary>
+        /// Write bytes to file 
+        /// <param name="pathToFile"></param>
+        /// <param name="bytes"></param>
+ /// </summary>
+        
+
+					bool WriteBytesToFile(string pathToFile,byte[] bytes);
+
+
+		/// <summary>
+        /// Write bytes to file at domain 
+        /// <param name="domain"></param>
+        /// <param name="relativePathToFile"></param>
+        /// <param name="bytes"></param>
+ /// </summary>
+        
+
+					bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes);
+
+
+		/// <summary>
         /// Write string to file 
         /// <param name="pathToFile"></param>
         /// <param name="thedata"></param>
@@ -67,6 +88,25 @@ namespace Service.FileSystem {
         
 
 					string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
+
+
+		/// <summary>
+        /// Load file as bytes 
+        /// <param name="pathToFile"></param>
+ /// </summary>
+        
+
+					byte[] LoadFileAsBytes(string pathToFile);
+
+
+		/// <summary>
+        /// Load file as string from domain 
+        /// <param name="domain"></param>
+        /// <param name="relativePathToFile"></param>
+ /// </summary>
+        
+
+					byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile);
 
 
 		/// <summary>
@@ -131,7 +171,7 @@ namespace Service.FileSystem {
 
 
     public enum FSDomain {
-        ScriptingOutput,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder
+        ScriptingOutput,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder,SaveGames
         
     }
 

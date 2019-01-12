@@ -24,6 +24,10 @@ namespace Service.FileSystem{
             
             this.OnEvent<GetPathCommand>().Subscribe(e => GetPathCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<WriteBytesToFileCommand>().Subscribe(e => WriteBytesToFileCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<WriteBytesToFileAtDomainCommand>().Subscribe(e => WriteBytesToFileAtDomainCommandHandler(e)).AddTo(this);
+
             this.OnEvent<WriteStringToFileCommand>().Subscribe(e => WriteStringToFileCommandHandler(e)).AddTo(this);
 
             this.OnEvent<WriteStringToFileAtDomainCommand>().Subscribe(e => WriteStringToFileAtDomainCommandHandler(e)).AddTo(this);
@@ -31,6 +35,10 @@ namespace Service.FileSystem{
             this.OnEvent<LoadFileAsStringCommand>().Subscribe(e => LoadFileAsStringCommandHandler(e)).AddTo(this);
 
             this.OnEvent<LoadFileAsStringAtDomainCommand>().Subscribe(e => LoadFileAsStringAtDomainCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<LoadFileAsBytesCommand>().Subscribe(e => LoadFileAsBytesCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<LoadFileAsBytesAtDomainCommand>().Subscribe(e => LoadFileAsBytesAtDomainCommandHandler(e)).AddTo(this);
 
             this.OnEvent<GetFilesInAbsFolderCommand>().Subscribe(e => GetFilesInAbsFolderCommandHandler(e)).AddTo(this);
 
@@ -70,6 +78,61 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetPathCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Write bytes to file
+        /// </summary>
+        
+        public class WriteBytesToFileCommand  {
+            public bool result;
+                        public string pathToFile;
+                        public byte[] bytes;
+            
+            
+        }
+
+		protected void WriteBytesToFileCommandHandler  (WriteBytesToFileCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("WriteBytesToFileCommand");
+#endif
+        
+            cmd.result = _service.WriteBytesToFile(cmd.pathToFile,cmd.bytes);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("WriteBytesToFileCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Write bytes to file at domain
+        /// </summary>
+        
+        public class WriteBytesToFileAtDomainCommand  {
+            public bool result;
+                        public FSDomain domain;
+                        public string relativePathToFile;
+                        public byte[] bytes;
+            
+            
+        }
+
+		protected void WriteBytesToFileAtDomainCommandHandler  (WriteBytesToFileAtDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("WriteBytesToFileAtDomainCommand");
+#endif
+        
+            cmd.result = _service.WriteBytesToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.bytes);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("WriteBytesToFileAtDomainCommand");
 #endif
         }
         
@@ -178,6 +241,59 @@ namespace Service.FileSystem{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadFileAsStringAtDomainCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load file as bytes
+        /// </summary>
+        
+        public class LoadFileAsBytesCommand  {
+            public byte[] result;
+                        public string pathToFile;
+            
+            
+        }
+
+		protected void LoadFileAsBytesCommandHandler  (LoadFileAsBytesCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LoadFileAsBytesCommand");
+#endif
+        
+            cmd.result = _service.LoadFileAsBytes(cmd.pathToFile);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LoadFileAsBytesCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Load file as string from domain
+        /// </summary>
+        
+        public class LoadFileAsBytesAtDomainCommand  {
+            public byte[] result;
+                        public FSDomain domain;
+                        public string relativePathToFile;
+            
+            
+        }
+
+		protected void LoadFileAsBytesAtDomainCommandHandler  (LoadFileAsBytesAtDomainCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LoadFileAsBytesAtDomainCommand");
+#endif
+        
+            cmd.result = _service.LoadFileAsBytesAtDomain(cmd.domain,cmd.relativePathToFile);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LoadFileAsBytesAtDomainCommand");
 #endif
         }
         

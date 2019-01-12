@@ -1,0 +1,23 @@
+namespace Serial;
+
+table FBVector3 {
+    x:float;
+    y:float;
+    z:float;
+}
+
+table FBUID {
+    id:int;
+}
+
+table FBComponent {
+    id : FBUID;
+    entity : FBUID;
+    wasConstructed: bool;
+}
+
+table All {
+    n1 : FBUID;
+    n2 : FBUID;
+    n3 : FBUID;
+}
