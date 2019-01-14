@@ -13,7 +13,12 @@ namespace Serial;
 
 file_identifier "ENDE";
 
-
+/*block:dictpair*/
+table /*name:pairname*/dictPair/*endname*/ {
+	key 	: /*name:keytype*/string/*endname*/;
+	value	: /*name:valuetype*/int/*endname*/;
+}
+/*endblock:dictpair*/
 
 /*block:table*/
 /*name:comment*/some comment/*endname*/

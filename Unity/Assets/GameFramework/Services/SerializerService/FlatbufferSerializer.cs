@@ -16,6 +16,22 @@ namespace Service.Serializer {
         public static Dictionary<object, int> obj2FSMapping = new Dictionary<object, int>();
         private FlatBufferBuilder fbBuilder;
 
+        public static StringOffset? GetOrCreateSerialize(FlatBufferBuilder builder, string serializableObj) {
+            if (serializableObj == null) {
+                return null;
+            }
+
+            // check if we have this Object already serialized and if yes grab the
+            // location in the buffer and pass it as offset, so it can be pointed to this location again
+            if (obj2FSMapping.TryGetValue(serializableObj, out int result)) {
+                return new StringOffset(result);
+            }
+
+            var serializedString = builder.CreateString(serializableObj);
+            obj2FSMapping[serializableObj] = serializedString.Value;
+            return serializedString;
+        }
+
         public static Offset<T>? GetOrCreateSerialize<T>(FlatBufferBuilder builder, IFBSerializable serializableObj) where T:struct,IFlatbufferObject {
             if (serializableObj == null) {
                 return null;
