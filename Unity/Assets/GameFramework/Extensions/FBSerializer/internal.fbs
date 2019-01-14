@@ -16,8 +16,21 @@ table FBComponent {
     wasConstructed: bool;
 }
 
-table All {
-    n1 : FBUID;
-    n2 : FBUID;
-    n3 : FBUID;
+
+
+// the table for the Component-Template
+table DTEST_string_int {
+    key : string;
+    value : int;
+}
+
+table FBGenTemplateComponent {
+    baseComponent : FBComponent;
+    state : int;
+    testName : string;
+    testUID : FBUID;
+    testNumber : float;
+    testListUID : [FBUID];
+    testListPrimitive : [int];
+    testDict : [DTEST_string_int];
 }

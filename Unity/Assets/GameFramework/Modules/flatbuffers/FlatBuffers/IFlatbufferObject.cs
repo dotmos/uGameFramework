@@ -25,6 +25,6 @@ namespace FlatBuffers
 
         ByteBuffer ByteBuffer { get; }
 
-        int pos { get; }
+        int BufferPosition { get; }
     }
 }

@@ -16,6 +16,63 @@ namespace Service.Serializer {
         public static Dictionary<object, int> obj2FSMapping = new Dictionary<object, int>();
         private FlatBufferBuilder fbBuilder;
 
+        /// <summary>
+        /// Create VectorOffset from List
+        /// </summary>
+        /// <typeparam name="T">IFBSerializable</typeparam>
+        /// <typeparam name="S">FlatbufferType</typeparam>
+        /// <param name="builder"></param>
+        /// <param name="list"></param>
+        /// <param name="fbCreateList"></param>
+        /// <returns></returns>
+        public static FlatBuffers.VectorOffset? CreateList<T, S>(FlatBuffers.FlatBufferBuilder builder
+                                        , List<T> list, Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList)
+                                        where S : struct, FlatBuffers.IFlatbufferObject where T : IFBSerializable {
+            if (list == null) {
+                return null;
+            }
+
+            if (FlatbufferSerializer.obj2FSMapping.TryGetValue(list, out int bufPos)) {
+                // the list was already serialized so we need to use this VectorOffset in order to keep the reference
+                var result = new FlatBuffers.VectorOffset(bufPos);
+                return result;
+            } else {
+                if (typeof(IFBSerializable).IsAssignableFrom(typeof(T))) {
+                    var tempArray = new FlatBuffers.Offset<S>[list.Count];
+                    for (int i = 0; i < list.Count; i++) {
+                        var listElemOffset = FlatbufferSerializer.GetOrCreateSerialize<S>(builder, (IFBSerializable)list[i]);
+                        if (listElemOffset != null) {
+                            tempArray[i] = (FlatBuffers.Offset<S>)listElemOffset;
+                        }
+                    }
+                    var result = fbCreateList(builder, tempArray);
+                    FlatbufferSerializer.obj2FSMapping[list] = result.Value;
+                    return result;
+                }
+                return null;
+            }
+        }
+
+        public static FlatBuffers.VectorOffset? CreateList<T>(FlatBuffers.FlatBufferBuilder builder
+                                    , List<T> list, Func<FlatBufferBuilder, T[], VectorOffset> fbCreateList) {
+            if (list == null || typeof(T).IsPrimitive) {
+                return null;
+            }
+
+            if (FlatbufferSerializer.obj2FSMapping.TryGetValue(list, out int bufPos)) {
+                // the list was already serialized so we need to use this VectorOffset in order to keep the reference
+                var result = new FlatBuffers.VectorOffset(bufPos);
+                return result;
+            } else {
+
+                var tempArray = list.ToArray();
+                // call the createFunction with the array
+                var result = fbCreateList(builder, tempArray);
+                FlatbufferSerializer.obj2FSMapping[list] = result.Value;
+                return result;
+            }
+        }
+
         public static StringOffset? GetOrCreateSerialize(FlatBufferBuilder builder, string serializableObj) {
             if (serializableObj == null) {
                 return null;
@@ -54,7 +111,7 @@ namespace Service.Serializer {
             }
             object result;
             // first check if we already deserialize the object at this position
-            fb2objMapping.TryGetValue(incoming.pos, out result);
+            fb2objMapping.TryGetValue(incoming.BufferPosition, out result);
             if (result != null) {
                 // yeah, we found it. no need to create a new object we got it already
                 return (T)result;
@@ -63,7 +120,7 @@ namespace Service.Serializer {
             // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
             var newObject = new T();
             newObject.Deserialize(incoming);
-            fb2objMapping[incoming.pos] = newObject;
+            fb2objMapping[incoming.BufferPosition] = newObject;
             return newObject;
         }
 
