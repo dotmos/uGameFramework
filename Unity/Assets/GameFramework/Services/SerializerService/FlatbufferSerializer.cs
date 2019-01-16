@@ -14,7 +14,7 @@ namespace Service.Serializer {
         /// For serializing mappings
         /// </summary>
         public static Dictionary<object, int> obj2FSMapping = new Dictionary<object, int>();
-        private FlatBufferBuilder fbBuilder;
+        private static FlatBufferBuilder fbBuilder;
 
         public static Dictionary<Type, Func<object, FlatBufferBuilder, int>> serializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, int>>();
         public static Dictionary<Type, Func<object, FlatBufferBuilder, object>> deserializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, object>>();
@@ -250,6 +250,7 @@ namespace Service.Serializer {
             // first check if we already deserialize the object at this position
             fb2objMapping.TryGetValue(incoming.BufferPosition, out result);
             if (result != null) {
+                UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+typeof(T));
                 // yeah, we found it. no need to create a new object we got it already
                 return (T)result;
             }
@@ -261,9 +262,14 @@ namespace Service.Serializer {
             return newObject;
         }
 
-        public byte[] SerializeToBytes<T>(IFBSerializable root) where T : struct, FlatBuffers.IFlatbufferObject {
-            serializing = true;
+        public static void ClearCache() {
+            obj2FSMapping.Clear();
+            fb2objMapping.Clear();
+        }
 
+        public static byte[] SerializeToBytes(IFBSerializable root)  {
+            serializing = true;
+            ClearCache();
             fbBuilder = new FlatBufferBuilder(1024);
 
             var rootResult = root.Serialize(fbBuilder);
@@ -276,13 +282,14 @@ namespace Service.Serializer {
             return buf;
         }
 
-        public void SerializeToFileDomain<T>(FileSystem.FSDomain domain, String filename, IFBSerializable root) where T : struct, FlatBuffers.IFlatbufferObject {
-            var buf = SerializeToBytes<T>(root);
+        public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root)  {
+            var buf = SerializeToBytes(root);
             var fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
             fs.WriteBytesToFileAtDomain(domain, filename, buf);
         }
 
-        public T DeserializeFromBytes<T>(byte[] buf) where T : IFBSerializable,new() {
+        public static T DeserializeFromBytes<T>(byte[] buf) where T : IFBSerializable,new() {
+            ClearCache();
             var fbByteBuffer = new ByteBuffer(buf);
             var dataRoot = new T();
             dataRoot.Deserialize(fbByteBuffer);
