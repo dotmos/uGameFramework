@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 include "internal.fbs";
+include "custom.fbs";
 
 namespace Serial;
 
@@ -23,17 +24,19 @@ table /*name:pairname*/dictPair/*endname*/ {
 /*block:table*/
 /*name:comment*/some comment/*endname*/
 table /*name:tablename*/SomeData/*endname*/{
-    baseComponent : FBComponent (id:0); // data of the component baseclass    
+/*block:inheritance*/baseData : /*name:basetype*/FBComponent/*endname*/ (id:0); // data of the component baseclass   
+/*endblock:inheritance*/
 /*block:field*/	/*name:fieldname*/name/*endname*/:/*name:fieldtype*/string/*endname*/ (id:/*name:fieldid*/0/*endname*/);/*name:comment*//*endname*/
 /*endblock:field*/
 }
 /*endblock:table*/
 
+/*block:anycomponent*/
 union AnyComponent {
 /*block:union*//*name:tablename*/SomeData/*endname*/
 /*endblock:union*/
 }
-
+/*endblock:anycomponent*/
 
 table Entity {
 	id:int;

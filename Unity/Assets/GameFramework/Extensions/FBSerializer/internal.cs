@@ -8,6 +8,41 @@ namespace Serial
 using global::System;
 using global::FlatBuffers;
 
+public struct FBVector2 : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static FBVector2 GetRootAsFBVector2(ByteBuffer _bb) { return GetRootAsFBVector2(_bb, new FBVector2()); }
+  public static FBVector2 GetRootAsFBVector2(ByteBuffer _bb, FBVector2 obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
+  public FBVector2 __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public float X { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Y { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<FBVector2> CreateFBVector2(FlatBufferBuilder builder,
+      float x = 0.0f,
+      float y = 0.0f) {
+    builder.StartObject(2);
+    FBVector2.AddY(builder, y);
+    FBVector2.AddX(builder, x);
+    return FBVector2.EndFBVector2(builder);
+  }
+
+  public static void StartFBVector2(FlatBufferBuilder builder) { builder.StartObject(2); }
+  public static void AddX(FlatBufferBuilder builder, float x) { builder.AddFloat(0, x, 0.0f); }
+  public static void AddY(FlatBufferBuilder builder, float y) { builder.AddFloat(1, y, 0.0f); }
+  public static Offset<FBVector2> EndFBVector2(FlatBufferBuilder builder) {
+    int o = builder.EndObject();
+    return new Offset<FBVector2>(o);
+  }
+};
+
 public struct FBVector3 : IFlatbufferObject
 {
   private Table __p;
@@ -44,6 +79,129 @@ public Table __table { get { return __p; } }
   public static Offset<FBVector3> EndFBVector3(FlatBufferBuilder builder) {
     int o = builder.EndObject();
     return new Offset<FBVector3>(o);
+  }
+};
+
+public struct FBVector4 : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static FBVector4 GetRootAsFBVector4(ByteBuffer _bb) { return GetRootAsFBVector4(_bb, new FBVector4()); }
+  public static FBVector4 GetRootAsFBVector4(ByteBuffer _bb, FBVector4 obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
+  public FBVector4 __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public float X { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Y { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Z { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float W { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<FBVector4> CreateFBVector4(FlatBufferBuilder builder,
+      float x = 0.0f,
+      float y = 0.0f,
+      float z = 0.0f,
+      float w = 0.0f) {
+    builder.StartObject(4);
+    FBVector4.AddW(builder, w);
+    FBVector4.AddZ(builder, z);
+    FBVector4.AddY(builder, y);
+    FBVector4.AddX(builder, x);
+    return FBVector4.EndFBVector4(builder);
+  }
+
+  public static void StartFBVector4(FlatBufferBuilder builder) { builder.StartObject(4); }
+  public static void AddX(FlatBufferBuilder builder, float x) { builder.AddFloat(0, x, 0.0f); }
+  public static void AddY(FlatBufferBuilder builder, float y) { builder.AddFloat(1, y, 0.0f); }
+  public static void AddZ(FlatBufferBuilder builder, float z) { builder.AddFloat(2, z, 0.0f); }
+  public static void AddW(FlatBufferBuilder builder, float w) { builder.AddFloat(3, w, 0.0f); }
+  public static Offset<FBVector4> EndFBVector4(FlatBufferBuilder builder) {
+    int o = builder.EndObject();
+    return new Offset<FBVector4>(o);
+  }
+};
+
+public struct FBQuaternion : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static FBQuaternion GetRootAsFBQuaternion(ByteBuffer _bb) { return GetRootAsFBQuaternion(_bb, new FBQuaternion()); }
+  public static FBQuaternion GetRootAsFBQuaternion(ByteBuffer _bb, FBQuaternion obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
+  public FBQuaternion __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public float X { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Y { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float Z { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public float W { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+
+  public static Offset<FBQuaternion> CreateFBQuaternion(FlatBufferBuilder builder,
+      float x = 0.0f,
+      float y = 0.0f,
+      float z = 0.0f,
+      float w = 0.0f) {
+    builder.StartObject(4);
+    FBQuaternion.AddW(builder, w);
+    FBQuaternion.AddZ(builder, z);
+    FBQuaternion.AddY(builder, y);
+    FBQuaternion.AddX(builder, x);
+    return FBQuaternion.EndFBQuaternion(builder);
+  }
+
+  public static void StartFBQuaternion(FlatBufferBuilder builder) { builder.StartObject(4); }
+  public static void AddX(FlatBufferBuilder builder, float x) { builder.AddFloat(0, x, 0.0f); }
+  public static void AddY(FlatBufferBuilder builder, float y) { builder.AddFloat(1, y, 0.0f); }
+  public static void AddZ(FlatBufferBuilder builder, float z) { builder.AddFloat(2, z, 0.0f); }
+  public static void AddW(FlatBufferBuilder builder, float w) { builder.AddFloat(3, w, 0.0f); }
+  public static Offset<FBQuaternion> EndFBQuaternion(FlatBufferBuilder builder) {
+    int o = builder.EndObject();
+    return new Offset<FBQuaternion>(o);
+  }
+};
+
+public struct FBMaterial : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static FBMaterial GetRootAsFBMaterial(ByteBuffer _bb) { return GetRootAsFBMaterial(_bb, new FBMaterial()); }
+  public static FBMaterial GetRootAsFBMaterial(ByteBuffer _bb, FBMaterial obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
+  public FBMaterial __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public string MaterialName { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetMaterialNameBytes() { return __p.__vector_as_span(4); }
+#else
+  public ArraySegment<byte>? GetMaterialNameBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetMaterialNameArray() { return __p.__vector_as_array<byte>(4); }
+
+  public static Offset<FBMaterial> CreateFBMaterial(FlatBufferBuilder builder,
+      StringOffset materialNameOffset = default(StringOffset)) {
+    builder.StartObject(1);
+    FBMaterial.AddMaterialName(builder, materialNameOffset);
+    return FBMaterial.EndFBMaterial(builder);
+  }
+
+  public static void StartFBMaterial(FlatBufferBuilder builder) { builder.StartObject(1); }
+  public static void AddMaterialName(FlatBufferBuilder builder, StringOffset materialNameOffset) { builder.AddOffset(0, materialNameOffset.Value, 0); }
+  public static Offset<FBMaterial> EndFBMaterial(FlatBufferBuilder builder) {
+    int o = builder.EndObject();
+    return new Offset<FBMaterial>(o);
   }
 };
 
@@ -172,7 +330,7 @@ public Table __table { get { return __p; } }
   public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
   public FBGenTemplateComponent __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public FBComponent? BaseComponent { get { int o = __p.__offset(4); return o != 0 ? (FBComponent?)(new FBComponent()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public FBComponent? BaseData { get { int o = __p.__offset(4); return o != 0 ? (FBComponent?)(new FBComponent()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
   public int State { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
   public string TestName { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
 #if ENABLE_SPAN_T
@@ -200,7 +358,7 @@ public Table __table { get { return __p; } }
   public int TestDictBufferPosition { get { int o = __p.__offset(18); return o != 0 ? __p.__vector(o) : 0; } }
 
   public static Offset<FBGenTemplateComponent> CreateFBGenTemplateComponent(FlatBufferBuilder builder,
-      Offset<FBComponent> baseComponentOffset = default(Offset<FBComponent>),
+      Offset<FBComponent> baseDataOffset = default(Offset<FBComponent>),
       int state = 0,
       StringOffset testNameOffset = default(StringOffset),
       Offset<FBUID> testUIDOffset = default(Offset<FBUID>),
@@ -216,12 +374,12 @@ public Table __table { get { return __p; } }
     FBGenTemplateComponent.AddTestUID(builder, testUIDOffset);
     FBGenTemplateComponent.AddTestName(builder, testNameOffset);
     FBGenTemplateComponent.AddState(builder, state);
-    FBGenTemplateComponent.AddBaseComponent(builder, baseComponentOffset);
+    FBGenTemplateComponent.AddBaseData(builder, baseDataOffset);
     return FBGenTemplateComponent.EndFBGenTemplateComponent(builder);
   }
 
   public static void StartFBGenTemplateComponent(FlatBufferBuilder builder) { builder.StartObject(8); }
-  public static void AddBaseComponent(FlatBufferBuilder builder, Offset<FBComponent> baseComponentOffset) { builder.AddOffset(0, baseComponentOffset.Value, 0); }
+  public static void AddBaseData(FlatBufferBuilder builder, Offset<FBComponent> baseDataOffset) { builder.AddOffset(0, baseDataOffset.Value, 0); }
   public static void AddState(FlatBufferBuilder builder, int state) { builder.AddInt(1, state, 0); }
   public static void AddTestName(FlatBufferBuilder builder, StringOffset testNameOffset) { builder.AddOffset(2, testNameOffset.Value, 0); }
   public static void AddTestUID(FlatBufferBuilder builder, Offset<FBUID> testUIDOffset) { builder.AddOffset(3, testUIDOffset.Value, 0); }

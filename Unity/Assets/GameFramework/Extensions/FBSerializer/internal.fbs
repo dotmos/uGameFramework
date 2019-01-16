@@ -1,10 +1,37 @@
 namespace Serial;
 
+table FBVector2 {
+    x:float;
+    y:float;
+}
+
 table FBVector3 {
     x:float;
     y:float;
     z:float;
 }
+
+table FBVector4 {
+    x:float;
+    y:float;
+    z:float;
+    w:float;
+}
+
+table FBQuaternion {
+    x:float;
+    y:float;
+    z:float;
+    w:float;
+}
+
+table FBMaterial {
+    materialName : string;
+}
+
+
+
+
 
 table FBUID {
     id:int;
@@ -25,7 +52,7 @@ table DTEST_string_int {
 }
 
 table FBGenTemplateComponent {
-    baseComponent : FBComponent;
+    baseData : FBComponent;
     state : int;
     testName : string;
     testUID : FBUID;

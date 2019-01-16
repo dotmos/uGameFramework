@@ -14,6 +14,8 @@ using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using FlatBuffers;
+using Service.Serializer;
 
 namespace Service.DevUIService {
     public interface IDevUIService {
@@ -180,7 +182,9 @@ namespace Service.DevUIService {
         [DataMember]public string topLevelName ;
         [DataMember]public System.Collections.IList objectList ;
 
+
     }
+
 
     [DataContract(IsReference = true)]
     [System.Serializable]
@@ -188,7 +192,9 @@ namespace Service.DevUIService {
         [DataMember]public System.Collections.IList objectList ;
         [DataMember]public string historyTitle ;
 
+
     }
+
 
 }
 ///////////////////////////////////////////////////////////////////////

@@ -13,6 +13,8 @@ using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using FlatBuffers;
+using Service.Serializer;
 
 namespace Service.GameStateService {
     public interface IGameStateService {
@@ -71,7 +73,9 @@ namespace Service.GameStateService {
     [System.Serializable]
     public partial class GSContext {
 
+
     }
+
 
 }
 ///////////////////////////////////////////////////////////////////////

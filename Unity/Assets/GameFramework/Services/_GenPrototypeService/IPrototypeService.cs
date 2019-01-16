@@ -11,6 +11,8 @@ using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using FlatBuffers;
+using Service.Serializer;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     public interface /*name:interfaceName*/IPrototypeService/*endname*/ {
@@ -44,7 +46,21 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
 /*block:field*/        [DataMember]/*name:scope*/public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
 /*endblock:field*/
+/*name:classSerialization*/        
+        public void Deserialize(object incoming) {
+            throw new NotImplementedException();
+        }
+
+        public void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
+
+        public int Serialize(FlatBufferBuilder builder) {
+            throw new NotImplementedException();
+        }
+/*endname*/
     }
+
 /*endblock:modelClass*/
 }
 ///////////////////////////////////////////////////////////////////////

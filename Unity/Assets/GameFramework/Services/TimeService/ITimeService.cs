@@ -14,6 +14,8 @@ using UniRx;
 using Zenject;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using FlatBuffers;
+using Service.Serializer;
 
 namespace Service.TimeService {
     public interface ITimeService {
@@ -47,7 +49,9 @@ namespace Service.TimeService {
         [DataMember]public int repeatTimes ;
         [DataMember]public Action timerCallback ;
 
+
     }
+
 
 }
 ///////////////////////////////////////////////////////////////////////

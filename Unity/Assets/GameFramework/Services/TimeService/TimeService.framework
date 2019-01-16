@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using Service.GameStateService;
-
+ 
 namespace Service.TimeService {
 	 
 	
@@ -13,15 +13,15 @@ namespace Service.TimeService {
 //    	void AddGameStateTimer(("GameState") gs,float interval,("Action")callback,int repeatTimes=0,string info="");
     	void RemoveGlobalTimer(TimerElement timer);
     }    
-}      
-## model 
- 
+}       
+## model      
+  
 public class TimerElement {
-	public string info;
-	public float timeLeft;
-	public float interval;
-	public int repeatTimes;
-	public ("Action") timerCallback;
+ 	 public string info; 
+	 public float timeLeft;
+	 public float interval;  
+	 public int repeatTimes;
+	 public ("Action") timerCallback;
 }
  
 ## events 

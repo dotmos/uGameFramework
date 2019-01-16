@@ -9,6 +9,11 @@ public interface IFBSerializable<T> where T : struct, FlatBuffers.IFlatbufferObj
 
 public interface IFBSerializable {
     int Serialize(FlatBuffers.FlatBufferBuilder builder);
-    void Deserialize(object incoming);
+    void Deserialize(object incoming); 
     void Deserialize(FlatBuffers.ByteBuffer buf);
+}
+
+public interface IFBSerializableManual {
+    int Serialize(FlatBuffers.FlatBufferBuilder builder);
+    void Deserialize(FlatBuffers.FlatBufferBuilder builder);
 }

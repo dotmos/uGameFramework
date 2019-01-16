@@ -4,7 +4,7 @@ using MoonSharp.Interpreter;
 using ECS;
 
 namespace Service.DevUIService {
-	
+	 
 	   
     public interface IDevUIService {
     	## "Get ReaciveDictionar of all views"  
@@ -19,7 +19,7 @@ namespace Service.DevUIService {
 		void RemoveViewFromModel(("DevUIView") view);
 		## "Remove View from views-folder and put it to the archieve-folder"
 		void RemoveViewToArchieve(("DevUIView") view);
-		
+		     
 		## "Load views from views-folder"
 		("IObservable<float>") LoadViews();
 		## "Save views and its dynamically created elements"
@@ -47,20 +47,20 @@ namespace Service.DevUIService {
 		## "try to convert the inObject, if no conversion is possible return the inObject"
 		object DataBrowserConvertObject(object inObject);
     }   
-}      
+}          
 ## model
 
 public class DataBrowserTopLevel{
 	public string topLevelName;
 	public ("System.Collections.IList") objectList;
 }
-
+ 
 public class HistoryElement {
     public ("System.Collections.IList") objectList;
     public string historyTitle;
-}
+} 
 
-## events 
+## events  
 
 // testing dataexplorer
 
@@ -68,11 +68,11 @@ public class NewDataTable {
 	## "List of objects that should be visualized"
 	public ("System.Collections.IList") objectList;
 	## "A list of objects to which the view can jump back"
-	public List<HistoryElement> history;
+	public List<HistoryElement> history; 
 	## "The title of this table"
 	public string tableTitle;
-}
-
+}  
+ 
 //---------------------
 
 public class NewUIElement {
@@ -94,7 +94,7 @@ public class UIViewRenamed{
 public class PickedEntity{
 	public ("ECS.UID") entity;
 }
-public class UIViewFocused {
+public class UIViewFocused { 
 	public ("DevUIView") focusedView;
 }
 ## service end

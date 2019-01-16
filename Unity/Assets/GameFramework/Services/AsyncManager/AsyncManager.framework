@@ -1,5 +1,5 @@
 ## service start
-
+ 
 namespace Service.AsyncManager {
 	public interface IAsyncManager {
 		("AsyncFuture") AddToMainThread(("Action") act,bool global=False);

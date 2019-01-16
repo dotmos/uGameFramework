@@ -18,7 +18,7 @@ namespace Service.Scripting {
  
 		
 		//T GetComponent<T>(UID entity) where T : IComponent
-    }  
+    }   
 }      
 ## events 
 
