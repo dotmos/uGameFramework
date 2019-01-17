@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using System.Linq;
+using FlatBuffers;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -12,7 +13,7 @@ namespace ECS {
         /// </summary>
         //This is super cache unfriendly.
         //TODO: Make cache friendly and do not use a list of components, but use a list of ids, targeting component arrays of same component type. I.e. one array per component type
-        private readonly Dictionary<UID, HashSet<IComponent>> _entities;
+        protected readonly Dictionary<UID, HashSet<IComponent>> _entities;
         private readonly HashSet<int> _entityIDs;
 
         /// <summary>
@@ -108,7 +109,14 @@ namespace ECS {
                 id = _lastEntityId;
                 _lastEntityId++;
             }
+            return CreateEntity(id);
+        }
 
+        /// <summary>
+        /// Creates a new entity
+        /// </summary>
+        /// <returns></returns>
+        protected UID CreateEntity(int id) {
             UID uid = new UID(id);
             //UnityEngine.Debug.Log(uid.ID);
 
@@ -133,6 +141,16 @@ namespace ECS {
                 _entities.Remove(entity);
                 _recycledEntityIds.Enqueue(entity.ID);
                 entity.ID = 0; // make it NULL
+            }
+        }
+
+        /// <summary>
+        /// Destroy all entities
+        /// </summary>
+        public void DestroyAllEntities() {
+            foreach (var e in _entities.Keys) {
+                var entity = e;
+                DestroyEntity(ref entity);
             }
         }
 
@@ -435,6 +453,26 @@ namespace ECS {
             for(int i=0; i<entities.Count; ++i) {
                 EntityModified(entities[i]);
             }
+        }
+
+        public void ResetIDs() {
+            _recycledComponentIds.Clear();
+            _recycledEntityIds.Clear();
+            _lastComponentId = _startComponentID;
+            _lastEntityId = _startEntityID;
+        }
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("FLATBUFFER (DE)SERIALIZER NOT ACTIVATED! Implement (De)Serialize-Methods in your own");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            throw new NotImplementedException();
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
         }
     }
 }

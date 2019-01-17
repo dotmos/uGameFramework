@@ -54,17 +54,17 @@ namespace ECS {
         public virtual void Dispose() {
         }
 
-        public int Serialize(FlatBufferBuilder builder) {
+        public virtual int Serialize(FlatBufferBuilder builder) {
             return Serial.FBComponent.CreateFBComponent(builder, ID.Serialize(builder), Entity.Serialize(builder), wasConstructed).Value;
         }
 
-        public void Deserialize(object incoming) {
+        public virtual void Deserialize(object incoming) {
             var data = (Serial.FBComponent)incoming;
             ID = FlatbufferSerializer.GetOrCreateDeserialize<UID>(data.Id);
             Entity = FlatbufferSerializer.GetOrCreateDeserialize<UID>(data.Entity);
         }
 
-        public void Deserialize(ByteBuffer buf) {
+        public virtual void Deserialize(ByteBuffer buf) {
             throw new NotImplementedException();
         }
     }

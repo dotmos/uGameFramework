@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace ECS {
-    public interface IEntityManager {
+    public interface IEntityManager : IFBSerializable {
         void Initialize();
 
         void Tick(float deltaTime);
@@ -12,6 +12,7 @@ namespace ECS {
         UID CreateEntity();
         bool EntityExists(UID entity);
         void DestroyEntity(ref UID entity);
+        void DestroyAllEntities();
 
         T AddComponent<T>(UID entity) where T : IComponent, new();
         IComponent AddComponent(UID entity, IComponent component);
@@ -39,5 +40,7 @@ namespace ECS {
 
         void EntityModified(UID entity);
         void EntitiesModified(List<UID> entity);
+
+        void ResetIDs();
     }
 }
