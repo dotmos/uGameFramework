@@ -28,7 +28,7 @@ namespace Systems {
 /*block:rip*/        public GenTemplateComponent2 comp2;/*endblock:rip*/
     }
 
-    public class /*name:baseName*/GenTemplateSystemBase/*endname*/ : ECS.System</*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/> {
+    public abstract class /*name:baseName*/GenTemplateSystemBase/*endname*/ : ECS.System</*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/> {
 
         protected override /*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/ GetEntityComponents(/*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/ components, UID entity) {
 /*block:getComponent*/            components./*name:sysCompName*/templateComponent/*endname*/ = GetComponent</*name:componentName*/GenTemplateComponent/*endname*/>(entity);
@@ -58,18 +58,16 @@ namespace Systems {
     public partial class /*name:implName*/GenTemplateSystem/*endname*/ : /*name:baseName*/GenTemplateSystemBase/*endname*/
     {
 
-        private void ProcessAtIndex(int index, float deltaTime) {
+        protected override bool UseParallelSystemComponentsProcessing() {
+            //Set to true if you want to process your components in parallel / use threads
+            //If set to true, make sure that code in ProcessAtIndex(..) is threadsafe
+            return false;
+        }
+
+        protected override void ProcessAtIndex(int index, float deltaTime) {
             /*name:systemComponentsName*/ GenTemplateSystemComponents/*endname*/ components = componentsToProcess[index];
 
             // add the system-logic here
-        }
-
-        protected override void ProcessAll(float deltaTime) {
-            base.ProcessAll(deltaTime);
-
-            for(int i=0; i<componentsToProcess.Count; ++i) {
-                ProcessAtIndex(i, deltaTime);
-            }
         }
     }
 /*endblock:implPart*/

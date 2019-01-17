@@ -127,8 +127,9 @@ public partial class Kernel : SceneContext {
     }
 
     private void OnApplicationQuit() {
+        
         SetOnApplicationQuitSettings();
-
+        
         rxShutDown
             .RxExecute()
             .Take(1)
