@@ -26,6 +26,8 @@ namespace ECS {
 
         private CompositeDisposable disposables;
 
+        protected ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentsProcessor = new ParallelSystemComponentsProcessor<TComponents>();
+
         public System() : this(null) {
 
         }
@@ -58,6 +60,9 @@ namespace ECS {
         }
 
         protected virtual void AfterBind() {
+            if (UseParallelSystemComponentsProcessing()) {
+                parallelSystemComponentsProcessor.Setup((i, deltaTime) => ProcessAtIndex(i, deltaTime), componentsToProcess);
+            }
         }
 
         /// <summary>
@@ -98,6 +103,8 @@ namespace ECS {
         }
 
 
+        protected abstract bool UseParallelSystemComponentsProcessing();
+
         /// <summary>
         /// Process all entities
         /// </summary>
@@ -110,6 +117,7 @@ namespace ECS {
             }
             */
 
+            /*
             foreach(TComponents c in componentsToProcess) {
                 try {
                     Process(c);
@@ -119,7 +127,18 @@ namespace ECS {
                     UnityEngine.Debug.LogException(e);
                 }
             }
+            */
+
+            if (UseParallelSystemComponentsProcessing()) {
+                parallelSystemComponentsProcessor.Invoke(deltaTime);
+            } else {
+                for (int i = 0; i < componentsToProcess.Count; ++i) {
+                    ProcessAtIndex(i, deltaTime);
+                }
+            }
         }
+
+        protected abstract void ProcessAtIndex(int componentIndex, float deltaTime);
 
         public void ProcessSystem(float deltaTime) {
             if (newComponents.Count > 0) {
@@ -252,13 +271,17 @@ namespace ECS {
         }
 
         public virtual void Dispose() {
+            parallelSystemComponentsProcessor.Dispose();
+
             disposables.Dispose();
             disposables = null;
 
             entityManager = null;
 
             validEntities.Clear();
-            componentsToProcess.Clear();           
+            componentsToProcess.Clear();
+
+            UnityEngine.Debug.Log("System disposed");
         }
     }
 }
