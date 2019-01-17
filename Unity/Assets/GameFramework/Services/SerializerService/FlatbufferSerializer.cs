@@ -21,7 +21,7 @@ namespace Service.Serializer {
 
         public static bool convertersActivated = false;
 
-        public static Offset<T>? Convert<T>(FlatBufferBuilder builder, object obj) where T : struct {
+        public static int? Convert(FlatBufferBuilder builder, object obj)  {
             if (!convertersActivated) {
                 ActivateConverters();
                 convertersActivated = true;
@@ -29,7 +29,7 @@ namespace Service.Serializer {
 
             if (serializeObjConverters.TryGetValue(obj.GetType(),out Func<object, FlatBufferBuilder, int> converter)){
                 var bufPos = converter(obj, builder);
-                return new Offset<T>(bufPos);
+                return bufPos;
             } else {
                 return null;
             }
@@ -103,9 +103,9 @@ namespace Service.Serializer {
                 if (typeof(IFBSerializable).IsAssignableFrom(typeof(T))) {
                     var tempArray = new FlatBuffers.Offset<S>[list.Count];
                     for (int i = 0; i < list.Count; i++) {
-                        var listElemOffset = FlatbufferSerializer.GetOrCreateSerialize<S>(builder, (IFBSerializable)list[i]);
+                        var listElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)list[i]);
                         if (listElemOffset != null) {
-                            tempArray[i] = (FlatBuffers.Offset<S>)listElemOffset;
+                            tempArray[i] = new FlatBuffers.Offset<S>((int)listElemOffset);
                         }
                     }
                     var result = fbCreateList(builder, tempArray);
@@ -213,7 +213,7 @@ namespace Service.Serializer {
             return serializedString;
         }
 
-        public static Offset<T>? GetOrCreateSerialize<T>(FlatBufferBuilder builder, object serializableObj) where T:struct,IFlatbufferObject {
+        public static int? GetOrCreateSerialize(FlatBufferBuilder builder, object serializableObj)  {
             if (serializableObj == null) {
                 return null;
             }
@@ -221,20 +221,20 @@ namespace Service.Serializer {
             // check if we have this Object already serialized and if yes grab the
             // location in the buffer and pass it as offset, so it can be pointed to this location again
             if (obj2FSMapping.TryGetValue(serializableObj, out int result)) {
-                return new Offset<T>(result);
+                return result;
             }
 
             if (serializableObj is IFBSerializable) {
                 // first time, so serialize it with flatbuffers
                 var serialized = ((IFBSerializable)serializableObj).Serialize(builder);
                 obj2FSMapping[serializableObj] = serialized;
-                return new Offset<T>(serialized);
+                return serialized;
             }
             else {
                 // try to convert
-                var serialized = Convert<T>(builder, serializableObj);
+                var serialized = Convert(builder, serializableObj);
                 if (serializableObj != null) {
-                    obj2FSMapping[serializableObj] = serialized.Value.Value;
+                    obj2FSMapping[serializableObj] = serialized.Value;
                 }
                 return serialized;
             }
@@ -242,21 +242,25 @@ namespace Service.Serializer {
 
         }
 
-        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T : IFBSerializable,new() {
-            if (incoming == null) {
-                return default(T);
+        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T : IFBSerializable, new() {
+            return (T)GetOrCreateDeserialize(incoming, typeof(T));
+        }
+
+        public static object GetOrCreateDeserialize(IFlatbufferObject incoming,Type type) {
+                if (incoming == null) {
+                return null;
             }
             object result;
             // first check if we already deserialize the object at this position
             fb2objMapping.TryGetValue(incoming.BufferPosition, out result);
             if (result != null) {
-                UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+typeof(T));
+                UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
                 // yeah, we found it. no need to create a new object we got it already
-                return (T)result;
+                return result;
             }
 
             // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
-            var newObject = new T();
+            var newObject = (IFBSerializable)Activator.CreateInstance(type);
             newObject.Deserialize(incoming);
             fb2objMapping[incoming.BufferPosition] = newObject;
             return newObject;

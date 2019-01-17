@@ -75,14 +75,14 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     }
 /*block:serialization*/
     #region serialization
-    public new int Serialize(FlatBuffers.FlatBufferBuilder builder) {
+    public override int Serialize(FlatBuffers.FlatBufferBuilder builder) {
 /*block:inheritanceSer*/        var baseData = base.Serialize(builder);
 /*endblock:inheritanceSer*/
 /*block:s_enum*/        var /*name|fu,pre#s:name*/sState/*endname*/ = (byte)/*name:name*/state/*endname*/;
 /*endblock:s_enum*/
 /*block:s_string*/      var /*name|fu,pre#s:name*/sTestName/*endname*/ = (StringOffset)FlatbufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testName/*endname*/) ;
 /*endblock:s_string*/
-/*block:s_nonprim*/        var /*name|fu,pre#s:name*/sTestUID/*endname*/ = (Offset<Serial./*name|pre#FB:type*/FBUID/*endname*/>)FlatbufferSerializer.GetOrCreateSerialize<Serial./*name|pre#FB:type*/FBUID/*endname*/>(builder,/*name:name*/testUID/*endname*/) ;
+/*block:s_nonprim*/        var /*name|fu,pre#s:name*/sTestUID/*endname*/ = new Offset<Serial./*name|pre#FB:type*/FBUID/*endname*/>((int)FlatbufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testUID/*endname*/)) ;
 /*endblock:s_nonprim*/
 /*block:s_list_primitive*/        var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/int/*endname*/>(builder,/*name:name*/testListPrimitive/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListPrimitiveVector/*endname*/) ;
 /*endblock:s_list_primitive*/
@@ -100,7 +100,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#EndFB:ComponentName*/EndFBGenTemplateComponent/*endname*/(builder).Value;
     }
      
-    public void Deserialize(object data) {
+    public override void Deserialize(object data) {
         var input = (Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/)data;
 /*block:inheritance_deser*/        base.Deserialize(input.BaseData);
 /*endblock:inheritance_deser*/
@@ -118,7 +118,7 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
 /*endblock:d_nonprim_list*/
     }
 
-    public new void Deserialize(FlatBuffers.ByteBuffer buf) {
+    public override void Deserialize(FlatBuffers.ByteBuffer buf) {
         var fbSettlerDataComponent = Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#GetRootAsFB:ComponentName*/GetRootAsFBGenTemplateComponent/*endname*/(buf);
         Deserialize(fbSettlerDataComponent);
     }

@@ -32,20 +32,20 @@ table /*name:tablename*/SomeData/*endname*/{
 /*endblock:table*/
 
 /*block:anycomponent*/
-union AnyComponent {
+union FBIComponent {
 /*block:union*//*name:tablename*/SomeData/*endname*/
 /*endblock:union*/
 }
 /*endblock:anycomponent*/
 
-table Entity {
-	id:int;
-	components : [AnyComponent];
+table FBEntity {
+	id:FBUID;
+	components : [FBIComponent];
 }
 
-table EntityManager {
-	entities:[Entity];
+table FBEntityManager {
+	entities:[FBEntity];
 }
 
 
-root_type EntityManager;
+root_type FBEntityManager;
