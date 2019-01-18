@@ -130,7 +130,14 @@ namespace ECS {
             */
 
             if (UseParallelSystemComponentsProcessing()) {
+#if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel Systems", this.GetType().ToString());
+#endif
                 parallelSystemComponentsProcessor.Invoke(deltaTime);
+#if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.EndThreadProfiling();
+#endif
+
             } else {
                 for (int i = 0; i < componentsToProcess.Count; ++i) {
                     ProcessAtIndex(i, deltaTime);

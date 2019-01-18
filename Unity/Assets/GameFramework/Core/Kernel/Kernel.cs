@@ -17,6 +17,8 @@ public partial class Kernel : SceneContext {
     static bool loadingKernelScene = false;
     public static string overrideSceneName = null;
 
+    protected bool KernelReady { get; private set; }
+
     public static bool applicationQuitting = false;
 
     public ReactivePriorityExecutionList rxStartup = new ReactivePriorityExecutionList();
@@ -69,6 +71,12 @@ public partial class Kernel : SceneContext {
         base.Awake();
     }
 
+    protected virtual void Update() {
+        if(KernelReady) Tick(Time.deltaTime);
+    }
+
+    protected virtual void Tick(float deltaTime) { }
+
     protected virtual void Start(){
         //Resolve disposableManager
         dManager = Container.Resolve<DisposableManager>();
@@ -98,6 +106,7 @@ public partial class Kernel : SceneContext {
             .Last()
             .Take(1)
             .Subscribe(_ => {
+                KernelReady = true;
                 Debug.Log("Startup done!");
                 OnKernelReady();
             });
