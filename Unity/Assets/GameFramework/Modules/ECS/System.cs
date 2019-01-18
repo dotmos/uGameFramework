@@ -28,6 +28,17 @@ namespace ECS {
 
         protected ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentsProcessor = new ParallelSystemComponentsProcessor<TComponents>();
 
+        string _systemName = null;
+        string SystemName {
+            get {
+                if (_systemName == null) _systemName = this.GetType().ToString();
+                return _systemName;
+            }
+        }
+#if UNITY_EDITOR
+        UnityEngine.Profiling.CustomSampler sampler;
+#endif
+
         public System() : this(null) {
 
         }
@@ -61,6 +72,9 @@ namespace ECS {
 
         protected virtual void AfterBind() {
             if (UseParallelSystemComponentsProcessing()) {
+#if UNITY_EDITOR
+                sampler = UnityEngine.Profiling.CustomSampler.Create(SystemName);
+#endif
                 parallelSystemComponentsProcessor.Setup((i, deltaTime) => ProcessAtIndex(i, deltaTime), componentsToProcess);
             }
         }
@@ -131,10 +145,12 @@ namespace ECS {
 
             if (UseParallelSystemComponentsProcessing()) {
 #if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel Systems", this.GetType().ToString());
+                UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel System Components Processor", SystemName);
+                sampler.Begin();
 #endif
                 parallelSystemComponentsProcessor.Invoke(deltaTime);
 #if UNITY_EDITOR
+                sampler.End();
                 UnityEngine.Profiling.Profiler.EndThreadProfiling();
 #endif
 
