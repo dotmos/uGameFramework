@@ -468,11 +468,11 @@ namespace ECS {
         }
 
         public virtual void Deserialize(object incoming) {
-            throw new NotImplementedException();
+            UnityEngine.Debug.LogError("FLATBUFFER (DE)SERIALIZER NOT ACTIVATED! Implement (De)Serialize-Methods in your own");
         }
 
         public virtual void Deserialize(ByteBuffer buf) {
-            throw new NotImplementedException();
+            UnityEngine.Debug.LogError("FLATBUFFER (DE)SERIALIZER NOT ACTIVATED! Implement (De)Serialize-Methods in your own");
         }
     }
 }
