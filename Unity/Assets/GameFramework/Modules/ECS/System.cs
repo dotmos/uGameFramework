@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UniRx;
 using Zenject;
 
@@ -11,6 +12,19 @@ namespace ECS {
 
         Service.Events.IEventsService eventService;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// 
+#if ECS_PROFILING && UNITY_EDITOR
+        private readonly System.Diagnostics.Stopwatch watchService = new System.Diagnostics.Stopwatch();
+        private double maxElapsedTime = 0;
+        private int mediumTicks = 0;
+        private int highTicks = 0;
+        private int veryhighTicks = 0;
+        StringBuilder logTxtBuilder = new StringBuilder();
+        private string systemType = "";
+#endif
         //protected List<UID> validEntities;
         protected HashSet<UID> validEntities;
         protected List<TComponents> componentsToProcess; //Was hashset in the past, but hashsets were super slow when multithreading systems. Testcase showed 28ms (hashset) vs 14ms (list)!
@@ -56,6 +70,9 @@ namespace ECS {
 
             Kernel.Instance.Inject(this);
 
+#if ECS_PROFILING && UNITY_EDITOR
+            systemType = GetType().ToString();
+#endif
             AfterBind();
         }
 
@@ -175,7 +192,32 @@ namespace ECS {
             }
             try
             {
+#if ECS_PROFILING && UNITY_EDITOR
+                watchService.Restart();
+#endif
                 ProcessAll(deltaTime);
+#if ECS_PROFILING && UNITY_EDITOR
+                watchService.Stop();
+                var elapsedTime = watchService.Elapsed.TotalSeconds;
+                if (elapsedTime > maxElapsedTime) {
+                    maxElapsedTime = elapsedTime;
+                }
+                if (elapsedTime > 1) {
+                    veryhighTicks++;
+                } 
+                else if (elapsedTime > 0.1) {
+                    highTicks++;
+                } else if (elapsedTime > 0.016666){
+                    mediumTicks++;
+                }
+                if (EntityManager.showLog) {
+                    logTxtBuilder.Clear();
+                    logTxtBuilder.Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
+                        .Append("|>1.0:").Append(veryhighTicks).Append("] System:").Append(systemType);
+                    UnityEngine.Debug.Log(logTxtBuilder.ToString());
+                };
+
+#endif
             }
             catch (Exception e)
             {
