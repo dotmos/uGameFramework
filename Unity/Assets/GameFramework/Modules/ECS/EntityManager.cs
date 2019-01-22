@@ -28,7 +28,7 @@ namespace ECS {
         private StringBuilder logTxtBuilder = new StringBuilder();
         private readonly System.Diagnostics.Stopwatch watchOverall = new System.Diagnostics.Stopwatch();
         private float timer = 0;
-        private readonly float timerInterval = 0;
+        private readonly float timerInterval = 1.0f;
         private double maxElapsedTime = 0;
         private int mediumTicks = 0;
         private int highTicks = 0;
@@ -93,7 +93,7 @@ namespace ECS {
         public virtual void Tick(float deltaTime) {
             if (isInitialized) {
 #if ECS_PROFILING && UNITY_EDITOR
-                timer -= deltaTime;
+                timer -= UnityEngine.Time.deltaTime;
                 if (timer <= 0) {
                     timer = timerInterval;
                     showLog = true;
@@ -117,13 +117,13 @@ namespace ECS {
                     mediumTicks++;
                 }
                 if (showLog) {
-                    timer = timerInterval;
                     logTxtBuilder.Clear();
-                    logTxtBuilder.Append("-----------------\nECS-Tick:").Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
+                    logTxtBuilder.Append("------").Append(deltaTime).Append("-----\nECS-Tick:").Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
                         .Append("|>1.0:").Append(veryhighTicks).Append("] System:");
                     UnityEngine.Debug.Log(logTxtBuilder.ToString());
+                    showLog = false;
                 };
-                showLog = false;
+                
 #endif
             }
         }
