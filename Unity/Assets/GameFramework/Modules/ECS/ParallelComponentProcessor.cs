@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace ECS {
     /// <summary>
-    /// Helper class to process ECS system components in parallel without the GC allocs of Parallel.For/ForEach. Also, it seems as if this custom implementation is 80-100% faster than Parallel.For/Foreach for some reason.
+    /// Helper class to process ECS system components in parallel.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ParallelSystemComponentsProcessor<T> : IDisposable where T : ISystemComponents {
         int maxThreads = 0;
-        ThreadStart[] threads;
         int _currentThreads = 0;
         object lock_currentThreads = new object();
-        int CurrentThreads {
+        protected int CurrentThreads {
             get {
                 lock (lock_currentThreads) {
                     return _currentThreads;
@@ -24,42 +23,93 @@ namespace ECS {
                 }
             }
         }
-        float DeltaTime;
+        List<T> componentsToProcess;
+        Action<int, float> componentAction;
+        Task[] tasks;
+        Action[] taskAction;
 
-        public ParallelSystemComponentsProcessor(int degreeOfParalelism = 0) {
-            if (degreeOfParalelism == 0) maxThreads = Environment.ProcessorCount;
-            else maxThreads = degreeOfParalelism;
-        }
-
-        public void Setup(Action<int, float> componentAction, List<T> systemComponents) {
-            threads = new ThreadStart[maxThreads];
-            for (int t = 0; t < maxThreads; ++t) {
-                int threadID = t;
-                threads[t] = new ThreadStart(() => {
-                    int componentChunk = systemComponents.Count / maxThreads;
-                    for (int i = threadID * componentChunk; i < (threadID * componentChunk) + componentChunk; ++i) {
-                        componentAction(i, DeltaTime);
-                    }
-                    CurrentThreads--;
-                });
+        public void Setup(Action<int, float> componentAction, List<T> componentsToProcess, int maxThreads = 0) {
+            if (this.maxThreads == 0) this.maxThreads = Environment.ProcessorCount;
+            this.componentsToProcess = componentsToProcess;
+            this.componentAction = componentAction;
+            this.tasks = new Task[this.maxThreads];
+            this.taskAction = new Action[this.maxThreads];
+            for(int i=0; i<this.maxThreads; ++i) {
+                int workerID = i;
+                this.taskAction[i] = () => DoWork(workerID, 0.01f);
             }
         }
 
         public void Invoke(float deltaTime) {
-            CurrentThreads = maxThreads;
-            DeltaTime = deltaTime;
-            for (int i = 0; i < maxThreads; ++i) {
-                threads[i].Invoke();
+            //Not cool. Creates garbage.
+            //Create some sort of thread pool, then keep threads alive and give them work to do instead of creating new tasks/threads
+            int degreeOfParallelism = Environment.ProcessorCount;
+            ParallelLoopResult result = Parallel.For(0, degreeOfParallelism, workerId => {
+                var max = componentsToProcess.Count * (workerId + 1) / degreeOfParallelism;
+                for (int i = componentsToProcess.Count * workerId / degreeOfParallelism; i < max; i++)
+                    //array[i] = array[i] * factor;
+                    componentAction(i, deltaTime);
+            });
+            while (!result.IsCompleted) { }
+
+            /*
+            //CurrentThreads = 1;
+            for(int i=0; i<maxThreads; ++i) {
+                this.tasks[i] = Task.Factory.StartNew(this.taskAction[i]);
             }
-            while (CurrentThreads > 0) { }
+
+            Task t = Task.WhenAll(this.tasks);
+            while (!t.IsCompleted) { }
+            */
+            /*
+            Task t = Task.Factory.StartNew(() => {
+                for (int i = 0; i < componentsToProcess.Count; ++i) {
+                    componentAction(i, deltaTime);
+                }
+                //CurrentThreads = 0;
+            });
+            while (!t.IsCompleted) { }
+            */
         }
 
-        public void Dispose() {
-            for (int i = 0; i < threads.Length; ++i) {
-                threads[i].EndInvoke(null);
-                threads[i] = null;
+        void DoWork(int workerID, float deltaTime) {
+            int componentChunk = (int)Math.Floor((float)this.componentsToProcess.Count / (float)this.maxThreads);
+            //Work on chunks
+            if (workerID != maxThreads - 1) {
+                for (int i = workerID * componentChunk; i < (workerID * componentChunk) + componentChunk; ++i) {
+                    this.componentAction(i, deltaTime);
+                }
             }
-            threads = null;
+            //Work on last chunk. Last chunk has more elements than other chunks if (this.systemComponents.Count % this.maxThreads != 0)
+            else {
+                for (int i = workerID * componentChunk; i < componentsToProcess.Count; ++i) {
+                    this.componentAction(i, deltaTime);
+                }
+            }
+        }
+
+        /*
+        void ThreadProc(object state) {
+            int componentChunk = (int)Math.Floor((float)this.systemComponents.Count / (float)this.maxThreads);
+            //Work on chunks
+            if (threadID != maxThreads - 1) {
+                for (int i = this.threadID * componentChunk; i < (this.threadID * componentChunk) + componentChunk; ++i) {
+                    this.componentAction(i, this.deltaTime);
+                }
+            }
+            //Work on last chunk. Last chunk has more elements than other chunks if (this.systemComponents.Count % this.maxThreads != 0)
+            else {
+                for (int i = this.threadID * componentChunk; i < systemComponents.Count; ++i) {
+                    this.componentAction(i, this.deltaTime);
+                }
+            }
+
+            this.parallelProcessor.CurrentThreads -= 1;
+        }
+        */
+
+
+        public void Dispose() {
         }
     }
 }

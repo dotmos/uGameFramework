@@ -1,7 +1,4 @@
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using ECS;
 using FlatBuffers;
 using Service.Serializer;
@@ -42,9 +39,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public string testName="f95";
     public UID testUID = new UID(1895);
     public float testNumber = 18.95f;
-    public List<UID> testListUID = new List<UID>();
-    public List<int> testListPrimitive = new List<int>();
-    public Dictionary<string, int> testDict = new Dictionary<string, int>();
+    public System.Collections.Generic.List<UID> testListUID = new System.Collections.Generic.List<UID>();
+    public System.Collections.Generic.List<int> testListPrimitive = new System.Collections.Generic.List<int>();
+    public System.Collections.Generic.Dictionary<string, int> testDict = new System.Collections.Generic.Dictionary<string, int>();
     /*endblock:rip*/
 
     protected override void OnConstruct() {
@@ -111,7 +108,7 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
 /*block:d_prim_list*/        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
 /*endblock:d_prim_list*/
 /*block:d_nonprim_list*/     {
-            var tempList = new List<object>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
+            var tempList = new System.Collections.Generic.List<object>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
             for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) tempList.Add(input./*name|fu:name*/TestListUID/*endname*/(i));
             /*name:name*/testListUID/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name|pre#FB:innertype*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList);
         }
@@ -134,11 +131,11 @@ public class GenTemplateComponent2 : ECS.Component
     public float time;
 
     public override IComponent Clone() {
-        throw new NotImplementedException();
+        throw new System.NotImplementedException();
     }
 
     public override void CopyValues(IComponent target) {
-        throw new NotImplementedException();
+        throw new System.NotImplementedException();
     }
 }
 /*endblock:rip*/
