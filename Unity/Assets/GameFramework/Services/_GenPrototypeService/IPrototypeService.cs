@@ -7,10 +7,7 @@
 /*block:using*/using /*name:name*/System/*endname*/;
 /*endblock:using*/
 using static /*name:namespace*/Service.GeneratorPrototype/*endname*/.Events;
-using UniRx;
-using Zenject;
 using System.Runtime.Serialization;
-using System.Collections.Generic;
 using FlatBuffers;
 using Service.Serializer;
 

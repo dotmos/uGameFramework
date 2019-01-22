@@ -1,7 +1,7 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-
+using UniRx;
  
 namespace Service.LoggingService {
 	 

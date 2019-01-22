@@ -7,12 +7,10 @@
 using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using UniRx;
 
 using static Service.MemoryBrowserService.Events;
-using UniRx;
-using Zenject;
 using System.Runtime.Serialization;
-using System.Collections.Generic;
 using FlatBuffers;
 using Service.Serializer;
 

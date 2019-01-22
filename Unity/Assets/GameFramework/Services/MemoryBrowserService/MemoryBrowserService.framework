@@ -1,6 +1,7 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using UniRx;
 
 namespace Service.MemoryBrowserService {
     public interface IMemoryBrowserService {

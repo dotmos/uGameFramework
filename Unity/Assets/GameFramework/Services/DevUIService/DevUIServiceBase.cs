@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using ECS;
+using UniRx;
 
 
 using UniRx;
