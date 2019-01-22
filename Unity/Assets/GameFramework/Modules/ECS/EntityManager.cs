@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UniRx;
 using System.Linq;
 using FlatBuffers;
+using System.Text;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -20,6 +21,20 @@ namespace ECS {
         /// List of all registered systems
         /// </summary>
         private readonly List<ISystem> _systems;
+#if ECS_PROFILING && UNITY_EDITOR
+        /// <summary>
+        /// Stops the time for all services per frame
+        /// </summary>
+        private StringBuilder logTxtBuilder = new StringBuilder();
+        private readonly System.Diagnostics.Stopwatch watchOverall = new System.Diagnostics.Stopwatch();
+        private float timer = 0;
+        private readonly float timerInterval = 0;
+        private double maxElapsedTime = 0;
+        private int mediumTicks = 0;
+        private int highTicks = 0;
+        private int veryhighTicks = 0;
+        public static bool showLog = false;
+#endif
 
         private readonly Queue<int> _recycledEntityIds;
         private int _lastEntityId { get; set; }
@@ -77,9 +92,39 @@ namespace ECS {
         /// <param name="deltaTime"></param>
         public virtual void Tick(float deltaTime) {
             if (isInitialized) {
+#if ECS_PROFILING && UNITY_EDITOR
+                timer -= deltaTime;
+                if (timer <= 0) {
+                    timer = timerInterval;
+                    showLog = true;
+                }
+                watchOverall.Restart();
+#endif
                 for (int i = 0; i < _systems.Count; ++i) {
                     _systems[i].ProcessSystem(deltaTime);
                 }
+#if ECS_PROFILING && UNITY_EDITOR
+                watchOverall.Stop();
+                var elapsedTime = watchOverall.Elapsed.TotalSeconds;
+                if (elapsedTime > maxElapsedTime) {
+                    maxElapsedTime = elapsedTime;
+                }
+                if (elapsedTime > 1) {
+                    veryhighTicks++;
+                } else if (elapsedTime > 0.1) {
+                    highTicks++;
+                } else if (elapsedTime > 0.016666) {
+                    mediumTicks++;
+                }
+                if (showLog) {
+                    timer = timerInterval;
+                    logTxtBuilder.Clear();
+                    logTxtBuilder.Append("-----------------\nECS-Tick:").Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
+                        .Append("|>1.0:").Append(veryhighTicks).Append("] System:");
+                    UnityEngine.Debug.Log(logTxtBuilder.ToString());
+                };
+                showLog = false;
+#endif
             }
         }
 
