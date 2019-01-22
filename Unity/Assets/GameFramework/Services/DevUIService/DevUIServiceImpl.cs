@@ -229,7 +229,7 @@ namespace Service.DevUIService {
             
             foreach (string viewFile in viewFiles) {
                 result = result.Concat(Observable.Start(() => {
-                    Debug.Log("thread: " + Thread.CurrentThread.Name);
+                    Debug.Log("thread: " + System.Threading.Thread.CurrentThread.Name);
                     // did we already load this view? if yes, skip
                     if (tempCurrentViewFiles.Contains(viewFile)) {
                         // remove file from temp list (the ones that stays in list are the ones to be deleted afterwards)
