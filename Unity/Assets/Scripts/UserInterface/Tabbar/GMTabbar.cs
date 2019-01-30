@@ -38,7 +38,7 @@ namespace UserInterface {
         {
             base.OnEnable();
 
-            if (!deactivateDefaultOnEnableBehaviour)
+            if (!deactivateDefaultOnEnableBehaviour && !allowSwitchOff)
             {
                 //activate custom or first tab
                 ActivateCustomDefaultTab();
