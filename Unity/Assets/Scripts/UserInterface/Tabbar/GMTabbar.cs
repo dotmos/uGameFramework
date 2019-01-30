@@ -31,7 +31,7 @@ namespace UserInterface {
                 RegisterTab(tab);
             }
 
-            ActivateCustomDefaultTab();
+            if (!allowSwitchOff) ActivateCustomDefaultTab();
         }
 
         protected override void OnEnable()
@@ -162,6 +162,12 @@ namespace UserInterface {
             if (valueChangedListeners.Contains(callback)) {
                 valueChangedListeners.Remove(callback);
             }
+        }
+
+        public void SetOrderForTab(GMTab tab, int index) {
+            tab.transform.SetSiblingIndex(index);
+            tabs.Remove(tab);
+            tabs.Insert(Mathf.Clamp(index, 0, tabs.Count - 2), tab);
         }
     }
 }
