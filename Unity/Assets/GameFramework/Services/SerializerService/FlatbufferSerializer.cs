@@ -274,7 +274,7 @@ namespace Service.Serializer {
         public static byte[] SerializeToBytes(IFBSerializable root)  {
             serializing = true;
             ClearCache();
-            fbBuilder = new FlatBufferBuilder(1024);
+            fbBuilder = new FlatBufferBuilder(5000000);
 
             var rootResult = root.Serialize(fbBuilder);
 

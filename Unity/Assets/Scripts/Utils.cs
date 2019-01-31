@@ -168,7 +168,7 @@ public class DebugUtils {
     }
 }
 
-public static class UtilsExtensions
+public static partial class UtilsExtensions
 {
     public static IObservable<bool> ToObservable(this Action act) {
         return Observable.Create<bool>((observer) => {
