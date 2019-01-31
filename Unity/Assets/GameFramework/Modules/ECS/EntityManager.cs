@@ -193,9 +193,9 @@ namespace ECS {
         /// Destroy all entities
         /// </summary>
         public void DestroyAllEntities() {
-            foreach (var e in _entities.Keys) {
-                var entity = e;
-                DestroyEntity(ref entity);
+            while (_entities.Count > 0) {
+                var entity = _entities.ElementAt(0).Key;
+                DestroyEntity(ref entity );
             }
         }
 
