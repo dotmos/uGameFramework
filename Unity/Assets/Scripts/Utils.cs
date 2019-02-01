@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -153,6 +154,161 @@ public class DefaultReactiveExecutionWrapper : IReactiveExecutionWrapper
         }));
     }
 
+}
+
+public class ObservableList<T> : IList<T> {
+
+    private List<T> innerList = new List<T>();
+    private bool isDirty = true;
+
+    public List<T> InnerList {
+        get { return innerList; }
+    }
+
+    public bool Dirty {
+        get { return isDirty; }
+    }
+
+    public void SetDirtyFlag() {
+        isDirty = true;
+    }
+
+    public void ClearDirtyFlag() {
+        isDirty = false;
+    }
+
+    public int Count => ((IList<T>)innerList).Count;
+
+    public bool IsReadOnly => ((IList<T>)innerList).IsReadOnly;
+
+    public T this[int index] { get => ((IList<T>)innerList)[index]; set  { ((IList<T>)innerList)[index] = value; SetDirtyFlag(); } }
+
+    public int IndexOf(T item) {
+        return ((IList<T>)innerList).IndexOf(item);
+    }
+
+    public void Insert(int index, T item) {
+        ((IList<T>)innerList).Insert(index, item);
+        SetDirtyFlag();
+    }
+
+    public void RemoveAt(int index) {
+        ((IList<T>)innerList).RemoveAt(index);
+        SetDirtyFlag();
+    }
+
+    public void Add(T item) {
+        ((IList<T>)innerList).Add(item);
+        SetDirtyFlag();
+    }
+
+    public void Clear() {
+        ((IList<T>)innerList).Clear();
+        SetDirtyFlag();
+    }
+
+    public bool Contains(T item) {
+        return ((IList<T>)innerList).Contains(item);
+    }
+
+    public void CopyTo(T[] array, int arrayIndex) {
+        SetDirtyFlag();
+        ((IList<T>)innerList).CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(T item) {
+        SetDirtyFlag();
+        return ((IList<T>)innerList).Remove(item);
+    }
+
+    public IEnumerator<T> GetEnumerator() {
+        return ((IList<T>)innerList).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() {
+        return ((IList<T>)innerList).GetEnumerator();
+    }
+}
+
+public class ObservableDictionary<TKey,TValue> : IDictionary<TKey, TValue> {
+    private Dictionary<TKey, TValue> innerDictionary = new Dictionary<TKey, TValue>();
+    private bool isDirty = true;
+
+    public Dictionary<TKey,TValue> InnerDictionary {
+        get { return innerDictionary; }
+    }
+
+    public bool Dirty {
+        get { return isDirty; }
+    }
+
+    public void SetDirtyFlag() {
+        isDirty = true;
+    }
+
+    public void ClearDirtyFlag() {
+        isDirty = false;
+    }
+
+    public ICollection<TKey> Keys => ((IDictionary<TKey, TValue>)innerDictionary).Keys;
+
+    public ICollection<TValue> Values => ((IDictionary<TKey, TValue>)innerDictionary).Values;
+
+    public int Count => ((IDictionary<TKey, TValue>)innerDictionary).Count;
+
+    public bool IsReadOnly => ((IDictionary<TKey, TValue>)innerDictionary).IsReadOnly;
+
+    public TValue this[TKey key] { get => ((IDictionary<TKey, TValue>)innerDictionary)[key]; set { ((IDictionary<TKey, TValue>)innerDictionary)[key] = value; SetDirtyFlag(); } }
+
+    public void Add(TKey key, TValue value) {
+        ((IDictionary<TKey, TValue>)innerDictionary).Add(key, value);
+        SetDirtyFlag();
+    }
+
+    public bool ContainsKey(TKey key) {
+        return ((IDictionary<TKey, TValue>)innerDictionary).ContainsKey(key);
+    }
+
+    public bool Remove(TKey key) {
+        SetDirtyFlag();
+        return ((IDictionary<TKey, TValue>)innerDictionary).Remove(key);
+    }
+
+    public bool TryGetValue(TKey key, out TValue value) {
+        return ((IDictionary<TKey, TValue>)innerDictionary).TryGetValue(key, out value);
+    }
+
+    public void Add(KeyValuePair<TKey, TValue> item) {
+        SetDirtyFlag();
+        ((IDictionary<TKey, TValue>)innerDictionary).Add(item);
+    }
+
+    public void Clear() {
+        SetDirtyFlag();
+        ((IDictionary<TKey, TValue>)innerDictionary).Clear();
+    }
+
+    public bool Contains(KeyValuePair<TKey, TValue> item) {
+        return ((IDictionary<TKey, TValue>)innerDictionary).Contains(item);
+    }
+
+    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
+        SetDirtyFlag();
+        ((IDictionary<TKey, TValue>)innerDictionary).CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(KeyValuePair<TKey, TValue> item) {
+        SetDirtyFlag();
+        return ((IDictionary<TKey, TValue>)innerDictionary).Remove(item);
+    }
+
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
+        return ((IDictionary<TKey, TValue>)innerDictionary).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() {
+        return ((IDictionary<TKey, TValue>)innerDictionary).GetEnumerator();
+    }
 }
 
 public class DebugUtils {
