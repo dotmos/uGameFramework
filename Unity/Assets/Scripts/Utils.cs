@@ -156,7 +156,13 @@ public class DefaultReactiveExecutionWrapper : IReactiveExecutionWrapper
 
 }
 
-public class ObservableList<T> : IList<T> {
+public interface IObservableEnumeration {
+    bool IsDirty { get; }
+    void SetDirtyFlag();
+    void ClearDirtyFlag();
+}
+
+public class ObservableList<T> : IList<T>, IObservableEnumeration {
 
     private List<T> innerList = new List<T>();
     private bool isDirty = true;
@@ -165,7 +171,7 @@ public class ObservableList<T> : IList<T> {
         get { return innerList; }
     }
 
-    public bool Dirty {
+    public bool IsDirty {
         get { return isDirty; }
     }
 
@@ -230,7 +236,7 @@ public class ObservableList<T> : IList<T> {
     }
 }
 
-public class ObservableDictionary<TKey,TValue> : IDictionary<TKey, TValue> {
+public class ObservableDictionary<TKey,TValue> : IDictionary<TKey, TValue>, IObservableEnumeration {
     private Dictionary<TKey, TValue> innerDictionary = new Dictionary<TKey, TValue>();
     private bool isDirty = true;
 
@@ -238,7 +244,7 @@ public class ObservableDictionary<TKey,TValue> : IDictionary<TKey, TValue> {
         get { return innerDictionary; }
     }
 
-    public bool Dirty {
+    public bool IsDirty {
         get { return isDirty; }
     }
 
