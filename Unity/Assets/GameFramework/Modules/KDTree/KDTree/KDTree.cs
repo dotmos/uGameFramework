@@ -33,6 +33,9 @@ namespace DataStructures.ViliWonka.KDTree{
         object UserObject { get; }
     }
 
+    /// <summary>
+    /// Wrapper to use unity gameobject with KDTree
+    /// </summary>
     public class KDGameObject : IPositionable {
         public GameObject gobj;
 
@@ -103,7 +106,9 @@ namespace DataStructures.ViliWonka.KDTree{
             }
 
             public void Rebuild(int maxPointsPerLeafNode = -1) {
-
+                if (permutation.Length != points.Count) {
+                    Array.Resize(ref permutation, points.Count);
+                }
                 for (int i = 0; i < Count; i++) {
                     permutation[i] = i;
                 }
@@ -458,6 +463,8 @@ namespace DataStructures.ViliWonka.KDTree{
 
             public void Add(T item, bool rebuild = true) {
                 points.Add(item);
+
+
                 if (rebuild) {
                     Rebuild();
                 }
@@ -481,7 +488,6 @@ namespace DataStructures.ViliWonka.KDTree{
                 var result = ((IList<T>)points).Remove(item);
                 Rebuild();
                 return result;
-
             }
 
             public IEnumerator<T> GetEnumerator() {
@@ -495,6 +501,8 @@ namespace DataStructures.ViliWonka.KDTree{
             public void Add(T item) {
                 Add(item, true);
             }
-        }
+
+
+    }
     
 }

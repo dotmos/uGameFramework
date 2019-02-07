@@ -323,7 +323,7 @@ public class DebugUtils {
     /// breakpoints for different values you give as paramter
     /// </summary>
     /// <param name="val"></param>
-    public static void DebugJump(string outputString, bool output = false) {
+    public static void DebugJump(string outputString, object userdata=null,bool output = false) {
         if (output) {
             Debug.Log(outputString);
         }
