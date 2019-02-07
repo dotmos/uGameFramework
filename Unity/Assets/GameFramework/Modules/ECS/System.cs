@@ -36,7 +36,7 @@ namespace ECS {
         /// <summary>
         /// Temporarily store entities that got invalid
         /// </summary>
-        protected List<UID> removedEntities;
+        protected List<TComponents> removedCompoments;
 
         private CompositeDisposable disposables;
 
@@ -62,7 +62,7 @@ namespace ECS {
             componentsToProcess = new List<TComponents>(65535); //Initial size is ushort. Will allocate more, if needed.
             disposables = new CompositeDisposable();
             newComponents = new List<TComponents>();
-            removedEntities = new List<UID>();
+            removedCompoments = new List<TComponents>();
 
             SetEntityManager(entityManager);
 
@@ -130,7 +130,7 @@ namespace ECS {
         /// handle entities removed from the system
         /// </summary>
         /// <param name="unregisteredEntities"></param>
-        protected virtual void OnUnregistered(List<UID> unregisteredEntities) {
+        protected virtual void OnUnregistered(List<TComponents> unregisteredEntities) {
         }
 
 
@@ -185,10 +185,10 @@ namespace ECS {
                 OnRegistered(newComponents);
                 newComponents.Clear();
             }
-            if (removedEntities.Count > 0)
+            if (removedCompoments.Count > 0)
             {
-                OnUnregistered(removedEntities);
-                removedEntities.Clear();
+                OnUnregistered(removedCompoments);
+                removedCompoments.Clear();
             }
             try
             {
@@ -300,7 +300,7 @@ namespace ECS {
             validEntities.Remove(entity);
             if (gotInvalid) {
                 // only add entiy to removedEntities if it got invalid (and will be really removed from the valid entities and not readded immediately)
-                removedEntities.Add(entity);
+                removedCompoments.Add(components);
             }
         }
 
