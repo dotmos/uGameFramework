@@ -36,7 +36,7 @@ namespace ECS {
         /// <summary>
         /// Temporarily store entities that got invalid
         /// </summary>
-        protected List<TComponents> removedCompoments;
+        protected List<TComponents> removedComponents;
 
         private CompositeDisposable disposables;
 
@@ -62,7 +62,7 @@ namespace ECS {
             componentsToProcess = new List<TComponents>(65535); //Initial size is ushort. Will allocate more, if needed.
             disposables = new CompositeDisposable();
             newComponents = new List<TComponents>();
-            removedCompoments = new List<TComponents>();
+            removedComponents = new List<TComponents>();
 
             SetEntityManager(entityManager);
 
@@ -185,10 +185,10 @@ namespace ECS {
                 OnRegistered(newComponents);
                 newComponents.Clear();
             }
-            if (removedCompoments.Count > 0)
+            if (removedComponents.Count > 0)
             {
-                OnUnregistered(removedCompoments);
-                removedCompoments.Clear();
+                OnUnregistered(removedComponents);
+                removedComponents.Clear();
             }
             try
             {
@@ -258,23 +258,37 @@ namespace ECS {
             //UnityEngine.Debug.Log(entity.ID + "valid: "+valid);
 
             if(valid && wasValid) {
-                UnregisterEntity(entity,false);
-                RegisterEntity(entity);
+                UpdateEntity(entity);
             }
             if (valid && !wasValid) {
                 RegisterEntity(entity);
             }
             if (!valid && wasValid) {
-                UnregisterEntity(entity,true);
+                UnregisterEntity(entity);
             }
         }
-        
+
+        /// <summary>
+        /// Get components for entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        TComponents GetComponentsForEntity(UID entity) {
+            TComponents components = componentsToProcess.Find(o => o.Entity == entity);
+            return components;
+        }
+
+
+        void UpdateEntity(UID entity) {
+            var entityComponents = GetComponentsForEntity(entity);
+            GetEntityComponents(entityComponents, entity);
+        }
 
         void RegisterEntity(UID entity) {
             //UnityEngine.Debug.Log(entity.ID + "valid! Adding to system!");
             validEntities.Add(entity);
             //Add components to process
-            TComponents components = _GetEntityComponents(entity);
+            TComponents components = _CreateEntityComponents(entity);
             componentsToProcess.Add(components);
 
             newComponents.Add(components);
@@ -284,24 +298,21 @@ namespace ECS {
         /// 
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="gotInvalid"></param>
-        void UnregisterEntity(UID entity, bool gotInvalid) {
+        void UnregisterEntity(UID entity) {
             //UnityEngine.Debug.Log(entity.ID + " invalid! Removing from system!");
             //Remove components to process
             int _entityID = entity.ID;
-            
+
             //TODO: Find a faster way to remove the components.
-            TComponents components = componentsToProcess.Find(o => o.Entity.ID == _entityID);
+            TComponents components = GetComponentsForEntity(entity);
             if (components != null) {
                 componentsToProcess.Remove(components);
             }
             
             //componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
             validEntities.Remove(entity);
-            if (gotInvalid) {
-                // only add entiy to removedEntities if it got invalid (and will be really removed from the valid entities and not readded immediately)
-                removedCompoments.Add(components);
-            }
+
+            removedComponents.Add(components);
         }
 
         /// <summary>
@@ -311,13 +322,14 @@ namespace ECS {
         /// <returns></returns>
         protected abstract bool IsEntityValid(UID entity);
 
-        private TComponents _GetEntityComponents(UID entity) {
+        private TComponents _CreateEntityComponents(UID entity) {
             TComponents tc = new TComponents();
             tc.Entity = entity;
             // TODO: Get rid of this again
             //tc.EntityManager = entityManager;
             return GetEntityComponents(tc, entity);
         }
+
         /// <summary>
         /// Caches all needed components from the entity
         /// </summary>
