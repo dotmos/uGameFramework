@@ -258,7 +258,7 @@ namespace ECS {
         }
 
         public IComponent AddComponent(UID entity, IComponent component) {
-            if (EntityExists(entity) && !HasComponent(entity, component)) {
+            if (EntityExists(entity) && !HasComponent(entity, component.GetType())) {
                 //component.Entity.SetID(entity.ID);
                 component.Entity = entity;
                 SetupComponentID(component);
