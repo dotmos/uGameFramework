@@ -236,6 +236,21 @@ public class ObservableList<T> : IList<T>, IObservableEnumeration {
     }
 }
 
+public class Utils {
+    /// <summary>
+    /// Get a random number except one
+    /// </summary>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="except"></param>
+    /// <returns></returns>
+    public static int RandomIntExcept(int min, int max, int except) {
+        int result = UnityEngine.Random.Range(min, max - 1);
+        if (result >= except) result += 1;
+        return result;
+    }
+}
+
 public class ObservableDictionary<TKey,TValue> : IDictionary<TKey, TValue>, IObservableEnumeration {
     private Dictionary<TKey, TValue> innerDictionary = new Dictionary<TKey, TValue>();
     private bool isDirty = true;
