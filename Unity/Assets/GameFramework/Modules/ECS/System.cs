@@ -297,7 +297,7 @@ namespace ECS {
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        TComponents GetSystemComponentsForEntity(UID entity) {
+        protected TComponents GetComponentsForEntity(UID entity) {
             TComponents components = componentsToProcess.Find(o => o.Entity == entity);
             return components;
         }
