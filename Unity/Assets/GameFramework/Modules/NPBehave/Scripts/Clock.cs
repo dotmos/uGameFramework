@@ -22,6 +22,7 @@ namespace NPBehave
         }
 
         private double elapsedTime = 0f;
+        public float currentDeltaTime = 0f;
 
         private List<Timer> timerPool = new List<Timer>();
         private int currentTimerPoolIndex = 0;
@@ -190,7 +191,7 @@ namespace NPBehave
         public void Update(float deltaTime)
         {
             this.elapsedTime += deltaTime;
-
+            this.currentDeltaTime = deltaTime;
             this.isInUpdate = true;
 
             foreach (System.Action action in updateObservers)
