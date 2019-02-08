@@ -6,7 +6,7 @@ Features an optional multithreaded ECS imlementation, modular services, parallel
 
 Needs Unity with .NET 4.6 support enabled. (found in PlayerSettings)
 
-Uses Zenject (https://github.com/modesttree/Zenject) and UniRx (https://github.com/neuecc/UniRx).
+Uses Zenject (https://github.com/modesttree/Zenject), Flatbuffers (https://github.com/google/flatbuffers) and UniRx (https://github.com/neuecc/UniRx).
 
 Used in production at gentlymad studios for "Furious Fightpub", "Pizza Connection 3" and other games.
 .
