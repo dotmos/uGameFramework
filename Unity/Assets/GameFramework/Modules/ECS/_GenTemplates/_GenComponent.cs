@@ -9,36 +9,49 @@ using Service.Serializer;
                           /// </summary>
 [System.Serializable]
 public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS.Component {
-/*block:enum*/
-/// <summary>
-/*name:comment*//*endname*/
-/// </summary>
-    public enum /*name:enumName*/State/*endname*/ : int
-    {
+    /*block:enum*/
+    /// <summary>
+    /*name:comment*//*endname*/
+                    /// </summary>
+    public enum /*name:enumName*/State/*endname*/ : int {
         /*block:entry*//*block:comment*/
-/// <summary>
-/*name:comment*//*endname*/
-/// </summary>/*endblock:comment*/
+                       /// <summary>
+        /*name:comment*//*endname*/
+                        /// </summary>/*endblock:comment*/
         /*name:entryName*/
         state1/*endname*/ /*name:entryNumber*//*endname*/,
- /*endblock:entry*/
- /*block:rip*/        state2 = 1,
+        /*endblock:entry*/
+        /*block:rip*/
+        state2 = 1,
         state3 = 2,
- /*endblock:rip*/
+        /*endblock:rip*/
     }
-/*endblock:enum*/
- 
-/*block:field*/
-/// <summary>
-/*name:comment*//*endname*/    
-/// </summary>
+    /*endblock:enum*/
+
+    /*block:field*/
+    /// <summary>
+    /*name:comment*//*endname*/
+                    /// </summary>
     /*name:attributes*//*endname*/
     public /*name:type*/State/*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
     /*endblock:field*/
     /*block:rip*/
-    public string testName="f95";
-    public UID testUID = new UID(1895);
+    public string testName = "f95";
+    public UID? testUID = new UID(1895);
     public float testNumber = 18.95f;
+
+    public class FreeTypeTestObject : IPocoBase<FreeTypeTestObject> {
+        private string data;
+        public FreeTypeTestObject() {
+            data = "bla";
+        }
+        public void ShallowCopy(FreeTypeTestObject from) {
+            this.data = from.data;
+        }
+    }
+
+    public FreeTypeTestObject freeTypeTest = null;
+
     public System.Collections.Generic.List<UID> testListUID = new System.Collections.Generic.List<UID>();
     public System.Collections.Generic.List<int> testListPrimitive = new System.Collections.Generic.List<int>();
     public System.Collections.Generic.Dictionary<string, int> testDict = new System.Collections.Generic.Dictionary<string, int>();
@@ -60,9 +73,27 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*name:ComponentName*/GenTemplateComponent/*endname*/ component = (/*name:ComponentName*/GenTemplateComponent/*endname*/)target;
 /*block:copyField*/        this./*name:name*/state/*endname*/ = component./*name:name*/state/*endname*/;
 /*endblock:copyField*/
-/*block:shallowCopy*/        this./*name:name*/state/*endname*/ = new /*name:type*/State()/*endname*/;
+/*block:shallowCopyList*/        if (this./*name:name*/testListUID/*endname*/== null) {
+                this./*name:name*/testListUID/*endname*/ = new /*name:type*/System.Collections.Generic.List<UID>/*endname*/(component./*name:name*/testListUID/*endname*/);
+            } else {
+                this./*name:name*/testListUID/*endname*/.Clear();
+                this./*name:name*/testListUID/*endname*/.AddRange(component./*name:name*/testListUID/*endname*/);
+            }
 /*endblock:shallowCopy*/
-
+/*block:shallowCopyDict*/       if (this./*name:name*/testDict/*endname*/== null) {
+                this./*name:name*/testDict/*endname*/ = new /*name:type*/System.Collections.Generic.Dictionary<string, int>/*endname*/(component./*name:name*/testDict/*endname*/);
+            } else {
+                this./*name:name*/testDict/*endname*/.Clear();
+                foreach (var pair in component./*name:name*/testDict/*endname*/) {
+                    this./*name:name*/testDict/*endname*/[pair.Key] = pair.Value;
+                }
+            }
+/*endblock:shallowCopyDict*/
+/*block:shallowCopyFreeType*/       if (this./*name:name*/freeTypeTest/*endname*/== null) {
+                this./*name:name*/freeTypeTest/*endname*/ = new /*name:type*/FreeTypeTestObject/*endname*/();
+            }
+            this./*name:name*/freeTypeTest/*endname*/.ShallowCopy(component./*name:name*/freeTypeTest/*endname*/);
+/*endblock:shallowCopyFreeType*/
     }
 
     public override IComponent Clone() {
