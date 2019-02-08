@@ -260,10 +260,10 @@ namespace ECS {
             if(valid && wasValid) {
                 UpdateEntity(entity);
             }
-            if (valid && !wasValid) {
+            else if (valid && !wasValid) {
                 RegisterEntity(entity);
             }
-            if (!valid && wasValid) {
+            else if (!valid && wasValid) {
                 UnregisterEntity(entity);
             }
         }
@@ -273,14 +273,14 @@ namespace ECS {
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        TComponents GetComponentsForEntity(UID entity) {
+        TComponents GetSystemComponentsForEntity(UID entity) {
             TComponents components = componentsToProcess.Find(o => o.Entity == entity);
             return components;
         }
 
 
         void UpdateEntity(UID entity) {
-            var entityComponents = GetComponentsForEntity(entity);
+            var entityComponents = GetSystemComponentsForEntity(entity);
             GetEntityComponents(entityComponents, entity);
         }
 
@@ -288,7 +288,7 @@ namespace ECS {
             //UnityEngine.Debug.Log(entity.ID + "valid! Adding to system!");
             validEntities.Add(entity);
             //Add components to process
-            TComponents components = _CreateEntityComponents(entity);
+            TComponents components = _CreateSystemComponentsForEntity(entity);
             componentsToProcess.Add(components);
 
             newComponents.Add(components);
@@ -304,7 +304,7 @@ namespace ECS {
             int _entityID = entity.ID;
 
             //TODO: Find a faster way to remove the components.
-            TComponents components = GetComponentsForEntity(entity);
+            TComponents components = GetSystemComponentsForEntity(entity);
             if (components != null) {
                 componentsToProcess.Remove(components);
             }
@@ -322,7 +322,7 @@ namespace ECS {
         /// <returns></returns>
         protected abstract bool IsEntityValid(UID entity);
 
-        private TComponents _CreateEntityComponents(UID entity) {
+        private TComponents _CreateSystemComponentsForEntity(UID entity) {
             TComponents tc = new TComponents();
             tc.Entity = entity;
             // TODO: Get rid of this again
