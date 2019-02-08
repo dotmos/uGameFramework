@@ -345,6 +345,133 @@ public class DebugUtils {
     }
 }
 
+public class SimplePool<T>  where T : class {
+    // keep the available objects in a stack
+    readonly Stack<T> _stack = new Stack<T>();
+    public Func<T> createFunc;
+    public Action<T> onAcquire;
+    public Action<T> onRelease;
+    public Action<T> onDispose;
+
+    /// <summary>
+    /// Objects that are acquired by the user
+    /// </summary>
+    readonly List<WeakReference<T>> acquiredObjects = new List<WeakReference<T>>();
+    readonly bool keepTrackOfAcquired;
+
+    int discardObjectCount = -1;
+
+    /// <summary>
+    /// Create a pool for any reference-type. you need to provide at least a createFunction that will create an object for the pool
+    /// if no object can be acquired from the stack
+    /// </summary>
+    /// <param name="createFunc">function that creates a new instance</param>
+    /// <param name="maxObjectsOnStack">amount of objects that can be kept on the stack waiting for acquire.(InitObjects is not affected by this value)</param>
+    /// <param name="keepTrackOfAquiredObjects">keep a weakreference on all objects created by us an acquired by the use</param>
+    /// <param name="onAcquire">function called when acquire is called and the object is passed to the user</param>
+    /// <param name="onRelease">function called after release</param>
+    /// <param name="onDispose">function called to dispose the object</param>
+    public SimplePool(Func<T> createFunc,int maxObjectsOnStack=-1,bool keepTrackOfAquiredObjects=false,Action<T> onAcquire=null,Action<T> onRelease = null,Action<T> onDispose=null) {
+        this.createFunc = createFunc;
+        this.onAcquire = onAcquire;
+        this.onRelease = onRelease;
+        this.onDispose = onDispose;
+        this.keepTrackOfAcquired = keepTrackOfAquiredObjects;
+    }
+
+    /// <summary>
+    /// Set the maximum amout of objects on the internal stack. Using InitObjects is not affect by this. But objects released will not be 
+    /// added to the stack if the stack amount is higher that the discardObjectCount
+    /// </summary>
+    /// <param name="amount"></param>
+    public void SetDiscardObjectCount(int amount) {
+        discardObjectCount = amount;
+    }
+
+    /// <summary>
+    /// Create this amount of objects and puts it on the internal stack
+    /// </summary>
+    /// <param name="amount"></param>
+    public void InitObjects(int amount) {
+        for (int i = amount - 1; i >= 0; i--) {
+            T obj = createFunc();
+            if (onAcquire != null) {
+                onAcquire(obj);
+            }
+            _stack.Push(obj);
+        }
+    }
+
+    /// <summary>
+    /// Gets a pooled object or creates a new one if needed
+    /// </summary>
+    /// <returns></returns>
+    public T Acquire() {
+        T obj = _stack.Count > 0
+                ? _stack.Pop()
+                : createFunc();
+
+        if (onAcquire != null) {
+            onAcquire(obj);
+        }
+        if (keepTrackOfAcquired) {
+            acquiredObjects.Add(new WeakReference<T>(obj));
+        }
+        return obj;
+    }
+
+    /// <summary>
+    /// Release the object to the pool again so that is can be reused
+    /// </summary>
+    /// <param name="obj"></param>
+    public void Release(T obj) {
+        if (onRelease != null) {
+            onRelease(obj);
+        }
+
+        if (keepTrackOfAcquired) {
+            // remove the current and all weak pointers which got invalid
+            acquiredObjects.RemoveAll(o => !o.TryGetTarget(out T target) || target == o);
+        }
+
+        if (discardObjectCount==-1 || _stack.Count < discardObjectCount) {
+            _stack.Push(obj);
+        } else if (onDispose != null) {
+            // we exceeded the stack amount therefore let the GC do what it have to do
+            onDispose(obj);
+        }
+    }
+
+    /// <summary>
+    /// Call the onDispose action on all objects still in the stack
+    /// 
+    /// </summary>
+    /// <param name="includingAcquiredObjects"></param>
+    public void Dispose(bool includingAcquiredObjects) {
+        if (onDispose != null) {
+            while (_stack.Count > 0) {
+                var obj = _stack.Pop();
+                onDispose(obj);
+            }
+
+            if (includingAcquiredObjects) {
+                foreach (var weakRef in acquiredObjects) {
+                    if (weakRef.TryGetTarget(out T obj)){
+                        onDispose(obj);
+                    }
+                }
+                while (_stack.Count > 0) {
+                    var obj = _stack.Pop();
+                    onDispose(obj);
+                }
+
+            }
+
+        }
+        _stack.Clear();
+    }
+}
+
 public static partial class UtilsExtensions
 {
     public static IObservable<bool> ToObservable(this Action act) {
