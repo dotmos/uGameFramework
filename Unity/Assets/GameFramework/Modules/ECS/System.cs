@@ -40,7 +40,9 @@ namespace ECS {
 
         private CompositeDisposable disposables;
 
-        protected ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentsProcessor = new ParallelSystemComponentsProcessor<TComponents>();
+        //protected ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentsProcessor = new ParallelSystemComponentsProcessor<TComponents>();
+        //protected ParallelSystemProcessor<TComponents> parallelSystemProcessor;
+        ThreadedSystemProcessor<TComponents> threadedSystemProcessor;
 
         string _systemName = null;
         string SystemName {
@@ -88,11 +90,13 @@ namespace ECS {
         }
 
         protected virtual void AfterBind() {
-            if (UseParallelSystemComponentsProcessing()) {
+            if (UseParallelSystemComponentsProcessing() && threadedSystemProcessor== null) {
 #if UNITY_EDITOR
                 sampler = UnityEngine.Profiling.CustomSampler.Create(SystemName);
 #endif
-                parallelSystemComponentsProcessor.Setup((i, deltaTime) => ProcessAtIndex(i, deltaTime), componentsToProcess);
+                //parallelSystemComponentsProcessor.Setup((i, deltaTime) => ProcessAtIndex(i, deltaTime), componentsToProcess);
+                //parallelSystemProcessor = new ParallelSystemProcessor<TComponents>(componentsToProcess, (i, deltaTime) => ProcessAtIndex(i, deltaTime));
+                threadedSystemProcessor = new ThreadedSystemProcessor<TComponents>();
             }
         }
 
@@ -165,7 +169,23 @@ namespace ECS {
                 UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel System Components Processor", SystemName);
                 sampler.Begin();
 #endif
-                parallelSystemComponentsProcessor.Invoke(deltaTime);
+                //parallelSystemComponentsProcessor.Invoke(deltaTime);
+                //parallelSystemProcessor.Process(deltaTime);
+                threadedSystemProcessor.Process(componentsToProcess, ProcessAtIndex, deltaTime);
+
+                /*
+                //Not cool. Creates garbage.
+                //Create some sort of thread pool, then keep threads alive and give them work to do instead of creating new tasks/threads
+                int degreeOfParallelism = Environment.ProcessorCount;
+                System.Threading.Tasks.ParallelLoopResult result = System.Threading.Tasks.Parallel.For(0, degreeOfParallelism, workerId => {
+                    var max = componentsToProcess.Count * (workerId + 1) / degreeOfParallelism;
+                    for (int i = componentsToProcess.Count * workerId / degreeOfParallelism; i < max; i++)
+                        //array[i] = array[i] * factor;
+                        ProcessAtIndex(i, deltaTime);
+                });
+                while (!result.IsCompleted) { }
+                */
+
 #if UNITY_EDITOR
                 sampler.End();
                 UnityEngine.Profiling.Profiler.EndThreadProfiling();
@@ -348,7 +368,8 @@ namespace ECS {
         }
 
         public virtual void Dispose() {
-            parallelSystemComponentsProcessor.Dispose();
+            //parallelSystemProcessor.Dispose();
+            threadedSystemProcessor.Dispose();
 
             disposables.Dispose();
             disposables = null;
