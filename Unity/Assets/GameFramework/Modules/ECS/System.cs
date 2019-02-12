@@ -40,9 +40,7 @@ namespace ECS {
 
         private CompositeDisposable disposables;
 
-        //protected ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentsProcessor = new ParallelSystemComponentsProcessor<TComponents>();
-        //protected ParallelSystemProcessor<TComponents> parallelSystemProcessor;
-        ThreadedSystemProcessor<TComponents> threadedSystemProcessor;
+        ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentProcessor;
 
         string _systemName = null;
         string SystemName {
@@ -90,13 +88,11 @@ namespace ECS {
         }
 
         protected virtual void AfterBind() {
-            if (UseParallelSystemComponentsProcessing() && threadedSystemProcessor== null) {
+            if (UseParallelSystemComponentsProcessing() && parallelSystemComponentProcessor== null) {
 #if UNITY_EDITOR
                 sampler = UnityEngine.Profiling.CustomSampler.Create(SystemName);
 #endif
-                //parallelSystemComponentsProcessor.Setup((i, deltaTime) => ProcessAtIndex(i, deltaTime), componentsToProcess);
-                //parallelSystemProcessor = new ParallelSystemProcessor<TComponents>(componentsToProcess, (i, deltaTime) => ProcessAtIndex(i, deltaTime));
-                threadedSystemProcessor = new ThreadedSystemProcessor<TComponents>();
+                parallelSystemComponentProcessor = new ParallelSystemComponentsProcessor<TComponents>(ProcessAtIndex);
             }
         }
 
@@ -165,13 +161,14 @@ namespace ECS {
             */
 
             if (UseParallelSystemComponentsProcessing()) {
+                /*
 #if UNITY_EDITOR
                 UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel System Components Processor", SystemName);
                 sampler.Begin();
 #endif
-                //parallelSystemComponentsProcessor.Invoke(deltaTime);
-                //parallelSystemProcessor.Process(deltaTime);
-                threadedSystemProcessor.Process(componentsToProcess, ProcessAtIndex, deltaTime);
+                */
+
+                parallelSystemComponentProcessor.Process(componentsToProcess, deltaTime);
 
                 /*
                 //Not cool. Creates garbage.
@@ -186,11 +183,12 @@ namespace ECS {
                 while (!result.IsCompleted) { }
                 */
 
+                /*
 #if UNITY_EDITOR
                 sampler.End();
                 UnityEngine.Profiling.Profiler.EndThreadProfiling();
 #endif
-
+                */
             } else {
                 for (int i = 0; i < componentsToProcess.Count; ++i) {
                     ProcessAtIndex(i, deltaTime);
@@ -368,8 +366,7 @@ namespace ECS {
         }
 
         public virtual void Dispose() {
-            //parallelSystemProcessor.Dispose();
-            threadedSystemProcessor.Dispose();
+            parallelSystemComponentProcessor.Dispose();
 
             disposables.Dispose();
             disposables = null;
