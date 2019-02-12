@@ -40,6 +40,11 @@ namespace ECS {
 
         private CompositeDisposable disposables;
 
+        /// <summary>
+        /// The delta time, that will be used for the next legit ProcessAll call. Once this value reaches a value that is higher or equal to SystemUpdateRate(), ProcessAll() call is valid.
+        /// </summary>
+        float currentUpdateDeltaTime = 0;
+
         ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentProcessor;
 
         string _systemName = null;
@@ -133,67 +138,52 @@ namespace ECS {
         protected virtual void OnUnregistered(List<TComponents> unregisteredEntities) {
         }
 
+        /// <summary>
+        /// The updaterate to use for ProcessAll(). 0 updates every frame. 0.1f updates 10 times per second. 0.5f updates 2 times per second.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual float SystemUpdateRate() {
+            return 0;
+        }
+
 
         protected abstract bool UseParallelSystemComponentsProcessing();
 
         /// <summary>
-        /// Process all entities
+        /// Process all entities. Will add deltaTime to an internal counter and then update entities based on SystemUpdateRate()
         /// </summary>
         protected virtual void ProcessAll(float deltaTime) {
-            /*
-            for(int i=0; i<componentsToProcess.Count; ++i) {
-                //TComponents c = componentsToProcess[i];
-                Process(componentsToProcess[i]);
-                //componentsToProcess[i] = c;
-            }
-            */
 
-            /*
-            foreach(TComponents c in componentsToProcess) {
-                try {
-                    Process(c);
+            currentUpdateDeltaTime += deltaTime;
+
+            //Process system components
+            if(currentUpdateDeltaTime >= SystemUpdateRate()) {
+                if (UseParallelSystemComponentsProcessing()) {
+                    /*
+    #if UNITY_EDITOR
+                    UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel System Components Processor", SystemName);
+                    sampler.Begin();
+    #endif
+                    */
+
+                    parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
+
+                    /*
+    #if UNITY_EDITOR
+                    sampler.End();
+                    UnityEngine.Profiling.Profiler.EndThreadProfiling();
+    #endif
+                    */
                 }
-                catch (Exception e){
-                    UnityEngine.Debug.Log("There was a problem in process all in system:"+GetType());
-                    UnityEngine.Debug.LogException(e);
+                else {
+                    for (int i = 0; i < componentsToProcess.Count; ++i) {
+                        ProcessAtIndex(i, currentUpdateDeltaTime);
+                    }
                 }
+
+                currentUpdateDeltaTime = 0;
             }
-            */
-
-            if (UseParallelSystemComponentsProcessing()) {
-                /*
-#if UNITY_EDITOR
-                UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel System Components Processor", SystemName);
-                sampler.Begin();
-#endif
-                */
-
-                parallelSystemComponentProcessor.Process(componentsToProcess, deltaTime);
-
-                /*
-                //Not cool. Creates garbage.
-                //Create some sort of thread pool, then keep threads alive and give them work to do instead of creating new tasks/threads
-                int degreeOfParallelism = Environment.ProcessorCount;
-                System.Threading.Tasks.ParallelLoopResult result = System.Threading.Tasks.Parallel.For(0, degreeOfParallelism, workerId => {
-                    var max = componentsToProcess.Count * (workerId + 1) / degreeOfParallelism;
-                    for (int i = componentsToProcess.Count * workerId / degreeOfParallelism; i < max; i++)
-                        //array[i] = array[i] * factor;
-                        ProcessAtIndex(i, deltaTime);
-                });
-                while (!result.IsCompleted) { }
-                */
-
-                /*
-#if UNITY_EDITOR
-                sampler.End();
-                UnityEngine.Profiling.Profiler.EndThreadProfiling();
-#endif
-                */
-            } else {
-                for (int i = 0; i < componentsToProcess.Count; ++i) {
-                    ProcessAtIndex(i, deltaTime);
-                }
-            }
+            
         }
 
         protected abstract void ProcessAtIndex(int componentIndex, float deltaTime);
