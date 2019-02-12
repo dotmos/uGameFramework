@@ -35,11 +35,13 @@ namespace ECS {
                 workerCount = Environment.ProcessorCount;
                 //workerTasks = new WorkerTask[workerCount];
                 _workers = new Thread[workerCount];
-
                 // Create and start a separate thread for each worker
-                for (int i = 0; i < workerCount; i++)
-                    //workerTasks[i] = new WorkerTask();
-                    (_workers[i] = new Thread(Consume)).Start();
+                for (int i = 0; i < workerCount; i++) {
+                    Thread t = new Thread(Consume);
+                    t.IsBackground = true;
+                    t.Start();
+                    _workers[i] = t;
+                }                    
             }
 
             processActionData = new ProcessActionData[workerCount];
