@@ -28,6 +28,29 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     }
     /*endblock:enum*/
 
+    /*block:modelClass*/
+    [System.Serializable]
+    public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+        /*block:field*/
+        /*name:scope*/public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
+        /*endblock:field*/
+        /*name:classSerialization*/
+        public void Deserialize(object incoming) {
+            throw new System.NotImplementedException();
+        }
+
+        public void Deserialize(ByteBuffer buf) {
+            throw new System.NotImplementedException();
+        }
+
+        public int Serialize(FlatBufferBuilder builder) {
+            throw new System.NotImplementedException();
+        }
+        /*endname*/
+    }
+
+    /*endblock:modelClass*/
+
     /*block:field*/
     /// <summary>
     /*name:comment*//*endname*/
