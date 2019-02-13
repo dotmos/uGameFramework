@@ -166,7 +166,21 @@ namespace ECS {
     #endif
                     */
 
-                    parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
+
+
+                    //parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
+
+                    //Produces garbage, but parallelSystemComponentProcessor is currently broken and might freeze the game in some cases
+                    int degreeOfParallelism = Environment.ProcessorCount;
+                    System.Threading.Tasks.ParallelLoopResult result = System.Threading.Tasks.Parallel.For(0, degreeOfParallelism, workerId =>
+                    {
+                        var max = componentsToProcess.Count * (workerId + 1) / degreeOfParallelism;
+                        for (int i = componentsToProcess.Count * workerId / degreeOfParallelism; i < max; i++)
+                            //array[i] = array[i] * factor;
+                            ProcessAtIndex(i, currentUpdateDeltaTime);
+                    });
+
+                    while (!result.IsCompleted) { }
 
                     /*
     #if UNITY_EDITOR
