@@ -168,9 +168,10 @@ namespace ECS {
 
 
 
-                    //parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
+                    parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
 
-                    //Produces garbage, but parallelSystemComponentProcessor is currently broken and might freeze the game in some cases
+                    /*
+                    //Workaround for broken parallelSystemComponentProcessor. Produces garbage.
                     int degreeOfParallelism = Environment.ProcessorCount;
                     System.Threading.Tasks.ParallelLoopResult result = System.Threading.Tasks.Parallel.For(0, degreeOfParallelism, workerId =>
                     {
@@ -181,6 +182,7 @@ namespace ECS {
                     });
 
                     while (!result.IsCompleted) { }
+                    */
 
                     /*
     #if UNITY_EDITOR

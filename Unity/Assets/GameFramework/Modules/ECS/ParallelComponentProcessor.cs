@@ -10,7 +10,7 @@ namespace ECS {
         static readonly object _locker = new object();
         static Thread[] _workers;
         static int workerCount;
-        static Queue<Action> _itemQ = new Queue<Action>();
+        static ConcurrentQueue<Action> _itemQ = new ConcurrentQueue<Action>();
 
         static readonly object _workingCountLocker = new object();
         static long workingCount = 0;
@@ -32,14 +32,14 @@ namespace ECS {
 
         public ParallelSystemComponentsProcessor(Action<int, float> componentAction) {
             if (_workers == null) {
-                workerCount = Environment.ProcessorCount;
-                //workerTasks = new WorkerTask[workerCount];
+                workerCount = Math.Max(Environment.ProcessorCount - 1, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
                 _workers = new Thread[workerCount];
                 // Create and start a separate thread for each worker
                 for (int i = 0; i < workerCount; i++) {
                     Thread t = new Thread(Consume);
                     t.IsBackground = true;
                     t.Start();
+                    //Task t = Task.Factory.StartNew(Consume, TaskCreationOptions.LongRunning);
                     _workers[i] = t;
                 }                    
             }
@@ -48,8 +48,10 @@ namespace ECS {
             processActions = new Action[workerCount];
             for (int i = 0; i < workerCount; ++i) {
                 processActionData[i] = new ProcessActionData();
-                ProcessActionData processData = processActionData[i];
+                int threadID = i;
                 processActions[i] = () => {
+                    //Thread.MemoryBarrier();
+                    ProcessActionData processData = processActionData[threadID];
                     for (int componentIndex = processData.startComponentIndex; componentIndex <= processData.endComponentIndex; ++componentIndex) {
                         componentAction(componentIndex, processData.deltaTime);
                     }
@@ -102,7 +104,9 @@ namespace ECS {
                 Action item;
                 lock (_locker) {
                     while (_itemQ.Count == 0) Monitor.Wait(_locker);
-                    item = _itemQ.Dequeue();
+                    if(!_itemQ.TryDequeue(out item)) {
+                        continue;
+                    }
                 }
                 // This signals our exit.
                 if (item == null) return;
