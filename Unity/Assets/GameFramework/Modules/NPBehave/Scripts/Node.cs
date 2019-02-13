@@ -160,7 +160,7 @@ namespace NPBehave
 #if UNITY_EDITOR
             RootNode.TotalNumStoppedCalls++;
             this.DebugNumStoppedCalls++;
-            this.DebugLastStoppedAt = UnityEngine.Time.time;
+            this.DebugLastStoppedAt = (float)Clock.ElapsedTime;
             DebugLastResult = success;
 #endif
             if (this.ParentNode != null)

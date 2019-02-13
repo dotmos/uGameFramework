@@ -491,6 +491,11 @@ public static partial class UtilsExtensions
         });
     }
 
+    public static float NextFloat(this System.Random rand,float from,float to) {
+        var r = rand.Next((int)(from * 1000), (int)(to * 1000)) / 1000.0f;
+        return r;
+    }
+
     public static Vector2 StringToVector2(string sVector) {
         sVector = sVector.Replace(" ", "");
         // Remove the parentheses

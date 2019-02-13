@@ -13,6 +13,7 @@ namespace NPBehave
         private HashSet<System.Action> removeTimers = new HashSet<System.Action>();
         private Dictionary<System.Action, Timer> addTimers = new Dictionary<System.Action, Timer>();
         private bool isInUpdate = false;
+        System.Random random = new System.Random();
 
         class Timer
         {
@@ -43,7 +44,7 @@ namespace NPBehave
         /// <param name="action">method to invoke</param>
         public void AddTimer(float time, float randomVariance, int repeat, System.Action action)
         {
-            time = time - randomVariance * 0.5f + randomVariance * UnityEngine.Random.value;
+            time = time - randomVariance * 0.5f + randomVariance * (float)random.NextDouble();
             if (!isInUpdate)
             {
                 if (this.timers.ContainsKey(action))
@@ -190,6 +191,7 @@ namespace NPBehave
 
         public void Update(float deltaTime)
         {
+//            UnityEngine.Debug.Log("Process Clock("+updateObservers.Count+" oberservers) on Thread:" + System.Threading.Thread.CurrentThread.ManagedThreadId);
             this.elapsedTime += deltaTime;
             this.currentDeltaTime = deltaTime;
             this.isInUpdate = true;
