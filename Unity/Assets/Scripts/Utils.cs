@@ -345,6 +345,82 @@ public class DebugUtils {
     }
 }
 
+/// <summary>
+/// One singleton that can pool any object that has a default constructor
+/// </summary>
+public class GenericPool {
+    public Dictionary<Type, SimplePool<object>> pools = new Dictionary<Type, SimplePool<object>>();
+
+    public static GenericPool Instance { get; } = new GenericPool(10);
+
+    private int maxElementsOnStack;
+
+    private GenericPool(int maxElementsOnPoolStack = 10) {
+        this.maxElementsOnStack = maxElementsOnPoolStack;
+    }
+
+    public Dictionary<Type, Func<object>> customCreators = new Dictionary<Type, Func<object>>();
+
+    public void RegisterCustomCreator<T>(Func<object> createFunc) where T : new() {
+        customCreators[typeof(T)] = createFunc;
+    }
+
+    public T Acquire<T>() where T:new() {
+        if (pools.TryGetValue(typeof(T),out SimplePool<object> pool)) {
+            var result = (T)pool.Acquire();
+            return result;
+        } else {
+            // no pool for this type? create one
+             
+            // try to receive a custom creator that was registered for this type
+            customCreators.TryGetValue(typeof(T), out Func<object> createFunc);
+            if (createFunc == null) {
+                createFunc = () => { return new T(); };
+            }
+
+            var newPool = new SimplePool<object>(createFunc, maxElementsOnStack);
+
+            // add some default release-methods to clear list-types on release
+            if (typeof(T).IsAssignableFrom(typeof(IList))) {
+                newPool.onRelease = (obj) => {
+                    ((IList)obj).Clear();
+                };
+            }
+            else if (typeof(T).IsAssignableFrom(typeof(IDictionary))) {
+                newPool.onRelease = (obj) => {
+                    ((IDictionary)obj).Clear();
+                };
+            }
+
+            pools[typeof(T)] = newPool;
+            var newObj = newPool.Acquire();
+            return (T)newObj;
+        }
+    }
+
+    public void Release(params object[] releaseObjs) {
+        for (int i = releaseObjs.Length - 1; i >= 0; i--) {
+            var releaseObj = releaseObjs[i];
+            if (pools.TryGetValue(releaseObj.GetType(), out SimplePool<object> pool)) {
+                pool.Release(releaseObj);
+            } else {
+                Debug.LogWarning("You tried to release an object that wasn't acquired via genericpool");
+                // TODO: Do we want to release objects for a type that weren't created once with this? why not
+            }
+        }
+    }
+
+    /// <summary>
+    /// Clear all pools with released objects
+    /// </summary>
+    public void ClearPool() {
+        foreach (var pool in pools.Values) {
+            pool.Dispose(false);
+        }
+        pools.Clear();
+    }
+}
+
 public class SimplePool<T>  where T : class {
     // keep the available objects in a stack
     readonly Stack<T> _stack = new Stack<T>();
