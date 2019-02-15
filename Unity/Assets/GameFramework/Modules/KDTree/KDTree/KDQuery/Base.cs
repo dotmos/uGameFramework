@@ -126,6 +126,9 @@ namespace DataStructures.ViliWonka.KDTree {
             minHeap.Clear();
         }
 
+        public KDQuery() : this(2048) {
+        }
+
         public KDQuery(int queryNodesContainersInitialSize = 2048) {
             queueArray = new KDQueryNode[queryNodesContainersInitialSize];
             minHeap = new Heap.MinHeap<KDQueryNode>(queryNodesContainersInitialSize);
