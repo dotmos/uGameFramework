@@ -490,6 +490,11 @@ namespace DataStructures.ViliWonka.KDTree{
                 return result;
             }
 
+            public void RemoveWrappedObject(object obj) {
+                points = points.FindAll(wrapped => wrapped.UserObject != obj);
+                Rebuild();
+            }
+
             public IEnumerator<T> GetEnumerator() {
                 return ((IList<T>)points).GetEnumerator();
             }
