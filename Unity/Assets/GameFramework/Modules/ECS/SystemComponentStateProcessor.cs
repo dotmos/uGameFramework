@@ -7,19 +7,19 @@ namespace ECS {
     /// </summary>
     /// <typeparam name="TSystemComponents"></typeparam>
     /// <typeparam name="TStates"></typeparam>
-    public abstract class SystemComponentStateProcessor<TSystemComponents, TStates> where TSystemComponents : ISystemComponents {
+    public abstract class SystemComponentStateProcessor<TSystemComponents, TStates> where TSystemComponents : ISystemComponents where TStates : System.Enum {
 
-        public delegate TStates GetState(TSystemComponents components);
-        GetState getState;
+        //public delegate TStates GetState(TSystemComponents components);
+        //GetState getState;
 
-        public delegate void SetState(TSystemComponents components, TStates state);
-        SetState setState;
+        //public delegate void SetState(TSystemComponents components, TStates state);
+        //SetState setState;
 
-        public SystemComponentStateProcessor(GetState getState, SetState setState) {
+        public SystemComponentStateProcessor() {
             Kernel.Instance.Inject(this);
 
-            this.getState = getState;
-            this.setState = setState;
+            //this.getState = getState;
+            //this.setState = setState;
         }
 
 
@@ -29,14 +29,20 @@ namespace ECS {
 
         protected abstract TStates OnProcess(TSystemComponents components, TStates state, float deltaTime);
 
+        protected abstract TStates GetState(TSystemComponents components);
+        protected abstract void SetState(TSystemComponents components, TStates newState);
+        protected abstract bool StateEqual(TStates stateA, TStates stateB);
+
         public void Process(TSystemComponents components, float deltaTime) {
-            TStates state = getState(components);
+            TStates state = GetState(components);
             TStates newState = OnProcess(components, state, deltaTime);
-            if (!state.Equals(newState)) {
+            
+            if (!StateEqual(state, newState)) {
                 OnExit(components, state, newState, deltaTime);
-                setState(components, newState);
+                SetState(components, newState);
                 OnEnter(components, state, newState, deltaTime);
             }
+            
         }
     }
 }

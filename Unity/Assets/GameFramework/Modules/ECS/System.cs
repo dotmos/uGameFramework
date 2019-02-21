@@ -45,7 +45,7 @@ namespace ECS {
         /// </summary>
         float currentUpdateDeltaTime = 0;
 
-        //ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentProcessor;
+        ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentProcessor;
 
         string _systemName = null;
         string SystemName {
@@ -97,7 +97,7 @@ namespace ECS {
 #if UNITY_EDITOR
                 sampler = UnityEngine.Profiling.CustomSampler.Create(SystemName);
 #endif
-                //parallelSystemComponentProcessor = new ParallelSystemComponentsProcessor<TComponents>(ProcessAtIndex);
+                parallelSystemComponentProcessor = new ParallelSystemComponentsProcessor<TComponents>(ProcessAtIndex);
             }
         }
 
@@ -168,9 +168,9 @@ namespace ECS {
 
 
 
-                    //parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
+                    parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
 
-                    
+                    /*
                     //Workaround for broken parallelSystemComponentProcessor. Produces garbage.
                     int degreeOfParallelism = Environment.ProcessorCount;
                     System.Threading.Tasks.ParallelLoopResult result = System.Threading.Tasks.Parallel.For(0, degreeOfParallelism, workerId =>
@@ -182,7 +182,7 @@ namespace ECS {
                     });
 
                     while (!result.IsCompleted) { }
-                    
+                    */
 
                     /*
     #if UNITY_EDITOR
@@ -372,7 +372,7 @@ namespace ECS {
         }
 
         public virtual void Dispose() {
-            //if(parallelSystemComponentProcessor != null) parallelSystemComponentProcessor.Dispose();
+            if(parallelSystemComponentProcessor != null) parallelSystemComponentProcessor.Dispose();
 
             disposables.Dispose();
             disposables = null;
