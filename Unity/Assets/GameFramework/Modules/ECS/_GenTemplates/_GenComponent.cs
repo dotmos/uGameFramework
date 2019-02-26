@@ -56,7 +56,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*name:comment*//*endname*/
                     /// </summary>
     /*name:attributes*//*endname*/
-    public /*name:type*/State/*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
+    /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
     /*endblock:field*/
     /*block:rip*/
     public string testName = "f95";
