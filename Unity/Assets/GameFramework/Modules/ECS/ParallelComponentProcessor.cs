@@ -6,14 +6,21 @@ using System.Threading.Tasks;
 
 namespace ECS {
 
-    public class ParallelSystemComponentsProcessor<T> : IDisposable where T : ISystemComponents {
-        static readonly object _locker = new object();
-        static Thread[] _workers;
-        static int workerCount;
-        static ConcurrentQueue<Action> _itemQ = new ConcurrentQueue<Action>();
+    /// <summary>
+    /// Helper class, holding static thread data used by ParallelSystemComponentsProcessor<T>
+    /// </summary>
+    public static class ParallelSystemComponentsProcessorWorkers{
+        public static readonly object _locker = new object();
+        public static Thread[] _workers;
+        public static int workerCount;
+        public static ConcurrentQueue<Action> _itemQ = new ConcurrentQueue<Action>();
 
-        static readonly object _workingCountLocker = new object();
-        static long workingCount = 0;
+        public static readonly object _workingCountLocker = new object();
+        public static long workingCount = 0;
+    }
+
+    public class ParallelSystemComponentsProcessor<T> : IDisposable where T : ISystemComponents {
+        
         
         /// <summary>
         /// Cached action to process for this system
@@ -31,22 +38,23 @@ namespace ECS {
 
 
         public ParallelSystemComponentsProcessor(Action<int, float> componentAction) {
-            if (_workers == null) {
-                workerCount = Math.Max(Environment.ProcessorCount - 1, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
-                _workers = new Thread[workerCount];
+            if (ParallelSystemComponentsProcessorWorkers._workers == null) {
+                ParallelSystemComponentsProcessorWorkers.workerCount = Math.Max(Environment.ProcessorCount - 1, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
+                ParallelSystemComponentsProcessorWorkers._workers = new Thread[ParallelSystemComponentsProcessorWorkers.workerCount];
                 // Create and start a separate thread for each worker
-                for (int i = 0; i < workerCount; i++) {
+                for (int i = 0; i < ParallelSystemComponentsProcessorWorkers.workerCount; i++) {
                     Thread t = new Thread(Consume);
+                    t.Name = "ParallelComponentProcessor-" + i.ToString();
                     t.IsBackground = true;
                     t.Start();
                     //Task t = Task.Factory.StartNew(Consume, TaskCreationOptions.LongRunning);
-                    _workers[i] = t;
+                    ParallelSystemComponentsProcessorWorkers._workers[i] = t;
                 }                    
             }
 
-            processActionData = new ProcessActionData[workerCount];
-            processActions = new Action[workerCount];
-            for (int i = 0; i < workerCount; ++i) {
+            processActionData = new ProcessActionData[ParallelSystemComponentsProcessorWorkers.workerCount];
+            processActions = new Action[ParallelSystemComponentsProcessorWorkers.workerCount];
+            for (int i = 0; i < ParallelSystemComponentsProcessorWorkers.workerCount; ++i) {
                 processActionData[i] = new ProcessActionData();
                 int threadID = i;
                 processActions[i] = () => {
@@ -56,9 +64,9 @@ namespace ECS {
                         componentAction(componentIndex, processData.deltaTime);
                     }
                     //Interlocked.Decrement(ref workingCount);
-                    lock (_workingCountLocker) {
-                        workingCount--;
-                        Monitor.Pulse(_workingCountLocker);
+                    lock (ParallelSystemComponentsProcessorWorkers._workingCountLocker) {
+                        ParallelSystemComponentsProcessorWorkers.workingCount--;
+                        Monitor.Pulse(ParallelSystemComponentsProcessorWorkers._workingCountLocker);
                     }
                 };
             }
@@ -74,12 +82,12 @@ namespace ECS {
         /// <param name="waitForWorkers"></param>
         void Shutdown(bool waitForWorkers) {
             // Enqueue one null item per worker to make each exit.
-            foreach (Thread worker in _workers)
+            foreach (Thread worker in ParallelSystemComponentsProcessorWorkers._workers)
                 EnqueueItem(null);
 
             // Wait for workers to finish
             if (waitForWorkers)
-                foreach (Thread worker in _workers)
+                foreach (Thread worker in ParallelSystemComponentsProcessorWorkers._workers)
                     worker.Join();
         }
 
@@ -88,10 +96,10 @@ namespace ECS {
         /// </summary>
         /// <param name="item"></param>
         void EnqueueItem(Action item) {
-            lock (_locker) {
-                _itemQ.Enqueue(item);
+            lock (ParallelSystemComponentsProcessorWorkers._locker) {
+                ParallelSystemComponentsProcessorWorkers._itemQ.Enqueue(item);
                 // We must pulse because we're changing a blocking condition.
-                Monitor.Pulse(_locker);
+                Monitor.Pulse(ParallelSystemComponentsProcessorWorkers._locker);
             }
         }
 
@@ -102,9 +110,9 @@ namespace ECS {
             // Keep consuming until told otherwise.
             while (true) {
                 Action item;
-                lock (_locker) {
-                    while (_itemQ.Count == 0) Monitor.Wait(_locker);
-                    if(!_itemQ.TryDequeue(out item)) {
+                lock (ParallelSystemComponentsProcessorWorkers._locker) {
+                    while (ParallelSystemComponentsProcessorWorkers._itemQ.Count == 0) Monitor.Wait(ParallelSystemComponentsProcessorWorkers._locker);
+                    if(!ParallelSystemComponentsProcessorWorkers._itemQ.TryDequeue(out item)) {
                         continue;
                     }
                 }
@@ -120,9 +128,9 @@ namespace ECS {
             if (componentsToProcess.Count == 0) return;
 
             //Make sure we are not using more threads than components
-            int workersToUse = Math.Min(workerCount, componentsToProcess.Count);
+            int workersToUse = Math.Min(ParallelSystemComponentsProcessorWorkers.workerCount, componentsToProcess.Count);
 
-            Interlocked.Exchange(ref workingCount, workersToUse);
+            Interlocked.Exchange(ref ParallelSystemComponentsProcessorWorkers.workingCount, workersToUse);
 
             int componentChunk = (int)Math.Floor((float)componentsToProcess.Count / (float)workersToUse);
             for (int i = 0; i < workersToUse; ++i) {
@@ -157,8 +165,8 @@ namespace ECS {
             */
 
             //Wait for queue to finish
-            lock (_workingCountLocker) {
-                while (workingCount > 0) Monitor.Wait(_workingCountLocker);
+            lock (ParallelSystemComponentsProcessorWorkers._workingCountLocker) {
+                while (ParallelSystemComponentsProcessorWorkers.workingCount > 0) Monitor.Wait(ParallelSystemComponentsProcessorWorkers._workingCountLocker);
             }
         }
 
