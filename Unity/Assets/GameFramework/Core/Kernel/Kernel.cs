@@ -66,6 +66,10 @@ public partial class Kernel : SceneContext {
     }
 
     new protected virtual void Awake(){
+        if(System.Threading.Thread.CurrentThread.Name != "MainThread") {
+            System.Threading.Thread.CurrentThread.Name = "MainThread";
+        }
+
         Instance = this;
  
         base.Awake();
