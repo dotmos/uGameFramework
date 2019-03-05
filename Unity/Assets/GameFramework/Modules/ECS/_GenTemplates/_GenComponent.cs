@@ -92,7 +92,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /// Copy values from other component. Shallow copy.
     /// </summary>
     /// <param name="target"></param>
-    public override void CopyValues(IComponent target) {
+    public override void CopyValues(IComponent target, bool initFromPrefab=false) {
         /*name:ComponentName*/GenTemplateComponent/*endname*/ component = (/*name:ComponentName*/GenTemplateComponent/*endname*/)target;
 /*block:copyField*/        this./*name:name*/state/*endname*/ = component./*name:name*/state/*endname*/;
 /*endblock:copyField*/
@@ -117,11 +117,17 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             }
             this./*name:name*/freeTypeTest/*endname*/.ShallowCopy(component./*name:name*/freeTypeTest/*endname*/);
 /*endblock:shallowCopyFreeType*/
+/*block:newInstanceCopy*/       if (this./*name:name*/testDict/*endname*/!= null && initFromPrefab) {
+            this./*name:name*/testDict/*endname*/.Clear();
+        } else {
+            this./*name:name*/testDict/*endname*/ = component./*name:name*/testDict/*endname*/;
+        }   
+/*endblock:newInstanceCopy*/
     }
 
-    public override IComponent Clone() {
+    public override IComponent Clone(bool cloneFromPrefab=false) {
         var clone = new  /*name:ComponentName*/GenTemplateComponent/*endname*/();
-        clone.CopyValues(this);
+        clone.CopyValues(this,cloneFromPrefab);
         return clone;
     }
 /*block:serialization*/
@@ -184,11 +190,11 @@ public class GenTemplateComponent2 : ECS.Component
 {
     public float time;
 
-    public override IComponent Clone() {
+    public override IComponent Clone(bool cloneFromPrefab=false) {
         throw new System.NotImplementedException();
     }
 
-    public override void CopyValues(IComponent target) {
+    public override void CopyValues(IComponent target, bool initFromPrefab = false) {
         throw new System.NotImplementedException();
     }
 }

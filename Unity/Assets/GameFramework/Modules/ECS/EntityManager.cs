@@ -300,7 +300,7 @@ namespace ECS {
             */
             if(componentToClone != null) {
                 IComponent newComponent = CreateComponentFromType(componentToClone.GetType());
-                newComponent.CopyValues(componentToClone);
+                newComponent.CopyValues(componentToClone,true);
                 newComponent.ID = new UID();
                 SetupComponentID(newComponent);
                 return newComponent;

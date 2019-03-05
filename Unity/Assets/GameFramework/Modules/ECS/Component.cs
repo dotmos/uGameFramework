@@ -47,9 +47,9 @@ namespace ECS {
             wasConstructed = true;
         }
 
-        public abstract void CopyValues(IComponent target);
+        public abstract void CopyValues(IComponent target, bool initFromPrefab=false);
 
-        public abstract IComponent Clone();
+        public abstract IComponent Clone(bool cloneFromPrefab=false);
 
         public virtual void Dispose() {
         }
