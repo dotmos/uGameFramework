@@ -167,6 +167,11 @@ public class ObservableList<T> : IList<T>, IObservableEnumeration {
     private List<T> innerList = new List<T>();
     private bool isDirty = true;
 
+    public ObservableList(){}
+    public ObservableList(ObservableList<T> list) {
+        innerList.AddRange(list.innerList);
+    }
+
     public List<T> InnerList {
         get { return innerList; }
     }
@@ -205,6 +210,11 @@ public class ObservableList<T> : IList<T>, IObservableEnumeration {
 
     public void Add(T item) {
         ((IList<T>)innerList).Add(item);
+        SetDirtyFlag();
+    }
+
+    public void AddRange(ObservableList<T> rangeList) {
+        innerList.AddRange(rangeList);
         SetDirtyFlag();
     }
 
