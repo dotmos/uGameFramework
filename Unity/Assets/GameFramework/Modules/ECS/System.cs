@@ -154,52 +154,45 @@ namespace ECS {
         /// </summary>
         protected virtual void ProcessAll(float deltaTime) {
 
-            currentUpdateDeltaTime += deltaTime;
-
-            //Process system components
-            if(currentUpdateDeltaTime >= SystemUpdateRate()) {
-                if (UseParallelSystemComponentsProcessing()) {
-                    /*
-    #if UNITY_EDITOR
-                    UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel System Components Processor", SystemName);
-                    sampler.Begin();
-    #endif
-                    */
+           
+            if (UseParallelSystemComponentsProcessing()) {
+                /*
+#if UNITY_EDITOR
+                UnityEngine.Profiling.Profiler.BeginThreadProfiling("Parallel System Components Processor", SystemName);
+                sampler.Begin();
+#endif
+                */
 
 
 
-                    parallelSystemComponentProcessor.Process(componentsToProcess, currentUpdateDeltaTime);
+                parallelSystemComponentProcessor.Process(componentsToProcess, deltaTime);
 
-                    /*
-                    //Workaround for broken parallelSystemComponentProcessor. Produces garbage.
-                    int degreeOfParallelism = Environment.ProcessorCount;
-                    System.Threading.Tasks.ParallelLoopResult result = System.Threading.Tasks.Parallel.For(0, degreeOfParallelism, workerId =>
-                    {
-                        var max = componentsToProcess.Count * (workerId + 1) / degreeOfParallelism;
-                        for (int i = componentsToProcess.Count * workerId / degreeOfParallelism; i < max; i++)
-                            //array[i] = array[i] * factor;
-                            ProcessAtIndex(i, currentUpdateDeltaTime);
-                    });
-
-                    while (!result.IsCompleted) { }
-                    */
-
-                    /*
-    #if UNITY_EDITOR
-                    sampler.End();
-                    UnityEngine.Profiling.Profiler.EndThreadProfiling();
-    #endif
-                    */
-                }
-                else {
-                    for (int i = 0; i < componentsToProcess.Count; ++i) {
+                /*
+                //Workaround for broken parallelSystemComponentProcessor. Produces garbage.
+                int degreeOfParallelism = Environment.ProcessorCount;
+                System.Threading.Tasks.ParallelLoopResult result = System.Threading.Tasks.Parallel.For(0, degreeOfParallelism, workerId =>
+                {
+                    var max = componentsToProcess.Count * (workerId + 1) / degreeOfParallelism;
+                    for (int i = componentsToProcess.Count * workerId / degreeOfParallelism; i < max; i++)
+                        //array[i] = array[i] * factor;
                         ProcessAtIndex(i, currentUpdateDeltaTime);
-                    }
-                }
+                });
 
-                currentUpdateDeltaTime = 0;
+                while (!result.IsCompleted) { }
+                */
+
+                /*
+#if UNITY_EDITOR
+                sampler.End();
+                UnityEngine.Profiling.Profiler.EndThreadProfiling();
+#endif
+                */
             }
-            
+            else {
+                for (int i = 0; i < componentsToProcess.Count; ++i) {
+                    ProcessAtIndex(i, deltaTime);
+                }
+            }      
         }
 
         protected abstract void ProcessAtIndex(int componentIndex, float deltaTime);
@@ -219,7 +212,12 @@ namespace ECS {
 #if ECS_PROFILING && UNITY_EDITOR
                 watchService.Restart();
 #endif
-                ProcessAll(deltaTime);
+                currentUpdateDeltaTime += deltaTime;
+                //Process system components
+                if (currentUpdateDeltaTime >= SystemUpdateRate()) {
+                    ProcessAll(currentUpdateDeltaTime);
+                    currentUpdateDeltaTime = 0;
+                }
 #if ECS_PROFILING && UNITY_EDITOR
                 watchService.Stop();
                 var elapsedTime = watchService.Elapsed.TotalSeconds;
