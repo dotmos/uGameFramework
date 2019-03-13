@@ -64,6 +64,11 @@ namespace ECS {
         public void Deserialize(ByteBuffer buf) {
             throw new System.NotImplementedException();
         }
+
+        public override string ToString() {
+            return "UID:"+ID.ToString();
+        }
+
     }
 
 }
