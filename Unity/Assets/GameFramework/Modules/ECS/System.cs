@@ -358,13 +358,7 @@ namespace ECS {
         /// <param name="components"></param>
         /// <returns></returns>
         protected abstract TComponents GetEntityComponents(TComponents components, UID entity);
-
-        /// <summary>
-        /// Process the cached entity components
-        /// </summary>
-        /// <param name="components"></param>
-        protected virtual void Process(TComponents components) { }
-        
+       
         public void AddDisposable(IDisposable disposable) {
             disposables.Add(disposable);
         }
