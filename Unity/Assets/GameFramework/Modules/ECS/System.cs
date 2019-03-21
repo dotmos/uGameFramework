@@ -267,7 +267,7 @@ namespace ECS {
         }
 
         /// <summary>
-        /// Call whenever an entity is modified
+        /// Call whenever an entity is modified. Entity might no longer be valid for this system.
         /// </summary>
         /// <param name="entity"></param>
         public virtual void EntityModified(UID entity) {
@@ -304,7 +304,14 @@ namespace ECS {
         void UpdateEntity(UID entity) {
             var entityComponents = GetSystemComponentsForEntity(entity);
             GetEntityComponents(entityComponents, entity);
+            EntityUpdated(ref entityComponents);
         }
+
+        /// <summary>
+        /// Called when a valid entity was updated
+        /// </summary>
+        /// <param name="components"></param>
+        protected virtual void EntityUpdated(ref TComponents components) { }
 
         void RegisterEntity(UID entity) {
             //UnityEngine.Debug.Log(entity.ID + "valid! Adding to system!");
