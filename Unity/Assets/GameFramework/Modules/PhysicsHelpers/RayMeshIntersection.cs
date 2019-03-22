@@ -37,6 +37,9 @@ namespace PhysicsHelper {
                 }
             }
 
+            //Output hitPoint
+            if (hitSomething) hitPoint = closestHitPoint;
+
             return hitSomething;
         }
     }
