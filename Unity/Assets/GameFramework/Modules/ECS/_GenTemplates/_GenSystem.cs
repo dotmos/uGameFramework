@@ -81,6 +81,14 @@ namespace Systems {
         }
 
         /// <summary>
+        /// Called for every valid entity that was updated or just registered with the system.
+        /// </summary>
+        /// <param name="components"></param>
+        protected override void EntityUpdated(ref /*name:systemComponentsName*/ GenTemplateSystemComponents/*endname*/ components) {
+            base.EntityUpdated(ref components);
+        }
+
+        /// <summary>
         /// Called for systemComponent that is destroyed or invalid
         /// </summary>
         /// <param name="unregisteredEntities"></param>
