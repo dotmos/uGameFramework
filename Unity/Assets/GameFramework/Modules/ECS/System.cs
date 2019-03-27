@@ -200,6 +200,10 @@ namespace ECS {
         public void ProcessSystem(float deltaTime) {
             if (newComponents.Count > 0) {
                 OnRegistered(newComponents);
+                for(int i=0; i<newComponents.Count; ++i) {
+                    TComponents components = newComponents[i];
+                    EntityUpdated(ref components);
+                }
                 newComponents.Clear();
             }
             if (removedComponents.Count > 0)
