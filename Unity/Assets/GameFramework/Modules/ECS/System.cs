@@ -38,6 +38,11 @@ namespace ECS {
         /// </summary>
         protected List<TComponents> removedComponents;
 
+        /// <summary>
+        /// Temporarily store updated components here and call EntityUpdated when the system is Ticked again.
+        /// </summary>
+        protected List<TComponents> updatedComponents;
+
         private CompositeDisposable disposables;
 
         /// <summary>
@@ -68,6 +73,7 @@ namespace ECS {
             disposables = new CompositeDisposable();
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
+            updatedComponents = new List<TComponents>();
 
             SetEntityManager(entityManager);
 
@@ -198,6 +204,7 @@ namespace ECS {
         protected abstract void ProcessAtIndex(int componentIndex, float deltaTime);
 
         public void ProcessSystem(float deltaTime) {
+            //Tell system there are new components
             if (newComponents.Count > 0) {
                 OnRegistered(newComponents);
                 for(int i=0; i<newComponents.Count; ++i) {
@@ -206,6 +213,15 @@ namespace ECS {
                 }
                 newComponents.Clear();
             }
+            //Tell system components were updated
+            if(updatedComponents.Count > 0) {
+                for(int i=0; i<updatedComponents.Count; ++i) {
+                    TComponents components = updatedComponents[i];
+                    EntityUpdated(ref components);
+                }
+                updatedComponents.Clear();
+            }
+            //Tell system that components were removed
             if (removedComponents.Count > 0)
             {
                 OnUnregistered(removedComponents);
@@ -308,7 +324,8 @@ namespace ECS {
         void UpdateEntity(UID entity) {
             var entityComponents = GetSystemComponentsForEntity(entity);
             GetEntityComponents(entityComponents, entity);
-            EntityUpdated(ref entityComponents);
+            
+            updatedComponents.Add(entityComponents);
         }
 
         /// <summary>
