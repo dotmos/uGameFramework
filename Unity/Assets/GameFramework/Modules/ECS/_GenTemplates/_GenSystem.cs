@@ -64,11 +64,51 @@ namespace Systems {
             return false;
         }
 
+        /// <summary>
+        /// Sets an update rate for this system. 0 = every frame
+        /// </summary>
+        /// <returns></returns>
+        protected override float SystemUpdateRate() {
+            return 0;
+        }
+
+        /// <summary>
+        /// Called for a systemComponent that got registered and valid
+        /// </summary>
+        /// <param name="newRegisteredComponents"></param>
+        protected override void OnRegistered(List<GenTemplateSystemComponents> newRegisteredComponents) {
+            base.OnRegistered(newRegisteredComponents);
+        }
+
+        /// <summary>
+        /// Called for systemComponent that is destroyed or invalid
+        /// </summary>
+        /// <param name="unregisteredEntities"></param>
+        protected override void OnUnregistered(List<GenTemplateSystemComponents> unregisteredEntities) {
+            base.OnUnregistered(unregisteredEntities);
+        }
+
+        /// <summary>
+        /// Called for every single valid element by base.ProcessAll(dt)
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="deltaTime"></param>
         protected override void ProcessAtIndex(int index, float deltaTime) {
             /*name:systemComponentsName*/ GenTemplateSystemComponents/*endname*/ components = componentsToProcess[index];
 
             // add the system-logic here
         }
+
+        /// <summary>
+        /// Entrypoint. Called once per updateRate-interval and triggers ProcessAtIndex via base.ProcessAll(dt)
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        protected override void ProcessAll(float deltaTime) {
+            base.ProcessAll(deltaTime);
+        }
+
+
+
     }
 /*endblock:implPart*/
 }
