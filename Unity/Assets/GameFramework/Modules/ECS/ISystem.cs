@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace ECS {
-    public interface ISystem {
+    public interface ISystem : IDisposable {
         /// <summary>
         /// Sets the entity manager for this system
         /// </summary>
@@ -20,8 +20,6 @@ namespace ECS {
         /// </summary>
         /// <param name="entity"></param>
         void EntityModified(UID entity);
-
-        void AddDisposable(IDisposable disposable);
         
         void ProcessSystem(float deltaTime);
     }

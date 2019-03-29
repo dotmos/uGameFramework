@@ -2,11 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using UniRx;
 using Zenject;
+using UniRx;
 
 namespace ECS {
-    public abstract class System<TComponents> : IDisposable, ISystem where TComponents : ISystemComponents, new(){
+    public abstract class System<TComponents> : ISystem where TComponents : ISystemComponents, new(){
 
         public IEntityManager entityManager { get; private set; }
 
@@ -43,8 +43,6 @@ namespace ECS {
         /// </summary>
         protected List<TComponents> updatedComponents;
 
-        private CompositeDisposable disposables;
-
         /// <summary>
         /// The delta time, that will be used for the next legit ProcessAll call. Once this value reaches a value that is higher or equal to SystemUpdateRate(), ProcessAll() call is valid.
         /// </summary>
@@ -70,7 +68,6 @@ namespace ECS {
         public System(IEntityManager entityManager) {
             validEntities = new HashSet<UID>();
             componentsToProcess = new List<TComponents>(65535); //Initial size is ushort. Will allocate more, if needed.
-            disposables = new CompositeDisposable();
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
             updatedComponents = new List<TComponents>();
@@ -386,16 +383,9 @@ namespace ECS {
         /// <param name="components"></param>
         /// <returns></returns>
         protected abstract TComponents GetEntityComponents(TComponents components, UID entity);
-       
-        public void AddDisposable(IDisposable disposable) {
-            disposables.Add(disposable);
-        }
-
+ 
         public virtual void Dispose() {
             if(parallelSystemComponentProcessor != null) parallelSystemComponentProcessor.Dispose();
-
-            disposables.Dispose();
-            disposables = null;
 
             entityManager = null;
 

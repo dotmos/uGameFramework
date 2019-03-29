@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace ECS {
-    public interface IEntityManager : IFBSerializable {
+    public interface IEntityManager : IFBSerializable, IDisposable {
         void Initialize();
 
         void Tick(float deltaTime);

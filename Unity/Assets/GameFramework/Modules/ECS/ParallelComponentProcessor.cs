@@ -17,6 +17,11 @@ namespace ECS {
 
         public static readonly object _workingCountLocker = new object();
         public static long workingCount = 0;
+
+        /// <summary>
+        /// Systems using this processor. 
+        /// </summary>
+        public static int componentsProcessorInstanceCount = 0;
     }
 
     public class ParallelSystemComponentsProcessor<T> : IDisposable where T : ISystemComponents {
@@ -38,6 +43,8 @@ namespace ECS {
 
 
         public ParallelSystemComponentsProcessor(Action<int, float> componentAction) {
+            ParallelSystemComponentsProcessorWorkers.componentsProcessorInstanceCount++;
+
             if (ParallelSystemComponentsProcessorWorkers._workers == null) {
                 ParallelSystemComponentsProcessorWorkers.workerCount = Math.Max(Environment.ProcessorCount - 1, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
                 ParallelSystemComponentsProcessorWorkers._workers = new Thread[ParallelSystemComponentsProcessorWorkers.workerCount];
@@ -171,7 +178,10 @@ namespace ECS {
         }
 
         public void Dispose() {
-            Shutdown(true);
+            ParallelSystemComponentsProcessorWorkers.componentsProcessorInstanceCount--;
+            if(ParallelSystemComponentsProcessorWorkers.componentsProcessorInstanceCount <= 0) {
+                Shutdown(true);
+            }
         }
     }
 }

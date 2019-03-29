@@ -5,6 +5,7 @@ using UniRx;
 using System.Linq;
 using FlatBuffers;
 using System.Text;
+using Zenject;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -53,6 +54,8 @@ namespace ECS {
         /// </summary>
         public bool AutoCallEntityModified { get; set; } = true;
 
+        [Inject] DisposableManager dManager;
+
         public EntityManager() {
             _entities = new Dictionary<UID, HashSet<IComponent>>();
             _entityIDs = new HashSet<int>();
@@ -61,6 +64,11 @@ namespace ECS {
             _recycledComponentIds = new Queue<int>();
             _lastEntityId = _startEntityID;
             _lastComponentId = _startComponentID;
+        }
+
+        [Inject]
+        void OnInject() {
+            dManager.Add(this);
         }
 
         /// <summary>
@@ -518,6 +526,24 @@ namespace ECS {
 
         public virtual void Deserialize(ByteBuffer buf) {
             UnityEngine.Debug.LogError("FLATBUFFER (DE)SERIALIZER NOT ACTIVATED! Implement (De)Serialize-Methods in your own");
+        }
+
+        public void Dispose() {
+            dManager.Remove(this);
+            List<ISystem> systemsToRemove = new List<ISystem>(_systems);
+            foreach(ISystem s in systemsToRemove) {
+                UnregisterSystem(s);
+                s.Dispose();
+            }
+            _systems.Clear();
+
+            foreach(KeyValuePair<UID, HashSet<IComponent>> kv in _entities) {
+                kv.Value.Clear();
+            }
+            _entities.Clear();
+
+            _recycledEntityIds.Clear();
+            _recycledComponentIds.Clear();
         }
     }
 }

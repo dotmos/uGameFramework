@@ -12,7 +12,7 @@ using ModestTree.Util;
 public partial class Kernel : SceneContext {
 
     Service.Events.IEventsService eventService;
-    DisposableManager dManager;
+    protected DisposableManager dManager;
 
     static bool loadingKernelScene = false;
     public static string overrideSceneName = null;
