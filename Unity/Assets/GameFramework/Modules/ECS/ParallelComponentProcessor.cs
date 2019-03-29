@@ -125,8 +125,15 @@ namespace ECS {
                 }
                 // This signals our exit.
                 if (item == null) return;
+
                 // Execute item
-                item();
+                try {
+                    item();
+                } catch(Exception e) {
+                    //Console.WriteLine(e.Message);
+                    UnityEngine.Debug.LogException(e);
+                }
+                
             }
         }
 
