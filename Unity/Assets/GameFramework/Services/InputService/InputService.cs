@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using UniRx;
 using Zenject;
 
 namespace Service.Input{
@@ -15,7 +14,6 @@ namespace Service.Input{
         Dictionary<object, List<Func<float>>> axisHandlers = new Dictionary<object, List<Func<float>>>();
 
         DisposableManager _dManager;
-        CompositeDisposable disposables = new CompositeDisposable();
         bool inputEnabled = true;
 
         Service.Events.IEventsService _eventService;
@@ -29,20 +27,23 @@ namespace Service.Input{
             _eventService = eventService;
 
             _dManager.Add(this);
+        }
 
-            //Fire events on button up/down
-            disposables.Add( Observable.EveryUpdate().Subscribe(e => {
-                if (inputEnabled) {
-                    //Check button down
-                    foreach (KeyValuePair<object, List<Func<bool>>> kv in buttonDownHandlers) {
-                        if (GetButtonDown(kv.Key)) _eventService.Publish(new Events.ButtonDownEvent() { button = kv.Key });
-                    }
-                    //Check button up
-                    foreach (KeyValuePair<object, List<Func<bool>>> kv in buttonUpHandlers) {
-                        if (GetButtonUp(kv.Key)) _eventService.Publish(new Events.ButtonUpEvent() { button = kv.Key });
-                    }
+        /// <summary>
+        /// Tick the input service
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        public void Tick(float deltaTime) {
+            if (inputEnabled) {
+                //Check button down
+                foreach (KeyValuePair<object, List<Func<bool>>> kv in buttonDownHandlers) {
+                    if (GetButtonDown(kv.Key)) _eventService.Publish(new Events.ButtonDownEvent() { button = kv.Key });
                 }
-            }) );
+                //Check button up
+                foreach (KeyValuePair<object, List<Func<bool>>> kv in buttonUpHandlers) {
+                    if (GetButtonUp(kv.Key)) _eventService.Publish(new Events.ButtonUpEvent() { button = kv.Key });
+                }
+            }
         }
 
         /// <summary>
@@ -254,7 +255,6 @@ namespace Service.Input{
             if(bDisposed) return;
             bDisposed = true;
 
-            disposables.Dispose();
             _dManager.Remove(this);
         }
     }

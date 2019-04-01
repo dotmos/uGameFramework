@@ -2,6 +2,9 @@
 
 namespace Service.Input{    
     public interface IInputService {
+
+        void Tick(float deltaTime);
+
         /// <summary>
         /// Enables or disables input
         /// </summary>
