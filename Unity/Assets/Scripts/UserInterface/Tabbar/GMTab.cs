@@ -70,17 +70,7 @@ namespace UserInterface
                     myTabBar.SetAsActiveTab(this);
             }
 
-            foreach(Graphic colorizeElement in colorizeElements)
-            {
-                colorizeElement.color = activate ? activeColor : defaultColor;
-            }
-
             ActivateContent(activate);
-
-            if (border != null)
-            {
-                border.SetActive(activate);
-            }
         }
 
         /// <summary>
@@ -135,13 +125,33 @@ namespace UserInterface
         }
 #endif
 
+        protected override void DoStateTransition(SelectionState state, bool instant) {
+            base.DoStateTransition(state, instant);
+
+            if (state == SelectionState.Pressed) {
+                foreach (Graphic colorizeElement in colorizeElements) {
+                    if (interactable) {
+                        colorizeElement.color = pressedColor;
+                    }
+                }
+            } else {
+                foreach (Graphic colorizeElement in colorizeElements) {
+                    if (interactable) {
+                        colorizeElement.color = isOn ? activeColor : defaultColor;
+                    }
+                }
+            }
+        }
+
         protected virtual void OnToggleValueChanged(bool _isOn) {
             foreach(Graphic colorizeElement in colorizeElements) {
                 if (interactable) {
                     colorizeElement.color = _isOn ? activeColor : defaultColor;
-                } else {
-                    colorizeElement.color = pressedColor;
                 }
+            }
+
+            if (border != null) {
+                border.SetActive(_isOn);
             }
         }
     }
