@@ -76,7 +76,7 @@ namespace Systems {
         /// Called for a systemComponent that got registered and valid
         /// </summary>
         /// <param name="newRegisteredComponents"></param>
-        protected override void OnRegistered(List<GenTemplateSystemComponents> newRegisteredComponents) {
+        protected override void OnRegistered(List</*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/> newRegisteredComponents) {
             base.OnRegistered(newRegisteredComponents);
         }
 
@@ -92,7 +92,7 @@ namespace Systems {
         /// Called for systemComponent that is destroyed or invalid
         /// </summary>
         /// <param name="unregisteredEntities"></param>
-        protected override void OnUnregistered(List<GenTemplateSystemComponents> unregisteredEntities) {
+        protected override void OnUnregistered(List</*name:systemComponentsName*/GenTemplateSystemComponents/*endname*/> unregisteredEntities) {
             base.OnUnregistered(unregisteredEntities);
         }
 
