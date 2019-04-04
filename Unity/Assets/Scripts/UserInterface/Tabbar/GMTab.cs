@@ -16,6 +16,7 @@ namespace UserInterface
         public Color activeColor;
         public Color highlightColor;
         public Color pressedColor;
+        public Color disabledColor;
 
         private GMTabbar myTabBar;
 
@@ -92,9 +93,7 @@ namespace UserInterface
 
             if (interactable && !isOn)
             {
-                foreach(Graphic colorizeElement in colorizeElements) {
-                    if (colorizeElement != null) colorizeElement.color = highlightColor;
-                }
+                ColorizeElements(highlightColor);
             }
         }
 
@@ -104,10 +103,7 @@ namespace UserInterface
 
             if (interactable && !isOn)
             {
-                foreach (Graphic colorizeElement in colorizeElements)
-                {
-                    if (colorizeElement != null) colorizeElement.color = defaultColor;
-                }
+                ColorizeElements(defaultColor);
             }
         }
 
@@ -128,30 +124,32 @@ namespace UserInterface
         protected override void DoStateTransition(SelectionState state, bool instant) {
             base.DoStateTransition(state, instant);
 
-            if (state == SelectionState.Pressed) {
-                foreach (Graphic colorizeElement in colorizeElements) {
-                    if (interactable) {
-                        colorizeElement.color = pressedColor;
-                    }
+            if (IsInteractable()) {
+                if (state == SelectionState.Pressed) {
+                    ColorizeElements(pressedColor);
+                } else {
+                    Color color = isOn ? activeColor : defaultColor;
+                    ColorizeElements(color);
                 }
             } else {
-                foreach (Graphic colorizeElement in colorizeElements) {
-                    if (interactable) {
-                        colorizeElement.color = isOn ? activeColor : defaultColor;
-                    }
-                }
+                ColorizeElements(disabledColor);
             }
         }
 
         protected virtual void OnToggleValueChanged(bool _isOn) {
-            foreach(Graphic colorizeElement in colorizeElements) {
-                if (interactable) {
-                    colorizeElement.color = _isOn ? activeColor : defaultColor;
-                }
+            if (interactable) {
+                Color color = _isOn ? activeColor : defaultColor;
+                ColorizeElements(color);
             }
 
             if (border != null) {
                 border.SetActive(_isOn);
+            }
+        }
+
+        void ColorizeElements(Color color) {
+            foreach (Graphic colorizeElement in colorizeElements) {
+                colorizeElement.color = color;
             }
         }
     }
