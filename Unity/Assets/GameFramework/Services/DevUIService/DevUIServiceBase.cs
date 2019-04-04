@@ -102,7 +102,8 @@ namespace Service.DevUIService
         bool isDisposed = false;
 
         public virtual void Dispose() {
-            if (isDisposed || Kernel.applicationQuitting) return;
+            //if (isDisposed || Kernel.applicationQuitting) return;
+            if (isDisposed) return;
             isDisposed = true;
             disposables.Dispose();
 
