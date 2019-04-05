@@ -392,7 +392,7 @@ namespace ECS {
             validEntities.Clear();
             componentsToProcess.Clear();
 
-            UnityEngine.Debug.Log("System disposed");
+            UnityEngine.Debug.Log("System("+this.GetType().Name+") disposed");
         }
     }
 }
