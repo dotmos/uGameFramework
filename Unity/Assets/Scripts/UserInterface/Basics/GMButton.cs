@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -13,6 +15,28 @@ namespace UserInterface
         public Color highlightColor;
         public Color pressedColor;
         public Color disabledColor;
+
+        // Event delegate triggered on mouse or touch down.
+        [SerializeField]
+        GMButtonRightClickEvent _onRightClick = new GMButtonRightClickEvent();
+
+        [Serializable]
+        public class GMButtonRightClickEvent : UnityEvent { }
+
+        protected GMButton() { }
+
+        public override void OnPointerClick(PointerEventData eventData) {
+            if (eventData.button == PointerEventData.InputButton.Left) {
+                onClick.Invoke();
+            } else if (eventData.button == PointerEventData.InputButton.Right) {
+                _onRightClick.Invoke();
+            }
+        }
+
+        public GMButtonRightClickEvent onRightClick {
+            get { return _onRightClick; }
+            set { _onRightClick = value; }
+        }
 
         protected override void DoStateTransition(SelectionState state, bool instant)
         {
