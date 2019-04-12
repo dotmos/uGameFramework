@@ -170,6 +170,9 @@ namespace Service.DevUIService {
 
 					object DataBrowserConvertObject(object inObject);
 
+
+					void OutputGameInfo(float systemStartupTime);
+
 	}
 
 

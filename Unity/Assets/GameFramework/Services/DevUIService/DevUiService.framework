@@ -47,6 +47,8 @@ namespace Service.DevUIService {
 		void AddDataBrowserObjectConverter(("Type") objType, ("Func<object,object>") converter);
 		## "try to convert the inObject, if no conversion is possible return the inObject"
 		object DataBrowserConvertObject(object inObject);
+		
+		void OutputGameInfo(float systemStartupTime);
     }   
 }          
 ## model
@@ -98,4 +100,9 @@ public class PickedEntity{
 public class UIViewFocused { 
 	public ("DevUIView") focusedView;
 }
+
+public class GameInfoChanged {
+	public float systemStartupTime;
+}
+
 ## service end

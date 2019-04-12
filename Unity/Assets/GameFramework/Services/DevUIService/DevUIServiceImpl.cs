@@ -465,8 +465,8 @@ namespace Service.DevUIService {
             return dataBrowserTopLevelElements;
         }
 
+        public override void OutputGameInfo(float systemStartupTime) {
+            this.Publish(new Events.GameInfoChanged() { systemStartupTime = systemStartupTime });
+        }
     }
-
-
-
 }

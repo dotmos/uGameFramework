@@ -64,6 +64,8 @@ namespace Service.DevUIService{
 
             this.OnEvent<DataBrowserConvertObjectCommand>().Subscribe(e => DataBrowserConvertObjectCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<OutputGameInfoCommand>().Subscribe(e => OutputGameInfoCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -560,6 +562,30 @@ namespace Service.DevUIService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("DataBrowserConvertObjectCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class OutputGameInfoCommand  {
+            public float systemStartupTime;
+            
+            
+        }
+
+		protected void OutputGameInfoCommandHandler  (OutputGameInfoCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("OutputGameInfoCommand");
+#endif
+        _service.OutputGameInfo(cmd.systemStartupTime);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("OutputGameInfoCommand");
 #endif
         }
         

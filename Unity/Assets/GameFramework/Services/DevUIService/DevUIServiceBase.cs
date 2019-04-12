@@ -156,6 +156,8 @@ namespace Service.DevUIService
         
         public abstract object DataBrowserConvertObject(object inObject);
         
+        public abstract void OutputGameInfo(float systemStartupTime);
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

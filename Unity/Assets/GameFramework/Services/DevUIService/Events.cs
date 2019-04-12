@@ -67,6 +67,12 @@ namespace Service.DevUIService {
            [DataMember] public DevUIView focusedView;
 
         }
+
+        [DataContract(IsReference = true)]
+        public class GameInfoChanged {
+           [DataMember] public float systemStartupTime;
+
+        }
         
     }
 }
