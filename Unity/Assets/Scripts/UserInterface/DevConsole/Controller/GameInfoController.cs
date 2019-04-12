@@ -22,6 +22,7 @@ namespace UserInterface {
         protected override void AfterBind() {
             base.AfterBind();
 
+            systemStartOutput.text = "No Startup Time Received";
             nextFPSPeriod = Time.realtimeSinceStartup + fpsMeasurePeriod;
 
             this.OnEvent<Service.DevUIService.Events.GameInfoChanged>().Subscribe(e => {
