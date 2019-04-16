@@ -66,14 +66,22 @@ namespace ECS {
                 int threadID = i;
                 processActions[i] = () => {
                     //Thread.MemoryBarrier();
-                    ProcessActionData processData = processActionData[threadID];
-                    for (int componentIndex = processData.startComponentIndex; componentIndex <= processData.endComponentIndex; ++componentIndex) {
-                        componentAction(componentIndex, processData.deltaTime);
+                    try {
+                        ProcessActionData processData = processActionData[threadID];
+                        for (int componentIndex = processData.startComponentIndex; componentIndex <= processData.endComponentIndex; ++componentIndex) {
+                            componentAction(componentIndex, processData.deltaTime);
+                        }
                     }
-                    //Interlocked.Decrement(ref workingCount);
-                    lock (ParallelSystemComponentsProcessorWorkers._workingCountLocker) {
-                        ParallelSystemComponentsProcessorWorkers.workingCount--;
-                        Monitor.Pulse(ParallelSystemComponentsProcessorWorkers._workingCountLocker);
+                    catch (Exception e) {
+                        Console.WriteLine("Error in ParallelSystemComponentsProcessor: "+e.Message);
+                        UnityEngine.Debug.LogException(e);
+                    }
+                    finally {
+                        //Interlocked.Decrement(ref workingCount);
+                        lock (ParallelSystemComponentsProcessorWorkers._workingCountLocker) {
+                            ParallelSystemComponentsProcessorWorkers.workingCount--;
+                            Monitor.Pulse(ParallelSystemComponentsProcessorWorkers._workingCountLocker);
+                        }
                     }
                 };
             }
