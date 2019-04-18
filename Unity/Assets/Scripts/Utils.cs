@@ -462,6 +462,7 @@ public class SimplePool<T>  where T : class {
         this.onAcquire = onAcquire;
         this.onRelease = onRelease;
         this.onDispose = onDispose;
+        SetDiscardObjectCount(maxObjectsOnStack);
         this.keepTrackOfAcquired = keepTrackOfAquiredObjects;
     }
 
