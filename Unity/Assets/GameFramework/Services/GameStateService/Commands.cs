@@ -32,6 +32,8 @@ namespace Service.GameStateService{
 
             this.OnEvent<GetGameStateCommand>().Subscribe(e => GetGameStateCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -162,6 +164,31 @@ namespace Service.GameStateService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetGameStateCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Tick the current gamestate.
+        /// </summary>
+        
+        public class TickCommand  {
+            public float deltaTime;
+                        public float unscaledDeltaTime;
+            
+            
+        }
+
+		protected void TickCommandHandler  (TickCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("TickCommand");
+#endif
+        _service.Tick(cmd.deltaTime,cmd.unscaledDeltaTime);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("TickCommand");
 #endif
         }
         

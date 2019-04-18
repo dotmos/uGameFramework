@@ -124,6 +124,8 @@ namespace Service.GameStateService
         
         public abstract GameState GetGameState(string name);
         
+        public abstract void Tick(float deltaTime,float unscaledDeltaTime);
+        
     }
 }
 ///////////////////////////////////////////////////////////////////////

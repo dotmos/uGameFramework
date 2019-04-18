@@ -13,6 +13,9 @@ namespace Service.GameStateService {
 		("IObservable<bool>") StopGameState(("GameState") gamestate);
 		## "Get gamestate by name"
 		("GameState") GetGameState(string name);
+		
+		## "Tick the current gamestate."
+		void Tick(float deltaTime, float unscaledDeltaTime);
     }  
 }  
 ## model

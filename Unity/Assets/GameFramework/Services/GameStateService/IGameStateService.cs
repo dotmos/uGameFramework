@@ -57,6 +57,16 @@ namespace Service.GameStateService {
 
 					GameState GetGameState(string name);
 
+
+		/// <summary>
+        /// Tick the current gamestate. 
+        /// <param name="deltaTime"></param>
+        /// <param name="unscaledDeltaTime"></param>
+ /// </summary>
+        
+
+					void Tick(float deltaTime,float unscaledDeltaTime);
+
 	}
 
 

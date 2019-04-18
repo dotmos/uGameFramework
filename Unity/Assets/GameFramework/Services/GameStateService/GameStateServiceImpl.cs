@@ -112,6 +112,11 @@ namespace Service.GameStateService {
             return CurrentGameState;            
         }
 
+        public override void Tick(float deltaTime, float unscaledDeltaTime) {
+            if(GetCurrentGameState() != null) {
+                GetCurrentGameState().Tick(deltaTime, unscaledDeltaTime);
+            }
+        }
 
 
         protected override void OnDispose() {

@@ -257,5 +257,9 @@ namespace Service.GameStateService
 
             });
         }
+
+        public virtual void Tick(float deltaTime, float unscaledDeltaTime) {
+
+        }
     }
 }
