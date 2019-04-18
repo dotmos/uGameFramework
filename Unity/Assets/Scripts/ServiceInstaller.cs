@@ -5,6 +5,10 @@ public class ServiceInstaller : MonoInstaller {
 
 	public override void InstallBindings()
     {
+        Install(Container);
+    }
+
+    public static void Install(DiContainer Container) {
         // register execution wrappers, that can wrap logic around of the wrapped logic. e.g. for performance tests, exception handling and more?
         // register different wrappers e.g. for debugging and release
         Container.Bind<IReactiveExecutionWrapper>().To<DefaultReactiveExecutionWrapper>().AsSingle();
@@ -17,7 +21,7 @@ public class ServiceInstaller : MonoInstaller {
 
         //Serializer 
         Service.Serializer.ServiceInstaller.Install(Container);
-        
+
         //ThreadManager
         Service.AsyncManager.ServiceInstaller.Install(Container);
 
@@ -39,7 +43,7 @@ public class ServiceInstaller : MonoInstaller {
 
         //Console 
         Service.Scripting.ServiceInstaller.Install(Container);
-        
+
         //GameStateService
         Service.GameStateService.ServiceInstaller.Install(Container);
 
