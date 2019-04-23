@@ -17,6 +17,22 @@ namespace Service.LoggingService {
         /// </summary>
         private List<LogData> loggingData = new List<LogData>();
 
+        private static List<String> preInitializeLogs = new List<string>();
+
+        [RuntimeInitializeOnLoadMethod]
+        private static void OnUnityStart() {
+            Application.logMessageReceived += PreAdd;
+        }
+
+        static void PreAdd(string logString, string stackTrace, LogType type) {
+            string newString = "[" + type + "] : " + logString + "\n";
+
+            if (type == LogType.Exception) {
+                newString += "\n" + stackTrace;
+            }
+
+            preInitializeLogs.Add(newString);
+        }
         /// <summary>
         /// This is the current logs to be shows using all filters wanted
         /// </summary>
@@ -37,14 +53,23 @@ namespace Service.LoggingService {
 
         protected override void AfterInitialize() {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
+            Application.logMessageReceived -= PreAdd;
+
             Application.logMessageReceived += HandleNativeLog;
+
+            // write the native-logs from startup till service-afterinit
+            foreach (var preLog in preInitializeLogs) {
+                AddLog(DebugType.native, preLog);
+            }
+            preInitializeLogs.Clear();
         }
 
+        
 
 		//docs come here
 		public override void AddLog(DebugType debugType,string message,string domain="") {
             // TODO: remove this:
-            if (true) return;
+            // if (true) return;
 
             var newLog = new LogData() {
                 domain = domain,

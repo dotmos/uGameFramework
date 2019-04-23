@@ -31,7 +31,7 @@ public class LocalLogOutput : GameComponent {
     }
 
     private void AddData(LogData data) {
-        currentLogOutput.text += data.ToString()+"\n";
+        HandleLog(data.ToString(), data.timestamp.ToString(), LogType.Log);
     }
 
     //private void OnEnable() {
@@ -42,7 +42,7 @@ public class LocalLogOutput : GameComponent {
     //    Application.logMessageReceived -= HandleLog;
     //}
 
-    /*  void HandleLog(string logString, string stackTrace, LogType type) {
+    void HandleLog(string logString, string stackTrace, LogType type) {
           theLog = logString;
 
           //Add to current char count
@@ -69,7 +69,7 @@ public class LocalLogOutput : GameComponent {
           }
 
           logQueue.Clear();
-      }*/
+      }
 
     void CreateNewLogOutput() {
         GameObject logOutputGO = Instantiate(logOutputPrefab) as GameObject;
