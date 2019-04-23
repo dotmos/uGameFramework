@@ -50,6 +50,15 @@ namespace Service.GameStateService
         /// </summary>
         public IDisposable tickDisposable = null;
 
+
+        /// <summary>
+        /// Whether or not the gamestate is allowed to have it's Tick() function called
+        /// </summary>
+        public bool AllowedToTick {
+            get;
+            private set;
+        }
+
         /// <summary>
         /// Get the systems execution wrapper for wrapping actions and function-blocks with special logic
         /// </summary>
@@ -213,6 +222,8 @@ namespace Service.GameStateService
                 // fire hook
                 _eventService.Publish(evtAfterEnter);
 
+                AllowedToTick = true;
+
                 // finally the gamestate is started
                 tickDisposable = Observable.EveryUpdate()
                     .Subscribe(_ => {
@@ -247,6 +258,8 @@ namespace Service.GameStateService
             }
             // clear the ticklist
             OnTick.Clear();
+
+            AllowedToTick = false;
 
             // start the OnExit-Process
             return OnExit.RxExecute().Finally(() => {

@@ -113,7 +113,7 @@ namespace Service.GameStateService {
         }
 
         public override void Tick(float deltaTime, float unscaledDeltaTime) {
-            if(GetCurrentGameState() != null) {
+            if(GetCurrentGameState() != null && GetCurrentGameState().AllowedToTick) {
                 GetCurrentGameState().Tick(deltaTime, unscaledDeltaTime);
             }
         }
@@ -139,7 +139,7 @@ namespace Service.GameStateService {
                 // if there is a gamestate already active, first make sure it's onExit-observable is finished
                 startupSequence.Add(oldGameState.DoOnExit());
             }
-            startupSequence.Add(Observable.Return(true).Do(_=> {
+            startupSequence.Add(Observable.Return(true).Do(_ => {
                 // make sure the new gamestate is set before OnEnter-calls are executed
                 CurrentGameState = gamestate;
             }));
