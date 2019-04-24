@@ -384,6 +384,16 @@ namespace ECS {
         /// <returns></returns>
         protected abstract TComponents GetEntityComponents(TComponents components, UID entity);
  
+        /// <summary>
+        /// Remove all entities from the system
+        /// </summary>
+        public virtual void RemoveAllEntities() {
+            OnUnregistered(componentsToProcess);
+            
+            validEntities.Clear();
+            componentsToProcess.Clear();
+        }
+
         public virtual void Dispose() {
             if(parallelSystemComponentProcessor != null) parallelSystemComponentProcessor.Dispose();
 

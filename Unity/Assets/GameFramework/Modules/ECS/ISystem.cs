@@ -22,6 +22,11 @@ namespace ECS {
         void EntityModified(UID entity);
         
         void ProcessSystem(float deltaTime);
+
+        /// <summary>
+        /// Remove all entities from the system
+        /// </summary>
+        void RemoveAllEntities();
     }
 }
 

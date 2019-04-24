@@ -474,6 +474,7 @@ namespace ECS {
         public void UnregisterSystem(ISystem system) {
             if (_systems.Contains(system)) {
                 _systems.Remove(system);
+                system.RemoveAllEntities();
                 system.SetEntityManager(null);
             }
         }
