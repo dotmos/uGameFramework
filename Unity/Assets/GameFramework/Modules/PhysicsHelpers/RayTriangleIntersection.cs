@@ -15,7 +15,7 @@ namespace PhysicsHelper {
         /// <param name="ray">The ray to test hit for.</param>
         /// <param name="hitPoint">The resulting hit point, if the triangle was hit.</param>
         /// <returns><c>true</c> when the ray hits the triangle, otherwise <c>false</c></returns>
-        public static bool Intersect(Vector3 p1, Vector3 p2, Vector3 p3, Ray ray, ref Vector3 hitPoint) {
+        public static bool Intersect(ref Vector3 p1, ref Vector3 p2, ref Vector3 p3, ref Ray ray, ref Vector3 hitPoint) {
             // Vectors from p1 to p2/p3 (edges)
             Vector3 e1, e2;
 
