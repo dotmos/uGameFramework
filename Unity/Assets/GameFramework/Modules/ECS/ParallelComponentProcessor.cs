@@ -46,7 +46,7 @@ namespace ECS {
             ParallelSystemComponentsProcessorWorkers.componentsProcessorInstanceCount++;
 
             if (ParallelSystemComponentsProcessorWorkers._workers == null) {
-                ParallelSystemComponentsProcessorWorkers.workerCount = Math.Max(Environment.ProcessorCount - 1, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
+                ParallelSystemComponentsProcessorWorkers.workerCount = Math.Max(Environment.ProcessorCount, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
                 ParallelSystemComponentsProcessorWorkers._workers = new Thread[ParallelSystemComponentsProcessorWorkers.workerCount];
                 // Create and start a separate thread for each worker
                 for (int i = 0; i < ParallelSystemComponentsProcessorWorkers.workerCount; i++) {
