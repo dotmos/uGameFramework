@@ -205,6 +205,15 @@ namespace ECS {
                 var entity = _entities.ElementAt(0).Key;
                 DestroyEntity(ref entity );
             }
+
+            _recycledComponentIds.Clear();
+            _recycledEntityIds.Clear();
+            _lastComponentId = _startComponentID;
+            _lastEntityId = _startEntityID;
+        }
+
+        public int EntityCount() {
+            return _entityIDs.Count;
         }
 
         /// <summary>
@@ -507,13 +516,6 @@ namespace ECS {
             for(int i=0; i<entities.Count; ++i) {
                 EntityModified(entities[i]);
             }
-        }
-
-        public void ResetIDs() {
-            _recycledComponentIds.Clear();
-            _recycledEntityIds.Clear();
-            _lastComponentId = _startComponentID;
-            _lastEntityId = _startEntityID;
         }
 
         public virtual int Serialize(FlatBufferBuilder builder) {
