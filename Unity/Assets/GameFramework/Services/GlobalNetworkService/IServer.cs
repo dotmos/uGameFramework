@@ -1,4 +1,5 @@
-﻿using UnityEngine.Networking;
+﻿/*
+using UnityEngine.Networking;
 using UnityEngine;
 
 namespace Service.GlobalNetwork{
@@ -82,3 +83,4 @@ namespace Service.GlobalNetwork{
         GameObject SpawnObject(string spawnHandlerID);
     }
 }
+*/

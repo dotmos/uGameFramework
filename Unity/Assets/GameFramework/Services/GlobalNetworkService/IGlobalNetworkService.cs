@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿/*
+using UnityEngine;
 using System.Collections;
 using UniRx;
 using UnityEngine.Networking;
@@ -95,3 +96,4 @@ namespace Service.GlobalNetwork{
         public UnSpawnDelegate clientUnSpawnDelegate;
     }
 }
+*/

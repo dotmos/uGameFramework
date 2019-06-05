@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿/*
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
@@ -161,3 +162,4 @@ namespace Service.GlobalNetwork{
         }
     }
 }
+*/
