@@ -1,4 +1,5 @@
-﻿using UnityEngine.Networking;
+﻿/*
+using UnityEngine.Networking;
 
 public partial class NetworkMessageTypes {
 
@@ -22,7 +23,6 @@ public partial class NetworkMessages{
         public byte[] bytes;
     }
 
-
     public class RequestTickrateFromServer : MessageBase{
     }
 
@@ -31,3 +31,4 @@ public partial class NetworkMessages{
         public int tickrate;
     }
 }
+*/

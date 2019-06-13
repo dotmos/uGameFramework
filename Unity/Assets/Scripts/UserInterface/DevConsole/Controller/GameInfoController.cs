@@ -36,8 +36,8 @@ namespace UserInterface {
 
         private void Update() {
             // measure average frames per second
-            frameCounter++;
-            timeCounter += Time.deltaTime;
+            ++frameCounter;
+            timeCounter += Time.unscaledDeltaTime;
 
             if (Time.realtimeSinceStartup > nextFPSPeriod) {
                 currentFPS = (int)(frameCounter / fpsMeasurePeriod);
