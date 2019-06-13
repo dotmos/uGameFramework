@@ -41,6 +41,6 @@ namespace ECS {
         void EntityModified(UID entity);
         void EntitiesModified(List<UID> entity);
 
-        int EntityCount();
+        void ResetIDs();
     }
 }

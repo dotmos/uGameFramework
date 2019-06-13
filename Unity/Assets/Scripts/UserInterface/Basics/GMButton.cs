@@ -27,9 +27,9 @@ namespace UserInterface
 
         public override void OnPointerClick(PointerEventData eventData) {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (interactable) onClick.Invoke();
+                onClick.Invoke();
             } else if (eventData.button == PointerEventData.InputButton.Right) {
-                if (interactable) _onRightClick.Invoke();
+                _onRightClick.Invoke();
             }
         }
 

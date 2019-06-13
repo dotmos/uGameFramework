@@ -24,10 +24,6 @@ namespace ECS {
             return ID == 0;
         }
 
-        public void SetNull() {
-            ID = 0;
-        }
-
         public override bool Equals(object obj) {
             if (obj is UID) {
                 return ((UID)obj).ID == ID;

@@ -1,5 +1,4 @@
-﻿/*
-using UnityEngine.Networking;
+﻿using UnityEngine.Networking;
 
 namespace Service.GlobalNetwork{
     public interface IClient : IGlobalNetworkService {
@@ -86,4 +85,3 @@ namespace Service.GlobalNetwork{
         int GetPingToServer();
     }
 }
-*/

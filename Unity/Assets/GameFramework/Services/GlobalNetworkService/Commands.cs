@@ -1,5 +1,4 @@
-﻿/*
-using Zenject;
+﻿using Zenject;
 using UniRx;
 using System;
 using Service.Events;
@@ -323,4 +322,3 @@ namespace Service.GlobalNetwork{
         }
     }
 }
-*/
