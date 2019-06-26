@@ -43,6 +43,8 @@ table FBComponent {
     wasConstructed: bool;
 }
 
+// dummy element to use as reference to offset to
+table FBRef {}
 
 
 // the table for the Component-Template

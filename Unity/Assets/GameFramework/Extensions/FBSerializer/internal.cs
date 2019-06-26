@@ -282,6 +282,29 @@ public Table __table { get { return __p; } }
   }
 };
 
+public struct FBRef : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_1_11_1(); }
+  public static FBRef GetRootAsFBRef(ByteBuffer _bb) { return GetRootAsFBRef(_bb, new FBRef()); }
+  public static FBRef GetRootAsFBRef(ByteBuffer _bb, FBRef obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public FBRef __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+
+  public static void StartFBRef(FlatBufferBuilder builder) { builder.StartTable(0); }
+  public static Offset<Serial.FBRef> EndFBRef(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<Serial.FBRef>(o);
+  }
+};
+
 public struct DTEST_string_int : IFlatbufferObject
 {
   private Table __p;

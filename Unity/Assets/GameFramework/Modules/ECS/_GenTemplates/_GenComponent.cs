@@ -132,7 +132,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     }
 /*block:serialization*/
     #region serialization
-    public override int Serialize(FlatBuffers.FlatBufferBuilder builder) {
+    public /*name:override*/override/*endname*/ int Serialize(FlatBuffers.FlatBufferBuilder builder) {
 /*block:inheritanceSer*/        var baseData = base.Serialize(builder);
 /*endblock:inheritanceSer*/
 /*block:s_enum*/        var /*name|fu,pre#s:name*/sState/*endname*/ = (byte)/*name:name*/state/*endname*/;
@@ -156,8 +156,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*endblock:inheritanceSer2*/
 return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#EndFB:ComponentName*/EndFBGenTemplateComponent/*endname*/(builder).Value;
     }
-     
-    public override void Deserialize(object data) {
+
+    public /*name:override*/override/*endname*/ void Deserialize(object data) {
         var input = (Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/)data;
 /*block:inheritance_deser*/        base.Deserialize(input.BaseData);
 /*endblock:inheritance_deser*/
@@ -173,9 +173,9 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
             /*name:name*/testListUID/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name|pre#FB:innertype*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList);
         }
 /*endblock:d_nonprim_list*/ 
-    } 
+    }
 
-    public override void Deserialize(FlatBuffers.ByteBuffer buf) {
+    public /*name:override*/override/*endname*/ void Deserialize(FlatBuffers.ByteBuffer buf) {
         var fbSettlerDataComponent = Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#GetRootAsFB:ComponentName*/GetRootAsFBGenTemplateComponent/*endname*/(buf);
         Deserialize(fbSettlerDataComponent);
     }

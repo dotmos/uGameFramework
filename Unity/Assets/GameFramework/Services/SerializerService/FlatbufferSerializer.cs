@@ -118,9 +118,9 @@ namespace Service.Serializer {
 
         public static FlatBuffers.VectorOffset? CreateList<T>(FlatBuffers.FlatBufferBuilder builder
                                     , List<T> list, Func<FlatBufferBuilder, T[], VectorOffset> fbCreateList) {
-            if (list == null || typeof(T).IsPrimitive) {
+            /*if (list == null || typeof(T).IsPrimitive) {
                 return null;
-            }
+            }*/
 
             if (FlatbufferSerializer.obj2FSMapping.TryGetValue(list, out int bufPos)) {
                 // the list was already serialized so we need to use this VectorOffset in order to keep the reference
@@ -215,7 +215,7 @@ namespace Service.Serializer {
 
         public static int? GetOrCreateSerialize(FlatBufferBuilder builder, object serializableObj)  {
             if (serializableObj == null) {
-                return null;
+                return 0;
             }
 
             // check if we have this Object already serialized and if yes grab the
