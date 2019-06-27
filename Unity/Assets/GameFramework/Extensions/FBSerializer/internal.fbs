@@ -30,8 +30,8 @@ table FBMaterial {
 }
 
 
-
-
+// dummy as offsetpoint for 'manual' IFBSerializable-objects
+table FBRef{}
 
 table FBUID {
     id:int;
@@ -42,10 +42,6 @@ table FBComponent {
     entity : FBUID;
     wasConstructed: bool;
 }
-
-// dummy element to use as reference to offset to
-table FBRef {}
-
 
 // the table for the Component-Template
 table DTEST_string_int {
