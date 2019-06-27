@@ -645,7 +645,28 @@ public static partial class UtilsExtensions
         return result;
     }
 
+    public static void ShallowCopyInto<T, S>(this Dictionary<T,S> dest, Dictionary<T, S> data) {
+        int amount = data.Count;
 
+        for (int i = 0; i < amount; i++) {
+            var elem = data.ElementAt(i);
+            dest[elem.Key] = elem.Value;
+        }
+    }
+
+    public static void ShallowCopyInto<T>(this List<T> dest, List<T> data) {
+        int amount = data.Count;
+        for (int i = 0; i < amount; i++) {
+            dest.Add(data[i]);
+        }
+    }
+
+    public static void ShallowCopyInto<T>(this HashSet<T> dest, HashSet<T> data) {
+        int amount = data.Count;
+        for (int i = 0; i < amount; i++) {
+            dest.Add(data.ElementAt(i));
+        }
+    }
 
 }
 
