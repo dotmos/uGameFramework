@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using FlatBuffers;
+using System.Linq;
 
 namespace Service.Serializer {
     public class FlatbufferSerializer {
@@ -78,6 +79,111 @@ namespace Service.Serializer {
                 return Serial.FBMaterial.EndFBMaterial(builder).Value;
             };
         }
+
+        /*
+         var sIntDestcDict = FlatbufferSerializer.CreateDictionary<int,DestructionCosts,int, Offset<Serial.FBDestructionCosts>, Serial.DT_int_FBDestructionCosts>(builder, intDestcDict,  Serial.DT_int_FBDestructionCosts.CreateDT_int_FBDestructionCosts, Serial.FBTestComponent.CreateIntDestcDictVector);
+         */
+        public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,FBKey,FBValue,S>(FlatBuffers.FlatBufferBuilder builder
+                                , Dictionary<TKey, TValue> dict
+                                , Func<FlatBufferBuilder, FBKey,FBValue, Offset<S>> fbCreateElement
+                                , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList
+                                )
+                                where S : struct, FlatBuffers.IFlatbufferObject where FBValue : struct {
+            if (dict == null) {
+                return null;
+            }
+
+            if (FlatbufferSerializer.obj2FSMapping.TryGetValue(dict, out int bufPos)) {
+                // the dict was already serialized so we need to use this VectorOffset in order to keep the reference
+                var result = new FlatBuffers.VectorOffset(bufPos);
+                return result;
+            } else {
+                var tempArray = new FlatBuffers.Offset<S>[dict.Count];
+                int amount = dict.Count;
+                if (typeof(TKey).IsPrimitive && typeof(TValue).IsPrimitive) {
+                    // a pure primitive dictionary
+                    for (int i = 0; i < amount; i++) {
+                        var dictElem = dict.ElementAt(i);
+                        tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), (FBValue)((object)dictElem.Value));
+                    }
+                    var result = fbCreateList(builder, tempArray);
+                    FlatbufferSerializer.obj2FSMapping[dict] = result.Value;
+                    return result;
+                }
+                else if (typeof(TKey).IsPrimitive && !typeof(TValue).IsPrimitive) {
+                    for (int i = 0; i < amount; i++) {
+                        var dictElem = dict.ElementAt(i);
+                        var valueElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                        var offset = (FBValue)Activator.CreateInstance(typeof(FBValue), valueElemOffset);
+                        tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), offset);
+                    }
+                    var result = fbCreateList(builder, tempArray);
+                    FlatbufferSerializer.obj2FSMapping[dict] = result.Value;
+                    return result;
+                } else if (!typeof(TKey).IsPrimitive && typeof(TValue).IsPrimitive) {
+                    // a pure non primitive dictionary
+                    for (int i = 0; i < amount; i++) {
+                        var dictElem = dict.ElementAt(i);
+
+                        var keyElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                        var offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+
+                        tempArray[i] = fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value));
+                    }
+                    var result = fbCreateList(builder, tempArray);
+                    FlatbufferSerializer.obj2FSMapping[dict] = result.Value;
+                    return result;
+                } else if (!typeof(TKey).IsPrimitive && !typeof(TValue).IsPrimitive) {
+                    // a pure non primitive dictionary
+                    for (int i = 0; i < amount; i++) {
+                        var dictElem = dict.ElementAt(i);
+
+                        var keyElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                        var offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+
+                        var valueElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                        var valueOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), valueElemOffset);
+                        tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueOffset);
+
+                        tempArray[i] = fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value));
+                    }
+                    var result = fbCreateList(builder, tempArray);
+                    FlatbufferSerializer.obj2FSMapping[dict] = result.Value;
+                    return result;
+                }
+                return null;
+                /*if(typeof(IFBSerializable).IsAssignableFrom(typeof(T))) {
+                    for (int i = 0; i < list.Count; i++) {
+                        var listElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)list[i]);
+                        if (listElemOffset != null) {
+                            tempArray[i] = new FlatBuffers.Offset<S>((int)listElemOffset);
+                        }
+                    }
+                    var result = fbCreateList(builder, tempArray);
+                    FlatbufferSerializer.obj2FSMapping[list] = result.Value;
+                    return result;
+                }
+                return null;*/
+    }
+
+    /*
+    var intIntList = new Offset<Serial.DT_int_int>[this.intIntDict.Count];
+    for (int i = 0; i < this.intIntDict.Count; i++) {
+        var elem = this.intIntDict.ElementAt(i);
+        intIntList[i] = Serial.DT_int_int.CreateDT_int_int(builder, elem.Key, elem.Value);
+    }
+    Serial.FBTestComponent.CreateIntIntDictVector(builder, intIntList);*/
+}
+
+            public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,S>(FlatBuffers.FlatBufferBuilder builder
+                                        , Dictionary<TKey,TValue> dict
+                                        , Func<FlatBufferBuilder, TKey, TValue, Offset<S>> fbCreateElement
+                                        , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList
+                                        )
+                                        where S : struct, FlatBuffers.IFlatbufferObject {
+            return null;
+        }
+
 
         /// <summary>
         /// Create VectorOffset from List

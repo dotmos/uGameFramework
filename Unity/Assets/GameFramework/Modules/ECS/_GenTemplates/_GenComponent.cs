@@ -77,7 +77,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
     public System.Collections.Generic.List<UID> testListUID = new System.Collections.Generic.List<UID>();
     public System.Collections.Generic.List<int> testListPrimitive = new System.Collections.Generic.List<int>();
-    public System.Collections.Generic.Dictionary<string, int> testDict = new System.Collections.Generic.Dictionary<string, int>();
+    public System.Collections.Generic.Dictionary<int, int> testDict = new System.Collections.Generic.Dictionary<int, int>();
     /*endblock:rip*/
 
     protected override void OnConstruct() {
@@ -104,7 +104,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             }
 /*endblock:shallowCopy*/
 /*block:shallowCopyDict*/       if (this./*name:name*/testDict/*endname*/== null) {
-                this./*name:name*/testDict/*endname*/ = new /*name:type*/System.Collections.Generic.Dictionary<string, int>/*endname*/(component./*name:name*/testDict/*endname*/);
+                this./*name:name*/testDict/*endname*/ = new /*name:type*/System.Collections.Generic.Dictionary<int, int>/*endname*/(component./*name:name*/testDict/*endname*/);
             } else {
                 this./*name:name*/testDict/*endname*/.Clear();
                 foreach (var pair in component./*name:name*/testDict/*endname*/) {
@@ -145,6 +145,11 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*endblock:s_list_primitive*/
 /*block:s_list_nonprim*/        var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name|pre#FB:innertype*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
 /*endblock:s_list_nonprim*/
+/*block:s_dictold*/
+        var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
+/*endblock:s_dictold*/
+/*block:s_dict*/                var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
+/*endblock:s_dict*/
         Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#StartFB:ComponentName*/StartFBGenTemplateComponent/*endname*/(builder);
 /*block:s2_default*/        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name|fu,pre#s:name*/sState/*endname*/);
 /*endblock:s2_default*/        

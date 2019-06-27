@@ -305,7 +305,7 @@ public Table __table { get { return __p; } }
   }
 };
 
-public struct DTEST_string_int : IFlatbufferObject
+public struct DTEST_int_int : IFlatbufferObject
 {
   private Table __p;
 /// <summary>
@@ -315,35 +315,29 @@ public int BufferPosition { get { return __p.bb_pos; } }
 public Table __table { get { return __p; } }
   public ByteBuffer ByteBuffer { get { return __p.bb; } }
   public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_1_11_1(); }
-  public static DTEST_string_int GetRootAsDTEST_string_int(ByteBuffer _bb) { return GetRootAsDTEST_string_int(_bb, new DTEST_string_int()); }
-  public static DTEST_string_int GetRootAsDTEST_string_int(ByteBuffer _bb, DTEST_string_int obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public static DTEST_int_int GetRootAsDTEST_int_int(ByteBuffer _bb) { return GetRootAsDTEST_int_int(_bb, new DTEST_int_int()); }
+  public static DTEST_int_int GetRootAsDTEST_int_int(ByteBuffer _bb, DTEST_int_int obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
-  public DTEST_string_int __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+  public DTEST_int_int __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public string Key { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
-#if ENABLE_SPAN_T
-  public Span<byte> GetKeyBytes() { return __p.__vector_as_span(4); }
-#else
-  public ArraySegment<byte>? GetKeyBytes() { return __p.__vector_as_arraysegment(4); }
-#endif
-  public byte[] GetKeyArray() { return __p.__vector_as_array<byte>(4); }
+  public int Key { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
   public int Value { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
 
-  public static Offset<Serial.DTEST_string_int> CreateDTEST_string_int(FlatBufferBuilder builder,
-      StringOffset keyOffset = default(StringOffset),
+  public static Offset<Serial.DTEST_int_int> CreateDTEST_int_int(FlatBufferBuilder builder,
+      int key = 0,
       int value = 0) {
     builder.StartTable(2);
-    DTEST_string_int.AddValue(builder, value);
-    DTEST_string_int.AddKey(builder, keyOffset);
-    return DTEST_string_int.EndDTEST_string_int(builder);
+    DTEST_int_int.AddValue(builder, value);
+    DTEST_int_int.AddKey(builder, key);
+    return DTEST_int_int.EndDTEST_int_int(builder);
   }
 
-  public static void StartDTEST_string_int(FlatBufferBuilder builder) { builder.StartTable(2); }
-  public static void AddKey(FlatBufferBuilder builder, StringOffset keyOffset) { builder.AddOffset(0, keyOffset.Value, 0); }
+  public static void StartDTEST_int_int(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddKey(FlatBufferBuilder builder, int key) { builder.AddInt(0, key, 0); }
   public static void AddValue(FlatBufferBuilder builder, int value) { builder.AddInt(1, value, 0); }
-  public static Offset<Serial.DTEST_string_int> EndDTEST_string_int(FlatBufferBuilder builder) {
+  public static Offset<Serial.DTEST_int_int> EndDTEST_int_int(FlatBufferBuilder builder) {
     int o = builder.EndTable();
-    return new Offset<Serial.DTEST_string_int>(o);
+    return new Offset<Serial.DTEST_int_int>(o);
   }
 };
 
@@ -385,7 +379,7 @@ public Table __table { get { return __p; } }
   public ArraySegment<byte>? GetTestListPrimitiveBytes() { return __p.__vector_as_arraysegment(16); }
 #endif
   public int[] GetTestListPrimitiveArray() { return __p.__vector_as_array<int>(16); }
-  public Serial.DTEST_string_int? TestDict(int j) { int o = __p.__offset(18); return o != 0 ? (Serial.DTEST_string_int?)(new Serial.DTEST_string_int()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public Serial.DTEST_int_int? TestDict(int j) { int o = __p.__offset(18); return o != 0 ? (Serial.DTEST_int_int?)(new Serial.DTEST_int_int()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int TestDictLength { get { int o = __p.__offset(18); return o != 0 ? __p.__vector_len(o) : 0; } }
   public int TestDictBufferPosition { get { int o = __p.__offset(18); return o != 0 ? __p.__vector(o) : 0; } }
 
@@ -425,8 +419,8 @@ public Table __table { get { return __p; } }
   public static VectorOffset CreateTestListPrimitiveVectorBlock(FlatBufferBuilder builder, int[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
   public static void StartTestListPrimitiveVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static void AddTestDict(FlatBufferBuilder builder, VectorOffset testDictOffset) { builder.AddOffset(7, testDictOffset.Value, 0); }
-  public static VectorOffset CreateTestDictVector(FlatBufferBuilder builder, Offset<Serial.DTEST_string_int>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
-  public static VectorOffset CreateTestDictVectorBlock(FlatBufferBuilder builder, Offset<Serial.DTEST_string_int>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static VectorOffset CreateTestDictVector(FlatBufferBuilder builder, Offset<Serial.DTEST_int_int>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateTestDictVectorBlock(FlatBufferBuilder builder, Offset<Serial.DTEST_int_int>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
   public static void StartTestDictVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<Serial.FBGenTemplateComponent> EndFBGenTemplateComponent(FlatBufferBuilder builder) {
     int o = builder.EndTable();
