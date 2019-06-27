@@ -143,9 +143,7 @@ namespace Service.Serializer {
 
                         var valueElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
                         var valueOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), valueElemOffset);
-                        tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueOffset);
-
-                        tempArray[i] = fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value));
+                        tempArray[i] = fbCreateElement(builder, offsetKey, valueOffset);
                     }
                     var result = fbCreateList(builder, tempArray);
                     FlatbufferSerializer.obj2FSMapping[dict] = result.Value;
@@ -274,7 +272,19 @@ namespace Service.Serializer {
             }
         }
 
-        
+        /*
+         *         
+        intDestcDict = new Dictionary<int, DestructionCosts>();
+        for (int i = 0; i < input.IntDestcDictLength; i++) {
+            var e = input.IntDestcDict(i);
+            if (e.HasValue) {
+                var elem = e.Value;
+                intDestcDict[elem.Key] = FlatbufferSerializer.GetOrCreateDeserialize<DestructionCosts>(elem.Value);
+            }
+        } 
+        */
+
+
         /// <summary>
         /// Deserialized a list with PRIMITIVE content (int,float,...)
         /// </summary>

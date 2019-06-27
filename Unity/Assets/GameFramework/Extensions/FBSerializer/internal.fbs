@@ -49,6 +49,11 @@ table DTEST_int_int {
     value : int;
 }
 
+table DTEST_Component_Component {
+    key : FBComponent;
+    value : FBComponent;
+}
+
 table FBGenTemplateComponent {
     baseData : FBComponent;
     state : int;
@@ -58,4 +63,5 @@ table FBGenTemplateComponent {
     testListUID : [FBUID];
     testListPrimitive : [int];
     testDict : [DTEST_int_int];
+    testDictNonPrim : [DTEST_Component_Component];
 }

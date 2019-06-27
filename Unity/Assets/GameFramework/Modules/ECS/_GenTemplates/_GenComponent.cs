@@ -2,6 +2,7 @@
 using ECS;
 using FlatBuffers;
 using Service.Serializer;
+using System.Collections.Generic;
 /*name:using*/ /*endname*/
 
 /// <summary>
@@ -78,6 +79,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public System.Collections.Generic.List<UID> testListUID = new System.Collections.Generic.List<UID>();
     public System.Collections.Generic.List<int> testListPrimitive = new System.Collections.Generic.List<int>();
     public System.Collections.Generic.Dictionary<int, int> testDict = new System.Collections.Generic.Dictionary<int, int>();
+    public System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper> testDict2 = new System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper>();
     /*endblock:rip*/
 
     protected override void OnConstruct() {
@@ -177,7 +179,22 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
             for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) tempList.Add(input./*name|fu:name*/TestListUID/*endname*/(i));
             /*name:name*/testListUID/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name|pre#FB:innertype*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList);
         }
-/*endblock:d_nonprim_list*/ 
+/*endblock:d_nonprim_list*/
+/*block:d_dict*/        /*name:name*/testDict/*endname*/ = new Dictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
+        
+        for (int i = 0; i < input./*name|fu,post#Length:name*/TestDictLength/*endname*/; i++) {
+            var e = input./*name|fu:name*/TestDictNonPrim/*endname*/(i);
+            if (e.HasValue) {
+                var elem = e.Value;
+                
+ /*block:nonprim_key*/                var key = FlatbufferSerializer.GetOrCreateDeserialize</*name:keyType*/SerializableHelper/*endname*/>((Serial./*name:fbKeyType*/FBComponent/*endname*/)elem.Key);
+ /*endblock:nonprim_key*/
+ /*block:nonprim_value*/                var value = FlatbufferSerializer.GetOrCreateDeserialize</*name:valueType*/SerializableHelper/*endname*/>((Serial./*name:fbValueType*/FBComponent/*endname*/)elem.Value);
+ /*endblock:nonprim_value*/
+                /*name:name*/testDict2/*endname*/[/*name:thekey*/key/*endname*/] = /*name:thevalue*/value/*endname*/;
+            }
+        } 
+/*endblock:d_dict*/
     }
 
     public /*name:override*/override/*endname*/ void Deserialize(FlatBuffers.ByteBuffer buf) {
@@ -200,6 +217,26 @@ public class GenTemplateComponent2 : ECS.Component
     }
 
     public override void CopyValues(IComponent target, bool initFromPrefab = false) {
+        throw new System.NotImplementedException();
+    }
+}
+
+[System.Serializable]
+public partial class SerializableHelper : IFBSerializable {
+
+    public float getBackResourceFactor = 0.5f;
+
+    public float destructionSpeedUp = 2.0f;
+
+    public void Deserialize(object incoming) {
+        throw new System.NotImplementedException();
+    }
+
+    public void Deserialize(ByteBuffer buf) {
+        throw new System.NotImplementedException();
+    }
+
+    public int Serialize(FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 }

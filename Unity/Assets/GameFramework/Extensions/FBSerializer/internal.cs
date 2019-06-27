@@ -341,6 +341,42 @@ public Table __table { get { return __p; } }
   }
 };
 
+public struct DTEST_Component_Component : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_1_11_1(); }
+  public static DTEST_Component_Component GetRootAsDTEST_Component_Component(ByteBuffer _bb) { return GetRootAsDTEST_Component_Component(_bb, new DTEST_Component_Component()); }
+  public static DTEST_Component_Component GetRootAsDTEST_Component_Component(ByteBuffer _bb, DTEST_Component_Component obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public DTEST_Component_Component __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public Serial.FBComponent? Key { get { int o = __p.__offset(4); return o != 0 ? (Serial.FBComponent?)(new Serial.FBComponent()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+  public Serial.FBComponent? Value { get { int o = __p.__offset(6); return o != 0 ? (Serial.FBComponent?)(new Serial.FBComponent()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+
+  public static Offset<Serial.DTEST_Component_Component> CreateDTEST_Component_Component(FlatBufferBuilder builder,
+      Offset<Serial.FBComponent> keyOffset = default(Offset<Serial.FBComponent>),
+      Offset<Serial.FBComponent> valueOffset = default(Offset<Serial.FBComponent>)) {
+    builder.StartTable(2);
+    DTEST_Component_Component.AddValue(builder, valueOffset);
+    DTEST_Component_Component.AddKey(builder, keyOffset);
+    return DTEST_Component_Component.EndDTEST_Component_Component(builder);
+  }
+
+  public static void StartDTEST_Component_Component(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddKey(FlatBufferBuilder builder, Offset<Serial.FBComponent> keyOffset) { builder.AddOffset(0, keyOffset.Value, 0); }
+  public static void AddValue(FlatBufferBuilder builder, Offset<Serial.FBComponent> valueOffset) { builder.AddOffset(1, valueOffset.Value, 0); }
+  public static Offset<Serial.DTEST_Component_Component> EndDTEST_Component_Component(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<Serial.DTEST_Component_Component>(o);
+  }
+};
+
 public struct FBGenTemplateComponent : IFlatbufferObject
 {
   private Table __p;
@@ -382,6 +418,9 @@ public Table __table { get { return __p; } }
   public Serial.DTEST_int_int? TestDict(int j) { int o = __p.__offset(18); return o != 0 ? (Serial.DTEST_int_int?)(new Serial.DTEST_int_int()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int TestDictLength { get { int o = __p.__offset(18); return o != 0 ? __p.__vector_len(o) : 0; } }
   public int TestDictBufferPosition { get { int o = __p.__offset(18); return o != 0 ? __p.__vector(o) : 0; } }
+  public Serial.DTEST_Component_Component? TestDictNonPrim(int j) { int o = __p.__offset(20); return o != 0 ? (Serial.DTEST_Component_Component?)(new Serial.DTEST_Component_Component()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int TestDictNonPrimLength { get { int o = __p.__offset(20); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public int TestDictNonPrimBufferPosition { get { int o = __p.__offset(20); return o != 0 ? __p.__vector(o) : 0; } }
 
   public static Offset<Serial.FBGenTemplateComponent> CreateFBGenTemplateComponent(FlatBufferBuilder builder,
       Offset<Serial.FBComponent> baseDataOffset = default(Offset<Serial.FBComponent>),
@@ -391,8 +430,10 @@ public Table __table { get { return __p; } }
       float testNumber = 0.0f,
       VectorOffset testListUIDOffset = default(VectorOffset),
       VectorOffset testListPrimitiveOffset = default(VectorOffset),
-      VectorOffset testDictOffset = default(VectorOffset)) {
-    builder.StartTable(8);
+      VectorOffset testDictOffset = default(VectorOffset),
+      VectorOffset testDictNonPrimOffset = default(VectorOffset)) {
+    builder.StartTable(9);
+    FBGenTemplateComponent.AddTestDictNonPrim(builder, testDictNonPrimOffset);
     FBGenTemplateComponent.AddTestDict(builder, testDictOffset);
     FBGenTemplateComponent.AddTestListPrimitive(builder, testListPrimitiveOffset);
     FBGenTemplateComponent.AddTestListUID(builder, testListUIDOffset);
@@ -404,7 +445,7 @@ public Table __table { get { return __p; } }
     return FBGenTemplateComponent.EndFBGenTemplateComponent(builder);
   }
 
-  public static void StartFBGenTemplateComponent(FlatBufferBuilder builder) { builder.StartTable(8); }
+  public static void StartFBGenTemplateComponent(FlatBufferBuilder builder) { builder.StartTable(9); }
   public static void AddBaseData(FlatBufferBuilder builder, Offset<Serial.FBComponent> baseDataOffset) { builder.AddOffset(0, baseDataOffset.Value, 0); }
   public static void AddState(FlatBufferBuilder builder, int state) { builder.AddInt(1, state, 0); }
   public static void AddTestName(FlatBufferBuilder builder, StringOffset testNameOffset) { builder.AddOffset(2, testNameOffset.Value, 0); }
@@ -422,6 +463,10 @@ public Table __table { get { return __p; } }
   public static VectorOffset CreateTestDictVector(FlatBufferBuilder builder, Offset<Serial.DTEST_int_int>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
   public static VectorOffset CreateTestDictVectorBlock(FlatBufferBuilder builder, Offset<Serial.DTEST_int_int>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
   public static void StartTestDictVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddTestDictNonPrim(FlatBufferBuilder builder, VectorOffset testDictNonPrimOffset) { builder.AddOffset(8, testDictNonPrimOffset.Value, 0); }
+  public static VectorOffset CreateTestDictNonPrimVector(FlatBufferBuilder builder, Offset<Serial.DTEST_Component_Component>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateTestDictNonPrimVectorBlock(FlatBufferBuilder builder, Offset<Serial.DTEST_Component_Component>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static void StartTestDictNonPrimVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<Serial.FBGenTemplateComponent> EndFBGenTemplateComponent(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<Serial.FBGenTemplateComponent>(o);
