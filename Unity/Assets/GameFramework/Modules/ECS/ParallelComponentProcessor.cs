@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace ECS {
         public static int componentsProcessorInstanceCount = 0;
     }
 
-    public class ParallelSystemComponentsProcessor<T> : IDisposable where T : ISystemComponents {
+    public class ParallelSystemComponentsProcessor<T> : IDisposable /*where T : ISystemComponents*/ {
         
         
         /// <summary>
@@ -145,7 +146,7 @@ namespace ECS {
             }
         }
 
-        public void Process(List<T> componentsToProcess, float deltaTime) {
+        public void Process(ICollection componentsToProcess, float deltaTime) {
             //Stop here if there are no components to process
             if (componentsToProcess.Count == 0) return;
 
