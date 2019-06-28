@@ -48,7 +48,7 @@ namespace ECS {
         /// </summary>
         float currentUpdateDeltaTime = 0;
 
-        ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentProcessor;
+        protected ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentProcessor;
 
         string _systemName = null;
         string SystemName {
@@ -321,8 +321,9 @@ namespace ECS {
         void UpdateEntity(UID entity) {
             var entityComponents = GetSystemComponentsForEntity(entity);
             GetEntityComponents(entityComponents, entity);
-            
-            updatedComponents.Add(entityComponents);
+            if (!updatedComponents.Contains(entityComponents)) {
+                updatedComponents.Add(entityComponents);
+            }
         }
 
         /// <summary>

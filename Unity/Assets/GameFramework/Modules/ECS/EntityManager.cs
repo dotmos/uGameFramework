@@ -187,6 +187,11 @@ namespace ECS {
             if (applicationIsQuitting) return;
 
             if (EntityExists(entity)) {
+                //Dispose entity components
+                while(_entities[entity].Count > 0) {
+                    DisposeComponent(_entities[entity].First());
+                }
+
                 _entities[entity].Clear();
                 _entityIDs.Remove(entity.ID);
                 _EntityModified(entity);
@@ -233,7 +238,7 @@ namespace ECS {
         /// </summary>
         /// <param name="component"></param>
         public void SetupComponentID(IComponent component) {
-            if (component.ID.ID == 0) {
+            if (component.ID.IsNull()) {
 
                 int id = -1;
 
@@ -360,8 +365,9 @@ namespace ECS {
 
             RemoveComponent(component.Entity, component);
             _recycledComponentIds.Enqueue(component.ID.ID);
-            component.ID = new UID(-1);
             component.Dispose();
+            component.ID = new UID(0);
+            component.Entity = new UID(0);
         }
 
         /// <summary>

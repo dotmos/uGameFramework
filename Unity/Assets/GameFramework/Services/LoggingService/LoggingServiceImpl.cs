@@ -19,10 +19,10 @@ namespace Service.LoggingService {
 
         private static List<String> preInitializeLogs = new List<string>();
 
-        [RuntimeInitializeOnLoadMethod]
-        private static void OnUnityStart() {
-            Application.logMessageReceived += PreAdd;
-        }
+        //[RuntimeInitializeOnLoadMethod]
+        //private static void OnUnityStart() {
+        //    Application.logMessageReceived += PreAdd;
+        //}
 
         static void PreAdd(string logString, string stackTrace, LogType type) {
             string newString = "[" + type + "] : " + logString + "\n";
