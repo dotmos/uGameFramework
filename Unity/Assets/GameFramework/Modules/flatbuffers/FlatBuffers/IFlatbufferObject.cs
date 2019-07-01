@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+using Service.Serializer;
+using System.Collections.Generic;
+
 namespace FlatBuffers
 {
     /// <summary>
@@ -43,8 +46,50 @@ namespace FlatBuffers
             return this;
         }
 
-        public float GetFloat(int pos) { int o = __p.__offset(4 + pos * 2); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; }
-        public int GetInt(int pos) { int o = __p.__offset(4 + pos * 2); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : 0; }
-        public bool GetBool(int pos) { int o = __p.__offset(4 + pos * 2); return o != 0 ? 0 != __p.bb.Get(o + __p.bb_pos) : (bool)false; }
+        public float GetFloat(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; }
+        public int GetInt(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : 0; }
+        public bool GetBool(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? 0 != __p.bb.Get(o + __p.bb_pos) : (bool)false; }
+        public string GetString(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.__string(o + __p.bb_pos) : null; }
+
+        public string GetStringListElementAt(int fbPos,int idx) { int o = __p.__offset(4+fbPos*2); return o != 0 ? __p.__string(__p.__vector(o) + idx * 4) : null; }
+        public int GetStringListLength(int fbPos) { int o = __p.__offset(4+fbPos*2); return o != 0 ? __p.__vector_len(o) : 0;  }
+        public int GetBufferPos(int fbPos){ int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.__vector(o) : 0; }
+
+        public List<string> GetStringList(int fbPos) {
+            int bufPos = GetBufferPos(fbPos);
+            if (bufPos == 0) {
+                return null;
+            }
+
+            object cacheResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            if (cacheResult != null) {
+                return (List<string>)cacheResult;
+            }
+            int listLength = GetStringListLength(fbPos);
+            var newList = new List<string>(listLength);
+            for (int i = 0; i < listLength; i++) {
+                newList.Add(GetStringListElementAt(fbPos, i));
+            }
+            FlatbufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+            return newList;
+        }
+
+        public List<T> GetPrimitiveList<T>(int fbPos) where T: struct {
+            int bufPos = GetBufferPos(fbPos);
+
+            if (bufPos == 0) {
+                return null;
+            }
+
+            object cacheResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            if (cacheResult != null) {
+                return (List<T>)cacheResult;
+            }
+
+            T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
+            var newList = new List<T>(tA);
+            FlatbufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+            return newList;
+        }
     }
 }

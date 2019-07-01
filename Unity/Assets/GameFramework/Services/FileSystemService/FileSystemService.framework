@@ -7,21 +7,21 @@ namespace Service.FileSystem {
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain,string realtivePart="");
 		## "Write bytes to file"
-		bool WriteBytesToFile(string pathToFile, ("byte[]") bytes);
+		bool WriteBytesToFile(string pathToFile, ("byte[]") bytes,bool compress=False);
 		## "Write bytes to file at domain"
-		bool WriteBytesToFileAtDomain(?FSDomain domain, string relativePathToFile, ("byte[]") bytes); 
+		bool WriteBytesToFileAtDomain(?FSDomain domain, string relativePathToFile, ("byte[]") bytes,bool compress=False); 
 		## "Write string to file"
 		bool WriteStringToFile(string pathToFile, string thedata);
 		## "Write string to file at domain"
 		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string thedata); 
 		## "Load file as string"
-		string LoadFileAsString(string pathToFile);
+		string LoadFileAsString(string pathToFile,bool compressed=False);
 		## "Load file as string from domain"
 		string LoadFileAsStringAtDomain(?FSDomain domain, string relativePathToFile);
 		## "Load file as bytes"
-		("byte[]") LoadFileAsBytes(string pathToFile);
+		("byte[]") LoadFileAsBytes(string pathToFile,bool compressed=False);
 		## "Load file as string from domain"
-		("byte[]") LoadFileAsBytesAtDomain(?FSDomain domain, string relativePathToFile);
+		("byte[]") LoadFileAsBytesAtDomain(?FSDomain domain, string relativePathToFile,bool compressed=False);
 		## "Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
 		List<string> GetFilesInAbsFolder(string absPath, string pattern="*.*");
 		## "Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"

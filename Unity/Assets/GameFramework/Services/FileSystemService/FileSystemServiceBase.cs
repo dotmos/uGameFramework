@@ -116,21 +116,21 @@ namespace Service.FileSystem
                                                           
         public abstract string GetPath(FSDomain domain,string realtivePart="");
         
-        public abstract bool WriteBytesToFile(string pathToFile,byte[] bytes);
+        public abstract bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false);
         
-        public abstract bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes);
+        public abstract bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
         
         public abstract bool WriteStringToFile(string pathToFile,string thedata);
         
         public abstract bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
         
-        public abstract string LoadFileAsString(string pathToFile);
+        public abstract string LoadFileAsString(string pathToFile,bool compressed=false);
         
         public abstract string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
         
-        public abstract byte[] LoadFileAsBytes(string pathToFile);
+        public abstract byte[] LoadFileAsBytes(string pathToFile,bool compressed=false);
         
-        public abstract byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile);
+        public abstract byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false);
         
         public abstract List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
         

@@ -80,6 +80,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public System.Collections.Generic.List<int> testListPrimitive = new System.Collections.Generic.List<int>();
     public System.Collections.Generic.Dictionary<int, int> testDict = new System.Collections.Generic.Dictionary<int, int>();
     public System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper> testDict2 = new System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper>();
+    public System.Collections.Generic.List<string> testStringList = new System.Collections.Generic.List<string>();
+    public StringOffset? nullableStringOffset = null;
+
     /*endblock:rip*/
 
     protected override void OnConstruct() {
@@ -139,13 +142,15 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*endblock:inheritanceSer*/
 /*block:s_enum*/        var /*name|fu,pre#s:name*/sState/*endname*/ = (byte)/*name:name*/state/*endname*/;
 /*endblock:s_enum*/
-/*block:s_string*/      var /*name|fu,pre#s:name*/sTestName/*endname*/ = (StringOffset)FlatbufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testName/*endname*/) ;
+/*block:s_string*/      var /*name|fu,pre#s:name*/sTestName/*endname*/ = FlatbufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testName/*endname*/) ;
 /*endblock:s_string*/
 /*block:s_nonprim*/        var /*name|fu,pre#s:name*/sTestUID/*endname*/ = new Offset<Serial./*name|pre#FB:type*/FBUID/*endname*/>((int)FlatbufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testUID/*endname*/)) ;
 /*endblock:s_nonprim*/
 /*block:s_list_primitive*/        var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/int/*endname*/>(builder,/*name:name*/testListPrimitive/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListPrimitiveVector/*endname*/) ;
 /*endblock:s_list_primitive*/
-/*block:s_list_nonprim*/        var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name|pre#FB:innertype*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
+/*block:s_list_string*/        var /*name|fu,pre#s:name*/sTestListString/*endname*/ = FlatbufferSerializer.CreateStringList(builder,/*name:name*/testStringList/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestStringListVector/*endname*/) ;
+/*endblock:s_list_string*/
+/*block:s_list_nonprim*/        var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
 /*endblock:s_list_nonprim*/
 /*block:s_dictold*/
         var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
@@ -155,6 +160,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#StartFB:ComponentName*/StartFBGenTemplateComponent/*endname*/(builder);
 /*block:s2_default*/        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name|fu,pre#s:name*/sState/*endname*/);
 /*endblock:s2_default*/        
+/*block:s2_nullable*/        if (/*name|fu,pre#s:name*/nullableStringOffset/*endname*/.HasValue) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestName/*endname*/(builder,/*name|fu,pre#s:name*/nullableStringOffset/*endname*/.Value);
+/*endblock:s2_nullable*/        
 /*block:s2_primitive*/        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name:name*/sState/*endname*/);
 /*endblock:s2_primitive*/
 /*block:s2_list*/        if (/*name:name*/testListPrimitive/*endname*/!= null) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestListPrimitive/*endname*/(builder,(VectorOffset)/*name|fu,pre#s:name*/sTestListPrimitive/*endname*/);
@@ -177,9 +184,14 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
 /*block:d_nonprim_list*/     {
             var tempList = new System.Collections.Generic.List<object>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
             for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) tempList.Add(input./*name|fu:name*/TestListUID/*endname*/(i));
-            /*name:name*/testListUID/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name|pre#FB:innertype*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList);
+            /*name:name*/testListUID/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList);
         }
 /*endblock:d_nonprim_list*/
+/*block:d_string_list*/     {
+            /*name:name*/testStringList/*endname*/ = new System.Collections.Generic.List<string>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
+            for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) /*name:name*/testStringList/*endname*/.Add(input./*name|fu:name*/TestStringList/*endname*/(i));
+        }
+/*endblock:d_string_list*/
 /*block:d_dict*/        /*name:name*/testDict/*endname*/ = new Dictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
         
         for (int i = 0; i < input./*name|fu,post#Length:name*/TestDictLength/*endname*/; i++) {
