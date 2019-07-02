@@ -117,9 +117,15 @@ namespace Service.Serializer {
             else if (typeof(TKey).IsPrimitive && !typeof(TValue).IsPrimitive) {
                 for (int i = 0; i < amount; i++) {
                     var dictElem = dict.ElementAt(i);
-                    var valueElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
-                    var offset = (FBValue)Activator.CreateInstance(typeof(FBValue), valueElemOffset);
-                    tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), offset);
+
+                    FBValue valueElemOffset;
+                    if (typeof(TValue) == typeof(string)) {
+                        valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Value);
+                    } else {
+                        var offset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                        valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                    }
+                    tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset);
                 }
                 var result = fbCreateList(builder, tempArray);
                 PutInSerializeCache(dict, result.Value);
@@ -129,8 +135,13 @@ namespace Service.Serializer {
                 for (int i = 0; i < amount; i++) {
                     var dictElem = dict.ElementAt(i);
 
-                    var keyElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
-                    var offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                    FBKey offsetKey;
+                    if (typeof(TKey) == typeof(string)) {
+                        offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
+                    }else {
+                        var keyElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                        offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                    }
 
                     tempArray[i] = fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value));
                 }
@@ -142,12 +153,24 @@ namespace Service.Serializer {
                 for (int i = 0; i < amount; i++) {
                     var dictElem = dict.ElementAt(i);
 
-                    var keyElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
-                    var offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
 
-                    var valueElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
-                    var valueOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), valueElemOffset);
-                    tempArray[i] = fbCreateElement(builder, offsetKey, valueOffset);
+
+                    FBKey offsetKey;
+                    if (typeof(TKey) == typeof(string)) {
+                        offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
+                    } else {
+                        var keyElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                        offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                    }
+
+                    FBValue valueElemOffset;
+                    if (typeof(TValue) == typeof(string)) {
+                        valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Key);
+                    } else {
+                        var offset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                        valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                    }
+                    tempArray[i] = fbCreateElement(builder, offsetKey, valueElemOffset); 
                 }
                 var result = fbCreateList(builder, tempArray);
                 PutInSerializeCache(dict, result.Value);
