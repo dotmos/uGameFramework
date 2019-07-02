@@ -247,9 +247,9 @@ namespace Service.Serializer {
             return null;
         }
 
-        public static FlatBuffers.VectorOffset? CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,List<T> data) {
+        public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,List<T> data) {
             if (data == null) {
-                return null;
+                return new VectorOffset(0);
             }
 
             int? bufferPos = FindInSerializeCache(data);
@@ -275,7 +275,7 @@ namespace Service.Serializer {
                 int amount = data.Count;
                 List<int> stOffsetList = new List<int>(amount);
                 for (int i = 0; i < amount; i++) {
-                    var elem = GetOrCreateSerialize(builder, stOffsetList[i]);
+                    var elem = GetOrCreateSerialize(builder, data[i]);
                     stOffsetList.Add(elem.Value);
                 }
                 builder.StartVector(4, data.Count, 4); for (int i = amount - 1; i >= 0; i--) builder.AddOffset(stOffsetList[i]); 
@@ -342,15 +342,15 @@ namespace Service.Serializer {
                 return null;
             }
 
-            if (fb2objMapping.TryGetValue(bufferPos,out object value)) {
-                // we already deserialized this list give back the already created version to keep the reference
+            var cachedResult = FindInDeserializeCache(bufferPos);
+            if (cachedResult != null) {
                 try {
-                    return (List<T>)value;
+                    return (List<T>)cachedResult;
                 }
                 catch (Exception e) {
                     UnityEngine.Debug.LogException(e);
                     UnityEngine.Debug.Log("T:" + typeof(T) + " S:" + typeof(S) + " bufferpos:" + bufferPos);
-                    UnityEngine.Debug.Log("Cached-ResultType:" + value.GetType()+"\n");
+                    UnityEngine.Debug.Log("Cached-ResultType:" + cachedResult.GetType()+"\n");
                     return null;
                 }
             } else {
@@ -362,7 +362,7 @@ namespace Service.Serializer {
                         result.Add(deserializedElement);
                     }
                 }
-                fb2objMapping[bufferPos] = result;
+                PutIntoDeserializeCache(bufferPos, result);
                 return result;
             }
         }
@@ -494,14 +494,14 @@ namespace Service.Serializer {
             if (serializableObj is IFBSerializable) {
                 // first time, so serialize it with flatbuffers
                 var serialized = ((IFBSerializable)serializableObj).Serialize(builder);
-                obj2FSMapping[serializableObj] = serialized;
+                PutInSerializeCache(serializableObj, serialized);
                 return serialized;
             }
             else {
                 // try to convert
                 var serialized = Convert(builder, serializableObj);
                 if (serializableObj != null) {
-                    obj2FSMapping[serializableObj] = serialized.Value;
+                    PutInSerializeCache(serializableObj, serialized.Value);
                 }
                 return serialized;
             }
@@ -517,9 +517,8 @@ namespace Service.Serializer {
             if (incoming == null) {
                 return null;
             }
-            object result;
             // first check if we already deserialize the object at this position
-            fb2objMapping.TryGetValue(incoming.BufferPosition, out result);
+            object result = FindInDeserializeCache(incoming.BufferPosition);
             if (result != null) {
                 //UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
                 // yeah, we found it. no need to create a new object we got it already
@@ -529,7 +528,7 @@ namespace Service.Serializer {
             // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
             var newObject = (IFBSerializable)Activator.CreateInstance(type);
             newObject.Deserialize(incoming);
-            fb2objMapping[incoming.BufferPosition] = newObject;
+            PutIntoDeserializeCache(incoming.BufferPosition,newObject);
             return newObject;
         }
 
