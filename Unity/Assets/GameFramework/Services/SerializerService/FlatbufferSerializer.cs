@@ -247,7 +247,7 @@ namespace Service.Serializer {
         public static FlatBuffers.VectorOffset? CreateList<T, S>(FlatBuffers.FlatBufferBuilder builder
                                         , List<T> list, Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList)
                                         where S : struct, FlatBuffers.IFlatbufferObject where T : IFBSerializable {
-            if (list == null || list.Count==0) {
+            if (list == null) {
                 return new VectorOffset(0);
             }
 
@@ -439,6 +439,17 @@ namespace Service.Serializer {
                 UnityEngine.Debug.LogWarning("Tried to put null-object at pos:" + bufferpos);
                 return;
             }
+
+            if (obj.GetType().IsValueType) {
+                return;
+            }
+
+            if (obj is ECS.UID 
+                //&& ((ECS.UID)obj).ID==24790
+                ) {
+                int a = 0;
+            }
+
             if (checkIfExists && FindInDeserializeCache(bufferpos)!=null) {
                 var beforeObj = FindInDeserializeCache(bufferpos);
                 UnityEngine.Debug.LogError("WAAARNING: you are overwriting an existing object in deserialize-cache! before:" + beforeObj.GetType() + " new:" + obj.GetType());
