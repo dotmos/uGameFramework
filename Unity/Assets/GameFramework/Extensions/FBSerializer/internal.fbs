@@ -33,6 +33,11 @@ table FBMaterial {
 // dummy as offsetpoint for 'manual' IFBSerializable-objects
 table FBRef{}
 
+table FBMappingElement{
+    objId : int;
+    bufPos : int;
+}
+
 table FBUID {
     id:int;
 }

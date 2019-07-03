@@ -53,9 +53,17 @@ namespace FlatBuffers
 
         public string GetString(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.__string(o + __p.bb_pos) : null; }
 
+        public Serial.FBRef? GetFBRef(int fbPos) {  int o = __p.__offset(4 + fbPos * 2); return o != 0 ? (Serial.FBRef?)(new Serial.FBRef()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; }
+        
+        public int GetFBRefPos(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o!=0?__p.__indirect(o + __p.bb_pos):0; }
+
         public string GetStringListElementAt(int fbPos,int idx) { int o = __p.__offset(4+fbPos*2); return o != 0 ? __p.__string(__p.__vector(o) + idx * 4) : null; }
         public int GetListLength(int fbPos) { int o = __p.__offset(4+fbPos*2); return o != 0 ? __p.__vector_len(o) : 0;  }
         public int GetBufferPos(int fbPos){ int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.__vector(o) : 0; }
+
+        public bool MutateLongValue(int fbPos, long longValue) { int o = __p.__offset(4 + fbPos * 2); if (o != 0) { __p.bb.PutLong(o + __p.bb_pos, longValue); return true; } else { return false; } }
+        public bool MutateOffset(int fbPos, long longValue) { int o = __p.__offset(4 + fbPos * 2); if (o != 0) { __p.bb.PutLong(o + __p.bb_pos, longValue); return true; } else { return false; } }
+
 
         public List<string> GetStringList(int fbPos) {
             int bufPos = GetBufferPos(fbPos);
@@ -117,6 +125,16 @@ namespace FlatBuffers
             for (int i = 0; i < listSize; i++) tempList.Add(GetListElemAt<TSerialized>(fbPos,i));
             var result = FlatbufferSerializer.DeserializeList<TResult, TSerialized>(bufPos,  listSize, tempList);
             return result;
+        }
+
+        public T RetrieveOffset<T>(int fbPos) where T : IFBSerializable,new() {
+            int bufPos = GetFBRefPos(fbPos);
+
+            if (FlatbufferSerializer.HasDeserializingFlag(bufPos)) {
+                return (T)FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            } else {
+                return FlatbufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
+            }
         }
     }
 }

@@ -559,10 +559,11 @@ namespace FlatBuffers
             WriteLittleEndian(offset, sizeof(ushort), (ulong)value);
         }
 
-        public void PutInt(int offset, int value)
+        public int PutInt(int offset, int value)
         {
             AssertOffsetAndLength(offset, sizeof(int));
             WriteLittleEndian(offset, sizeof(int), (ulong)value);
+            return offset;
         }
 
         public void PutUint(int offset, uint value)

@@ -24,7 +24,9 @@ public Table __table { get { return __p; } }
   public FBVector2 __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float X { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateX(float x) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, x); return true; } else { return false; } }
   public float Y { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateY(float y) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, y); return true; } else { return false; } }
 
   public static Offset<Serial.FBVector2> CreateFBVector2(FlatBufferBuilder builder,
       float x = 0.0f,
@@ -60,8 +62,11 @@ public Table __table { get { return __p; } }
   public FBVector3 __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float X { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateX(float x) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, x); return true; } else { return false; } }
   public float Y { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateY(float y) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, y); return true; } else { return false; } }
   public float Z { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateZ(float z) { int o = __p.__offset(8); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, z); return true; } else { return false; } }
 
   public static Offset<Serial.FBVector3> CreateFBVector3(FlatBufferBuilder builder,
       float x = 0.0f,
@@ -100,9 +105,13 @@ public Table __table { get { return __p; } }
   public FBVector4 __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float X { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateX(float x) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, x); return true; } else { return false; } }
   public float Y { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateY(float y) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, y); return true; } else { return false; } }
   public float Z { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateZ(float z) { int o = __p.__offset(8); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, z); return true; } else { return false; } }
   public float W { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateW(float w) { int o = __p.__offset(10); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, w); return true; } else { return false; } }
 
   public static Offset<Serial.FBVector4> CreateFBVector4(FlatBufferBuilder builder,
       float x = 0.0f,
@@ -144,9 +153,13 @@ public Table __table { get { return __p; } }
   public FBQuaternion __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public float X { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateX(float x) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, x); return true; } else { return false; } }
   public float Y { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateY(float y) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, y); return true; } else { return false; } }
   public float Z { get { int o = __p.__offset(8); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateZ(float z) { int o = __p.__offset(8); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, z); return true; } else { return false; } }
   public float W { get { int o = __p.__offset(10); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateW(float w) { int o = __p.__offset(10); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, w); return true; } else { return false; } }
 
   public static Offset<Serial.FBQuaternion> CreateFBQuaternion(FlatBufferBuilder builder,
       float x = 0.0f,
@@ -233,6 +246,44 @@ public Table __table { get { return __p; } }
   }
 };
 
+public struct FBMappingElement : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_1_11_1(); }
+  public static FBMappingElement GetRootAsFBMappingElement(ByteBuffer _bb) { return GetRootAsFBMappingElement(_bb, new FBMappingElement()); }
+  public static FBMappingElement GetRootAsFBMappingElement(ByteBuffer _bb, FBMappingElement obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public FBMappingElement __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public int ObjId { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public bool MutateObjId(int objId) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, objId); return true; } else { return false; } }
+  public int BufPos { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public bool MutateBufPos(int bufPos) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, bufPos); return true; } else { return false; } }
+
+  public static Offset<Serial.FBMappingElement> CreateFBMappingElement(FlatBufferBuilder builder,
+      int objId = 0,
+      int bufPos = 0) {
+    builder.StartTable(2);
+    FBMappingElement.AddBufPos(builder, bufPos);
+    FBMappingElement.AddObjId(builder, objId);
+    return FBMappingElement.EndFBMappingElement(builder);
+  }
+
+  public static void StartFBMappingElement(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddObjId(FlatBufferBuilder builder, int objId) { builder.AddInt(0, objId, 0); }
+  public static void AddBufPos(FlatBufferBuilder builder, int bufPos) { builder.AddInt(1, bufPos, 0); }
+  public static Offset<Serial.FBMappingElement> EndFBMappingElement(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<Serial.FBMappingElement>(o);
+  }
+};
+
 public struct FBUID : IFlatbufferObject
 {
   private Table __p;
@@ -249,6 +300,7 @@ public Table __table { get { return __p; } }
   public FBUID __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public bool MutateId(int id) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, id); return true; } else { return false; } }
 
   public static Offset<Serial.FBUID> CreateFBUID(FlatBufferBuilder builder,
       int id = 0) {
@@ -283,6 +335,7 @@ public Table __table { get { return __p; } }
   public Serial.FBUID? Id { get { int o = __p.__offset(4); return o != 0 ? (Serial.FBUID?)(new Serial.FBUID()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
   public Serial.FBUID? Entity { get { int o = __p.__offset(6); return o != 0 ? (Serial.FBUID?)(new Serial.FBUID()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
   public bool WasConstructed { get { int o = __p.__offset(8); return o != 0 ? 0!=__p.bb.Get(o + __p.bb_pos) : (bool)false; } }
+  public bool MutateWasConstructed(bool wasConstructed) { int o = __p.__offset(8); if (o != 0) { __p.bb.Put(o + __p.bb_pos, (byte)(wasConstructed ? 1 : 0)); return true; } else { return false; } }
 
   public static Offset<Serial.FBComponent> CreateFBComponent(FlatBufferBuilder builder,
       Offset<Serial.FBUID> idOffset = default(Offset<Serial.FBUID>),
@@ -321,7 +374,9 @@ public Table __table { get { return __p; } }
   public DTEST_int_int __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public int Key { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public bool MutateKey(int key) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, key); return true; } else { return false; } }
   public int Value { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public bool MutateValue(int value) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, value); return true; } else { return false; } }
 
   public static Offset<Serial.DTEST_int_int> CreateDTEST_int_int(FlatBufferBuilder builder,
       int key = 0,
@@ -394,6 +449,7 @@ public Table __table { get { return __p; } }
 
   public Serial.FBComponent? BaseData { get { int o = __p.__offset(4); return o != 0 ? (Serial.FBComponent?)(new Serial.FBComponent()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
   public int State { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+  public bool MutateState(int state) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, state); return true; } else { return false; } }
   public string TestName { get { int o = __p.__offset(8); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
 #if ENABLE_SPAN_T
   public Span<byte> GetTestNameBytes() { return __p.__vector_as_span(8); }
@@ -403,6 +459,7 @@ public Table __table { get { return __p; } }
   public byte[] GetTestNameArray() { return __p.__vector_as_array<byte>(8); }
   public Serial.FBUID? TestUID { get { int o = __p.__offset(10); return o != 0 ? (Serial.FBUID?)(new Serial.FBUID()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
   public float TestNumber { get { int o = __p.__offset(12); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; } }
+  public bool MutateTestNumber(float testNumber) { int o = __p.__offset(12); if (o != 0) { __p.bb.PutFloat(o + __p.bb_pos, testNumber); return true; } else { return false; } }
   public Serial.FBUID? TestListUID(int j) { int o = __p.__offset(14); return o != 0 ? (Serial.FBUID?)(new Serial.FBUID()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int TestListUIDLength { get { int o = __p.__offset(14); return o != 0 ? __p.__vector_len(o) : 0; } }
   public int TestListUIDBufferPosition { get { int o = __p.__offset(14); return o != 0 ? __p.__vector(o) : 0; } }
@@ -415,6 +472,7 @@ public Table __table { get { return __p; } }
   public ArraySegment<byte>? GetTestListPrimitiveBytes() { return __p.__vector_as_arraysegment(16); }
 #endif
   public int[] GetTestListPrimitiveArray() { return __p.__vector_as_array<int>(16); }
+  public bool MutateTestListPrimitive(int j, int testListPrimitive) { int o = __p.__offset(16); if (o != 0) { __p.bb.PutInt(__p.__vector(o) + j * 4, testListPrimitive); return true; } else { return false; } }
   public Serial.DTEST_int_int? TestDict(int j) { int o = __p.__offset(18); return o != 0 ? (Serial.DTEST_int_int?)(new Serial.DTEST_int_int()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
   public int TestDictLength { get { int o = __p.__offset(18); return o != 0 ? __p.__vector_len(o) : 0; } }
   public int TestDictBufferPosition { get { int o = __p.__offset(18); return o != 0 ? __p.__vector(o) : 0; } }

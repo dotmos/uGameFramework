@@ -92,6 +92,8 @@ namespace FlatBuffers
             _vectorNumElems = 0;
         }
 
+
+
         /// <summary>
         /// Gets and sets a Boolean to disable the optimization when serializing
         /// default values to a Table.
@@ -104,6 +106,8 @@ namespace FlatBuffers
         /// @cond FLATBUFFERS_INTERNAL
 
         public int Offset { get { return _bb.Length - _space; } }
+
+        public int ___Space {  get { return _space; } set { _space = value;  } }
 
         public void Pad(int size)
         {
@@ -169,9 +173,9 @@ namespace FlatBuffers
           _bb.PutUshort(_space -= sizeof(ushort), x);
         }
 
-        public void PutInt(int x)
+        public int PutInt(int x)
         {
-            _bb.PutInt(_space -= sizeof(int), x);
+            return _bb.PutInt(_space -= sizeof(int), x);
         }
 
         public void PutUint(uint x)
@@ -350,14 +354,15 @@ namespace FlatBuffers
         /// Adds an offset, relative to where it will be written.
         /// </summary>
         /// <param name="off">The offset to add to the buffer.</param>
-        public void AddOffset(int off)
+        public int[] AddOffset(int off)
         {
             Prep(sizeof(int), 0);  // Ensure alignment is already done.
             if (off > Offset)
                 throw new ArgumentException();
-
+            int offBefore = Offset;
             off = Offset - off + sizeof(int);
-            PutInt(off);
+            int addressWrittenTo = PutInt(off);
+            return new int[2] { offBefore, addressWrittenTo };
         }
 
         /// @cond FLATBUFFERS_INTERNAL
@@ -542,9 +547,35 @@ namespace FlatBuffers
         /// <param name="x">The value to put into the buffer. If the value is equal to the default
         /// the value will be skipped.</param>
         /// <param name="d">The default value to compare the value against</param>
-        public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); } }
-        /// @endcond
+        public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); }  }
+        public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
 
+        public static int DUMMYREF = 2;
+
+        public void AddObjectReference(int o,int objRef, object obj) {
+            if (objRef == -1) {
+                // the current object is already in serialization process, so set a dummy ref for now and replace it later
+
+                // set a dummy ref so we have an address set in the vtable
+                var offsetData = AddOffsetWithReturn(o, DUMMYREF, 0);
+                // keep a reference to address and Offset, so we know where to put the data, once it is there
+                var address = offsetData[1];
+                var Offset = offsetData[0];
+
+                Service.Serializer.FlatbufferSerializer.AddAfterSerializationAction(() => {
+                    var objOffset = Service.Serializer.FlatbufferSerializer.FindInSerializeCache(obj);
+                    if (objOffset.HasValue) {
+                        var off = Offset - objOffset.Value + sizeof(int);
+                        DataBuffer.PutInt(address, off);
+                    }
+                });
+                // add a fake offset to reserve the memory in the buffer
+            } else {
+                // we already have a valid ref to the serilaized version of the obj 
+                AddOffset(11, objRef, 0);
+            }
+        }       
+        
         /// <summary>
         /// Encode the string `s` in the buffer using UTF-8.
         /// </summary>
