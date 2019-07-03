@@ -16,6 +16,7 @@
 
 using Service.Serializer;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FlatBuffers
 {
@@ -100,6 +101,26 @@ namespace FlatBuffers
             var newList = new List<T>(tA);
             FlatbufferSerializer.PutIntoDeserializeCache(bufPos, newList);
             return newList;
+        }
+
+        public T[] GetPrimitivesArray<T>(int fbPos) where T : struct {
+            int bufPos = GetBufferPos(fbPos);
+
+            if (bufPos == 0) {
+                return null;
+            }
+
+            object cacheResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            if (cacheResult != null) {
+                return (T[])cacheResult;
+            }
+            if (typeof(T).IsEnum) {
+                int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
+                return tA.Cast<T>().ToArray();
+            } else {
+                T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
+                return tA;
+            }
         }
 
 

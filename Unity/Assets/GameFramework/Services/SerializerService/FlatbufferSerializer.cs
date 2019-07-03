@@ -282,6 +282,47 @@ namespace Service.Serializer {
             return -1;
         }
 
+        public static FlatBuffers.VectorOffset CreateManualArray<T>(FlatBuffers.FlatBufferBuilder builder, T[] data) {
+            if (data == null) {
+                return new VectorOffset(0);
+            }
+
+            int? bufferPos = FindInSerializeCache(data);
+            if (bufferPos.HasValue) {
+                return new VectorOffset(bufferPos.Value);
+            }
+
+            SetSerializingFlag(data);
+            if (typeof(T) == typeof(bool)) {
+                builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddBool((bool)(object)data[i]);
+            } else if (typeof(T) == typeof(float)) {
+                builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddFloat((float)(object)data[i]);
+            } else if (typeof(T) == typeof(int) || typeof(T).IsEnum) {
+                builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddInt((int)(object)data[i]);
+            } else if (typeof(T) == typeof(long)) {
+                builder.StartVector(8, data.Length, 8); for (int i = data.Length - 1; i >= 0; i--) builder.AddLong((long)(object)data[i]);
+            } else if (typeof(T) == typeof(string)) {
+                int amount = data.Length;
+                List<StringOffset> stOffsetList = new List<StringOffset>(amount);
+                for (int i = 0; i < amount; i++) stOffsetList.Add(builder.CreateString((string)(object)data[i]));
+                builder.StartVector(4, data.Length, 4); for (int i = amount - 1; i >= 0; i--) builder.AddOffset(stOffsetList[i].Value);
+            } else {
+                int amount = data.Length;
+                List<int> stOffsetList = new List<int>(amount);
+                for (int i = 0; i < amount; i++) {
+                    var elem = GetOrCreateSerialize(builder, data[i]);
+                    stOffsetList.Add(elem.Value);
+                }
+                builder.StartVector(4, data.Length, 4); for (int i = amount - 1; i >= 0; i--) builder.AddOffset(stOffsetList[i]);
+            }
+            var result = builder.EndVector();
+            PutInSerializeCache(data, result.Value);
+            ClearSerializingFlag(data);
+            return result;
+        }
+
+
+
         public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,List<T> data) {
             if (data == null) {
                 return new VectorOffset(0);
@@ -297,7 +338,7 @@ namespace Service.Serializer {
                 builder.StartVector(1, data.Count, 1); for (int i = data.Count - 1; i >= 0; i--) builder.AddBool((bool)(object)data[i]); 
             } else if (typeof(T) == typeof(float)) {
                 builder.StartVector(4, data.Count, 4); for (int i = data.Count - 1; i >= 0; i--) builder.AddFloat((float)(object)data[i]); 
-            } else if (typeof(T) == typeof(int)) {
+            } else if (typeof(T) == typeof(int) || typeof(T).IsEnum) {
                 builder.StartVector(4, data.Count, 4); for (int i = data.Count - 1; i >= 0; i--) builder.AddInt((int)(object)data[i]); 
             } else if (typeof(T) == typeof(long)) {
                 builder.StartVector(8, data.Count, 8); for (int i = data.Count - 1; i >= 0; i--) builder.AddLong((long)(object)data[i]); 
@@ -570,8 +611,8 @@ namespace Service.Serializer {
 
         }
 
-        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming,IFBSerializable newObject=null) where T : IFBSerializable, new() {
-            return (T)GetOrCreateDeserialize(incoming, typeof(T),newObject);
+        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T : IFBSerializable, new() {
+            return (T)GetOrCreateDeserialize(incoming, typeof(T));
         }
 
         public static bool HasDeserializingFlag(int bufferPos) {
@@ -604,7 +645,7 @@ namespace Service.Serializer {
             serializingATM.Remove(obj);
         }
 
-        public static object GetOrCreateDeserialize(IFlatbufferObject incoming,Type type, IFBSerializable newObject=null) {
+        public static object GetOrCreateDeserialize(IFlatbufferObject incoming,Type type) {
             if (incoming == null || incoming.BufferPosition==0) {
                 return null;
             }
@@ -618,9 +659,7 @@ namespace Service.Serializer {
 
             SetDeserializingFlag(incoming.BufferPosition);
             // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
-            if (newObject == null) {
-                newObject = (IFBSerializable)Activator.CreateInstance(type);
-            }
+            var newObject = (IFBSerializable)Activator.CreateInstance(type);
             PutIntoDeserializeCache(incoming.BufferPosition, newObject);
             newObject.Deserialize(incoming);
             ClearDeserializingFlag(incoming.BufferPosition);

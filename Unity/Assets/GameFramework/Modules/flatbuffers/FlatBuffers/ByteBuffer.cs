@@ -200,7 +200,10 @@ namespace FlatBuffers
         /// <returns></returns>
         public static int SizeOf<T>()
         {
-            return genericSizes[typeof(T)];
+            if (typeof(T).IsEnum) {
+                return sizeof(int);
+            } 
+            else return genericSizes[typeof(T)];
         }
 
         /// <summary>
