@@ -247,8 +247,8 @@ namespace Service.Serializer {
         public static FlatBuffers.VectorOffset? CreateList<T, S>(FlatBuffers.FlatBufferBuilder builder
                                         , List<T> list, Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList)
                                         where S : struct, FlatBuffers.IFlatbufferObject where T : IFBSerializable {
-            if (list == null) {
-                return null;
+            if (list == null || list.Count==0) {
+                return new VectorOffset(0);
             }
 
             int? bufferPos = FindInSerializeCache(list);
@@ -519,6 +519,12 @@ namespace Service.Serializer {
             var serializedString = builder.CreateString(serializableObj);
             PutInSerializeCache(serializedString, serializedString.Value);
             return serializedString;
+        }
+
+        public static FBManualObject GetManualObject(object incoming) {
+            var fbManual = new FBManualObject();
+            fbManual.__initFromRef(incoming);
+            return fbManual;
         }
 
         public static int? GetOrCreateSerialize(FlatBufferBuilder builder, object serializableObj)  {

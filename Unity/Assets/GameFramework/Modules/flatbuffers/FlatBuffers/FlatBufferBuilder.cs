@@ -551,7 +551,7 @@ namespace FlatBuffers
         public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
 
         public static int DUMMYREF = 2;
-
+         
         public void AddObjectReference(int o,int objRef, object obj) {
             if (objRef == -1) {
                 // the current object is already in serialization process, so set a dummy ref for now and replace it later
