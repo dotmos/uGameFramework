@@ -26,7 +26,7 @@ namespace Service.Serializer {
         private static FlatBufferBuilder fbBuilder;
 
         public static Dictionary<Type, Func<object, FlatBufferBuilder, int>> serializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, int>>();
-        public static Dictionary<Type, Func<object, FlatBufferBuilder, object>> deserializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, object>>();
+        public static Dictionary<Type, Func<object, object>> deserializeObjConverters = new Dictionary<Type, Func<object, object>>();
 
         // objects that are serializing atm
         public static HashSet<object> serializingATM = new HashSet<object>();
@@ -44,7 +44,7 @@ namespace Service.Serializer {
             afterDeserializationAction.Add(act);
         }
 
-        public static int? Convert(FlatBufferBuilder builder, object obj)  {
+        public static int? ConvertToFlatbuffer(FlatBufferBuilder builder, object obj)  {
             if (!convertersActivated) {
                 ActivateConverters();
                 convertersActivated = true;
@@ -58,7 +58,22 @@ namespace Service.Serializer {
             }
         }
 
+        public static object ConvertToObject(object incoming,Type resultType) {
+            if (!convertersActivated) {
+                ActivateConverters();
+                convertersActivated = true;
+            }
+
+            if (deserializeObjConverters.TryGetValue(resultType, out Func<object, object> converter)) {
+                var result = converter(incoming);
+                return result;
+            } else {
+                return null;
+            }
+        }
+
         public static void ActivateConverters() {
+            // ------------------------- Vector2 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector2)] = (data,builder) => {
                 var vec2 = (UnityEngine.Vector2)data;
                 Serial.FBVector2.StartFBVector2(builder);
@@ -66,6 +81,12 @@ namespace Service.Serializer {
                 Serial.FBVector2.AddY(builder, vec2.y);
                 return Serial.FBVector2.EndFBVector2(builder).Value;
             };
+            deserializeObjConverters[typeof(UnityEngine.Vector2)] = (incoming) => {
+                var fbVec2 = (Serial.FBVector2)incoming;
+                var vec2 = new UnityEngine.Vector3(fbVec2.X, fbVec2.Y);
+                return vec2;
+            };
+            // ------------------------- Vector3 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector3)] = (data, builder) => {
                 var vec3 = (UnityEngine.Vector3)data;
                 Serial.FBVector3.StartFBVector3(builder);
@@ -74,6 +95,12 @@ namespace Service.Serializer {
                 Serial.FBVector3.AddZ(builder, vec3.z);
                 return Serial.FBVector3.EndFBVector3(builder).Value;
             };
+            deserializeObjConverters[typeof(UnityEngine.Vector3)] = (incoming) => {
+                var fbVec3 = (Serial.FBVector3)incoming;
+                var vec3 = new UnityEngine.Vector3(fbVec3.X, fbVec3.Y, fbVec3.Z);
+                return vec3;
+            };
+            // ------------------------- Vector4 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector4)] = (data, builder) => {
                 var vec4 = (UnityEngine.Vector4)data;
                 Serial.FBVector4.StartFBVector4(builder);
@@ -83,6 +110,12 @@ namespace Service.Serializer {
                 Serial.FBVector4.AddW(builder, vec4.w);
                 return Serial.FBVector4.EndFBVector4(builder).Value;
             };
+            deserializeObjConverters[typeof(UnityEngine.Vector4)] = (incoming) => {
+                var fbVec4 = (Serial.FBVector4)incoming;
+                var vec4 = new UnityEngine.Vector4(fbVec4.X, fbVec4.Y, fbVec4.Z, fbVec4.W);
+                return vec4;
+            };
+            // ------------------------- Quaternion --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Quaternion)] = (data, builder) => {
                 var q = (UnityEngine.Quaternion)data;
                 Serial.FBQuaternion.StartFBQuaternion(builder);
@@ -92,14 +125,23 @@ namespace Service.Serializer {
                 Serial.FBQuaternion.AddW(builder, q.w);
                 return Serial.FBQuaternion.EndFBQuaternion(builder).Value;
             };
-            serializeObjConverters[typeof(UnityEngine.Material)] = (data, builder) => {
-                var material = (UnityEngine.Material)data;
-                var fbMatName = builder.CreateString(material.name);
-
-                Serial.FBMaterial.StartFBMaterial(builder);
-                Serial.FBMaterial.AddMaterialName(builder, fbMatName);
-                return Serial.FBMaterial.EndFBMaterial(builder).Value;
+            deserializeObjConverters[typeof(UnityEngine.Quaternion)] = (incoming) => {
+                var fbQuaternion = (Serial.FBQuaternion)incoming;
+                var quat = new UnityEngine.Quaternion(fbQuaternion.X, fbQuaternion.Y, fbQuaternion.Z, fbQuaternion.W);
+                return quat;
             };
+            // ------------------------- Material --------------------------------------
+            //serializeObjConverters[typeof(UnityEngine.Material)] = (data, builder) => {
+            //    var material = (UnityEngine.Material)data;
+            //    var fbMatName = builder.CreateString(material.name);
+
+            //    Serial.FBMaterial.StartFBMaterial(builder);
+            //    Serial.FBMaterial.AddMaterialName(builder, fbMatName);
+            //    return Serial.FBMaterial.EndFBMaterial(builder).Value;
+            //};
+            //deserializeObjConverters[typeof(UnityEngine.Quaternion)] = (incoming) => {
+            //    return null;
+            //};
         }
 
         /*
@@ -600,7 +642,7 @@ namespace Service.Serializer {
             else {
                 // try to convert
                 SetSerializingFlag(serializableObj);
-                var serialized = Convert(builder, serializableObj);
+                var serialized = ConvertToFlatbuffer(builder, serializableObj);
                 if (serializableObj != null) {
                     PutInSerializeCache(serializableObj, serialized.Value);
                 }
@@ -611,7 +653,7 @@ namespace Service.Serializer {
 
         }
 
-        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T : IFBSerializable, new() {
+        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T :  new() {
             return (T)GetOrCreateDeserialize(incoming, typeof(T));
         }
 
@@ -657,13 +699,33 @@ namespace Service.Serializer {
                 return result;
             }
 
-            SetDeserializingFlag(incoming.BufferPosition);
-            // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
-            var newObject = (IFBSerializable)Activator.CreateInstance(type);
-            PutIntoDeserializeCache(incoming.BufferPosition, newObject);
-            newObject.Deserialize(incoming);
-            ClearDeserializingFlag(incoming.BufferPosition);
-            return newObject;
+            if (typeof(IFBSerializable).IsAssignableFrom(type)) {
+                // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
+                SetDeserializingFlag(incoming.BufferPosition);
+                try {
+                    var newObject = (IFBSerializable)Activator.CreateInstance(type);
+                    PutIntoDeserializeCache(incoming.BufferPosition, newObject);
+                    newObject.Deserialize(incoming);
+                    return newObject;
+                }
+                finally {
+                    ClearDeserializingFlag(incoming.BufferPosition);
+                }
+            } else {
+                try {
+                    SetDeserializingFlag(incoming.BufferPosition);
+                    var convResult = ConvertToObject(incoming, type);
+                    if (convResult == null) {
+                        UnityEngine.Debug.LogError("There is no deserializer for " + type);
+                        return null;
+                    }
+                    return convResult;
+                }
+                finally {
+                    ClearDeserializingFlag(incoming.BufferPosition);
+                }
+            }
+
         }
 
         public static void ClearCache() {
