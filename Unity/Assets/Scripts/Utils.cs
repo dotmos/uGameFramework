@@ -654,6 +654,15 @@ public static partial class UtilsExtensions
         }
     }
 
+    public static void ShallowCopyFrom<T, S>(this ObservableDictionary<T,S> dest, ObservableDictionary<T, S> data) {
+        int amount = data.Count;
+
+        for (int i = 0; i < amount; i++) {
+            var elem = data.ElementAt(i);
+            dest[elem.Key] = elem.Value;
+        }
+    }
+
     public static void ShallowCopyFrom<T>(this List<T> dest, List<T> data) {
         int amount = data.Count;
         for (int i = 0; i < amount; i++) {
