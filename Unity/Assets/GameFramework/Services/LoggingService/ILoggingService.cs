@@ -43,8 +43,8 @@ namespace Service.LoggingService {
         info,warning,error,severe,native
         
     }
-
-
+    
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

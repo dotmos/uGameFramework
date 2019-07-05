@@ -74,16 +74,17 @@ namespace Service.GameStateService {
         noneStatus,starting,running,closing
         
     }
-
-
-    [DataContract(IsReference = true)]
+    
+    
     [System.Serializable]
     public partial class GSContext {
-
-
+        
+        
+        
+        
     }
 
-
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

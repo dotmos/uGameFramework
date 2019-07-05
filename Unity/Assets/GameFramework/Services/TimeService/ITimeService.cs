@@ -36,20 +36,26 @@ namespace Service.TimeService {
 	}
 
 
-
-    [DataContract(IsReference = true)]
+    
     [System.Serializable]
     public partial class TimerElement {
-        [DataMember]public string info ;
-        [DataMember]public float timeLeft ;
-        [DataMember]public float interval ;
-        [DataMember]public int repeatTimes ;
-        [DataMember]public Action timerCallback ;
-
-
+        
+        public string info ;
+        
+        public float timeLeft ;
+        
+        public float interval ;
+        
+        public int repeatTimes ;
+        
+        public Action timerCallback ;
+        
+        
+        
+        
     }
 
-
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

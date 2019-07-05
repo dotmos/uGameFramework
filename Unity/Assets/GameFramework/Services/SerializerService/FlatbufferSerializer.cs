@@ -164,7 +164,11 @@ namespace Service.Serializer {
             }
             var tempArray = new FlatBuffers.Offset<S>[dict.Count];
             int amount = dict.Count;
-            if (typeof(TKey).IsPrimitive && typeof(TValue).IsPrimitive) {
+
+            var keyPrimOrEnum = typeof(TKey).IsPrimitive || typeof(TKey).IsEnum;
+            var valuePrimOrEnum = typeof(TValue).IsPrimitive || typeof(TValue).IsEnum;
+
+            if (keyPrimOrEnum && valuePrimOrEnum) {
                 SetSerializingFlag(dict);
                 // a pure primitive dictionary
                 for (int i = 0; i < amount; i++) {
@@ -176,7 +180,7 @@ namespace Service.Serializer {
                 ClearSerializingFlag(dict);
                 return result;
             }
-            else if (typeof(TKey).IsPrimitive && !typeof(TValue).IsPrimitive) {
+            else if (keyPrimOrEnum && !valuePrimOrEnum) {
                 SetSerializingFlag(dict);
                 for (int i = 0; i < amount; i++) {
                     var dictElem = dict.ElementAt(i);
@@ -194,7 +198,7 @@ namespace Service.Serializer {
                 PutInSerializeCache(dict, result.Value);
                 ClearSerializingFlag(dict);
                 return result;
-            } else if (!typeof(TKey).IsPrimitive && typeof(TValue).IsPrimitive) {
+            } else if (!keyPrimOrEnum && valuePrimOrEnum) {
                 SetSerializingFlag(dict);
                 for (int i = 0; i < amount; i++) {
                     var dictElem = dict.ElementAt(i);
@@ -213,7 +217,7 @@ namespace Service.Serializer {
                 PutInSerializeCache(dict, result.Value);
                 ClearSerializingFlag(dict);
                 return result;
-            } else if (!typeof(TKey).IsPrimitive && !typeof(TValue).IsPrimitive) {
+            } else if (!keyPrimOrEnum && !valuePrimOrEnum) {
                 SetSerializingFlag(dict);
                 for (int i = 0; i < amount; i++) {
                     var dictElem = dict.ElementAt(i);

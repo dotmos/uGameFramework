@@ -97,28 +97,33 @@ namespace FlatBuffers
                 return (List<T>)cacheResult;
             }
 
-            T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
-            var newList = new List<T>(tA);
+            // get the array, but don't write the result in the lookup-table, because we want to map the result to the list
+            T[] array = GetPrimitivesArray<T>(fbPos,true); 
+            var newList = new List<T>(array);
             FlatbufferSerializer.PutIntoDeserializeCache(bufPos, newList);
             return newList;
         }
 
-        public T[] GetPrimitivesArray<T>(int fbPos) where T : struct {
+        public T[] GetPrimitivesArray<T>(int fbPos, bool ignoreLookup=false) where T : struct {
             int bufPos = GetBufferPos(fbPos);
 
             if (bufPos == 0) {
                 return null;
             }
 
-            object cacheResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            object cacheResult = ignoreLookup ? null : FlatbufferSerializer.FindInDeserializeCache(bufPos);
             if (cacheResult != null) {
                 return (T[])cacheResult;
             }
             if (typeof(T).IsEnum) {
                 int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
-                return tA.Cast<T>().ToArray();
+                var result = tA.Cast<T>().ToArray();
+                if (!ignoreLookup) FlatbufferSerializer.PutIntoDeserializeCache(bufPos, result);
+                return result;
+
             } else {
                 T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
+                if (!ignoreLookup) FlatbufferSerializer.PutIntoDeserializeCache(bufPos, tA);
                 return tA;
             }
         }
