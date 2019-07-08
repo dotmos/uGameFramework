@@ -647,11 +647,11 @@ namespace Service.Serializer {
                 // try to convert
                 SetSerializingFlag(serializableObj);
                 var serialized = ConvertToFlatbuffer(builder, serializableObj);
-                if (serializableObj != null) {
+                if (serializableObj != null && serialized.HasValue) {
                     PutInSerializeCache(serializableObj, serialized.Value);
                 }
                 ClearSerializingFlag(serializableObj);
-                return serialized;
+                return serialized.HasValue?serialized:0;
             }
 
 
