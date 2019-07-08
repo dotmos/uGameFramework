@@ -58,12 +58,12 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:rip*/            this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
 
+        /*endblock:constructor*/
         /// <summary>
         /// Default constructor
         /// </summary>
         public /*name:className*/SomeModel/*endname*/() { }
 
-        /*endblock:constructor*/
         /*name:classSerialization*/
         public void Deserialize(object incoming) {
             throw new System.NotImplementedException();
