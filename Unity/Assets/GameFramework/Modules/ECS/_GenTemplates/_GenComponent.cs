@@ -186,7 +186,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*endblock:s_list_nonprim*/
 /*block:s_list_enum*/        var /*name|fu,pre#s:name*/sEnumList/*endname*/ = FlatbufferSerializer.CreateManualList(builder,/*name:name*/enumList/*endname*/) ;
 /*endblock:s_list_enum*/
-/*block:s_dictold*/
+/*block:s_dictold*/ 
         var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
 /*endblock:s_dictold*/
 /*block:s_dict*/                var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:dictName*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);

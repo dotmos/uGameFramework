@@ -604,7 +604,7 @@ namespace Service.Serializer {
 
         public static StringOffset? GetOrCreateSerialize(FlatBufferBuilder builder, string serializableObj) {
             if (serializableObj == null) {
-                return null;
+                return new StringOffset(0);
             }
 
             // check if we have this Object already serialized and if yes grab the
