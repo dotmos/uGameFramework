@@ -54,9 +54,19 @@ table DTEST_int_int {
     value : int;
 }
 
+table DTEST_intlinst_intlist{
+    key : [int];
+    value : [int];
+}
+
 table DTEST_Component_Component {
     key : FBComponent;
     value : FBComponent;
+}
+
+table DTEST_Componentlist_Componentlist {
+    key : [FBComponent];
+    value : [FBComponent];
 }
 
 table FBGenTemplateComponent {
@@ -68,6 +78,7 @@ table FBGenTemplateComponent {
     testListUID : [FBUID];
     testListPrimitive : [int];
     testDict : [DTEST_int_int];
+    testDictList : [DTEST_intlinst_intlist];
     testDictNonPrim : [DTEST_Component_Component];
     testStringList : [string];
 }

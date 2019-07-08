@@ -188,7 +188,8 @@ namespace Service.Serializer {
                     FBValue valueElemOffset;
                     if (typeof(TValue) == typeof(string)) {
                         valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Value);
-                    } else {
+                    } 
+                    else {
                         var offset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
                         valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
                     }
