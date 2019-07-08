@@ -175,6 +175,10 @@ public class ObservableList<T> : IList<T>, IObservableEnumeration {
         innerList.AddRange(list);
     }
 
+    public ObservableList(T[] t) {
+        innerList.AddRange(t);
+    }
+
     public List<T> InnerList {
         get { return innerList; }
     }

@@ -41,9 +41,8 @@ namespace FlatBuffers
         public Table __table { get { return __p; } }
         public ByteBuffer ByteBuffer { get { return __p.bb; } }
         public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
-        public FBManualObject __initFromRef(object refObj) {
-            var _refObj = (Serial.FBRef)refObj;
-            __init(_refObj.BufferPosition, _refObj.ByteBuffer);
+        public FBManualObject __initFromRef(IFlatbufferObject refObj) {
+            __init(refObj.BufferPosition, refObj.ByteBuffer);
             return this;
         }
 
@@ -85,7 +84,7 @@ namespace FlatBuffers
             return newList;
         }
 
-        public List<T> GetPrimitiveList<T>(int fbPos) where T: struct {
+        public IList<T> GetPrimitiveList<T>(int fbPos,bool isObservableList=false) where T: struct {
             int bufPos = GetBufferPos(fbPos);
 
             if (bufPos == 0) {
@@ -99,7 +98,7 @@ namespace FlatBuffers
 
             // get the array, but don't write the result in the lookup-table, because we want to map the result to the list
             T[] array = GetPrimitivesArray<T>(fbPos,true); 
-            var newList = new List<T>(array);
+            var newList = isObservableList? (IList<T>)new ObservableList<T>(array) : (IList<T>)new List<T>(array);
             FlatbufferSerializer.PutIntoDeserializeCache(bufPos, newList);
             return newList;
         }
@@ -137,7 +136,7 @@ namespace FlatBuffers
             return result;
         }
 
-        public List<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos) where TSerialized : struct,IFlatbufferObject where TResult:IFBSerializable, new() {
+        public IList<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos) where TSerialized : struct,IFlatbufferObject where TResult:IFBSerializable, new() {
             var bufPos = GetBufferPos(fbPos);
             var cachedResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
             if (cachedResult!=null) {

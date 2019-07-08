@@ -148,7 +148,7 @@ namespace Service.Serializer {
          var sIntDestcDict = FlatbufferSerializer.CreateDictionary<int,DestructionCosts,int, Offset<Serial.FBDestructionCosts>, Serial.DT_int_FBDestructionCosts>(builder, intDestcDict,  Serial.DT_int_FBDestructionCosts.CreateDT_int_FBDestructionCosts, Serial.FBTestComponent.CreateIntDestcDictVector);
          */
         public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,FBKey,FBValue,S>(FlatBuffers.FlatBufferBuilder builder
-                                , Dictionary<TKey, TValue> dict
+                                , IDictionary<TKey, TValue> dict
                                 , Func<FlatBufferBuilder, FBKey,FBValue, Offset<S>> fbCreateElement
                                 , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList
                                 )
@@ -291,7 +291,7 @@ namespace Service.Serializer {
         /// <param name="fbCreateList"></param>
         /// <returns></returns>
         public static FlatBuffers.VectorOffset? CreateList<T, S>(FlatBuffers.FlatBufferBuilder builder
-                                        , List<T> list, Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList)
+                                        , IList<T> list, Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList)
                                         where S : struct, FlatBuffers.IFlatbufferObject where T : IFBSerializable {
             if (list == null) {
                 return new VectorOffset(0);
@@ -369,7 +369,7 @@ namespace Service.Serializer {
 
 
 
-        public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,List<T> data) {
+        public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,IList<T> data) {
             if (data == null) {
                 return new VectorOffset(0);
             }
@@ -462,7 +462,7 @@ namespace Service.Serializer {
         /// <param name="amount">The amount of elements this list contains</param>
         /// <param name="items">objects list with all objects to be converted into T-List</param>
         /// <returns></returns>
-        public static List<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items) where S : IFlatbufferObject where T : IFBSerializable,new() {
+        public static IList<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items,bool isObservableList=false) where S : IFlatbufferObject where T : IFBSerializable,new() {
             if (bufferPos == 0) {
                 return null;
             }
@@ -480,7 +480,7 @@ namespace Service.Serializer {
                 }
             } else {
                 SetDeserializingFlag(bufferPos);
-                var result = new List<T>();
+                var result = isObservableList? new ObservableList<T>() : (IList<T>) new List<T>();
                 PutIntoDeserializeCache(bufferPos, result);
                 for (int i = 0; i < amount; i++) {
                     var obj = items[i];
@@ -621,7 +621,7 @@ namespace Service.Serializer {
 
         public static FBManualObject GetManualObject(object incoming) {
             var fbManual = new FBManualObject();
-            fbManual.__initFromRef(incoming);
+            fbManual.__initFromRef((IFlatbufferObject)incoming);
             return fbManual;
         }
 

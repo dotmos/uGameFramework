@@ -34,7 +34,11 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     [System.Serializable]
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
         /*block:field*/
-        /*name:scope*/public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
+            /// <summary>
+            /// /*name:documentation*//*endname*/
+            /// </summary>
+        /*name:scope*/
+        public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
         /*endblock:field*/
         /*block:property*/
             /// <summary>
@@ -43,11 +47,22 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*name:scope*/public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
         /*endblock:property*/
         /*block:constructor*/
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+/*block:docParam*/        /// <param name="/*name:name*//*endname*/">/*name:documentation*//*endname*/</param>
+/*endblock:docParam*/
         public /*name:className*/SomeModel/*endname*/(/*block:rip*/int maxChannels/*endblock:rip*//*block:parameter*//*name:comma*/,/*endname*//*name:type*/string/*endname*/ /*name:paramName*/name/*endname*//*endblock:parameter*/) {
 /*block:constructorSet*/            this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
 /*endblock:constructorSet*/
 /*block:rip*/            this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public /*name:className*/SomeModel/*endname*/() { }
+
         /*endblock:constructor*/
         /*name:classSerialization*/
         public void Deserialize(object incoming) {
@@ -160,10 +175,12 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:s_string*/      var /*name|fu,pre#s:name*/sTestName/*endname*/ = FlatbufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testName/*endname*/) ;
 /*endblock:s_string*/
 /*block:s_nonprim*/        var /*name|fu,pre#s:name*/sTestUID/*endname*/ = new Offset<Serial./*name|pre#FB:type*/FBUID/*endname*/>((int)FlatbufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testUID/*endname*/)) ;
-/*endblock:s_nonprim*/
-/*block:s_list_primitive*/        var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateList(builder,/*name:name*/testListPrimitive/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListPrimitiveVector/*endname*/) ;
-/*endblock:s_list_primitive*/
-/*block:s_list_string*/        var /*name|fu,pre#s:name*/sTestListString/*endname*/ = FlatbufferSerializer.CreateStringList(builder,/*name:name*/testStringList/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestStringListVector/*endname*/) ;
+        /*endblock:s_nonprim*/
+        /*block:s_list_primitive*/        //var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateList(builder,/*name:name*/testListPrimitive/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListPrimitiveVector/*endname*/) ;
+        var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateManualList(builder,/*name:name*/testListPrimitive/*endname*/);
+        /*endblock:s_list_primitive*/
+        /*block:s_list_string*/
+        var /*name|fu,pre#s:name*/sTestListString/*endname*/ = FlatbufferSerializer.CreateStringList(builder,/*name:name*/testStringList/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestStringListVector/*endname*/) ;
 /*endblock:s_list_string*/
 /*block:s_list_nonprim*/        var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
 /*endblock:s_list_nonprim*/
@@ -172,7 +189,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:s_dictold*/
         var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
 /*endblock:s_dictold*/
-/*block:s_dict*/                var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
+/*block:s_dict*/                var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:dictName*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
 /*endblock:s_dict*/
         Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#StartFB:ComponentName*/StartFBGenTemplateComponent/*endname*/(builder);
 /*block:s2_default*/        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name|fu,pre#s:name*/sState/*endname*/);
@@ -191,17 +208,20 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
     public /*name:override*/override/*endname*/ void Deserialize(object data) {
         var input = (Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/)data;
 /*block:inheritance_deser*/        base.Deserialize(input.BaseData);
-/*endblock:inheritance_deser*/
+/*endblock:inheritance_deser*/        /*name:useManual*/var manual = FlatbufferSerializer.GetManualObject(data);/*endname*/
+
 /*block:d_default*/        /*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)input./*name|fu:name*/State/*endname*/; // string
 /*endblock:d_default*/
 /*block:d_nonprim*/     /*name:name*/testUID/*endname*/ = FlatbufferSerializer.GetOrCreateDeserialize</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
-/*endblock:d_nonprim*/
-/*block:d_prim_list*/        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
-/*endblock:d_prim_list*/
-/*block:d_nonprim_list*/     {
+        /*endblock:d_nonprim*/
+        /*block:d_prim_list*/ //        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
+                                      /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/);
+                              /*endblock:d_prim_list*/
+                              /*block:d_nonprim_list*/
+        {
             var tempList = new System.Collections.Generic.List<object>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
             for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) tempList.Add(input./*name|fu:name*/TestListUID/*endname*/(i));
-            /*name:name*/testListUID/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList);
+            /*name:name*/testListUID/*endname*/ = (/*name:type*/ System.Collections.Generic.List<UID>/*endname*/)FlatbufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList,/*name:isObservable*/false/*endname*/);
         }
 /*endblock:d_nonprim_list*/
 /*block:d_enum_list*/            /*name:name*/enumList/*endname*/ = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/().Cast</*name:innertype*/State/*endname*/>().ToList();
@@ -211,18 +231,27 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
             for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) /*name:name*/testStringList/*endname*/.Add(input./*name|fu:name*/TestStringList/*endname*/(i));
         }
 /*endblock:d_string_list*/
-/*block:d_dict*/        /*name:name*/testDict/*endname*/ = new Dictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
-        
-        for (int i = 0; i < input./*name|fu,post#Length:name*/TestDictLength/*endname*/; i++) {
-            var e = input./*name|fu:name*/TestDictNonPrim/*endname*/(i);
-            if (e.HasValue) {
-                var elem = e.Value;
-                
- /*block:nonprim_key*/                var key = FlatbufferSerializer.GetOrCreateDeserialize</*name:keyType*/SerializableHelper/*endname*/>((Serial./*name:fbKeyType*/FBComponent/*endname*/)elem.Key);
- /*endblock:nonprim_key*/
- /*block:nonprim_value*/                var value = FlatbufferSerializer.GetOrCreateDeserialize</*name:valueType*/SerializableHelper/*endname*/>((Serial./*name:fbValueType*/FBComponent/*endname*/)elem.Value);
- /*endblock:nonprim_value*/
-                /*name:name*/testDict2/*endname*/[(/*name:keyType*/SerializableHelper/*endname*/)/*name:thekey*/key/*endname*/] = (/*name:valueType*/SerializableHelper/*endname*/)/*name:thevalue*/value/*endname*/;
+/*block:d_dict*/        
+        {
+            object result = FlatbufferSerializer.FindInDeserializeCache(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
+            if (result != null) {
+                /*name:name*/testDict/*endname*/ = (/*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>)result;
+            } else {
+                /*name:name*/testDict/*endname*/ = new /*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
+                for (int i = 0; i < input./*name|fu,post#Length:name*/TestDictLength/*endname*/; i++) {
+                    var e = input./*name|fu:name*/TestDictNonPrim/*endname*/(i);
+                    if (e.HasValue) {
+                        var elem = e.Value;
+                        /*block:nonprim_key*/
+                        var key = FlatbufferSerializer.GetOrCreateDeserialize</*name:keyType*/SerializableHelper/*endname*/>((Serial./*name:fbKeyType*/FBComponent/*endname*/)elem.Key);
+                        /*endblock:nonprim_key*/
+                        /*block:nonprim_value*/
+                        var value = FlatbufferSerializer.GetOrCreateDeserialize</*name:valueType*/SerializableHelper/*endname*/>((Serial./*name:fbValueType*/FBComponent/*endname*/)elem.Value);
+                        /*endblock:nonprim_value*/
+                        /*name:name*/testDict2/*endname*/[(/*name:keyType*/SerializableHelper/*endname*/)/*name:thekey*/key/*endname*/] = (/*name:valueType*/SerializableHelper/*endname*/)/*name:thevalue*/value/*endname*/;
+                    }
+                }
+                FlatbufferSerializer.PutIntoDeserializeCache(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/, /*name:name*/testDict/*endname*/);
             }
         } 
 /*endblock:d_dict*/
