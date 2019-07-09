@@ -31,7 +31,7 @@ public partial class Kernel : SceneContext {
             // Added !applicationQuitting into the if check to make sure that the kernel scene isn't loaded OnApplicationQuit, when it became null
             // Seems like OnApplicationQuit is sometimes wrongly called, causing a reload of the Kernel Scene.
             // Loading the Kernel Scene should only happen from inside the editor, if the kernel scene was not initially loaded
-            if (InstanceProperty.Value == null && forwardToKernelScene && !loadingKernelScene && SceneManager.GetActiveScene().name != "Kernel" && !applicationQuitting){
+            if (InstanceProperty.Value == null && !loadingKernelScene && SceneManager.GetActiveScene().name != "Kernel" && !applicationQuitting){
 
 #if UNITY_EDITOR
                 overrideSceneName = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene().name;
