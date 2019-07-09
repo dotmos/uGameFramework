@@ -21,6 +21,8 @@ namespace Service.Serializer {
         /// </summary>
         public static Dictionary<object, int> obj2FSMapping = new Dictionary<object, int>();
 
+        public static Dictionary<Type, List<object>> postProcessObjects = new Dictionary<Type, List<object>>();
+
         public static Dictionary<int, object> serializeBufferposCheck = new Dictionary<int, object>();
 
         private static FlatBufferBuilder fbBuilder;
@@ -55,6 +57,12 @@ namespace Service.Serializer {
                 return bufPos;
             } else {
                 return null;
+            }
+        }
+
+        public static void AddPostProcessType(Type type) {
+            if (!postProcessObjects.ContainsKey(type)) {
+                postProcessObjects[type] = new List<object>();
             }
         }
 
@@ -190,7 +198,7 @@ namespace Service.Serializer {
                         valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Value);
                     } 
                     else {
-                        var offset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                        var offset = FlatbufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
                         valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
                     }
                     tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset);
@@ -463,7 +471,7 @@ namespace Service.Serializer {
         /// <param name="amount">The amount of elements this list contains</param>
         /// <param name="items">objects list with all objects to be converted into T-List</param>
         /// <returns></returns>
-        public static IList<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items,bool isObservableList=false) where S : IFlatbufferObject where T : IFBSerializable,new() {
+        public static IList<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items,bool isObservableList=false) where S : IFlatbufferObject where T : new() {
             if (bufferPos == 0) {
                 return null;
             }
@@ -532,17 +540,14 @@ namespace Service.Serializer {
                 return;
             }
 
-            if (obj is ECS.UID 
-                //&& ((ECS.UID)obj).ID==24790
-                ) {
-                int a = 0;
-            }
-
             if (checkIfExists && FindInDeserializeCache(bufferpos)!=null) {
                 var beforeObj = FindInDeserializeCache(bufferpos);
                 UnityEngine.Debug.LogError("WAAARNING: you are overwriting an existing object in deserialize-cache! before:" + beforeObj.GetType() + " new:" + obj.GetType());
             }
             fb2objMapping[bufferpos] = obj;
+            if (postProcessObjects.TryGetValue(obj.GetType(),out List<object> objList)) {
+                objList.Add(obj);
+            }
         }
 
 
@@ -659,7 +664,8 @@ namespace Service.Serializer {
         }
 
         public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T :  new() {
-            return (T)GetOrCreateDeserialize(incoming, typeof(T));
+            var result = GetOrCreateDeserialize(incoming, typeof(T));
+            return (T)result;
         }
 
         public static bool HasDeserializingFlag(int bufferPos) {

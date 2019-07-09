@@ -182,9 +182,11 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*block:s_list_string*/
         var /*name|fu,pre#s:name*/sTestListString/*endname*/ = FlatbufferSerializer.CreateStringList(builder,/*name:name*/testStringList/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestStringListVector/*endname*/) ;
 /*endblock:s_list_string*/
-/*block:s_list_nonprim*/        var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
-/*endblock:s_list_nonprim*/
-/*block:s_list_enum*/        var /*name|fu,pre#s:name*/sEnumList/*endname*/ = FlatbufferSerializer.CreateManualList(builder,/*name:name*/enumList/*endname*/) ;
+/*block:s_list_nonprim*/        //var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
+                var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateManualList(builder,/*name:name*/testListUID/*endname*/);
+        /*endblock:s_list_nonprim*/
+        /*block:s_list_enum*/
+        var /*name|fu,pre#s:name*/sEnumList/*endname*/ = FlatbufferSerializer.CreateManualList(builder,/*name:name*/enumList/*endname*/) ;
 /*endblock:s_list_enum*/
 /*block:s_dictold*/ 
         var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatbufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);

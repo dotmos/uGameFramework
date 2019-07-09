@@ -683,6 +683,7 @@ namespace FlatBuffers
 
             // Search for an existing vtable that matches the current one.
             int existingVtable = 0;
+            /*
             for (i = 0; i < _numVtables; i++) {
                 int vt1 = _bb.Length - _vtables[i];
                 int vt2 = _space;
@@ -698,7 +699,7 @@ namespace FlatBuffers
                 }
 
                 endLoop: { }
-            }
+            }*/
 
             if (existingVtable != 0) {
                 // Found a match:
