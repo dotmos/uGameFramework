@@ -13,6 +13,10 @@ public interface IFBSerializable {
     void Deserialize(FlatBuffers.ByteBuffer buf);
 }
 
+public interface IFBPostDeserialization {
+    void OnPostDeserialization();
+}
+
 
 public interface IFBConvertible {
     void convert(object incoming);

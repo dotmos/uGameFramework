@@ -55,7 +55,30 @@ namespace FlatBuffers
         public string GetString(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.__string(o + __p.bb_pos) : null; }
 
         public Serial.FBRef? GetFBRef(int fbPos) {  int o = __p.__offset(4 + fbPos * 2); return o != 0 ? (Serial.FBRef?)(new Serial.FBRef()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; }
-        public T GetOrCreate<T>(int fbPos) where T:new() { return FlatbufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos)); }
+        public T GetOrCreate<T>(int fbPos) where T:new() {
+            if (typeof(T) == typeof(UnityEngine.Vector2)) {
+                return GetOrCreate<T, Serial.FBVector2>(fbPos);
+            }
+            else if (typeof(T) == typeof(UnityEngine.Vector3)) {
+                return GetOrCreate<T, Serial.FBVector3>(fbPos);
+            } else if (typeof(T) == typeof(UnityEngine.Vector4)) {
+                return GetOrCreate<T, Serial.FBVector4>(fbPos);
+            } else if (typeof(T) == typeof(UnityEngine.Quaternion)) {
+                return GetOrCreate<T, Serial.FBQuaternion>(fbPos);
+            }
+            else return FlatbufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
+        }
+
+        public T CreateSerialObject<T>(int fbPos) where T: IFlatbufferObject, new() {
+            var t = new T();
+            t.__init(GetFBRefPos(fbPos), ByteBuffer);
+            return t;
+        }
+
+        public T GetOrCreate<T,S>(int fbPos) where T : new() where S : IFlatbufferObject,new() {
+            var s = CreateSerialObject<S>(fbPos);
+            return FlatbufferSerializer.GetOrCreateDeserialize<T>(s);
+        }
         public int GetFBRefPos(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o!=0?__p.__indirect(o + __p.bb_pos):0; }
 
         public string GetStringListElementAt(int fbPos,int idx) { int o = __p.__offset(4+fbPos*2); return o != 0 ? __p.__string(__p.__vector(o) + idx * 4) : null; }
