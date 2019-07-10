@@ -4,10 +4,15 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using FlatBuffers;
 using System.Collections.Generic;
+using FlatBuffers;
 using MoonSharp.Interpreter;
+using FlatBuffers;
 using ECS;
+using FlatBuffers;
 using UniRx;
+using FlatBuffers;
 
 
 using UniRx;
@@ -117,47 +122,82 @@ namespace Service.DevUIService
         
                                                           
         public abstract ReactiveCollection<DevUIView> GetRxViews();
+
         
         public abstract DevUIView CreateView(string viewName,bool dynamicallyCreated=false,bool extensionAllowed=true);
+
         
         public abstract DevUIView GetView(string viewName);
+
         
         public abstract bool ViewNameExists(string viewName);
+
         
         public abstract void RemoveViewFromModel(DevUIView view);
+
         
         public abstract void RemoveViewToArchieve(DevUIView view);
+
         
         public abstract IObservable<float> LoadViews();
+
         
         public abstract void SaveViews();
+
         
         public abstract void WriteToScriptingConsole(string text);
+
         
         public abstract void OpenScriptingConsole();
+
         
         public abstract void CloseScriptingConsole();
+
         
         public abstract void ToggleScriptingConsole();
+
         
         public abstract bool IsScriptingConsoleVisible();
+
         
         public abstract void StartPickingEntity();
+
         
         public abstract DevUIView CreateViewFromEntity(UID entity,string name="");
+
         
         public abstract DevUIView CreateViewFromPOCO(object entity,string name);
+
         
         public abstract void CreateDataBrowserTopLevelElement(string name,System.Collections.IList objectList);
+
         
         public abstract List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
+
         
         public abstract void AddDataBrowserObjectConverter(Type objType,Func<object,object> converter);
+
         
         public abstract object DataBrowserConvertObject(object inObject);
+
         
         public abstract void OutputGameInfo(float systemStartupTime);
+
         
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for DevUIServiceBase implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for DevUIServiceBase implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
+        public virtual void AfterDeserialization() { }
     }
 }
 ///////////////////////////////////////////////////////////////////////

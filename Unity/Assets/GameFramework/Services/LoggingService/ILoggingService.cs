@@ -15,7 +15,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.LoggingService {
-    public interface ILoggingService {
+    public interface ILoggingService : IFBSerializable {
 
 
 

@@ -4,8 +4,11 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using FlatBuffers;
 using System.Collections.Generic;
+using FlatBuffers;
 using MoonSharp.Interpreter;
+using FlatBuffers;
 
 
 using UniRx;
@@ -115,15 +118,34 @@ namespace Service.Scripting
         
                                                           
         public abstract Script GetMainScript();
+
         
         public abstract string ExecuteStringOnMainScript(string luaCode);
+
         
         public abstract string ExecuteFileToMainScript(string fileName);
+
         
         public abstract DynValue ExecuteStringOnMainScriptRaw(string fileName);
+
         
         public abstract Proposal AutocompleteProposals(string currentInput,int cursorPos);
+
         
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for ScriptingServiceBase implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for ScriptingServiceBase implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
+        public virtual void AfterDeserialization() { }
     }
 }
 ///////////////////////////////////////////////////////////////////////

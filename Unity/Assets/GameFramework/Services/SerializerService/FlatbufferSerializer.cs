@@ -30,6 +30,12 @@ namespace Service.Serializer {
         public static Dictionary<Type, Func<object, FlatBufferBuilder, int>> serializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, int>>();
         public static Dictionary<Type, Func<object, object>> deserializeObjConverters = new Dictionary<Type, Func<object, object>>();
 
+        private static int currentDataFormatVersion = 1;
+        public static int CurrentDataFormatVersion { get => currentDataFormatVersion; set => currentDataFormatVersion = value; }
+
+        private static int currentDeserializingDataFormatVersion = 1;
+        public static int CurrentDeserializingDataFormatVersion { get => currentDeserializingDataFormatVersion; set => currentDeserializingDataFormatVersion = value; }
+
         // objects that are serializing atm
         public static HashSet<object> serializingATM = new HashSet<object>();
         public static List<Action> afterSerializationAction = new List<Action>();
@@ -774,10 +780,12 @@ namespace Service.Serializer {
             fs.WriteBytesToFileAtDomain(domain, filename, buf);
         }
 
-        public static T DeserializeFromBytes<T>(byte[] buf) where T : IFBSerializable,new() {
+        public static T DeserializeFromBytes<T>(byte[] buf,T dataRoot=default(T)) where T : IFBSerializable,new() {
             ClearCache();
             var fbByteBuffer = new ByteBuffer(buf);
-            var dataRoot = new T();
+            if (dataRoot == null) {
+                dataRoot = new T();
+            }
             dataRoot.Deserialize(fbByteBuffer);
             foreach (var act in afterDeserializationAction) {
                 act();

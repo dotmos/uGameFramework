@@ -13,7 +13,12 @@ public interface IFBSerializable {
     void Deserialize(FlatBuffers.ByteBuffer buf);
 }
 
-public interface IFBSerializableManual {
+
+public interface IFBConvertible {
+    void convert(object incoming);
+}
+
+/*public interface IFBSerializableManual {
     int Serialize(FlatBuffers.FlatBufferBuilder builder);
     void Deserialize(FlatBuffers.FlatBufferBuilder builder);
-}
+}*/

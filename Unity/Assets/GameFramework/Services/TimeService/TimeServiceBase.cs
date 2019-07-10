@@ -4,9 +4,13 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using FlatBuffers;
 using System.Collections.Generic;
+using FlatBuffers;
 using MoonSharp.Interpreter;
+using FlatBuffers;
 using Service.GameStateService;
+using FlatBuffers;
 
 
 using UniRx;
@@ -116,9 +120,25 @@ namespace Service.TimeService
         
                                                           
         public abstract TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
+
         
         public abstract void RemoveGlobalTimer(TimerElement timer);
+
         
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for TimeServiceBase implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for TimeServiceBase implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
+        public virtual void AfterDeserialization() { }
     }
 }
 ///////////////////////////////////////////////////////////////////////

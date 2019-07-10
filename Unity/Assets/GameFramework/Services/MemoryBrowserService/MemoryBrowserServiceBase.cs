@@ -4,9 +4,13 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using FlatBuffers;
 using System.Collections.Generic;
+using FlatBuffers;
 using MoonSharp.Interpreter;
+using FlatBuffers;
 using UniRx;
+using FlatBuffers;
 
 
 using UniRx;
@@ -116,13 +120,31 @@ namespace Service.MemoryBrowserService
         
                                                           
         public abstract bool IsSimpleType(object obj);
+
         
         public abstract MemoryBrowser CreateMemoryBrowser(string id,object root);
+
         
         public abstract MemoryBrowser GetBrowser(string id);
+
         
         public abstract ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
+
         
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for MemoryBrowserServiceBase implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for MemoryBrowserServiceBase implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
+        public virtual void AfterDeserialization() { }
     }
 }
 ///////////////////////////////////////////////////////////////////////

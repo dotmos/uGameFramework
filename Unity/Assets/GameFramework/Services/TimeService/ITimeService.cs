@@ -15,7 +15,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.TimeService {
-    public interface ITimeService {
+    public interface ITimeService : IFBSerializable {
 
 
 

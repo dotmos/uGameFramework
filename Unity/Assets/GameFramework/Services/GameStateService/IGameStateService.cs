@@ -14,7 +14,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.GameStateService {
-    public interface IGameStateService {
+    public interface IGameStateService : IFBSerializable {
 
 
 

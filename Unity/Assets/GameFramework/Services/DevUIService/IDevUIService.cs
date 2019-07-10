@@ -16,7 +16,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.DevUIService {
-    public interface IDevUIService {
+    public interface IDevUIService : IFBSerializable {
 
 
 

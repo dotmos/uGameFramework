@@ -65,7 +65,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         public /*name:className*/SomeModel/*endname*/() { }
 
         /*name:classSerialization*/
-        public void Deserialize(object incoming) {
+        public void Deserialize(int dataFormatNr,object incoming) {
             throw new System.NotImplementedException();
         }
 
@@ -268,6 +268,11 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
             }
         } 
 /*endblock:d_dict*/
+        if (FlatbufferSerializer.CurrentDeserializingDataFormatVersion != FlatbufferSerializer.CurrentDataFormatVersion 
+            && this is IFBConvertible) {
+            // the data we just deserialized has another version. Try to convert it to have valid data
+            ((IFBConvertible)this).convert(data);
+        }
     }
 
     public /*name:override*/override/*endname*/ void Deserialize(FlatBuffers.ByteBuffer buf) {

@@ -14,7 +14,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.FileSystem {
-    public interface IFileSystemService {
+    public interface IFileSystemService : IFBSerializable {
 
 
 

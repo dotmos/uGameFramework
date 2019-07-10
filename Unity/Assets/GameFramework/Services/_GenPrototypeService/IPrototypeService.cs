@@ -12,7 +12,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
-    public interface /*name:interfaceName*/IPrototypeService/*endname*/ {
+    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable {
 /*block:property*/
     /// <summary>
     /// /*name:documentation*//*endname*/

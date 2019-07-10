@@ -48,13 +48,14 @@ namespace FlatBuffers
 
         public float GetFloat(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.bb.GetFloat(o + __p.bb_pos) : (float)0.0f; }
         public int GetInt(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : 0; }
+        
         public bool GetBool(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? 0 != __p.bb.Get(o + __p.bb_pos) : (bool)false; }
         public long GetLong(int fbPos) {  int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.bb.GetLong(o + __p.bb_pos) : (long)0; }
 
         public string GetString(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.__string(o + __p.bb_pos) : null; }
 
         public Serial.FBRef? GetFBRef(int fbPos) {  int o = __p.__offset(4 + fbPos * 2); return o != 0 ? (Serial.FBRef?)(new Serial.FBRef()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; }
-        
+        public T GetOrCreate<T>(int fbPos) where T:new() { return FlatbufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos)); }
         public int GetFBRefPos(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o!=0?__p.__indirect(o + __p.bb_pos):0; }
 
         public string GetStringListElementAt(int fbPos,int idx) { int o = __p.__offset(4+fbPos*2); return o != 0 ? __p.__string(__p.__vector(o) + idx * 4) : null; }
