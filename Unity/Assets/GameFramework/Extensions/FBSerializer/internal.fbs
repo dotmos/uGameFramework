@@ -81,4 +81,5 @@ table FBGenTemplateComponent {
     testDictList : [DTEST_intlinst_intlist];
     testDictNonPrim : [DTEST_Component_Component];
     testStringList : [string];
+    testArray :[ubyte];
 }

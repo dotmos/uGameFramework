@@ -46,6 +46,7 @@ table FBEntity {
 table FBEntityManager {
 	entityManagerName:string;
 	entities:[FBEntity];
+	baseData:FBRef;
 }
 
 

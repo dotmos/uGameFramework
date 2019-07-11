@@ -60,8 +60,8 @@ namespace ECS {
 
         public virtual void Deserialize(object incoming) {
             var data = (Serial.FBComponent)incoming;
-            ID = FlatbufferSerializer.GetOrCreateDeserialize<UID>(data.Id);
-            Entity = FlatbufferSerializer.GetOrCreateDeserialize<UID>(data.Entity);
+            ID = FlatBufferSerializer.GetOrCreateDeserialize<UID>(data.Id);
+            Entity = FlatBufferSerializer.GetOrCreateDeserialize<UID>(data.Entity);
         }
 
         public virtual void Deserialize(ByteBuffer buf) {

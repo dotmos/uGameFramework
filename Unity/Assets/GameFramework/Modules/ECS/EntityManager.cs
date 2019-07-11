@@ -6,6 +6,7 @@ using System.Linq;
 using FlatBuffers;
 using System.Text;
 using Zenject;
+using Service.Serializer;
 
 namespace ECS {
     public class EntityManager : IEntityManager {
@@ -525,12 +526,36 @@ namespace ECS {
         }
 
         public virtual int Serialize(FlatBufferBuilder builder) {
-            UnityEngine.Debug.LogError("FLATBUFFER (DE)SERIALIZER NOT ACTIVATED! Implement (De)Serialize-Methods in your own");
-            return 0;
+
+            var _recycledUIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledEntityIds.ToList());
+            var _recycledComponentIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledComponentIds.ToList());
+            builder.StartTable(4);
+            builder.AddInt(0, _lastEntityId, 0);
+            builder.AddInt(1, _lastComponentId, 0);
+            builder.AddOffset(2, _recycledUIDOffset.Value, 0);
+            builder.AddOffset(3, _recycledComponentIDOffset.Value, 0);
+            
+            return builder.EndTable();
         }
 
         public virtual void Deserialize(object incoming) {
-            UnityEngine.Debug.LogError("FLATBUFFER (DE)SERIALIZER NOT ACTIVATED! Implement (De)Serialize-Methods in your own");
+            if (incoming == null){
+                return;
+            }
+            _recycledComponentIds.Clear();
+            _recycledEntityIds.Clear();
+
+            var manual = FlatBufferSerializer.GetManualObject(incoming);
+            _lastEntityId = manual.GetInt(0);
+            _lastComponentId = manual.GetInt(1);
+
+            // recycled entityIDS
+            var recycledIds = manual.GetPrimitiveList<int>(2);
+            ((List<int>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
+
+            // recycled componentIDs
+            recycledIds = manual.GetPrimitiveList<int>(3);
+            ((List<int>)recycledIds).ForEach(o => _recycledComponentIds.Enqueue(o));
         }
 
         public virtual void Deserialize(ByteBuffer buf) {

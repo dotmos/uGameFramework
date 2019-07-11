@@ -562,8 +562,8 @@ namespace FlatBuffers
                 var address = offsetData[1];
                 var Offset = offsetData[0];
 
-                Service.Serializer.FlatbufferSerializer.AddAfterSerializationAction(() => {
-                    var objOffset = Service.Serializer.FlatbufferSerializer.FindInSerializeCache(obj);
+                Service.Serializer.FlatBufferSerializer.AddAfterSerializationAction(() => {
+                    var objOffset = Service.Serializer.FlatBufferSerializer.FindInSerializeCache(obj);
                     if (objOffset.HasValue) {
                         var off = Offset - objOffset.Value + sizeof(int);
                         DataBuffer.PutInt(address, off);

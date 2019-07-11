@@ -591,6 +591,16 @@ public Table __table { get { return __p; } }
   public string TestStringList(int j) { int o = __p.__offset(24); return o != 0 ? __p.__string(__p.__vector(o) + j * 4) : null; }
   public int TestStringListLength { get { int o = __p.__offset(24); return o != 0 ? __p.__vector_len(o) : 0; } }
   public int TestStringListBufferPosition { get { int o = __p.__offset(24); return o != 0 ? __p.__vector(o) : 0; } }
+  public byte TestArray(int j) { int o = __p.__offset(26); return o != 0 ? __p.bb.Get(__p.__vector(o) + j * 1) : (byte)0; }
+  public int TestArrayLength { get { int o = __p.__offset(26); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public int TestArrayBufferPosition { get { int o = __p.__offset(26); return o != 0 ? __p.__vector(o) : 0; } }
+#if ENABLE_SPAN_T
+  public Span<byte> GetTestArrayBytes() { return __p.__vector_as_span(26); }
+#else
+  public ArraySegment<byte>? GetTestArrayBytes() { return __p.__vector_as_arraysegment(26); }
+#endif
+  public byte[] GetTestArrayArray() { return __p.__vector_as_array<byte>(26); }
+  public bool MutateTestArray(int j, byte testArray) { int o = __p.__offset(26); if (o != 0) { __p.bb.Put(__p.__vector(o) + j * 1, testArray); return true; } else { return false; } }
 
   public static Offset<Serial.FBGenTemplateComponent> CreateFBGenTemplateComponent(FlatBufferBuilder builder,
       Offset<Serial.FBComponent> baseDataOffset = default(Offset<Serial.FBComponent>),
@@ -603,8 +613,10 @@ public Table __table { get { return __p; } }
       VectorOffset testDictOffset = default(VectorOffset),
       VectorOffset testDictListOffset = default(VectorOffset),
       VectorOffset testDictNonPrimOffset = default(VectorOffset),
-      VectorOffset testStringListOffset = default(VectorOffset)) {
-    builder.StartTable(11);
+      VectorOffset testStringListOffset = default(VectorOffset),
+      VectorOffset testArrayOffset = default(VectorOffset)) {
+    builder.StartTable(12);
+    FBGenTemplateComponent.AddTestArray(builder, testArrayOffset);
     FBGenTemplateComponent.AddTestStringList(builder, testStringListOffset);
     FBGenTemplateComponent.AddTestDictNonPrim(builder, testDictNonPrimOffset);
     FBGenTemplateComponent.AddTestDictList(builder, testDictListOffset);
@@ -619,7 +631,7 @@ public Table __table { get { return __p; } }
     return FBGenTemplateComponent.EndFBGenTemplateComponent(builder);
   }
 
-  public static void StartFBGenTemplateComponent(FlatBufferBuilder builder) { builder.StartTable(11); }
+  public static void StartFBGenTemplateComponent(FlatBufferBuilder builder) { builder.StartTable(12); }
   public static void AddBaseData(FlatBufferBuilder builder, Offset<Serial.FBComponent> baseDataOffset) { builder.AddOffset(0, baseDataOffset.Value, 0); }
   public static void AddState(FlatBufferBuilder builder, int state) { builder.AddInt(1, state, 0); }
   public static void AddTestName(FlatBufferBuilder builder, StringOffset testNameOffset) { builder.AddOffset(2, testNameOffset.Value, 0); }
@@ -649,6 +661,10 @@ public Table __table { get { return __p; } }
   public static VectorOffset CreateTestStringListVector(FlatBufferBuilder builder, StringOffset[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
   public static VectorOffset CreateTestStringListVectorBlock(FlatBufferBuilder builder, StringOffset[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
   public static void StartTestStringListVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static void AddTestArray(FlatBufferBuilder builder, VectorOffset testArrayOffset) { builder.AddOffset(11, testArrayOffset.Value, 0); }
+  public static VectorOffset CreateTestArrayVector(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddByte(data[i]); return builder.EndVector(); }
+  public static VectorOffset CreateTestArrayVectorBlock(FlatBufferBuilder builder, byte[] data) { builder.StartVector(1, data.Length, 1); builder.Add(data); return builder.EndVector(); }
+  public static void StartTestArrayVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(1, numElems, 1); }
   public static Offset<Serial.FBGenTemplateComponent> EndFBGenTemplateComponent(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<Serial.FBGenTemplateComponent>(o);

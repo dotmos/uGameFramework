@@ -66,7 +66,7 @@ namespace FlatBuffers
             } else if (typeof(T) == typeof(UnityEngine.Quaternion)) {
                 return GetOrCreate<T, Serial.FBQuaternion>(fbPos);
             }
-            else return FlatbufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
+            else return FlatBufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
         }
 
         public T CreateSerialObject<T>(int fbPos) where T: IFlatbufferObject, new() {
@@ -77,7 +77,7 @@ namespace FlatBuffers
 
         public T GetOrCreate<T,S>(int fbPos) where T : new() where S : IFlatbufferObject,new() {
             var s = CreateSerialObject<S>(fbPos);
-            return FlatbufferSerializer.GetOrCreateDeserialize<T>(s);
+            return FlatBufferSerializer.GetOrCreateDeserialize<T>(s);
         }
         public int GetFBRefPos(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o!=0?__p.__indirect(o + __p.bb_pos):0; }
 
@@ -95,7 +95,7 @@ namespace FlatBuffers
                 return null;
             }
 
-            object cacheResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            object cacheResult = FlatBufferSerializer.FindInDeserializeCache(bufPos);
             if (cacheResult != null) {
                 return (List<string>)cacheResult;
             }
@@ -104,7 +104,7 @@ namespace FlatBuffers
             for (int i = 0; i < listLength; i++) {
                 newList.Add(GetStringListElementAt(fbPos, i));
             }
-            FlatbufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+            FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
             return newList;
         }
 
@@ -115,7 +115,7 @@ namespace FlatBuffers
                 return null;
             }
 
-            object cacheResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            object cacheResult = FlatBufferSerializer.FindInDeserializeCache(bufPos);
             if (cacheResult != null) {
                 return (List<T>)cacheResult;
             }
@@ -123,7 +123,7 @@ namespace FlatBuffers
             // get the array, but don't write the result in the lookup-table, because we want to map the result to the list
             T[] array = GetPrimitivesArray<T>(fbPos,true); 
             var newList = isObservableList? (IList<T>)new ObservableList<T>(array) : (IList<T>)new List<T>(array);
-            FlatbufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+            FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
             return newList;
         }
 
@@ -134,19 +134,19 @@ namespace FlatBuffers
                 return null;
             }
 
-            object cacheResult = ignoreLookup ? null : FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache(bufPos);
             if (cacheResult != null) {
                 return (T[])cacheResult;
             }
             if (typeof(T).IsEnum) {
                 int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
                 var result = tA.Cast<T>().ToArray();
-                if (!ignoreLookup) FlatbufferSerializer.PutIntoDeserializeCache(bufPos, result);
+                if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, result);
                 return result;
 
             } else {
                 T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
-                if (!ignoreLookup) FlatbufferSerializer.PutIntoDeserializeCache(bufPos, tA);
+                if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, tA);
                 return tA;
             }
         }
@@ -162,7 +162,7 @@ namespace FlatBuffers
 
         public IList<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos) where TSerialized : struct,IFlatbufferObject where TResult:IFBSerializable, new() {
             var bufPos = GetBufferPos(fbPos);
-            var cachedResult = FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            var cachedResult = FlatBufferSerializer.FindInDeserializeCache(bufPos);
             if (cachedResult!=null) {
                 if (cachedResult.GetType() != typeof(TResult)) {
                     UnityEngine.Debug.LogError("Got cached value but the types are different! Cached:" + cachedResult.GetType() + " Expected:" + typeof(TResult));
@@ -172,17 +172,17 @@ namespace FlatBuffers
             var listSize = GetListLength(fbPos);
             var tempList = new System.Collections.Generic.List<object>(listSize); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
             for (int i = 0; i < listSize; i++) tempList.Add(GetListElemAt<TSerialized>(fbPos,i));
-            var result = FlatbufferSerializer.DeserializeList<TResult, TSerialized>(bufPos,  listSize, tempList);
+            var result = FlatBufferSerializer.DeserializeList<TResult, TSerialized>(bufPos,  listSize, tempList);
             return result;
         }
 
         public T RetrieveOffset<T>(int fbPos) where T : IFBSerializable,new() {
             int bufPos = GetFBRefPos(fbPos);
 
-            if (FlatbufferSerializer.HasDeserializingFlag(bufPos)) {
-                return (T)FlatbufferSerializer.FindInDeserializeCache(bufPos);
+            if (FlatBufferSerializer.HasDeserializingFlag(bufPos)) {
+                return (T)FlatBufferSerializer.FindInDeserializeCache(bufPos);
             } else {
-                return FlatbufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
+                return FlatBufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
             }
         }
     }

@@ -18,8 +18,11 @@ public interface IFBPostDeserialization {
 }
 
 
-public interface IFBConvertible {
-    void convert(object incoming);
+/// <summary>
+/// If an object (e.g.) has a version mismatch during deserialization it calls the upgrade-function to make it valid (if needed)
+/// </summary>
+public interface IFBUpgradeable {
+    void Upgrade(object incoming);
 }
 
 /*public interface IFBSerializableManual {
