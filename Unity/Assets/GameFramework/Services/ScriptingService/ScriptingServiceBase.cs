@@ -145,7 +145,6 @@ namespace Service.Scripting
         public virtual void Deserialize(ByteBuffer buf) {
             throw new NotImplementedException();
         }
-        public virtual void AfterDeserialization() { }
     }
 }
 ///////////////////////////////////////////////////////////////////////
