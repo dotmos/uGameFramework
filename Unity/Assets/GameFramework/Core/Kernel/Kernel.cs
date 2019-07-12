@@ -35,7 +35,7 @@ public partial class Kernel : SceneContext {
 
 #if UNITY_EDITOR
                 overrideSceneName = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene().name;
-
+#endif
                 System.Diagnostics.StackFrame frame = new System.Diagnostics.StackFrame(1);
                 var method = frame.GetMethod();
                 var type = method.DeclaringType;
