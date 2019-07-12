@@ -4,6 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using FlatBuffers;
 
 
 using UniRx;
@@ -113,13 +114,30 @@ namespace Service.AsyncManager
         
                                                           
         public abstract AsyncFuture AddToMainThread(Action act,bool global=false);
+
         
         public abstract AsyncFuture AddToWorkerThread(Action act,Action onFinished,bool global=false);
+
         
         public abstract AsyncFuture Call(Action act,bool usingCoroutine,bool global=false);
+
         
         public abstract void DisposeThreads(bool onlyNonGlobals=false);
+
         
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for AsyncManagerBase implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for AsyncManagerBase implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
     }
 }
 ///////////////////////////////////////////////////////////////////////

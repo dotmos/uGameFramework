@@ -4,9 +4,13 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using FlatBuffers;
 using System.Collections.Generic;
+using FlatBuffers;
 using MoonSharp.Interpreter;
+using FlatBuffers;
 using UniRx;
+using FlatBuffers;
 
 
 using UniRx;
@@ -116,17 +120,36 @@ namespace Service.LoggingService
         
                                                           
         public abstract void AddLog(DebugType debugType,string message,string domain="");
+
         
         public abstract void Info(string message,string domain="");
+
         
         public abstract void Warn(string message,string domain="");
+
         
         public abstract void Error(string message,string domain="");
+
         
         public abstract void Severe(string message,string domain="");
+
         
         public abstract ReactiveCollection<LogData> GetRxOutputData();
+
         
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for LoggingServiceBase implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for LoggingServiceBase implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
     }
 }
 ///////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.AsyncManager {
-    public interface IAsyncManager {
+    public interface IAsyncManager : IFBSerializable {
 
 
 
@@ -30,7 +30,7 @@ namespace Service.AsyncManager {
 	}
 
 
-
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

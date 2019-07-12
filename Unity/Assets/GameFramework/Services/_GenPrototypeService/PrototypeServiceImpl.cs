@@ -2,6 +2,7 @@
 /*endblock:using*/
 using Zenject;
 using UniRx;
+using FlatBuffers;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 /*block:impl*/
@@ -21,11 +22,6 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 /*endblock:return*/
         }
 /*endblock:method*/ 
-
-        protected override void OnDispose() {
-            // do your IDispose-actions here. It is called right after disposables got disposed
-        }
-
     }
 /*endblock:impl*/
 

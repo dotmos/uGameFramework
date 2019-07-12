@@ -16,6 +16,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 /// @file
@@ -46,6 +47,9 @@ namespace FlatBuffers
         private int _numVtables = 0;
         // For the current vector being built.
         private int _vectorNumElems = 0;
+
+        // For CreateSharedString
+        private Dictionary<string, StringOffset> _sharedStringMap = null;
 
         /// <summary>
         /// Create a FlatBufferBuilder with a given initial size.
@@ -88,6 +92,8 @@ namespace FlatBuffers
             _vectorNumElems = 0;
         }
 
+
+
         /// <summary>
         /// Gets and sets a Boolean to disable the optimization when serializing
         /// default values to a Table.
@@ -100,6 +106,8 @@ namespace FlatBuffers
         /// @cond FLATBUFFERS_INTERNAL
 
         public int Offset { get { return _bb.Length - _space; } }
+
+        public int ___Space {  get { return _space; } set { _space = value;  } }
 
         public void Pad(int size)
         {
@@ -165,9 +173,9 @@ namespace FlatBuffers
           _bb.PutUshort(_space -= sizeof(ushort), x);
         }
 
-        public void PutInt(int x)
+        public int PutInt(int x)
         {
-            _bb.PutInt(_space -= sizeof(int), x);
+            return _bb.PutInt(_space -= sizeof(int), x);
         }
 
         public void PutUint(uint x)
@@ -191,7 +199,7 @@ namespace FlatBuffers
         }
 
         /// <summary>
-        /// Puts an array of type T into this builder at the 
+        /// Puts an array of type T into this builder at the
         /// current offset
         /// </summary>
         /// <typeparam name="T">The type of the input data </typeparam>
@@ -204,7 +212,7 @@ namespace FlatBuffers
 
 #if ENABLE_SPAN_T
         /// <summary>
-        /// Puts a span of type T into this builder at the 
+        /// Puts a span of type T into this builder at the
         /// current offset
         /// </summary>
         /// <typeparam name="T">The type of the input data </typeparam>
@@ -346,14 +354,15 @@ namespace FlatBuffers
         /// Adds an offset, relative to where it will be written.
         /// </summary>
         /// <param name="off">The offset to add to the buffer.</param>
-        public void AddOffset(int off)
+        public int[] AddOffset(int off)
         {
             Prep(sizeof(int), 0);  // Ensure alignment is already done.
             if (off > Offset)
                 throw new ArgumentException();
-
+            int offBefore = Offset;
             off = Offset - off + sizeof(int);
-            PutInt(off);
+            int addressWrittenTo = PutInt(off);
+            return new int[2] { offBefore, addressWrittenTo };
         }
 
         /// @cond FLATBUFFERS_INTERNAL
@@ -407,7 +416,7 @@ namespace FlatBuffers
                     "FlatBuffers: object serialization must not be nested.");
         }
 
-        public void StartObject(int numfields)
+        public void StartTable(int numfields)
         {
             if (numfields < 0)
                 throw new ArgumentOutOfRangeException("Flatbuffers: invalid numfields");
@@ -536,11 +545,37 @@ namespace FlatBuffers
         /// </summary>
         /// <param name="o">The index into the vtable</param>
         /// <param name="x">The value to put into the buffer. If the value is equal to the default
-        /// and <see cref="ForceDefaults"/> is false, the value will be skipped.</param>
+        /// the value will be skipped.</param>
         /// <param name="d">The default value to compare the value against</param>
-        public void AddOffset(int o, int x, int d) { if (ForceDefaults || x != d) { AddOffset(x); Slot(o); } }
-        /// @endcond
+        public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); }  }
+        public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
 
+        public static int DUMMYREF = 2;
+         
+        public void AddObjectReference(int o,int objRef, object obj) {
+            if (objRef == -1) {
+                // the current object is already in serialization process, so set a dummy ref for now and replace it later
+
+                // set a dummy ref so we have an address set in the vtable
+                var offsetData = AddOffsetWithReturn(o, DUMMYREF, 0);
+                // keep a reference to address and Offset, so we know where to put the data, once it is there
+                var address = offsetData[1];
+                var Offset = offsetData[0];
+
+                Service.Serializer.FlatBufferSerializer.AddAfterSerializationAction(() => {
+                    var objOffset = Service.Serializer.FlatBufferSerializer.FindInSerializeCache(obj);
+                    if (objOffset.HasValue) {
+                        var off = Offset - objOffset.Value + sizeof(int);
+                        DataBuffer.PutInt(address, off);
+                    }
+                });
+                // add a fake offset to reserve the memory in the buffer
+            } else {
+                // we already have a valid ref to the serilaized version of the obj 
+                AddOffset(11, objRef, 0);
+            }
+        }       
+        
         /// <summary>
         /// Encode the string `s` in the buffer using UTF-8.
         /// </summary>
@@ -579,6 +614,32 @@ namespace FlatBuffers
         }
 #endif
 
+        /// <summary>
+        /// Store a string in the buffer, which can contain any binary data.
+        /// If a string with this exact contents has already been serialized before,
+        /// instead simply returns the offset of the existing string.
+        /// </summary>
+        /// <param name="s">The string to encode.</param>
+        /// <returns>
+        /// The offset in the buffer where the encoded string starts.
+        /// </returns>
+        public StringOffset CreateSharedString(string s)
+        {
+            if (_sharedStringMap == null)
+            {
+                _sharedStringMap = new Dictionary<string, StringOffset>();
+            }
+
+            if (_sharedStringMap.ContainsKey(s))
+            {
+                return _sharedStringMap[s];
+            }
+
+            var stringOffset = CreateString(s);
+            _sharedStringMap.Add(s, stringOffset);
+            return stringOffset;
+        }
+
         /// @cond FLATBUFFERS_INTERNAL
         // Structs are stored inline, so nothing additional is being added.
         // `d` is always 0.
@@ -591,11 +652,11 @@ namespace FlatBuffers
             }
         }
 
-        public int EndObject()
+        public int EndTable()
         {
             if (_vtableSize < 0)
                 throw new InvalidOperationException(
-                  "Flatbuffers: calling endObject without a startObject");
+                  "Flatbuffers: calling EndTable without a StartTable");
 
             AddInt((int)0);
             var vtableloc = Offset;
@@ -622,6 +683,7 @@ namespace FlatBuffers
 
             // Search for an existing vtable that matches the current one.
             int existingVtable = 0;
+            /*
             for (i = 0; i < _numVtables; i++) {
                 int vt1 = _bb.Length - _vtables[i];
                 int vt2 = _space;
@@ -637,7 +699,7 @@ namespace FlatBuffers
                 }
 
                 endLoop: { }
-            }
+            }*/
 
             if (existingVtable != 0) {
                 // Found a match:
