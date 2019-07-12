@@ -32,10 +32,9 @@ public partial class Kernel : SceneContext {
             // Seems like OnApplicationQuit is sometimes wrongly called, causing a reload of the Kernel Scene.
             // Loading the Kernel Scene should only happen from inside the editor, if the kernel scene was not initially loaded
             if (InstanceProperty.Value == null && !loadingKernelScene && SceneManager.GetActiveScene().name != "Kernel" && !applicationQuitting){
-
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 overrideSceneName = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene().name;
-#endif
+                #endif
                 System.Diagnostics.StackFrame frame = new System.Diagnostics.StackFrame(1);
                 var method = frame.GetMethod();
                 var type = method.DeclaringType;
@@ -52,12 +51,6 @@ public partial class Kernel : SceneContext {
             InstanceProperty.Value = value;
         }
     }
-
-    /// <summary>
-    /// Flag the can be set to prevent forwarding to the kernel scene.
-    /// This is useful in scenarios where we want to start and debug a scene without the framework being initialized.
-    /// </summary>
-    protected static bool forwardToKernelScene = true;
 
     /// <summary>
     /// Inject the specified injectable to Kernel Container, thus triggering DependencyInjection
