@@ -1,0 +1,4 @@
+
+The c#-runtime in Flatbuffers is based on
+b7012484f3f9caa54389d43b93a80fa672ef37f1
+on flatbuffers-github

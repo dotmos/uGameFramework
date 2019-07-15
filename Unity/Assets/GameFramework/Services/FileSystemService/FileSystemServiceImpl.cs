@@ -7,6 +7,7 @@ using UniRx;
 using UnityEngine;
 using System.IO;
 using Service.Scripting;
+using System.IO.Compression;
 
 namespace Service.FileSystem {
     partial class FileSystemServiceImpl : FileSystemServiceBase {
@@ -21,6 +22,23 @@ namespace Service.FileSystem {
 
         protected override void AfterInitialize() {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
+        }
+
+        public static byte[] Compress(byte[] data) {
+            MemoryStream output = new MemoryStream();
+            using (DeflateStream dstream = new DeflateStream(output, System.IO.Compression.CompressionLevel.Optimal)) {
+                dstream.Write(data, 0, data.Length);
+            }
+            return output.ToArray();
+        }
+
+        public static byte[] Decompress(byte[] data) {
+            MemoryStream input = new MemoryStream(data);
+            MemoryStream output = new MemoryStream();
+            using (DeflateStream dstream = new DeflateStream(input, CompressionMode.Decompress)) {
+                dstream.CopyTo(output);
+            }
+            return output.ToArray();
         }
 
         public override string GetPath(FSDomain domain,string relativePart="") {
@@ -65,11 +83,15 @@ namespace Service.FileSystem {
             return WriteStringToFile(GetPath(domain) + "/" + relativePathToFile, data);
         }
 
-        public override bool WriteBytesToFile(string pathToFile, byte[] bytes) {
+        public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
             // TODO: Ensure Directory?
             // TODO: Use the PC3-bulletproof writing version
             try {
-                File.WriteAllBytes(pathToFile, bytes);
+                if (compress) {
+                    File.WriteAllBytes(pathToFile, Compress(bytes));
+                } else {
+                    File.WriteAllBytes(pathToFile, bytes);
+                }
                 return true;
             }
             catch (Exception e) {
@@ -79,11 +101,11 @@ namespace Service.FileSystem {
             }
         }
 
-        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes) {
-            return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes);
+        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false) {
+            return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes,compress);
         }
 
-        public override string LoadFileAsString(string pathToFile) {
+        public override string LoadFileAsString(string pathToFile, bool compressed = false) {
             try {
                 var result = File.ReadAllText(pathToFile);
                 return result;
@@ -96,13 +118,16 @@ namespace Service.FileSystem {
 
         }
 
-        public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile) {
-            return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile);
+        public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile, bool compressed = false) {
+            return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed);
         }
 
-        public override byte[] LoadFileAsBytes(string pathToFile) {
+        public override byte[] LoadFileAsBytes(string pathToFile, bool compressed = false) {
             try {
                 var result = File.ReadAllBytes(pathToFile);
+                if (compressed) {
+                    result = Decompress(result);
+                }
                 return result;
             }
             catch (Exception e) {

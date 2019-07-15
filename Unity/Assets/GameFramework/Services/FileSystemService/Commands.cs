@@ -91,6 +91,7 @@ namespace Service.FileSystem{
             public bool result;
                         public string pathToFile;
                         public byte[] bytes;
+                        public bool compress=false;
             
             
         }
@@ -101,7 +102,7 @@ namespace Service.FileSystem{
             ptest.Start("WriteBytesToFileCommand");
 #endif
         
-            cmd.result = _service.WriteBytesToFile(cmd.pathToFile,cmd.bytes);
+            cmd.result = _service.WriteBytesToFile(cmd.pathToFile,cmd.bytes,cmd.compress);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("WriteBytesToFileCommand");
@@ -119,6 +120,7 @@ namespace Service.FileSystem{
                         public FSDomain domain;
                         public string relativePathToFile;
                         public byte[] bytes;
+                        public bool compress=false;
             
             
         }
@@ -129,7 +131,7 @@ namespace Service.FileSystem{
             ptest.Start("WriteBytesToFileAtDomainCommand");
 #endif
         
-            cmd.result = _service.WriteBytesToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.bytes);
+            cmd.result = _service.WriteBytesToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.bytes,cmd.compress);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("WriteBytesToFileAtDomainCommand");
@@ -200,6 +202,7 @@ namespace Service.FileSystem{
         public class LoadFileAsStringCommand  {
             public string result;
                         public string pathToFile;
+                        public bool compressed=false;
             
             
         }
@@ -210,7 +213,7 @@ namespace Service.FileSystem{
             ptest.Start("LoadFileAsStringCommand");
 #endif
         
-            cmd.result = _service.LoadFileAsString(cmd.pathToFile);
+            cmd.result = _service.LoadFileAsString(cmd.pathToFile,cmd.compressed);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadFileAsStringCommand");
@@ -253,6 +256,7 @@ namespace Service.FileSystem{
         public class LoadFileAsBytesCommand  {
             public byte[] result;
                         public string pathToFile;
+                        public bool compressed=false;
             
             
         }
@@ -263,7 +267,7 @@ namespace Service.FileSystem{
             ptest.Start("LoadFileAsBytesCommand");
 #endif
         
-            cmd.result = _service.LoadFileAsBytes(cmd.pathToFile);
+            cmd.result = _service.LoadFileAsBytes(cmd.pathToFile,cmd.compressed);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadFileAsBytesCommand");
@@ -280,6 +284,7 @@ namespace Service.FileSystem{
             public byte[] result;
                         public FSDomain domain;
                         public string relativePathToFile;
+                        public bool compressed=false;
             
             
         }
@@ -290,7 +295,7 @@ namespace Service.FileSystem{
             ptest.Start("LoadFileAsBytesAtDomainCommand");
 #endif
         
-            cmd.result = _service.LoadFileAsBytesAtDomain(cmd.domain,cmd.relativePathToFile);
+            cmd.result = _service.LoadFileAsBytesAtDomain(cmd.domain,cmd.relativePathToFile,cmd.compressed);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("LoadFileAsBytesAtDomainCommand");

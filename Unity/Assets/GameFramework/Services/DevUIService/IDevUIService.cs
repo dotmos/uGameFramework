@@ -16,7 +16,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.DevUIService {
-    public interface IDevUIService {
+    public interface IDevUIService : IFBSerializable {
 
 
 
@@ -176,27 +176,33 @@ namespace Service.DevUIService {
 	}
 
 
-
-    [DataContract(IsReference = true)]
+    
     [System.Serializable]
     public partial class DataBrowserTopLevel {
-        [DataMember]public string topLevelName ;
-        [DataMember]public System.Collections.IList objectList ;
-
-
+        
+        public string topLevelName ;
+        
+        public System.Collections.IList objectList ;
+        
+        
+        
+        
     }
 
-
-    [DataContract(IsReference = true)]
+    
     [System.Serializable]
     public partial class HistoryElement {
-        [DataMember]public System.Collections.IList objectList ;
-        [DataMember]public string historyTitle ;
-
-
+        
+        public System.Collections.IList objectList ;
+        
+        public string historyTitle ;
+        
+        
+        
+        
     }
 
-
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

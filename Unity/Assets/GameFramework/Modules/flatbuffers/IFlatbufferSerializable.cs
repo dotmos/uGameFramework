@@ -13,7 +13,19 @@ public interface IFBSerializable {
     void Deserialize(FlatBuffers.ByteBuffer buf);
 }
 
-public interface IFBSerializableManual {
+public interface IFBPostDeserialization {
+    void OnPostDeserialization();
+}
+
+
+/// <summary>
+/// If an object (e.g.) has a version mismatch during deserialization it calls the upgrade-function to make it valid (if needed)
+/// </summary>
+public interface IFBUpgradeable {
+    void Upgrade(object incoming);
+}
+
+/*public interface IFBSerializableManual {
     int Serialize(FlatBuffers.FlatBufferBuilder builder);
     void Deserialize(FlatBuffers.FlatBufferBuilder builder);
-}
+}*/

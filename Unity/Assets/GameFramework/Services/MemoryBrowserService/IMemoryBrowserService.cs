@@ -15,7 +15,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.MemoryBrowserService {
-    public interface IMemoryBrowserService {
+    public interface IMemoryBrowserService : IFBSerializable {
 
 
 
@@ -50,7 +50,7 @@ namespace Service.MemoryBrowserService {
 	}
 
 
-
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //
