@@ -4,6 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 /*block:using*/using /*name:name*/System/*endname*/;
+using FlatBuffers;
 /*endblock:using*/
 
 using UniRx;
@@ -115,7 +116,21 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
                                                           /*endblock:abstractProperty*/
                                                           /*block:abstractMethod*/
         public abstract /*name:interfaceMethod*/string DoPrototype(string settings = "")/*endname*/;
+
         /*endblock:abstractMethod*/
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for /*name:serviceName*/PrototypeService/*endname*/ implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for /*name:serviceName*/PrototypeService/*endname*/ implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
     }
 }
 ///////////////////////////////////////////////////////////////////////

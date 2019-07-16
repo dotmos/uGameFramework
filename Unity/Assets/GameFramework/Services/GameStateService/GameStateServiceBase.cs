@@ -4,8 +4,11 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System;
+using FlatBuffers;
 using System.Collections.Generic;
+using FlatBuffers;
 using MoonSharp.Interpreter;
+using FlatBuffers;
 
 
 using UniRx;
@@ -115,17 +118,36 @@ namespace Service.GameStateService
         
                                                           
         public abstract GameState RegisterGameState(string name,GameState gamestate=null);
+
         
         public abstract GameState GetCurrentGameState();
+
         
         public abstract IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
+
         
         public abstract IObservable<bool> StopGameState(GameState gamestate);
+
         
         public abstract GameState GetGameState(string name);
+
         
         public abstract void Tick(float deltaTime,float unscaledDeltaTime);
+
         
+
+        public virtual int Serialize(FlatBufferBuilder builder) {
+            UnityEngine.Debug.LogError("No serializer for GameStateServiceBase implemented");
+            return 0;
+        }
+
+        public virtual void Deserialize(object incoming) {
+            UnityEngine.Debug.LogError("No deserializer for GameStateServiceBase implemented");
+        }
+
+        public virtual void Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
     }
 }
 ///////////////////////////////////////////////////////////////////////

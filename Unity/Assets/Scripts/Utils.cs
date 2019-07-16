@@ -175,6 +175,10 @@ public class ObservableList<T> : IList<T>, IObservableEnumeration {
         innerList.AddRange(list);
     }
 
+    public ObservableList(T[] t) {
+        innerList.AddRange(t);
+    }
+
     public List<T> InnerList {
         get { return innerList; }
     }
@@ -269,9 +273,21 @@ public class Utils {
     }
 }
 
-public class ObservableDictionary<TKey,TValue> : IDictionary<TKey, TValue>, IObservableEnumeration {
+public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IObservableEnumeration {
     private Dictionary<TKey, TValue> innerDictionary = new Dictionary<TKey, TValue>();
     private bool isDirty = true;
+
+    public ObservableDictionary(ObservableDictionary<TKey, TValue> dict){
+        innerDictionary.ShallowCopyFrom(dict.innerDictionary);
+    }
+
+    public ObservableDictionary(Dictionary<TKey, TValue> dict) {
+        innerDictionary.ShallowCopyFrom(dict);
+    }
+
+    public ObservableDictionary() {
+    }
+
 
     public Dictionary<TKey,TValue> InnerDictionary {
         get { return innerDictionary; }
@@ -646,6 +662,15 @@ public static partial class UtilsExtensions
     }
 
     public static void ShallowCopyFrom<T, S>(this Dictionary<T,S> dest, Dictionary<T, S> data) {
+        int amount = data.Count;
+
+        for (int i = 0; i < amount; i++) {
+            var elem = data.ElementAt(i);
+            dest[elem.Key] = elem.Value;
+        }
+    }
+
+    public static void ShallowCopyFrom<T, S>(this ObservableDictionary<T,S> dest, ObservableDictionary<T, S> data) {
         int amount = data.Count;
 
         for (int i = 0; i < amount; i++) {

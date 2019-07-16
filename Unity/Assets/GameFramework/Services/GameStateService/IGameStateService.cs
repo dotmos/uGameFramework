@@ -14,7 +14,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.GameStateService {
-    public interface IGameStateService {
+    public interface IGameStateService : IFBSerializable {
 
 
 
@@ -74,16 +74,17 @@ namespace Service.GameStateService {
         noneStatus,starting,running,closing
         
     }
-
-
-    [DataContract(IsReference = true)]
+    
+    
     [System.Serializable]
     public partial class GSContext {
-
-
+        
+        
+        
+        
     }
 
-
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

@@ -14,7 +14,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.Scripting {
-    public interface IScriptingService {
+    public interface IScriptingService : IFBSerializable {
 
 
 
@@ -60,7 +60,7 @@ namespace Service.Scripting {
 	}
 
 
-
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

@@ -30,8 +30,13 @@ table FBMaterial {
 }
 
 
+// dummy as offsetpoint for 'manual' IFBSerializable-objects
+table FBRef{}
 
-
+table FBMappingElement{
+    objId : int;
+    bufPos : int;
+}
 
 table FBUID {
     id:int;
@@ -43,12 +48,25 @@ table FBComponent {
     wasConstructed: bool;
 }
 
-
-
 // the table for the Component-Template
-table DTEST_string_int {
-    key : string;
+table DTEST_int_int {
+    key : int;
     value : int;
+}
+
+table DTEST_intlinst_intlist{
+    key : [int];
+    value : [int];
+}
+
+table DTEST_Component_Component {
+    key : FBComponent;
+    value : FBComponent;
+}
+
+table DTEST_Componentlist_Componentlist {
+    key : [FBComponent];
+    value : [FBComponent];
 }
 
 table FBGenTemplateComponent {
@@ -59,5 +77,9 @@ table FBGenTemplateComponent {
     testNumber : float;
     testListUID : [FBUID];
     testListPrimitive : [int];
-    testDict : [DTEST_string_int];
+    testDict : [DTEST_int_int];
+    testDictList : [DTEST_intlinst_intlist];
+    testDictNonPrim : [DTEST_Component_Component];
+    testStringList : [string];
+    testArray :[ubyte];
 }

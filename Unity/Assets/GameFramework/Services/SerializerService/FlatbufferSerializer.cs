@@ -1,9 +1,15 @@
 ﻿using System.Collections.Generic;
 using System;
 using FlatBuffers;
+using System.Linq;
 
 namespace Service.Serializer {
-    public class FlatbufferSerializer {
+    public class FlatBufferSerializer {
+
+        public class ObjMapping {
+            public int objId;
+            public int bufPos;
+        }
 
         public static bool serializing = false;
         /// <summary>
@@ -14,14 +20,52 @@ namespace Service.Serializer {
         /// For serializing mappings
         /// </summary>
         public static Dictionary<object, int> obj2FSMapping = new Dictionary<object, int>();
+
+        public static Dictionary<Type, List<object>> postProcessObjects = new Dictionary<Type, List<object>>();
+
+        public static Dictionary<int, object> serializeBufferposCheck = new Dictionary<int, object>();
+
         private static FlatBufferBuilder fbBuilder;
 
         public static Dictionary<Type, Func<object, FlatBufferBuilder, int>> serializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, int>>();
-        public static Dictionary<Type, Func<object, FlatBufferBuilder, object>> deserializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, object>>();
+        public static Dictionary<Type, Func<object, object>> deserializeObjConverters = new Dictionary<Type, Func<object, object>>();
+
+        private static int currentDataFormatVersion = 1;
+        public static int CurrentDataFormatVersion { get => currentDataFormatVersion; set => currentDataFormatVersion = value; }
+
+        private static int currentDeserializingDataFormatVersion = 1;
+        public static int CurrentDeserializingDataFormatVersion { get => currentDeserializingDataFormatVersion; set => currentDeserializingDataFormatVersion = value; }
+
+        /// <summary>
+        /// Is the version of the serialized data different to the current one
+        /// </summary>
+        public static bool DeserializationVersionMismatch {
+            get => CurrentDataFormatVersion != CurrentDeserializingDataFormatVersion;
+        }
+
+        // objects that are serializing atm
+        public static HashSet<object> serializingATM = new HashSet<object>();
+        public static List<Action> afterSerializationAction = new List<Action>();
+        // objects are deserializing atm
+        public static HashSet<int> deserializingATM = new HashSet<int>();
+        public static List<Action> afterDeserializationAction = new List<Action>();
 
         public static bool convertersActivated = false;
 
-        public static int? Convert(FlatBufferBuilder builder, object obj)  {
+        public static void AddAfterSerializationAction(Action act) {
+            afterSerializationAction.Add(act);
+        }
+        public static void AddAfterDeserializationAction(Action act) {
+            afterDeserializationAction.Add(act);
+        }
+
+        /// <summary>
+        /// Take a non IFlatbufferObject and try to create an offset via the registered converters
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static int? ConvertToFlatbuffer(FlatBufferBuilder builder, object obj)  {
             if (!convertersActivated) {
                 ActivateConverters();
                 convertersActivated = true;
@@ -35,7 +79,22 @@ namespace Service.Serializer {
             }
         }
 
+        public static object ConvertToObject(object incoming,Type resultType) {
+            if (!convertersActivated) {
+                ActivateConverters();
+                convertersActivated = true;
+            }
+
+            if (deserializeObjConverters.TryGetValue(resultType, out Func<object, object> converter)) {
+                var result = converter(incoming);
+                return result;
+            } else {
+                return null;
+            }
+        }
+
         public static void ActivateConverters() {
+            // ------------------------- Vector2 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector2)] = (data,builder) => {
                 var vec2 = (UnityEngine.Vector2)data;
                 Serial.FBVector2.StartFBVector2(builder);
@@ -43,6 +102,12 @@ namespace Service.Serializer {
                 Serial.FBVector2.AddY(builder, vec2.y);
                 return Serial.FBVector2.EndFBVector2(builder).Value;
             };
+            deserializeObjConverters[typeof(UnityEngine.Vector2)] = (incoming) => {
+                var fbVec2 = (Serial.FBVector2)incoming;
+                var vec2 = new UnityEngine.Vector3(fbVec2.X, fbVec2.Y);
+                return vec2;
+            };
+            // ------------------------- Vector3 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector3)] = (data, builder) => {
                 var vec3 = (UnityEngine.Vector3)data;
                 Serial.FBVector3.StartFBVector3(builder);
@@ -51,6 +116,12 @@ namespace Service.Serializer {
                 Serial.FBVector3.AddZ(builder, vec3.z);
                 return Serial.FBVector3.EndFBVector3(builder).Value;
             };
+            deserializeObjConverters[typeof(UnityEngine.Vector3)] = (incoming) => {
+                var fbVec3 = (Serial.FBVector3)incoming;
+                var vec3 = new UnityEngine.Vector3(fbVec3.X, fbVec3.Y, fbVec3.Z);
+                return vec3;
+            };
+            // ------------------------- Vector4 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector4)] = (data, builder) => {
                 var vec4 = (UnityEngine.Vector4)data;
                 Serial.FBVector4.StartFBVector4(builder);
@@ -60,6 +131,12 @@ namespace Service.Serializer {
                 Serial.FBVector4.AddW(builder, vec4.w);
                 return Serial.FBVector4.EndFBVector4(builder).Value;
             };
+            deserializeObjConverters[typeof(UnityEngine.Vector4)] = (incoming) => {
+                var fbVec4 = (Serial.FBVector4)incoming;
+                var vec4 = new UnityEngine.Vector4(fbVec4.X, fbVec4.Y, fbVec4.Z, fbVec4.W);
+                return vec4;
+            };
+            // ------------------------- Quaternion --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Quaternion)] = (data, builder) => {
                 var q = (UnityEngine.Quaternion)data;
                 Serial.FBQuaternion.StartFBQuaternion(builder);
@@ -69,15 +146,162 @@ namespace Service.Serializer {
                 Serial.FBQuaternion.AddW(builder, q.w);
                 return Serial.FBQuaternion.EndFBQuaternion(builder).Value;
             };
-            serializeObjConverters[typeof(UnityEngine.Material)] = (data, builder) => {
-                var material = (UnityEngine.Material)data;
-                var fbMatName = builder.CreateString(material.name);
-
-                Serial.FBMaterial.StartFBMaterial(builder);
-                Serial.FBMaterial.AddMaterialName(builder, fbMatName);
-                return Serial.FBMaterial.EndFBMaterial(builder).Value;
+            deserializeObjConverters[typeof(UnityEngine.Quaternion)] = (incoming) => {
+                var fbQuaternion = (Serial.FBQuaternion)incoming;
+                var quat = new UnityEngine.Quaternion(fbQuaternion.X, fbQuaternion.Y, fbQuaternion.Z, fbQuaternion.W);
+                return quat;
             };
+            // ------------------------- Material --------------------------------------
+            //serializeObjConverters[typeof(UnityEngine.Material)] = (data, builder) => {
+            //    var material = (UnityEngine.Material)data;
+            //    var fbMatName = builder.CreateString(material.name);
+
+            //    Serial.FBMaterial.StartFBMaterial(builder);
+            //    Serial.FBMaterial.AddMaterialName(builder, fbMatName);
+            //    return Serial.FBMaterial.EndFBMaterial(builder).Value;
+            //};
+            //deserializeObjConverters[typeof(UnityEngine.Quaternion)] = (incoming) => {
+            //    return null;
+            //};
         }
+
+        /*
+         var sIntDestcDict = FlatbufferSerializer.CreateDictionary<int,DestructionCosts,int, Offset<Serial.FBDestructionCosts>, Serial.DT_int_FBDestructionCosts>(builder, intDestcDict,  Serial.DT_int_FBDestructionCosts.CreateDT_int_FBDestructionCosts, Serial.FBTestComponent.CreateIntDestcDictVector);
+         */
+        public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,FBKey,FBValue,S>(FlatBuffers.FlatBufferBuilder builder
+                                , IDictionary<TKey, TValue> dict
+                                , Func<FlatBufferBuilder, FBKey,FBValue, Offset<S>> fbCreateElement
+                                , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList
+                                )
+                                where S : struct, FlatBuffers.IFlatbufferObject where FBValue : struct {
+            if (dict == null) {
+                return null;
+            }
+
+
+            int? bufferPos = FindInSerializeCache(dict);
+            if (bufferPos.HasValue) {
+                return new VectorOffset(bufferPos.Value);
+            }
+            var tempArray = new FlatBuffers.Offset<S>[dict.Count];
+            int amount = dict.Count;
+
+            var keyPrimOrEnum = typeof(TKey).IsPrimitive || typeof(TKey).IsEnum;
+            var valuePrimOrEnum = typeof(TValue).IsPrimitive || typeof(TValue).IsEnum;
+
+            if (keyPrimOrEnum && valuePrimOrEnum) {
+                SetSerializingFlag(dict);
+                // a pure primitive dictionary
+                for (int i = 0; i < amount; i++) {
+                    var dictElem = dict.ElementAt(i);
+                    tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), (FBValue)((object)dictElem.Value));
+                }
+                var result = fbCreateList(builder, tempArray);
+                PutInSerializeCache(dict, result.Value);
+                ClearSerializingFlag(dict);
+                return result;
+            }
+            else if (keyPrimOrEnum && !valuePrimOrEnum) {
+                SetSerializingFlag(dict);
+                for (int i = 0; i < amount; i++) {
+                    var dictElem = dict.ElementAt(i);
+
+                    FBValue valueElemOffset;
+                    if (typeof(TValue) == typeof(string)) {
+                        valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Value);
+                    } 
+                    else {
+                        var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
+                        valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                    }
+                    tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset);
+                }
+                var result = fbCreateList(builder, tempArray);
+                PutInSerializeCache(dict, result.Value);
+                ClearSerializingFlag(dict);
+                return result;
+            } else if (!keyPrimOrEnum && valuePrimOrEnum) {
+                SetSerializingFlag(dict);
+                for (int i = 0; i < amount; i++) {
+                    var dictElem = dict.ElementAt(i);
+
+                    FBKey offsetKey;
+                    if (typeof(TKey) == typeof(string)) {
+                        offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
+                    }else {
+                        var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                        offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                    }
+
+                    tempArray[i] = fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value));
+                }
+                var result = fbCreateList(builder, tempArray);
+                PutInSerializeCache(dict, result.Value);
+                ClearSerializingFlag(dict);
+                return result;
+            } else if (!keyPrimOrEnum && !valuePrimOrEnum) {
+                SetSerializingFlag(dict);
+                for (int i = 0; i < amount; i++) {
+                    var dictElem = dict.ElementAt(i);
+
+
+
+                    FBKey offsetKey;
+                    if (typeof(TKey) == typeof(string)) {
+                        offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
+                    } else {
+                        var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                        offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                    }
+
+                    FBValue valueElemOffset;
+                    if (typeof(TValue) == typeof(string)) {
+                        valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Key);
+                    } else {
+                        var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                        valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                    }
+                    tempArray[i] = fbCreateElement(builder, offsetKey, valueElemOffset); 
+                }
+                var result = fbCreateList(builder, tempArray);
+                PutInSerializeCache(dict, result.Value);
+                ClearSerializingFlag(dict);
+                return result;
+            }
+            return null;
+            /*if(typeof(IFBSerializable).IsAssignableFrom(typeof(T))) {
+                for (int i = 0; i < list.Count; i++) {
+                    var listElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)list[i]);
+                    if (listElemOffset != null) {
+                        tempArray[i] = new FlatBuffers.Offset<S>((int)listElemOffset);
+                    }
+                }
+                var result = fbCreateList(builder, tempArray);
+                FlatbufferSerializer.obj2FSMapping[list] = result.Value;
+                return result;
+            }
+            return null;*/
+        
+
+    /*
+    var intIntList = new Offset<Serial.DT_int_int>[this.intIntDict.Count];
+    for (int i = 0; i < this.intIntDict.Count; i++) {
+        var elem = this.intIntDict.ElementAt(i);
+        intIntList[i] = Serial.DT_int_int.CreateDT_int_int(builder, elem.Key, elem.Value);
+    }
+    Serial.FBTestComponent.CreateIntIntDictVector(builder, intIntList);*/
+    }
+
+            public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,S>(FlatBuffers.FlatBufferBuilder builder
+                                        , Dictionary<TKey,TValue> dict
+                                        , Func<FlatBufferBuilder, TKey, TValue, Offset<S>> fbCreateElement
+                                        , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList
+                                        )
+                                        where S : struct, FlatBuffers.IFlatbufferObject {
+            UnityEngine.Debug.LogError("You are using unimplemented CreateDictionary<TKey, TValue,S>(FlatBuffers.FlatBufferBuilder builder,dict,...)");
+            return null;
+        }
+
 
         /// <summary>
         /// Create VectorOffset from List
@@ -89,51 +313,174 @@ namespace Service.Serializer {
         /// <param name="fbCreateList"></param>
         /// <returns></returns>
         public static FlatBuffers.VectorOffset? CreateList<T, S>(FlatBuffers.FlatBufferBuilder builder
-                                        , List<T> list, Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList)
+                                        , IList<T> list, Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList)
                                         where S : struct, FlatBuffers.IFlatbufferObject where T : IFBSerializable {
             if (list == null) {
-                return null;
+                return new VectorOffset(0);
             }
 
-            if (FlatbufferSerializer.obj2FSMapping.TryGetValue(list, out int bufPos)) {
-                // the list was already serialized so we need to use this VectorOffset in order to keep the reference
-                var result = new FlatBuffers.VectorOffset(bufPos);
-                return result;
-            } else {
-                if (typeof(IFBSerializable).IsAssignableFrom(typeof(T))) {
-                    var tempArray = new FlatBuffers.Offset<S>[list.Count];
-                    for (int i = 0; i < list.Count; i++) {
-                        var listElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)list[i]);
-                        if (listElemOffset != null) {
-                            tempArray[i] = new FlatBuffers.Offset<S>((int)listElemOffset);
-                        }
-                    }
-                    var result = fbCreateList(builder, tempArray);
-                    FlatbufferSerializer.obj2FSMapping[list] = result.Value;
-                    return result;
-                }
-                return null;
+            int? bufferPos = FindInSerializeCache(list);
+            if (bufferPos.HasValue) {
+                return new VectorOffset(bufferPos.Value);
             }
+
+
+            if (typeof(IFBSerializable).IsAssignableFrom(typeof(T))) {
+                SetSerializingFlag(list);
+                var tempArray = new FlatBuffers.Offset<S>[list.Count];
+                for (int i = 0; i < list.Count; i++) {
+                    var listElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)list[i]);
+                    if (listElemOffset != null) {
+                        tempArray[i] = new FlatBuffers.Offset<S>((int)listElemOffset);
+                    }
+                }
+                var result = fbCreateList(builder, tempArray);
+                PutInSerializeCache(list, result.Value);
+                ClearSerializingFlag(list);
+                return result;
+            }
+
+            return null;
         }
+        public static int CreateObjectReference(FlatBuffers.FlatBufferBuilder builder, object obj) {
+            if (!FlatBufferSerializer.HasSerializingFlag(obj)) {
+                var _innerTest = FlatBufferSerializer.GetOrCreateSerialize(builder, obj);
+                return _innerTest.Value;
+            }
+            return -1;
+        }
+
+        public static FlatBuffers.VectorOffset CreateManualArray(FlatBuffers.FlatBufferBuilder builder, byte[] data) {
+            builder.StartVector(1, data.Length, 1);
+            builder.Add<byte>(data);
+            return builder.EndVector();
+        }
+
+        public static FlatBuffers.VectorOffset CreateManualArray<T>(FlatBuffers.FlatBufferBuilder builder, T[] data)  {
+            if (data == null) {
+                return new VectorOffset(0);
+            }
+
+            int? bufferPos = FindInSerializeCache(data);
+            if (bufferPos.HasValue) {
+                return new VectorOffset(bufferPos.Value);
+            }
+
+            SetSerializingFlag(data);
+            if (typeof(T) == typeof(bool)) {
+                builder.StartVector(1, data.Length, 1); for (int i = data.Length - 1; i >= 0; i--) builder.AddBool((bool)(object)data[i]);
+            } else if (typeof(T) == typeof(float)) {
+                builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddFloat((float)(object)data[i]);
+            } else if (typeof(T) == typeof(int) || typeof(T).IsEnum) {
+                builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddInt((int)(object)data[i]);
+            } else if (typeof(T) == typeof(long)) {
+                builder.StartVector(8, data.Length, 8); for (int i = data.Length - 1; i >= 0; i--) builder.AddLong((long)(object)data[i]);
+            } else if (typeof(T) == typeof(string)) {
+                int amount = data.Length;
+                List<StringOffset> stOffsetList = new List<StringOffset>(amount);
+                for (int i = 0; i < amount; i++) stOffsetList.Add(builder.CreateString((string)(object)data[i]));
+                builder.StartVector(4, data.Length, 4); for (int i = amount - 1; i >= 0; i--) builder.AddOffset(stOffsetList[i].Value);
+            } else if (typeof(T) == typeof(byte)) {
+                UnityEngine.Debug.LogError("CreateManual-Array not supported for byte! Use CreateManualByteArray");
+            }
+            else {
+                int amount = data.Length;
+                List<int> stOffsetList = new List<int>(amount);
+                for (int i = 0; i < amount; i++) {
+                    var elem = GetOrCreateSerialize(builder, data[i]);
+                    stOffsetList.Add(elem.Value);
+                }
+                builder.StartVector(4, data.Length, 4); for (int i = amount - 1; i >= 0; i--) builder.AddOffset(stOffsetList[i]);
+            }
+            var result = builder.EndVector();
+            PutInSerializeCache(data, result.Value);
+            ClearSerializingFlag(data);
+            return result;
+        }
+
+
+
+        public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,IList<T> data) {
+            if (data == null) {
+                return new VectorOffset(0);
+            }
+
+            int? bufferPos = FindInSerializeCache(data);
+            if (bufferPos.HasValue) {
+                return new VectorOffset(bufferPos.Value);
+            }
+
+            SetSerializingFlag(data);
+            if (typeof(T) == typeof(bool)) {
+                builder.StartVector(1, data.Count, 1); for (int i = data.Count - 1; i >= 0; i--) builder.AddBool((bool)(object)data[i]); 
+            } else if (typeof(T) == typeof(float)) {
+                builder.StartVector(4, data.Count, 4); for (int i = data.Count - 1; i >= 0; i--) builder.AddFloat((float)(object)data[i]); 
+            } else if (typeof(T) == typeof(int) || typeof(T).IsEnum) {
+                builder.StartVector(4, data.Count, 4); for (int i = data.Count - 1; i >= 0; i--) builder.AddInt((int)(object)data[i]); 
+            } else if (typeof(T) == typeof(long)) {
+                builder.StartVector(8, data.Count, 8); for (int i = data.Count - 1; i >= 0; i--) builder.AddLong((long)(object)data[i]); 
+            } else if (typeof(T) == typeof(string)) {
+                int amount = data.Count;
+                List<StringOffset> stOffsetList = new List<StringOffset>(amount);
+                for (int i = 0; i < amount; i++) stOffsetList.Add(builder.CreateString((string)(object)data[i]));
+                builder.StartVector(4, data.Count, 4); for (int i = amount - 1; i >= 0; i--) builder.AddOffset(stOffsetList[i].Value); 
+            } else {
+                int amount = data.Count;
+                List<int> stOffsetList = new List<int>(amount);
+                for (int i = 0; i < amount; i++) {
+                    var elem = GetOrCreateSerialize(builder, data[i]);
+                    stOffsetList.Add(elem.Value);
+                }
+                builder.StartVector(4, data.Count, 4); for (int i = amount - 1; i >= 0; i--) builder.AddOffset(stOffsetList[i]); 
+            }
+            var result = builder.EndVector();
+            PutInSerializeCache(data, result.Value);
+            ClearSerializingFlag(data);
+            return result;
+        }
+
+        public static FlatBuffers.VectorOffset? CreateStringList(FlatBuffers.FlatBufferBuilder builder
+                                    , List<string> list, Func<FlatBufferBuilder, StringOffset[],VectorOffset> fbCreateList) {
+            if (list == null) {
+                return new VectorOffset(0);
+            }
+
+
+            int? bufferPos = FindInSerializeCache(list);
+            if (bufferPos.HasValue) {
+                return new VectorOffset(bufferPos.Value);
+            }
+
+            var tempArray = list.Select(st => builder.CreateString(st)).ToArray();
+            // call the createFunction with the array
+            var result = fbCreateList(builder, tempArray);
+            PutInSerializeCache(list, result.Value);
+            return result;
+        }
+
 
         public static FlatBuffers.VectorOffset? CreateList<T>(FlatBuffers.FlatBufferBuilder builder
                                     , List<T> list, Func<FlatBufferBuilder, T[], VectorOffset> fbCreateList) {
-            if (list == null || typeof(T).IsPrimitive) {
+            /*if (list == null || typeof(T).IsPrimitive) {
                 return null;
+            }*/
+            if (list == null) {
+                return new VectorOffset(0);
             }
 
-            if (FlatbufferSerializer.obj2FSMapping.TryGetValue(list, out int bufPos)) {
-                // the list was already serialized so we need to use this VectorOffset in order to keep the reference
-                var result = new FlatBuffers.VectorOffset(bufPos);
-                return result;
-            } else {
-
-                var tempArray = list.ToArray();
-                // call the createFunction with the array
-                var result = fbCreateList(builder, tempArray);
-                FlatbufferSerializer.obj2FSMapping[list] = result.Value;
-                return result;
+            int? bufferPos = FindInSerializeCache(list);
+            if (bufferPos.HasValue) {
+                return new VectorOffset(bufferPos.Value);
             }
+
+            SetSerializingFlag(list);
+            var tempArray = list.ToArray();
+            // call the createFunction with the array
+            var result = fbCreateList(builder, tempArray);
+
+            PutInSerializeCache(list, result.Value);
+            ClearSerializingFlag(list);
+            return result;
         }
 
 
@@ -144,31 +491,120 @@ namespace Service.Serializer {
         /// <typeparam name="S">The FBType that contained in the fb-list</typeparam>
         /// <param name="bufferPos">The bufferposition of this list</param>
         /// <param name="amount">The amount of elements this list contains</param>
-        /// <param name="getItem">The function that returns the corresponding list-item wrapped into a to the parameter</param>
+        /// <param name="items">objects list with all objects to be converted into T-List</param>
         /// <returns></returns>
-        public static List<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items) where S : IFlatbufferObject where T : IFBSerializable,new() {
+        public static IList<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items,bool isObservableList=false) where S : IFlatbufferObject where T : new() {
             if (bufferPos == 0) {
                 return null;
             }
 
-            if (fb2objMapping.TryGetValue(bufferPos,out object value)) {
-                // we already deserialized this list give back the already created version to keep the reference
-                return (List<T>)value;
+            var cachedResult = FindInDeserializeCache(bufferPos);
+            if (cachedResult != null) {
+                try {
+                    return (List<T>)cachedResult;
+                }
+                catch (Exception e) {
+                    UnityEngine.Debug.LogException(e);
+                    UnityEngine.Debug.Log("T:" + typeof(T) + " S:" + typeof(S) + " bufferpos:" + bufferPos);
+                    UnityEngine.Debug.Log("Cached-ResultType:" + cachedResult.GetType()+"\n");
+                    return null;
+                }
             } else {
-                var result = new List<T>();
+                SetDeserializingFlag(bufferPos);
+                var result = isObservableList? new ObservableList<T>() : (IList<T>) new List<T>();
+                PutIntoDeserializeCache(bufferPos, result);
                 for (int i = 0; i < amount; i++) {
                     var obj = items[i];
                     if (obj != null) {
-                        var deserializedElement = FlatbufferSerializer.GetOrCreateDeserialize<T>((S)obj);
+                        var deserializedElement = FlatBufferSerializer.GetOrCreateDeserialize<T>((S)obj);
                         result.Add(deserializedElement);
                     }
                 }
-                fb2objMapping[bufferPos] = result;
+                ClearDeserializingFlag(bufferPos);
                 return result;
             }
         }
 
-        
+        /*
+         *         
+        intDestcDict = new Dictionary<int, DestructionCosts>();
+        for (int i = 0; i < input.IntDestcDictLength; i++) {
+            var e = input.IntDestcDict(i);
+            if (e.HasValue) {
+                var elem = e.Value;
+                intDestcDict[elem.Key] = FlatbufferSerializer.GetOrCreateDeserialize<DestructionCosts>(elem.Value);
+            }
+        } 
+        */
+
+        /// <summary>
+        /// Checks if an object already created for this position
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bufferpos"></param>
+        /// <returns></returns>
+        public static object FindInDeserializeCache(int bufferpos)  {
+            if (bufferpos == 0) return null;
+
+            if (fb2objMapping.TryGetValue(bufferpos, out object value)) {
+                return value;
+            }
+            return null;
+        }
+
+        public static void PutIntoDeserializeCache(int bufferpos,object obj,bool checkIfExists=true) {
+            if (obj == null) {
+                UnityEngine.Debug.LogWarning("Tried to put null-object at pos:" + bufferpos);
+                return;
+            }
+
+            if (obj.GetType().IsValueType) {
+                return;
+            }
+
+            if (checkIfExists && FindInDeserializeCache(bufferpos)!=null) {
+                var beforeObj = FindInDeserializeCache(bufferpos);
+                UnityEngine.Debug.LogError("WAAARNING: you are overwriting an existing object in deserialize-cache! before:" + beforeObj.GetType() + " new:" + obj.GetType());
+            }
+            fb2objMapping[bufferpos] = obj;
+            if (obj is IFBPostDeserialization) {
+                if (postProcessObjects.TryGetValue(obj.GetType(), out List<object> objList)) {
+                    objList.Add(obj);
+                } else {
+                    postProcessObjects[obj.GetType()] = new List<object>() { obj };
+                }
+            }
+        }
+
+
+        public static int? FindInSerializeCache(object obj){
+            if (obj == null) {
+                return null;
+            }
+            if (obj2FSMapping.TryGetValue(obj, out int value)) {
+                return value;
+            }
+            return null;
+        }
+
+
+        public static void PutInSerializeCache(object obj, int bufferpos, bool checkIfExists = true)  {
+            if (obj == null) {
+                UnityEngine.Debug.LogWarning("Tried to put null-object at pos:" + bufferpos);
+                return;
+            }
+            if (checkIfExists && serializeBufferposCheck.ContainsKey(bufferpos) && serializeBufferposCheck[bufferpos]!=(object)obj) {
+                var beforeObj = serializeBufferposCheck[bufferpos];
+                UnityEngine.Debug.LogError("WAAARNING: you are reusing an position in serialize-cache! before:" + beforeObj + " new:" + obj);
+            }
+            obj2FSMapping[obj] = bufferpos;
+            if (checkIfExists) {
+                serializeBufferposCheck[bufferpos] = obj;
+            }
+        }
+
+
+
         /// <summary>
         /// Deserialized a list with PRIMITIVE content (int,float,...)
         /// </summary>
@@ -187,88 +623,172 @@ namespace Service.Serializer {
                 UnityEngine.Debug.LogError("Trying to use primitiveList deserializer on non primitive object:" + typeof(T));
             }
 
-            if (fb2objMapping.TryGetValue(bufferPos, out object value)) {
+            var result = FindInDeserializeCache(bufferPos);
+            if (result!=null) {
                 // we already deserialized this list give back the already created version to keep the reference
-                return (List<T>)value;
+                return (List<T>)result;
             } else {
-                var result = new List<T>(getArray());
-                fb2objMapping[bufferPos] = result;
-                return result;
+                List<T> newList = new List<T>(getArray());
+                PutIntoDeserializeCache(bufferPos, newList);
+                return newList;
             }
         }
 
         public static StringOffset? GetOrCreateSerialize(FlatBufferBuilder builder, string serializableObj) {
             if (serializableObj == null) {
-                return null;
+                return new StringOffset(0);
             }
 
             // check if we have this Object already serialized and if yes grab the
             // location in the buffer and pass it as offset, so it can be pointed to this location again
-            if (obj2FSMapping.TryGetValue(serializableObj, out int result)) {
-                return new StringOffset(result);
+            int? bufferPos = FindInSerializeCache(serializableObj);
+            if (bufferPos.HasValue) {
+                return new StringOffset(bufferPos.Value);
             }
 
             var serializedString = builder.CreateString(serializableObj);
-            obj2FSMapping[serializableObj] = serializedString.Value;
+            PutInSerializeCache(serializedString, serializedString.Value);
             return serializedString;
         }
 
+        public static FBManualObject GetManualObject(object incoming) {
+            var fbManual = new FBManualObject();
+            fbManual.__initFromRef((IFlatbufferObject)incoming);
+            return fbManual;
+        }
+
+        
+
         public static int? GetOrCreateSerialize(FlatBufferBuilder builder, object serializableObj)  {
-            if (serializableObj == null) {
-                return null;
+            if (serializableObj == null ) {
+                return 0;
             }
 
-            // check if we have this Object already serialized and if yes grab the
-            // location in the buffer and pass it as offset, so it can be pointed to this location again
-            if (obj2FSMapping.TryGetValue(serializableObj, out int result)) {
-                return result;
+            int? bufferPos = FindInSerializeCache(serializableObj);
+            if (bufferPos.HasValue) {
+                return bufferPos;
             }
 
             if (serializableObj is IFBSerializable) {
+                SetSerializingFlag(serializableObj);
                 // first time, so serialize it with flatbuffers
                 var serialized = ((IFBSerializable)serializableObj).Serialize(builder);
-                obj2FSMapping[serializableObj] = serialized;
+                PutInSerializeCache(serializableObj, serialized);
+                ClearSerializingFlag(serializableObj);
                 return serialized;
             }
             else {
                 // try to convert
-                var serialized = Convert(builder, serializableObj);
-                if (serializableObj != null) {
-                    obj2FSMapping[serializableObj] = serialized.Value;
+                SetSerializingFlag(serializableObj);
+                var serialized = ConvertToFlatbuffer(builder, serializableObj);
+                if (serializableObj != null && serialized.HasValue) {
+                    PutInSerializeCache(serializableObj, serialized.Value);
                 }
-                return serialized;
+                ClearSerializingFlag(serializableObj);
+                return serialized.HasValue?serialized:0;
             }
 
 
         }
 
-        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T : IFBSerializable, new() {
-            return (T)GetOrCreateDeserialize(incoming, typeof(T));
+        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T :  new() {
+            var result = GetOrCreateDeserialize(incoming, typeof(T));
+            return (T)result;
+        }
+
+        public static bool HasDeserializingFlag(int bufferPos) {
+            return deserializingATM.Contains(bufferPos);
+        }
+
+
+        public static void SetDeserializingFlag(int bufferPos) {
+            if (deserializingATM.Contains(bufferPos)) {
+                UnityEngine.Debug.LogError("Try to set a bufferpos to deserialize that is already in! bPos:"+bufferPos);
+            }
+            deserializingATM.Add(bufferPos);
+        }
+
+        public static void ClearDeserializingFlag(int bufferPos) {
+            deserializingATM.Remove(bufferPos);
+        }
+
+        public static void SetSerializingFlag(object serializeObj) {
+            if (serializingATM.Contains(serializeObj)) {
+                UnityEngine.Debug.LogError("Try to set an object to serializeFlag that is already in! type:" + serializeObj.GetType());
+            }
+            serializingATM.Add(serializeObj);
+        }
+        public static bool HasSerializingFlag(object obj) {
+            return serializingATM.Contains(obj);
+        }
+
+        public static void ClearSerializingFlag(object obj) {
+            serializingATM.Remove(obj);
+        }
+
+        public static void UpgradeObjectIfNeeded(object deserializedObject,object incomingData) {
+            if (FlatBufferSerializer.DeserializationVersionMismatch
+                && deserializedObject is IFBUpgradeable) {
+                // the data we just deserialized has another version. Try to convert it to have valid data
+                ((IFBUpgradeable)deserializedObject).Upgrade(incomingData);
+            }
         }
 
         public static object GetOrCreateDeserialize(IFlatbufferObject incoming,Type type) {
-                if (incoming == null) {
+            if (incoming == null || incoming.BufferPosition==0) {
                 return null;
             }
-            object result;
             // first check if we already deserialize the object at this position
-            fb2objMapping.TryGetValue(incoming.BufferPosition, out result);
+            object result = FindInDeserializeCache(incoming.BufferPosition);
             if (result != null) {
-                UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
+                //UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
                 // yeah, we found it. no need to create a new object we got it already
                 return result;
             }
 
-            // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
-            var newObject = (IFBSerializable)Activator.CreateInstance(type);
-            newObject.Deserialize(incoming);
-            fb2objMapping[incoming.BufferPosition] = newObject;
-            return newObject;
+            if (typeof(IFBSerializable).IsAssignableFrom(type)) {
+                // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
+                SetDeserializingFlag(incoming.BufferPosition);
+                try {
+                    var newObject = (IFBSerializable)Activator.CreateInstance(type);
+                    PutIntoDeserializeCache(incoming.BufferPosition, newObject);
+                    newObject.Deserialize(incoming);
+                    // upgrade the object if there was a version mismatch
+                    UpgradeObjectIfNeeded(newObject, incoming);
+
+                    return newObject;
+                }
+                finally {
+                    ClearDeserializingFlag(incoming.BufferPosition);
+                }
+            } else {
+                try {
+                    SetDeserializingFlag(incoming.BufferPosition);
+                    var convResult = ConvertToObject(incoming, type);
+                    if (convResult == null) {
+                        UnityEngine.Debug.LogError("There is no deserializer for " + type);
+                        return null;
+                    }
+                    return convResult;
+                }
+                finally {
+                    ClearDeserializingFlag(incoming.BufferPosition);
+                }
+            }
+
         }
 
         public static void ClearCache() {
             obj2FSMapping.Clear();
             fb2objMapping.Clear();
+            serializeBufferposCheck.Clear();
+            deserializingATM.Clear();
+            serializingATM.Clear();
+            afterDeserializationAction.Clear();
+            afterSerializationAction.Clear();
+            foreach (var objList in postProcessObjects) {
+                objList.Value.Clear();
+            }
         }
 
         public static byte[] SerializeToBytes(IFBSerializable root)  {
@@ -277,6 +797,10 @@ namespace Service.Serializer {
             fbBuilder = new FlatBufferBuilder(5000000);
 
             var rootResult = root.Serialize(fbBuilder);
+
+            foreach (var act in afterSerializationAction) {
+                act();
+            }
 
             fbBuilder.Finish(rootResult);
             // TODO: Check: Is this the whole buffer? Or is it even more?
@@ -292,11 +816,16 @@ namespace Service.Serializer {
             fs.WriteBytesToFileAtDomain(domain, filename, buf);
         }
 
-        public static T DeserializeFromBytes<T>(byte[] buf) where T : IFBSerializable,new() {
+        public static T DeserializeFromBytes<T>(byte[] buf,T dataRoot=default(T)) where T : IFBSerializable,new() {
             ClearCache();
             var fbByteBuffer = new ByteBuffer(buf);
-            var dataRoot = new T();
+            if (dataRoot == null) {
+                dataRoot = new T();
+            }
             dataRoot.Deserialize(fbByteBuffer);
+            foreach (var act in afterDeserializationAction) {
+                act();
+            }
             return dataRoot;
         }
     }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace PhysicsHelper {
     public class RayMeshIntersection {
@@ -26,7 +27,7 @@ namespace PhysicsHelper {
         /// <param name="meshRotation"></param>
         /// <param name="hitPoint"></param>
         /// <returns></returns>
-        public static bool Intersect(Ray ray, Vector3[] vertices, int[] triangles, Vector3 meshPosition, Vector3 meshScale, Quaternion meshRotation, ref Vector3 hitPoint) {
+        public static bool Intersect(Ray ray, IList<Vector3> vertices, IList<int> triangles, Vector3 meshPosition, Vector3 meshScale, Quaternion meshRotation, ref Vector3 hitPoint) {
             float closestHitDistance = float.MaxValue;
             float tempHitDistance = 0;
             Vector3 closestHitPoint = Vector3.zero;
@@ -34,7 +35,7 @@ namespace PhysicsHelper {
             Vector3 v0, v1, v2 = Vector3.zero;
             bool hitSomething = false;
 
-            for (int i = 0; i < triangles.Length; i += 3) {
+            for (int i = 0; i < triangles.Count; i += 3) {
                 //Get triangle vertices
                 v0 = Vector3.Scale(vertices[triangles[i]], meshScale).RotateAroundPivot(Vector3.zero, meshRotation) + meshPosition;
                 v1 = Vector3.Scale(vertices[triangles[i + 1]], meshScale).RotateAroundPivot(Vector3.zero, meshRotation) + meshPosition;

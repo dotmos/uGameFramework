@@ -14,7 +14,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace Service.FileSystem {
-    public interface IFileSystemService {
+    public interface IFileSystemService : IFBSerializable {
 
 
 
@@ -32,10 +32,11 @@ namespace Service.FileSystem {
         /// Write bytes to file 
         /// <param name="pathToFile"></param>
         /// <param name="bytes"></param>
+        /// <param name="compress"></param>
  /// </summary>
         
 
-					bool WriteBytesToFile(string pathToFile,byte[] bytes);
+					bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false);
 
 
 		/// <summary>
@@ -43,10 +44,11 @@ namespace Service.FileSystem {
         /// <param name="domain"></param>
         /// <param name="relativePathToFile"></param>
         /// <param name="bytes"></param>
+        /// <param name="compress"></param>
  /// </summary>
         
 
-					bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes);
+					bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
 
 
 		/// <summary>
@@ -73,10 +75,11 @@ namespace Service.FileSystem {
 		/// <summary>
         /// Load file as string 
         /// <param name="pathToFile"></param>
+        /// <param name="compressed"></param>
  /// </summary>
         
 
-					string LoadFileAsString(string pathToFile);
+					string LoadFileAsString(string pathToFile,bool compressed=false);
 
 
 		/// <summary>
@@ -92,20 +95,22 @@ namespace Service.FileSystem {
 		/// <summary>
         /// Load file as bytes 
         /// <param name="pathToFile"></param>
+        /// <param name="compressed"></param>
  /// </summary>
         
 
-					byte[] LoadFileAsBytes(string pathToFile);
+					byte[] LoadFileAsBytes(string pathToFile,bool compressed=false);
 
 
 		/// <summary>
         /// Load file as string from domain 
         /// <param name="domain"></param>
         /// <param name="relativePathToFile"></param>
+        /// <param name="compressed"></param>
  /// </summary>
         
 
-					byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile);
+					byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false);
 
 
 		/// <summary>
@@ -173,8 +178,8 @@ namespace Service.FileSystem {
         ScriptingOutput,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder,SaveGames
         
     }
-
-
+    
+    
 }
 ///////////////////////////////////////////////////////////////////////
 //

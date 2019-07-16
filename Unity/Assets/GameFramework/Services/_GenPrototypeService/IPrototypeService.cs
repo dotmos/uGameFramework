@@ -12,7 +12,7 @@ using FlatBuffers;
 using Service.Serializer;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
-    public interface /*name:interfaceName*/IPrototypeService/*endname*/ {
+    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable {
 /*block:property*/
     /// <summary>
     /// /*name:documentation*//*endname*/
@@ -36,29 +36,46 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /*block:rip*/A/*endblock:rip*//*block:elem*//*block:comma*/,/*endblock:comma*//*name:name*/B/*endname*//*endblock:elem*/
         /*block:rip*/,C,D/*endblock:rip*/
     }
-/*endblock:modelEnum*/
-/*block:modelClass*/
-    [DataContract(IsReference = true)]
+    /*endblock:modelEnum*/
+    /*block:modelClass*/
     [System.Serializable]
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
-/*block:field*/        [DataMember]/*name:scope*/public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
-/*endblock:field*/
-/*name:classSerialization*/        
+        /*block:field*/
+        /*name:scope*/
+        public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
+        /*endblock:field*/
+        /*block:property*/
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+        /*name:scope*/
+        public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
+        /*endblock:property*/
+        /*block:constructor*/
+        public /*name:className*/SomeModel/*endname*/(/*block:rip*/int maxChannels/*endblock:rip*//*block:parameter*//*name:comma*/,/*endname*//*name:type*/string/*endname*/ /*name:paramName*/name/*endname*//*endblock:parameter*/) {
+            /*block:constructorSet*/
+            this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
+            /*endblock:constructorSet*/
+            /*block:rip*/
+            this.MaxSoundChannels = maxChannels;/*endblock:rip*/
+        }
+        /*endblock:constructor*/
+        /*name:classSerialization*/
         public void Deserialize(object incoming) {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
 
         public void Deserialize(ByteBuffer buf) {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
 
         public int Serialize(FlatBufferBuilder builder) {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
-/*endname*/
+        /*endname*/
     }
 
-/*endblock:modelClass*/
+    /*endblock:modelClass*/
 }
 ///////////////////////////////////////////////////////////////////////
 //
