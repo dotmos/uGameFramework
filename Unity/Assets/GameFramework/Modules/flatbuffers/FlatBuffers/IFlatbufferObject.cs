@@ -65,7 +65,7 @@ namespace FlatBuffers
                 return GetOrCreate<T, Serial.FBVector4>(fbPos);
             } else if (typeof(T) == typeof(UnityEngine.Quaternion)) {
                 return GetOrCreate<T, Serial.FBQuaternion>(fbPos);
-            }
+            } 
             else return FlatBufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
         }
 
@@ -176,9 +176,20 @@ namespace FlatBuffers
             return result;
         }
 
+        /// <summary>
+        /// Check if there is an offset at this vtable-position
+        /// </summary>
+        /// <param name="fbPos"></param>
+        /// <returns></returns>
+        public bool HasOffset(int fbPos) {
+            return GetFBRefPos(fbPos) != 0;
+        }
+
         public T RetrieveOffset<T>(int fbPos) where T : IFBSerializable,new() {
             int bufPos = GetFBRefPos(fbPos);
-
+            if (bufPos == 0) {
+                UnityEngine.Debug.LogError("You are not allowed to use RetrieveOffset<T> with from null-pos. check if HasOffset before");
+            }
             if (FlatBufferSerializer.HasDeserializingFlag(bufPos)) {
                 return (T)FlatBufferSerializer.FindInDeserializeCache(bufPos);
             } else {

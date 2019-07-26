@@ -691,11 +691,6 @@ namespace Service.Serializer {
 
         }
 
-        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming) where T :  new() {
-            var result = GetOrCreateDeserialize(incoming, typeof(T));
-            return (T)result;
-        }
-
         public static bool HasDeserializingFlag(int bufferPos) {
             return deserializingATM.Contains(bufferPos);
         }
@@ -730,11 +725,19 @@ namespace Service.Serializer {
             if (FlatBufferSerializer.DeserializationVersionMismatch
                 && deserializedObject is IFBUpgradeable) {
                 // the data we just deserialized has another version. Try to convert it to have valid data
-                ((IFBUpgradeable)deserializedObject).Upgrade(incomingData);
+                ((IFBUpgradeable)deserializedObject).Upgrade(CurrentDeserializingDataFormatVersion, CurrentDataFormatVersion, incomingData);
             }
         }
 
-        public static object GetOrCreateDeserialize(IFlatbufferObject incoming,Type type) {
+        public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming, IFBSerializable newObject = null) where T : new() {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("You are not allowed to call GetOrCreateDeserialize with incomming == null");
+            }
+            var result = GetOrCreateDeserialize(incoming, typeof(T), newObject);
+            return (T)result;
+        }
+
+        public static object GetOrCreateDeserialize(IFlatbufferObject incoming, Type type, IFBSerializable newObject = null) {
             if (incoming == null || incoming.BufferPosition==0) {
                 return null;
             }
@@ -750,7 +753,7 @@ namespace Service.Serializer {
                 // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
                 SetDeserializingFlag(incoming.BufferPosition);
                 try {
-                    var newObject = (IFBSerializable)Activator.CreateInstance(type);
+                    newObject = newObject==null?(IFBSerializable)Activator.CreateInstance(type) : newObject;
                     PutIntoDeserializeCache(incoming.BufferPosition, newObject);
                     newObject.Deserialize(incoming);
                     // upgrade the object if there was a version mismatch
@@ -792,6 +795,9 @@ namespace Service.Serializer {
         }
 
         public static byte[] SerializeToBytes(IFBSerializable root)  {
+            var st = new System.Diagnostics.Stopwatch();
+            st.Start();
+
             serializing = true;
             ClearCache();
             fbBuilder = new FlatBufferBuilder(5000000);
@@ -807,6 +813,8 @@ namespace Service.Serializer {
             var buf = fbBuilder.DataBuffer.ToSizedArray();
 
             serializing = false;
+            st.Stop();
+            UnityEngine.Debug.Log("FINISHED SERIALIZATION inner:" + st.Elapsed.TotalMilliseconds / 1000.0f + "s");
             return buf;
         }
 
@@ -817,6 +825,8 @@ namespace Service.Serializer {
         }
 
         public static T DeserializeFromBytes<T>(byte[] buf,T dataRoot=default(T)) where T : IFBSerializable,new() {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
             ClearCache();
             var fbByteBuffer = new ByteBuffer(buf);
             if (dataRoot == null) {
@@ -826,6 +836,8 @@ namespace Service.Serializer {
             foreach (var act in afterDeserializationAction) {
                 act();
             }
+            stopwatch.Stop();
+            UnityEngine.Debug.Log("Deserialize final took:" + stopwatch.Elapsed.TotalMilliseconds / 1000.0f);
             return dataRoot;
         }
     }

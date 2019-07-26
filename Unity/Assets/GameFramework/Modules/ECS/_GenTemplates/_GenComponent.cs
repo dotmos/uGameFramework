@@ -214,7 +214,7 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
 
 /*block:d_default*/        /*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)input./*name|fu:name*/State/*endname*/; // string
 /*endblock:d_default*/
-/*block:d_nonprim*/     /*name:name*/testUID/*endname*/ = FlatBufferSerializer.GetOrCreateDeserialize</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
+/*block:d_nonprim*/         if (input./*name|fu:name*/TestUID/*endname*/!=null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.GetOrCreateDeserialize</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
         /*endblock:d_nonprim*/
         /*block:d_prim_list*/ //        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
                                       /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/);

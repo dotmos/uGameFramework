@@ -1,8 +1,8 @@
-/*block:using*/using /*name:name*/System/*endname*/;
-/*endblock:using*/
+/*name:using*//*endname*/
 using Zenject;
 using UniRx;
 using FlatBuffers;
+using System;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 /*block:impl*/

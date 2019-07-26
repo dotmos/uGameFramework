@@ -4,11 +4,11 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 
-using System;
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using UniRx;
 
+using System;
 using static Service.MemoryBrowserService.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;

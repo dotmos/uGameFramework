@@ -4,8 +4,8 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 
-/*block:using*/using /*name:name*/System/*endname*/;
-/*endblock:using*/
+/*name:using*//*endname*/
+using System;
 using static /*name:namespace*/Service.GeneratorPrototype/*endname*/.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;

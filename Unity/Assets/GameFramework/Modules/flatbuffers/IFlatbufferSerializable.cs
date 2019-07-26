@@ -22,7 +22,7 @@ public interface IFBPostDeserialization {
 /// If an object (e.g.) has a version mismatch during deserialization it calls the upgrade-function to make it valid (if needed)
 /// </summary>
 public interface IFBUpgradeable {
-    void Upgrade(object incoming);
+    void Upgrade(int serializedFormatNr, int currentNr, object incoming);
 }
 
 /*public interface IFBSerializableManual {

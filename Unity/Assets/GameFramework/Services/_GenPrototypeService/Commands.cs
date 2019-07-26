@@ -1,7 +1,7 @@
 
-/*block:using*/using /*name:name*/Service.Events/*endname*/;
-/*endblock:using*/
+/*name:using*/using Service.Events;/*endname*/
 using System;
+using Service.Events;
 using Zenject;
 using UniRx;
 using System.Diagnostics;
