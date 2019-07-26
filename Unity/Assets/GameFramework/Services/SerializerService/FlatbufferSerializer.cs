@@ -576,6 +576,19 @@ namespace Service.Serializer {
             }
         }
 
+        public static void ProcessPostProcessing(object userobject) {
+            var entityManager = Kernel.Instance.Resolve<ECS.IEntityManager>();
+            // post-process objects that are marked via FlatbufferSerializer.AddPostProcessType(type)
+            for (int i = 0; i < FlatBufferSerializer.postProcessObjects.Count; i++) {
+                var postProcessObjList = FlatBufferSerializer.postProcessObjects.ElementAt(i).Value;
+                for (int j = 0; j < postProcessObjList.Count; j++) {
+                    var elem = postProcessObjList[j];
+                    if (elem is IFBPostDeserialization) {
+                        ((IFBPostDeserialization)elem).OnPostDeserialization(entityManager,userobject);
+                    }
+                }
+            }
+        }
 
         public static int? FindInSerializeCache(object obj){
             if (obj == null) {
@@ -731,7 +744,8 @@ namespace Service.Serializer {
 
         public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming, IFBSerializable newObject = null) where T : new() {
             if (incoming == null) {
-                UnityEngine.Debug.LogError("You are not allowed to call GetOrCreateDeserialize with incomming == null");
+                UnityEngine.Debug.LogError("You are not allowed to call GetOrCreateDeserialize with incomming == null ");
+                return default(T);
             }
             var result = GetOrCreateDeserialize(incoming, typeof(T), newObject);
             return (T)result;

@@ -14,7 +14,7 @@ public interface IFBSerializable {
 }
 
 public interface IFBPostDeserialization {
-    void OnPostDeserialization();
+    void OnPostDeserialization(ECS.IEntityManager entityManager,object userobject);
 }
 
 
