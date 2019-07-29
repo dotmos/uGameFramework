@@ -15,6 +15,7 @@
  */
 
 using Service.Serializer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -185,6 +186,33 @@ namespace FlatBuffers
             return GetFBRefPos(fbPos) != 0;
         }
 
+        /// <summary>
+        /// Get a list that was created with FlatBufferSerializer.CreateTypedList(...)
+        /// This list saves also the type of the object along the data and makes it possible to have Lists of super-types and its inhertied classes
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fbPos"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public List<T> GetTypedList<T>(int fbPos,List<T> input=null)  {
+            if (input == null) {
+                input = new List<T>();
+            }
+            int listLength = GetListLength(fbPos);
+            for (int i = 0; i < listLength; i = i + 2) {
+                var typeName = GetStringListElementAt(fbPos, i * 2);
+                if (typeName == null) {
+                    input.Add(default(T));
+                    continue;
+                }
+                var type = Type.GetType(typeName);
+                var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i * 2+ 1);
+                var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
+                input.Add((T)result);
+            }
+            return input;
+        }
+
         public T RetrieveOffset<T>(int fbPos) where T : IFBSerializable,new() {
             int bufPos = GetFBRefPos(fbPos);
             if (bufPos == 0) {
@@ -196,5 +224,7 @@ namespace FlatBuffers
                 return FlatBufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
             }
         }
+
+
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using FlatBuffers;
 using System.Linq;
+using System.Collections;
 
 namespace Service.Serializer {
     public class FlatBufferSerializer {
@@ -85,6 +86,12 @@ namespace Service.Serializer {
                 convertersActivated = true;
             }
 
+            if (resultType == null) {
+                int a = 0;
+                return null;
+            }
+
+           // UnityEngine.Debug.Log("Try to convertToObject:" + incoming.GetType().FullName + " =TO=> " + resultType.FullName);
             if (deserializeObjConverters.TryGetValue(resultType, out Func<object, object> converter)) {
                 var result = converter(incoming);
                 return result;
@@ -348,6 +355,38 @@ namespace Service.Serializer {
                 return _innerTest.Value;
             }
             return -1;
+        }
+
+        public static String GetTypeName(object elem) {
+            var type = elem.GetType();
+            var assemblyName = type.Assembly.FullName;
+            var typeName = type.FullName + ", " + assemblyName.Substring(0, assemblyName.IndexOf(','));
+            return typeName;
+        }
+
+        /// <summary>
+        /// Create a list and store the objects types to make a deserialization of list with inherited type possible
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="dataList"></param>
+        /// <returns></returns>
+        public static VectorOffset CreateTypedList(FlatBufferBuilder builder, IList dataList) {
+            List<int> listOfOffsets = new List<int>(dataList.Count * 2);
+            foreach (var elem in dataList) {
+                if (elem == null) {
+                    listOfOffsets.Add(0);
+                    listOfOffsets.Add(0);
+                    continue;
+                } 
+                var typeName = GetTypeName(elem);
+                var offsetTypeName = builder.CreateSharedString(typeName);
+                var offsetData = FlatBufferSerializer.GetOrCreateSerialize(builder, elem);
+                listOfOffsets.Add(offsetTypeName.Value);
+                listOfOffsets.Add(offsetData.Value);
+            }
+            builder.StartVector(4, listOfOffsets.Count, 4);
+            for (int i = listOfOffsets.Count - 1; i >= 0; i--) builder.AddOffset(listOfOffsets[i]);
+            return builder.EndVector();
         }
 
         public static FlatBuffers.VectorOffset CreateManualArray(FlatBuffers.FlatBufferBuilder builder, byte[] data) {
@@ -743,8 +782,7 @@ namespace Service.Serializer {
         }
 
         public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming, IFBSerializable newObject = null) where T : new() {
-            if (incoming == null) {
-                UnityEngine.Debug.LogError("You are not allowed to call GetOrCreateDeserialize with incomming == null ");
+            if (incoming == null || incoming.BufferPosition == 0) {
                 return default(T);
             }
             var result = GetOrCreateDeserialize(incoming, typeof(T), newObject);
