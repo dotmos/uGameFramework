@@ -42,7 +42,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
         /*block:field*/
         /*name:scope*/
-        public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
+        public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
         /*endblock:field*/
         /*block:property*/
         /// <summary>
