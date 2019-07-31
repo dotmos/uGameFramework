@@ -709,8 +709,6 @@ namespace Service.Serializer {
             return fbManual;
         }
 
-        
-
         public static int? GetOrCreateSerialize(FlatBufferBuilder builder, object serializableObj)  {
             if (serializableObj == null ) {
                 return 0;

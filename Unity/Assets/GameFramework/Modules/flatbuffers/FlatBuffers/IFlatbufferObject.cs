@@ -200,30 +200,24 @@ namespace FlatBuffers
             }
             int listLength = GetListLength(fbPos);
             for (int i = 0; i < listLength; i = i + 2) {
-                var typeName = GetStringListElementAt(fbPos, i * 2);
+                var typeName = GetStringListElementAt(fbPos, i);
                 if (typeName == null) {
                     input.Add(default(T));
                     continue;
                 }
                 var type = Type.GetType(typeName);
-                var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i * 2+ 1);
+                var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i+1);
                 var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
                 input.Add((T)result);
             }
             return input;
         }
 
-        public T RetrieveOffset<T>(int fbPos) where T : IFBSerializable,new() {
-            int bufPos = GetFBRefPos(fbPos);
-            if (bufPos == 0) {
-                UnityEngine.Debug.LogError("You are not allowed to use RetrieveOffset<T> with from null-pos. check if HasOffset before");
-            }
-            if (FlatBufferSerializer.HasDeserializingFlag(bufPos)) {
-                return (T)FlatBufferSerializer.FindInDeserializeCache(bufPos);
-            } else {
-                return FlatBufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
-            }
+        public TResult GetObject<TResult, TSerialized>(int fbPos) where TResult : IFBSerializable, new() where TSerialized : IFlatbufferObject,new() {
+            var result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
+            return result;
         }
+
 
 
     }

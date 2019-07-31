@@ -575,7 +575,7 @@ namespace FlatBuffers
 
         public static int DUMMYREF = 2;
          
-        public void AddObjectReference(int o,int objRef, object obj) {
+        /*public void AddObjectReference(int o,int objRef, object obj) {
             if (objRef == -1) {
                 // the current object is already in serialization process, so set a dummy ref for now and replace it later
 
@@ -597,7 +597,7 @@ namespace FlatBuffers
                 // we already have a valid ref to the serilaized version of the obj 
                 AddOffset(11, objRef, 0);
             }
-        }       
+        }  */     
         
         /// <summary>
         /// Encode the string `s` in the buffer using UTF-8.
