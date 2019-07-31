@@ -213,7 +213,7 @@ namespace FlatBuffers
             return input;
         }
 
-        public TResult GetObject<TResult, TSerialized>(int fbPos) where TResult : IFBSerializable, new() where TSerialized : IFlatbufferObject,new() {
+        public TResult GetObject<TSerialized,TResult>(int fbPos) where TResult : IFBSerializable, new() where TSerialized : IFlatbufferObject,new() {
             var result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
             return result;
         }
