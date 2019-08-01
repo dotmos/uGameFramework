@@ -161,7 +161,7 @@ namespace FlatBuffers
             return result;
         }
 
-        public IList<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos) where TSerialized : struct,IFlatbufferObject where TResult:IFBSerializable, new() {
+        public IList<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos) where TSerialized : struct,IFlatbufferObject where TResult: new() {
             var bufPos = GetBufferPos(fbPos);
             var cachedResult = FlatBufferSerializer.FindInDeserializeCache(bufPos);
             if (cachedResult!=null) {
