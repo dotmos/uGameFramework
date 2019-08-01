@@ -709,6 +709,13 @@ namespace Service.Serializer {
             return fbManual;
         }
 
+        public static T CastSerialObject<T>(object incoming) where T : IFlatbufferObject, new() {
+            var fbObj = (IFlatbufferObject)incoming;
+            var t = new T();
+            t.__init(fbObj.BufferPosition, fbObj.ByteBuffer);
+            return t;
+        }
+
         public static int? GetOrCreateSerialize(FlatBufferBuilder builder, object serializableObj)  {
             if (serializableObj == null ) {
                 return 0;
