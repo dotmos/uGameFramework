@@ -46,19 +46,10 @@ namespace Service.Serializer {
 
         // objects that are serializing atm
         public static HashSet<object> serializingATM = new HashSet<object>();
-        public static List<Action> afterSerializationAction = new List<Action>();
         // objects are deserializing atm
         public static HashSet<int> deserializingATM = new HashSet<int>();
-        public static List<Action> afterDeserializationAction = new List<Action>();
 
         public static bool convertersActivated = false;
-
-        public static void AddAfterSerializationAction(Action act) {
-            afterSerializationAction.Add(act);
-        }
-        public static void AddAfterDeserializationAction(Action act) {
-            afterDeserializationAction.Add(act);
-        }
 
         /// <summary>
         /// Take a non IFlatbufferObject and try to create an offset via the registered converters
@@ -80,6 +71,12 @@ namespace Service.Serializer {
             }
         }
 
+        /// <summary>
+        /// Try to deserialize and IFlatbufferObject via converters only to the ResultType
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="resultType"></param>
+        /// <returns></returns>
         public static object ConvertToObject(object incoming,Type resultType) {
             if (!convertersActivated) {
                 ActivateConverters();
@@ -100,6 +97,11 @@ namespace Service.Serializer {
             }
         }
 
+        /// <summary>
+        /// Build-in Converters (Vector2,3,4,Quaternion)
+        /// Add own converters via:
+        /// FlatBufferSerializer.serializeObjConverters[typeof(...)] = (data,builder)=>{...}
+        /// </summary>
         public static void ActivateConverters() {
             // ------------------------- Vector2 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector2)] = (data,builder) => {
@@ -158,23 +160,22 @@ namespace Service.Serializer {
                 var quat = new UnityEngine.Quaternion(fbQuaternion.X, fbQuaternion.Y, fbQuaternion.Z, fbQuaternion.W);
                 return quat;
             };
-            // ------------------------- Material --------------------------------------
-            //serializeObjConverters[typeof(UnityEngine.Material)] = (data, builder) => {
-            //    var material = (UnityEngine.Material)data;
-            //    var fbMatName = builder.CreateString(material.name);
-
-            //    Serial.FBMaterial.StartFBMaterial(builder);
-            //    Serial.FBMaterial.AddMaterialName(builder, fbMatName);
-            //    return Serial.FBMaterial.EndFBMaterial(builder).Value;
-            //};
-            //deserializeObjConverters[typeof(UnityEngine.Quaternion)] = (incoming) => {
-            //    return null;
-            //};
         }
 
-        /*
-         var sIntDestcDict = FlatbufferSerializer.CreateDictionary<int,DestructionCosts,int, Offset<Serial.FBDestructionCosts>, Serial.DT_int_FBDestructionCosts>(builder, intDestcDict,  Serial.DT_int_FBDestructionCosts.CreateDT_int_FBDestructionCosts, Serial.FBTestComponent.CreateIntDestcDictVector);
-         */
+
+        /// <summary>
+        /// Serializes a dictionary 
+        /// </summary>
+        /// <typeparam name="TKey">Key of the initalDict</typeparam>
+        /// <typeparam name="TValue">ValueType of the initalDict</typeparam>
+        /// <typeparam name="FBKey">Flatbuffer-Keytype</typeparam>
+        /// <typeparam name="FBValue">Flatbuffer-ValueType</typeparam>
+        /// <typeparam name="S">Flatbuffer-Type in the (internal) result-list e.g. Serial.DT_int_int</typeparam>
+        /// <param name="builder">flatbuffer-builder</param>
+        /// <param name="dict">the dictionary</param>
+        /// <param name="fbCreateElement">flatbuffer-generated method to create an element</param>
+        /// <param name="fbCreateList">flatbuffer-generated method to create the whole list</param>
+        /// <returns></returns>
         public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,FBKey,FBValue,S>(FlatBuffers.FlatBufferBuilder builder
                                 , IDictionary<TKey, TValue> dict
                                 , Func<FlatBufferBuilder, FBKey,FBValue, Offset<S>> fbCreateElement
@@ -276,30 +277,9 @@ namespace Service.Serializer {
                 return result;
             }
             return null;
-            /*if(typeof(IFBSerializable).IsAssignableFrom(typeof(T))) {
-                for (int i = 0; i < list.Count; i++) {
-                    var listElemOffset = FlatbufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)list[i]);
-                    if (listElemOffset != null) {
-                        tempArray[i] = new FlatBuffers.Offset<S>((int)listElemOffset);
-                    }
-                }
-                var result = fbCreateList(builder, tempArray);
-                FlatbufferSerializer.obj2FSMapping[list] = result.Value;
-                return result;
-            }
-            return null;*/
-        
+        }
 
-    /*
-    var intIntList = new Offset<Serial.DT_int_int>[this.intIntDict.Count];
-    for (int i = 0; i < this.intIntDict.Count; i++) {
-        var elem = this.intIntDict.ElementAt(i);
-        intIntList[i] = Serial.DT_int_int.CreateDT_int_int(builder, elem.Key, elem.Value);
-    }
-    Serial.FBTestComponent.CreateIntIntDictVector(builder, intIntList);*/
-    }
-
-            public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,S>(FlatBuffers.FlatBufferBuilder builder
+        public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,S>(FlatBuffers.FlatBufferBuilder builder
                                         , Dictionary<TKey,TValue> dict
                                         , Func<FlatBufferBuilder, TKey, TValue, Offset<S>> fbCreateElement
                                         , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList
@@ -349,14 +329,13 @@ namespace Service.Serializer {
 
             return null;
         }
-        public static int CreateObjectReference(FlatBuffers.FlatBufferBuilder builder, object obj) {
-            if (!FlatBufferSerializer.HasSerializingFlag(obj)) {
-                var _innerTest = FlatBufferSerializer.GetOrCreateSerialize(builder, obj);
-                return _innerTest.Value;
-            }
-            return -1;
-        }
 
+
+        /// <summary>
+        /// Get typename including Assembly-Name
+        /// </summary>
+        /// <param name="elem"></param>
+        /// <returns></returns>
         public static String GetTypeName(object elem) {
             var type = elem.GetType();
             var assemblyName = type.Assembly.FullName;
@@ -365,7 +344,8 @@ namespace Service.Serializer {
         }
 
         /// <summary>
-        /// Create a list and store the objects types to make a deserialization of list with inherited type possible
+        /// Create a list and store the objects types to make a deserialization of list with inherited types possible
+        /// (e.g. List<ITask>...)
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="dataList"></param>
@@ -389,12 +369,25 @@ namespace Service.Serializer {
             return builder.EndVector();
         }
 
+        /// <summary>
+        /// Serialize manual byte-array
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static FlatBuffers.VectorOffset CreateManualArray(FlatBuffers.FlatBufferBuilder builder, byte[] data) {
             builder.StartVector(1, data.Length, 1);
             builder.Add<byte>(data);
             return builder.EndVector();
         }
 
+        /// <summary>
+        /// Serializes array  (supported types: bool,float,int,long,string,IFBSerializable-Objects)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static FlatBuffers.VectorOffset CreateManualArray<T>(FlatBuffers.FlatBufferBuilder builder, T[] data)  {
             if (data == null) {
                 return new VectorOffset(0);
@@ -438,7 +431,13 @@ namespace Service.Serializer {
         }
 
 
-
+        /// <summary>
+        /// Serializes a list (supported types: bool,float,int,long,string,IFBSerializable-Objects)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,IList<T> data) {
             if (data == null) {
                 return new VectorOffset(0);
@@ -478,6 +477,13 @@ namespace Service.Serializer {
             return result;
         }
 
+        /// <summary>
+        /// Creates a string list
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="list"></param>
+        /// <param name="fbCreateList"></param>
+        /// <returns></returns>
         public static FlatBuffers.VectorOffset? CreateStringList(FlatBuffers.FlatBufferBuilder builder
                                     , List<string> list, Func<FlatBufferBuilder, StringOffset[],VectorOffset> fbCreateList) {
             if (list == null) {
@@ -498,6 +504,14 @@ namespace Service.Serializer {
         }
 
 
+        /// <summary>
+        /// Create list with help of FB-generated methods (better use CreateManualList)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="builder"></param>
+        /// <param name="list"></param>
+        /// <param name="fbCreateList"></param>
+        /// <returns></returns>
         public static FlatBuffers.VectorOffset? CreateList<T>(FlatBuffers.FlatBufferBuilder builder
                                     , List<T> list, Func<FlatBufferBuilder, T[], VectorOffset> fbCreateList) {
             /*if (list == null || typeof(T).IsPrimitive) {
@@ -591,6 +605,7 @@ namespace Service.Serializer {
             return null;
         }
 
+
         public static void PutIntoDeserializeCache(int bufferpos,object obj,bool checkIfExists=true) {
             if (obj == null) {
                 UnityEngine.Debug.LogWarning("Tried to put null-object at pos:" + bufferpos);
@@ -615,7 +630,11 @@ namespace Service.Serializer {
             }
         }
 
-        public static void ProcessPostProcessing(object userobject) {
+        /// <summary>
+        /// Triggers to call all IFBPostDeserialzation-Object's OnPostDeserialization-Method that where just deserialized
+        /// </summary>
+        /// <param name="userobject"></param>
+        public static void ProcessPostProcessing(object userobject) { 
             var entityManager = Kernel.Instance.Resolve<ECS.IEntityManager>();
             // post-process objects that are marked via FlatbufferSerializer.AddPostProcessType(type)
             for (int i = 0; i < FlatBufferSerializer.postProcessObjects.Count; i++) {
@@ -686,6 +705,12 @@ namespace Service.Serializer {
             }
         }
 
+        /// <summary>
+        /// Serializes a string
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="serializableObj"></param>
+        /// <returns></returns>
         public static StringOffset? GetOrCreateSerialize(FlatBufferBuilder builder, string serializableObj) {
             if (serializableObj == null) {
                 return new StringOffset(0);
@@ -703,12 +728,23 @@ namespace Service.Serializer {
             return serializedString;
         }
 
+        /// <summary>
+        /// Creates a manual object with which you can access the table of the current IFlatbufferObject
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <returns></returns>
         public static FBManualObject GetManualObject(object incoming) {
             var fbManual = new FBManualObject();
             fbManual.__initFromRef((IFlatbufferObject)incoming);
             return fbManual;
         }
 
+        /// <summary>
+        /// Put another Serialization-Layer on top of the incoming's buffer
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="incoming">Must be IFlatbufferObject</param>
+        /// <returns></returns>
         public static T CastSerialObject<T>(object incoming) where T : IFlatbufferObject, new() {
             var fbObj = (IFlatbufferObject)incoming;
             var t = new T();
@@ -716,6 +752,14 @@ namespace Service.Serializer {
             return t;
         }
 
+        /// <summary>
+        /// Seríalize an object. If serializableObj is IFBSerializable using its Serialize-Method, otherwise it tries to
+        /// use provided converters to create a serialization (e.g. Vector3)
+        /// If the serialized object has already been serialized it will return the cached offset
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="serializableObj"></param>
+        /// <returns></returns>
         public static int? GetOrCreateSerialize(FlatBufferBuilder builder, object serializableObj)  {
             if (serializableObj == null ) {
                 return 0;
@@ -748,37 +792,37 @@ namespace Service.Serializer {
 
         }
 
-        public static bool HasDeserializingFlag(int bufferPos) {
+        private static bool HasDeserializingFlag(int bufferPos) {
             return deserializingATM.Contains(bufferPos);
         }
 
 
-        public static void SetDeserializingFlag(int bufferPos) {
+        private static void SetDeserializingFlag(int bufferPos) {
             if (deserializingATM.Contains(bufferPos)) {
                 UnityEngine.Debug.LogError("Try to set a bufferpos to deserialize that is already in! bPos:"+bufferPos);
             }
             deserializingATM.Add(bufferPos);
         }
 
-        public static void ClearDeserializingFlag(int bufferPos) {
+        private static void ClearDeserializingFlag(int bufferPos) {
             deserializingATM.Remove(bufferPos);
         }
 
-        public static void SetSerializingFlag(object serializeObj) {
+        private static void SetSerializingFlag(object serializeObj) {
             if (serializingATM.Contains(serializeObj)) {
                 UnityEngine.Debug.LogError("Try to set an object to serializeFlag that is already in! type:" + serializeObj.GetType());
             }
             serializingATM.Add(serializeObj);
         }
-        public static bool HasSerializingFlag(object obj) {
+        private static bool HasSerializingFlag(object obj) {
             return serializingATM.Contains(obj);
         }
 
-        public static void ClearSerializingFlag(object obj) {
+        private static void ClearSerializingFlag(object obj) {
             serializingATM.Remove(obj);
         }
 
-        public static void UpgradeObjectIfNeeded(object deserializedObject,object incomingData) {
+        private static void UpgradeObjectIfNeeded(object deserializedObject,object incomingData) {
             if (FlatBufferSerializer.DeserializationVersionMismatch
                 && deserializedObject is IFBUpgradeable) {
                 // the data we just deserialized has another version. Try to convert it to have valid data
@@ -786,6 +830,13 @@ namespace Service.Serializer {
             }
         }
 
+        /// <summary>
+        /// Deserializes a flatbufferobject to the type and (reuses newObject if provided)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="incoming"></param>
+        /// <param name="newObject"></param>
+        /// <returns></returns>
         public static T GetOrCreateDeserialize<T>(IFlatbufferObject incoming, IFBSerializable newObject = null) where T : new() {
             if (incoming == null || incoming.BufferPosition == 0) {
                 return default(T);
@@ -794,6 +845,13 @@ namespace Service.Serializer {
             return (T)result;
         }
 
+        /// <summary>
+        /// Deserializes a flatbufferobject to the type and (reuses newObject if provided)
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="type"></param>
+        /// <param name="newObject"></param>
+        /// <returns></returns>
         public static object GetOrCreateDeserialize(IFlatbufferObject incoming, Type type, IFBSerializable newObject = null) {
             if (incoming == null || incoming.BufferPosition==0) {
                 return null;
@@ -856,6 +914,12 @@ namespace Service.Serializer {
             return builder.EndTable();
         }
 
+        /// <summary>
+        /// Deserialize a typed object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="incoming"></param>
+        /// <returns></returns>
         public static T DeserializeTypedObject<T>(object incoming) {
             var manual = GetManualObject(incoming);
             var typeName = manual.GetString(0);
@@ -874,8 +938,6 @@ namespace Service.Serializer {
             serializeBufferposCheck.Clear();
             deserializingATM.Clear();
             serializingATM.Clear();
-            afterDeserializationAction.Clear();
-            afterSerializationAction.Clear();
             foreach (var objList in postProcessObjects) {
                 objList.Value.Clear();
             }
@@ -890,10 +952,6 @@ namespace Service.Serializer {
             fbBuilder = new FlatBufferBuilder(5000000);
 
             var rootResult = root.Serialize(fbBuilder);
-
-            foreach (var act in afterSerializationAction) {
-                act();
-            }
 
             fbBuilder.Finish(rootResult);
             // TODO: Check: Is this the whole buffer? Or is it even more?
@@ -920,9 +978,6 @@ namespace Service.Serializer {
                 dataRoot = new T();
             }
             dataRoot.Deserialize(fbByteBuffer);
-            foreach (var act in afterDeserializationAction) {
-                act();
-            }
             stopwatch.Stop();
             UnityEngine.Debug.Log("Deserialize final took:" + stopwatch.Elapsed.TotalMilliseconds / 1000.0f);
             return dataRoot;
