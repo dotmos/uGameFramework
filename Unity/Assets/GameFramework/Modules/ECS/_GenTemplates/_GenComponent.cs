@@ -111,6 +111,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper> testDict2 = new System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper>();
     public System.Collections.Generic.List<string> testStringList = new System.Collections.Generic.List<string>();
     public List<State> enumList = new List<State>();
+    public ObservableList<State> enumObsList = new ObservableList<State>();
     public StringOffset? nullableStringOffset = null;
 
     /*endblock:rip*/
@@ -176,6 +177,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*endblock:s_string*/
 /*block:s_nonprim*/        var /*name|fu,pre#s:name*/sTestUID/*endname*/ = new Offset<Serial./*name|pre#FB:type*/FBUID/*endname*/>((int)FlatBufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testUID/*endname*/)) ;
         /*endblock:s_nonprim*/
+/*block:s_nonprim_typed*/        var /*name|fu,pre#s:name*/sTestTypedObject/*endname*/ = new Offset<Serial.FBRef>((int)FlatBufferSerializer.SerializeTypedObject(builder,/*name:name*/testUID/*endname*/)) ;
+        /*endblock:s_nonprim_typed*/
         /*block:s_list_primitive*/        //var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateList(builder,/*name:name*/testListPrimitive/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListPrimitiveVector/*endname*/) ;
         var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatBufferSerializer.CreateManualList(builder,/*name:name*/testListPrimitive/*endname*/);
         /*endblock:s_list_primitive*/
@@ -216,6 +219,8 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
 /*endblock:d_default*/
 /*block:d_nonprim*/         if (input./*name|fu:name*/TestUID/*endname*/!=null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.GetOrCreateDeserialize</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
         /*endblock:d_nonprim*/
+/*block:d_nonprim_typed*/         if (input./*name|fu:name*/TestUID/*endname*/!=null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.DeserializeTypedObject</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
+        /*endblock:d_nonprim_typed*/
         /*block:d_prim_list*/ //        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
                                       /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/);
                               /*endblock:d_prim_list*/
@@ -228,6 +233,8 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
 /*endblock:d_nonprim_list*/
 /*block:d_enum_list*/            /*name:name*/enumList/*endname*/ = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/().Cast</*name:innertype*/State/*endname*/>().ToList();
 /*endblock:d_enum_list*/  
+/*block:d_enum_obs_list*/            /*name:name*/enumObsList/*endname*/ = new ObservableList</*name:innertype*/State/*endname*/>(input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/().Cast</*name:innertype*/State/*endname*/>().ToList());
+/*endblock:d_enum_obs_list*/  
 /*block:d_string_list*/     {
             /*name:name*/testStringList/*endname*/ = new System.Collections.Generic.List<string>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
             for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) /*name:name*/testStringList/*endname*/.Add(input./*name|fu:name*/TestStringList/*endname*/(i));

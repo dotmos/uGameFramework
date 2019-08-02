@@ -12,6 +12,7 @@ using static Service.Scripting.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
+using System.Linq;
 
 namespace Service.Scripting {
     public interface IScriptingService : IFBSerializable {

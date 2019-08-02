@@ -13,6 +13,7 @@ using static Service.LoggingService.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
+using System.Linq;
 
 namespace Service.LoggingService {
     public interface ILoggingService : IFBSerializable {

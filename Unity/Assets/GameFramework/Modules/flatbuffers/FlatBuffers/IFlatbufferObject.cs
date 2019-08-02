@@ -218,7 +218,10 @@ namespace FlatBuffers
             return result;
         }
 
-
+        public T GetTypedObject<T>(int fbPos) {
+            var fbRef = GetFBRef(fbPos);
+            return FlatBufferSerializer.DeserializeTypedObject<T>(fbRef);
+        }
 
     }
 }

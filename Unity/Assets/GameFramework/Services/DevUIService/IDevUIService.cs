@@ -14,6 +14,7 @@ using static Service.DevUIService.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
+using System.Linq;
 
 namespace Service.DevUIService {
     public interface IDevUIService : IFBSerializable {

@@ -13,6 +13,7 @@ using static Service.TimeService.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
+using System.Linq;
 
 namespace Service.TimeService {
     public interface ITimeService : IFBSerializable {

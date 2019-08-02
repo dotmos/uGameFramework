@@ -10,6 +10,7 @@ using static /*name:namespace*/Service.GeneratorPrototype/*endname*/.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
+using System.Linq;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable {

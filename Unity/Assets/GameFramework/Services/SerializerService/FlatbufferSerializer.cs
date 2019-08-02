@@ -838,6 +838,36 @@ namespace Service.Serializer {
 
         }
 
+        /// <summary>
+        /// Serialize an object accompanied with its c#-Type as (shared)string (every type is 'physically' only serialized once)
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static int SerializeTypedObject(FlatBufferBuilder builder,object obj) {
+            if (obj == null) return 0;
+
+            var typeName = GetTypeName(obj);
+            var offsetTypeName = builder.CreateSharedString(typeName);
+            var offsetData = FlatBufferSerializer.GetOrCreateSerialize(builder, obj);
+            builder.StartTable(2);
+            builder.AddOffset(0, offsetTypeName.Value, 0);
+            builder.AddOffset(1, offsetData.Value, 0);
+            return builder.EndTable();
+        }
+
+        public static T DeserializeTypedObject<T>(object incoming) {
+            var manual = GetManualObject(incoming);
+            var typeName = manual.GetString(0);
+            if (typeName == null) {
+                return default(T);
+            }
+            var type = Type.GetType(typeName);
+            var fbObj = manual.CreateSerialObject<Serial.FBRef>(1);
+            var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
+            return (T)result;
+        }
+
         public static void ClearCache() {
             obj2FSMapping.Clear();
             fb2objMapping.Clear();

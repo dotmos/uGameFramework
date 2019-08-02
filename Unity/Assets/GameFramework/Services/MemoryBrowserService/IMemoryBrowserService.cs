@@ -13,6 +13,7 @@ using static Service.MemoryBrowserService.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
+using System.Linq;
 
 namespace Service.MemoryBrowserService {
     public interface IMemoryBrowserService : IFBSerializable {

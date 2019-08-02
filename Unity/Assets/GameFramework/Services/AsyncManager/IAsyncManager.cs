@@ -10,6 +10,7 @@ using static Service.AsyncManager.Events;
 using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
+using System.Linq;
 
 namespace Service.AsyncManager {
     public interface IAsyncManager : IFBSerializable {

@@ -5,7 +5,7 @@ using ECS;
 using UniRx;
   
 namespace Service.DevUIService {
-	 
+	  
 	     
     public interface IDevUIService {
     	## "Get ReaciveDictionar of all views"  
