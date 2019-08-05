@@ -113,12 +113,13 @@ namespace Service.Serializer {
             };
             deserializeObjConverters[typeof(UnityEngine.Vector2)] = (incoming) => {
                 var fbVec2 = (Serial.FBVector2)incoming;
-                var vec2 = new UnityEngine.Vector3(fbVec2.X, fbVec2.Y);
+                var vec2 = new UnityEngine.Vector2(fbVec2.X, fbVec2.Y);
                 return vec2;
             };
             // ------------------------- Vector3 --------------------------------------
             serializeObjConverters[typeof(UnityEngine.Vector3)] = (data, builder) => {
                 var vec3 = (UnityEngine.Vector3)data;
+
                 Serial.FBVector3.StartFBVector3(builder);
                 Serial.FBVector3.AddX(builder, vec3.x);
                 Serial.FBVector3.AddY(builder, vec3.y);
@@ -218,6 +219,16 @@ namespace Service.Serializer {
                     if (typeof(TValue) == typeof(string)) {
                         valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Value);
                     } 
+                    else if (dictElem.Value is IList && dictElem.Value.GetType().IsGenericType) {
+                        var dictElemValueType = dictElem.Value.GetType();
+                        var listType = dictElemValueType.GetGenericTypeDefinition();
+                        valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder,(IList)dictElem.Value, listType);
+                    }
+                    else if (dictElem.Value is IObservableList) {
+                        var observableList = (IObservableList)dictElem.Value;
+                        var listType = observableList.GetListType();
+                        valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder, observableList.InnerIList, listType);
+                    }
                     else {
                         var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
                         valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
@@ -438,7 +449,17 @@ namespace Service.Serializer {
         /// <param name="builder"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder,IList<T> data) {
+        public static FlatBuffers.VectorOffset CreateManualList<T>(FlatBuffers.FlatBufferBuilder builder, IList<T> data) {
+            if (data is ObservableList<T>) {
+                var result = CreateManualList(builder, (IList)(((ObservableList<T>)data).InnerList), typeof(T));
+                return result;
+            } else {
+                var result = CreateManualList(builder, (IList)data, typeof(T));
+                return result;
+            }
+            
+        }
+        public static FlatBuffers.VectorOffset CreateManualList(FlatBuffers.FlatBufferBuilder builder,IList data,Type type) {
             if (data == null) {
                 return new VectorOffset(0);
             }
@@ -449,15 +470,15 @@ namespace Service.Serializer {
             }
 
             SetSerializingFlag(data);
-            if (typeof(T) == typeof(bool)) {
+            if (type == typeof(bool)) {
                 builder.StartVector(1, data.Count, 1); for (int i = data.Count - 1; i >= 0; i--) builder.AddBool((bool)(object)data[i]); 
-            } else if (typeof(T) == typeof(float)) {
+            } else if (type == typeof(float)) {
                 builder.StartVector(4, data.Count, 4); for (int i = data.Count - 1; i >= 0; i--) builder.AddFloat((float)(object)data[i]); 
-            } else if (typeof(T) == typeof(int) || typeof(T).IsEnum) {
+            } else if (type == typeof(int) || type.IsEnum) {
                 builder.StartVector(4, data.Count, 4); for (int i = data.Count - 1; i >= 0; i--) builder.AddInt((int)(object)data[i]); 
-            } else if (typeof(T) == typeof(long)) {
+            } else if (type == typeof(long)) {
                 builder.StartVector(8, data.Count, 8); for (int i = data.Count - 1; i >= 0; i--) builder.AddLong((long)(object)data[i]); 
-            } else if (typeof(T) == typeof(string)) {
+            } else if (type == typeof(string)) {
                 int amount = data.Count;
                 List<StringOffset> stOffsetList = new List<StringOffset>(amount);
                 for (int i = 0; i < amount; i++) stOffsetList.Add(builder.CreateString((string)(object)data[i]));
@@ -551,7 +572,7 @@ namespace Service.Serializer {
                 return null;
             }
 
-            var cachedResult = FindInDeserializeCache(bufferPos);
+            var cachedResult = FindInDeserializeCache<List<T>>(bufferPos);
             if (cachedResult != null) {
                 try {
                     return (List<T>)cachedResult;
@@ -578,6 +599,7 @@ namespace Service.Serializer {
             }
         }
 
+
         /*
          *         
         intDestcDict = new Dictionary<int, DestructionCosts>();
@@ -596,8 +618,8 @@ namespace Service.Serializer {
         /// <typeparam name="T"></typeparam>
         /// <param name="bufferpos"></param>
         /// <returns></returns>
-        public static object FindInDeserializeCache(int bufferpos)  {
-            if (bufferpos == 0) return null;
+        public static object FindInDeserializeCache<T>(int bufferpos)  {
+            if (bufferpos == 0 || typeof(T).IsValueType) return null;
 
             if (fb2objMapping.TryGetValue(bufferpos, out object value)) {
                 return value;
@@ -616,8 +638,8 @@ namespace Service.Serializer {
                 return;
             }
 
-            if (checkIfExists && FindInDeserializeCache(bufferpos)!=null) {
-                var beforeObj = FindInDeserializeCache(bufferpos);
+            if (checkIfExists && FindInDeserializeCache<object>(bufferpos)!=null) {
+                var beforeObj = FindInDeserializeCache<object>(bufferpos);
                 UnityEngine.Debug.LogError("WAAARNING: you are overwriting an existing object in deserialize-cache! before:" + beforeObj.GetType() + " new:" + obj.GetType());
             }
             fb2objMapping[bufferpos] = obj;
@@ -694,7 +716,7 @@ namespace Service.Serializer {
                 UnityEngine.Debug.LogError("Trying to use primitiveList deserializer on non primitive object:" + typeof(T));
             }
 
-            var result = FindInDeserializeCache(bufferPos);
+            var result = FindInDeserializeCache<List<T>>(bufferPos);
             if (result!=null) {
                 // we already deserialized this list give back the already created version to keep the reference
                 return (List<T>)result;
@@ -857,7 +879,7 @@ namespace Service.Serializer {
                 return null;
             }
             // first check if we already deserialize the object at this position
-            object result = FindInDeserializeCache(incoming.BufferPosition);
+            object result = type.IsValueType?null:FindInDeserializeCache<object>(incoming.BufferPosition);
             if (result != null) {
                 //UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
                 // yeah, we found it. no need to create a new object we got it already

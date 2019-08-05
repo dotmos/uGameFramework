@@ -242,7 +242,7 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
 /*endblock:d_string_list*/
 /*block:d_dict*/        
         {
-            object result = FlatBufferSerializer.FindInDeserializeCache(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
+            object result = FlatBufferSerializer.FindInDeserializeCache </*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>>(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
             if (result != null) {
                 /*name:name*/testDict/*endname*/ = (/*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>)result;
             } else {
@@ -251,7 +251,7 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
                     var e = input./*name|fu:name*/TestDictNonPrim/*endname*/(i);
                     if (e.HasValue) {
                         var elem = e.Value;
-
+                        manual.__initFromRef(elem);
                         /*block:nonprim_key*/
                         var key = FlatBufferSerializer.GetOrCreateDeserialize</*name:keyType*/SerializableHelper/*endname*/>((Serial./*name:fbKeyType*/FBComponent/*endname*/)elem.Key);
                         /*endblock:nonprim_key*/ 
@@ -259,14 +259,19 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
                         var value = FlatBufferSerializer.GetOrCreateDeserialize</*name:valueType*/SerializableHelper/*endname*/>((Serial./*name:fbValueType*/FBComponent/*endname*/)elem.Value);
                         /*endblock:nonprim_value*/ 
                         /*block:rip*/var elem2 = new Serial.DTEST_intlinst_intlist();/*endblock:rip*/
-                        /*block:list_key*/var /*name:valueName*/key2/*endname*/ = manual.GetPrimitiveList</*name:listType*/int/*endname*/>(/*name:elemName*/elem2/*endname*/.KeyBufferPosition);
+                        /*block:list_key*/var /*name:valueName*/key2/*endname*/ = manual.GetPrimitiveList</*name:listType*/int/*endname*/>(0);
                         /*endblock:list_key*/
-                        /*block:list_value*/var /*name:valueName*/value2/*endname*/ = manual.GetPrimitiveList</*name:listType*/int/*endname*/>(/*name:elemName*/elem2/*endname*/.ValueBufferPosition);
+                        /*block:list_value*/var /*name:valueName*/value2/*endname*/ = manual.GetPrimitiveList</*name:listType*/int/*endname*/>(1);
                         /*endblock:list_value*/
-                        /*block:nonprim_list_key*/var /*name:keyName*/key3/*endname*/ = manual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(/*name:elemName*/elem2/*endname*/.KeyBufferPosition);
+                        /*block:nonprim_list_key*/var /*name:keyName*/key3/*endname*/ = manual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0);
                         /*endblock:nonprim_list_key*/
-                        /*block:nonprim_list_value*/var /*name:valueName*/value3/*endname*/ = manual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(/*name:elemName*/elem2/*endname*/.ValueBufferPosition);
-                        /*endblock:nonprim_list_value*/ 
+                        /*block:nonprim_list_value*/        
+                        var /*name:valueName*/value3/*endname*/ = manual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1);
+                        /*endblock:nonprim_list_value*/
+                        /*block:nonprim_obs_list_key*/var /*name:keyName*/key4/*endname*/ = new ObservableList</*name:keyType*/SerializableHelper/*endname*/>((List</*name:keyType*/SerializableHelper/*endname*/>)manual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0));
+                        /*endblock:nonprim_obs_list_key*/
+                        /*block:nonprim_obs_list_value*/var /*name:valueName*/value4/*endname*/ = new ObservableList</*name:valueType*/SerializableHelper/*endname*/>((List</*name:valueType*/SerializableHelper/*endname*/>)manual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1));
+                        /*endblock:nonprim_obs_list_value*/
                         /*name:name*/
                         testDict2/*endname*/[(/*name:keyType*/SerializableHelper/*endname*/)/*name:thekey*/key/*endname*/] = (/*name:valueType*/SerializableHelper/*endname*/)/*name:thevalue*/value/*endname*/;
                     }

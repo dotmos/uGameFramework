@@ -162,7 +162,14 @@ public interface IObservableEnumeration {
     void ClearDirtyFlag();
 }
 
-public class ObservableList<T> : IList<T>, IObservableEnumeration {
+public interface IObservableList {
+    Type GetListType();
+    IList InnerIList {
+        get;
+    }
+}
+
+public class ObservableList<T> : IObservableList, IList<T>, IObservableEnumeration {
 
     private List<T> innerList = new List<T>();
     private bool isDirty = true;
@@ -198,6 +205,8 @@ public class ObservableList<T> : IList<T>, IObservableEnumeration {
     public int Count => ((IList<T>)innerList).Count;
 
     public bool IsReadOnly => ((IList<T>)innerList).IsReadOnly;
+
+    public IList InnerIList => (IList)innerList;
 
     public T this[int index] { get => ((IList<T>)innerList)[index]; set  { ((IList<T>)innerList)[index] = value; SetDirtyFlag(); } }
 
@@ -256,6 +265,11 @@ public class ObservableList<T> : IList<T>, IObservableEnumeration {
     IEnumerator IEnumerable.GetEnumerator() {
         return ((IList<T>)innerList).GetEnumerator();
     }
+
+    public Type GetListType() {
+        return typeof(T);
+    }
+
 }
 
 public class Utils {

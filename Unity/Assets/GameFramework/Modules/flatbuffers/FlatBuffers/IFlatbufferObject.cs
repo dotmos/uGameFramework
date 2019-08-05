@@ -96,7 +96,7 @@ namespace FlatBuffers
                 return null;
             }
 
-            object cacheResult = FlatBufferSerializer.FindInDeserializeCache(bufPos);
+            object cacheResult = FlatBufferSerializer.FindInDeserializeCache<string>(bufPos);
             if (cacheResult != null) {
                 return (List<string>)cacheResult;
             }
@@ -116,7 +116,7 @@ namespace FlatBuffers
                 return null;
             }
 
-            object cacheResult = FlatBufferSerializer.FindInDeserializeCache(bufPos);
+            object cacheResult = FlatBufferSerializer.FindInDeserializeCache<List<T>>(bufPos);
             if (cacheResult != null) {
                 return (List<T>)cacheResult;
             }
@@ -135,7 +135,7 @@ namespace FlatBuffers
                 return null;
             }
 
-            object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache(bufPos);
+            object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache<T[]>(bufPos);
             if (cacheResult != null) {
                 return (T[])cacheResult;
             }
@@ -163,7 +163,7 @@ namespace FlatBuffers
 
         public IList<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos) where TSerialized : struct,IFlatbufferObject where TResult: new() {
             var bufPos = GetBufferPos(fbPos);
-            var cachedResult = FlatBufferSerializer.FindInDeserializeCache(bufPos);
+            var cachedResult = FlatBufferSerializer.FindInDeserializeCache<TResult>(bufPos);
             if (cachedResult!=null) {
                 if (cachedResult.GetType() != typeof(TResult)) {
                     UnityEngine.Debug.LogError("Got cached value but the types are different! Cached:" + cachedResult.GetType() + " Expected:" + typeof(TResult));
@@ -171,11 +171,12 @@ namespace FlatBuffers
                 return (List<TResult>)cachedResult;
             }
             var listSize = GetListLength(fbPos);
-            var tempList = new System.Collections.Generic.List<object>(listSize); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
+            var tempList = new List<object>(listSize); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
             for (int i = 0; i < listSize; i++) tempList.Add(GetListElemAt<TSerialized>(fbPos,i));
             var result = FlatBufferSerializer.DeserializeList<TResult, TSerialized>(bufPos,  listSize, tempList);
             return result;
         }
+
 
         /// <summary>
         /// Check if there is an offset at this vtable-position
