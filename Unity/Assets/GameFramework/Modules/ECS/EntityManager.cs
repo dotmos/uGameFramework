@@ -378,7 +378,7 @@ namespace ECS {
         /// <param name="entity"></param>
         /// <returns></returns>
         public T GetComponent<T>(UID entity) where T : IComponent{
-            if (EntityExists(entity)) {
+            /*if (EntityExists(entity)) {
                 //TODO: This is slow. Rethink how entities are stored.
                 //IComponent c = _entities[entity].Find(o => o is T);
 
@@ -397,7 +397,30 @@ namespace ECS {
 
             //UnityEngine.Debug.LogError("Entity " + entity.ID + " does not exist!");
             //throw new Exception("Entity " + entity.ID + " does not exist!");
-            return default(T);
+            return default(T);*/
+            return (T)GetComponent(entity, typeof(T));
+        }
+
+        /// <summary>
+        /// Get component for this entity by type
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="componentType"></param>
+        /// <returns></returns>
+        public object GetComponent(UID entity,Type componentType) {
+            if (EntityExists(entity)) {
+                IComponent c = null;// 
+                foreach (IComponent comp in _entities[entity]) {
+                    if (comp.GetType()==componentType) {
+                        c = comp;
+                        break;
+                    }
+                }
+                if (c != null) {
+                    return c;
+                }
+            }
+            return null;
         }
 
         /// <summary>
