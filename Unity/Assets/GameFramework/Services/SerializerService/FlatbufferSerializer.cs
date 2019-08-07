@@ -349,6 +349,10 @@ namespace Service.Serializer {
         /// <returns></returns>
         public static String GetTypeName(object elem) {
             var type = elem.GetType();
+            return GetTypeName(type);
+        }
+
+        public static String GetTypeName(Type type) {
             var assemblyName = type.Assembly.FullName;
             var typeName = type.FullName + ", " + assemblyName.Substring(0, assemblyName.IndexOf(','));
             return typeName;
