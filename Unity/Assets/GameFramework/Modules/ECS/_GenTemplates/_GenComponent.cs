@@ -32,7 +32,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
     /*block:modelClass*/
     [System.Serializable]
-    public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
         /*block:field*/
             /// <summary>
             /// /*name:documentation*//*endname*/

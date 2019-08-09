@@ -179,7 +179,7 @@ namespace Service.DevUIService {
 
     
     [System.Serializable]
-    public partial class DataBrowserTopLevel {
+    public  class DataBrowserTopLevel {
         
         public string topLevelName ;
         
@@ -192,7 +192,7 @@ namespace Service.DevUIService {
 
     
     [System.Serializable]
-    public partial class HistoryElement {
+    public  class HistoryElement {
         
         public System.Collections.IList objectList ;
         
