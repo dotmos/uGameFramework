@@ -311,7 +311,7 @@ namespace FlatBuffers
 
             if(!ByteBuffer.IsSupportedType<T>())
             {
-                throw new ArgumentException("Cannot add this Type array to the builder");
+                throw new ArgumentException("Cannot add this Type array to the builder ("+typeof(T)+")");
             }
 
             int size = ByteBuffer.SizeOf<T>();
