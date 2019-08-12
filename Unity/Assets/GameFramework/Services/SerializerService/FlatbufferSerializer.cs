@@ -163,7 +163,11 @@ namespace Service.Serializer {
             };
         }
 
-
+        private static FlatBuffers.VectorOffset SerializeTempOffsetArray<S>(FlatBufferBuilder builder, FlatBuffers.Offset<S>[] tempArray) where S : struct, FlatBuffers.IFlatbufferObject {
+            builder.StartVector(4, tempArray.Length, 4); builder.Add(tempArray);
+            var result = builder.EndVector();
+            return result;
+        }
         /// <summary>
         /// Serializes a dictionary 
         /// </summary>
@@ -180,7 +184,7 @@ namespace Service.Serializer {
         public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,FBKey,FBValue,S>(FlatBuffers.FlatBufferBuilder builder
                                 , IDictionary<TKey, TValue> dict
                                 , Func<FlatBufferBuilder, FBKey,FBValue, Offset<S>> fbCreateElement
-                                , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList
+                                , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList=null
                                 )
                                 where S : struct, FlatBuffers.IFlatbufferObject where FBValue : struct {
             if (dict == null) {
@@ -205,7 +209,10 @@ namespace Service.Serializer {
                     var dictElem = dict.ElementAt(i);
                     tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), (FBValue)((object)dictElem.Value));
                 }
-                var result = fbCreateList(builder, tempArray);
+                var result = fbCreateList != null
+                                ? fbCreateList(builder, tempArray)
+                                : SerializeTempOffsetArray(builder, tempArray);
+
                 PutInSerializeCache(dict, result.Value);
                 ClearSerializingFlag(dict);
                 return result;
@@ -235,7 +242,10 @@ namespace Service.Serializer {
                     }
                     tempArray[i] = fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset);
                 }
-                var result = fbCreateList(builder, tempArray);
+                var result = fbCreateList != null
+                                ? fbCreateList(builder, tempArray)
+                                : SerializeTempOffsetArray(builder, tempArray);
+
                 PutInSerializeCache(dict, result.Value);
                 ClearSerializingFlag(dict);
                 return result;
@@ -254,7 +264,9 @@ namespace Service.Serializer {
 
                     tempArray[i] = fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value));
                 }
-                var result = fbCreateList(builder, tempArray);
+                var result = fbCreateList != null
+                                ? fbCreateList(builder, tempArray)
+                                : SerializeTempOffsetArray(builder, tempArray);
                 PutInSerializeCache(dict, result.Value);
                 ClearSerializingFlag(dict);
                 return result;
@@ -282,7 +294,9 @@ namespace Service.Serializer {
                     }
                     tempArray[i] = fbCreateElement(builder, offsetKey, valueElemOffset); 
                 }
-                var result = fbCreateList(builder, tempArray);
+                var result = fbCreateList != null
+                                ? fbCreateList(builder, tempArray)
+                                : SerializeTempOffsetArray(builder, tempArray);
                 PutInSerializeCache(dict, result.Value);
                 ClearSerializingFlag(dict);
                 return result;
