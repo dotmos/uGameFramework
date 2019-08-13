@@ -304,6 +304,29 @@ namespace ECS {
         }
 
         /// <summary>
+        /// Set the entities component for this type. A component of this type already added to this entity
+        /// will be removed beforehand
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public IComponent SetComponent(UID entity, IComponent component) {
+            if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
+                RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
+            }
+
+                //component.Entity.SetID(entity.ID);
+            component.Entity = entity;
+            SetupComponentID(component);
+            _entities[entity].Add(component);
+            _EntityModified(entity);
+            //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
+            return component;
+            
+   
+        }
+
+        /// <summary>
         /// Creates a shallow copy of the component
         /// </summary>
         /// <param name="componentToClone"></param>
