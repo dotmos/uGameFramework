@@ -42,5 +42,7 @@ namespace ECS {
         void EntitiesModified(List<UID> entity);
 
         int EntityCount();
+
+        void Clear();
     }
 }

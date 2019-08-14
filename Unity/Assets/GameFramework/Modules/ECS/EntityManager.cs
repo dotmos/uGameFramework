@@ -610,6 +610,10 @@ namespace ECS {
 
         public void Dispose() {
             dManager.Remove(this);
+            Clear();
+        }
+
+        public void Clear() {
             List<ISystem> systemsToRemove = new List<ISystem>(_systems);
             foreach(ISystem s in systemsToRemove) {
                 UnregisterSystem(s);
