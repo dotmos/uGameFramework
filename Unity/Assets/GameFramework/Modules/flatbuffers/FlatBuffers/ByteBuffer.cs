@@ -89,6 +89,7 @@ namespace FlatBuffers
 
         public override void GrowFront(int newSize)
         {
+            UnityEngine.Debug.Log("GrowFront:" + newSize);
             if ((Length & 0xC0000000) != 0)
                 throw new Exception(
                     "ByteBuffer: cannot grow buffer beyond 2 gigabytes.");

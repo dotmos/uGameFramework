@@ -51,6 +51,10 @@ namespace FlatBuffers
         // For CreateSharedString
         private Dictionary<string, StringOffset> _sharedStringMap = null;
 
+        private int cyclicID = -1000;
+        private Dictionary<int, object> cyclicObjMapping = new Dictionary<int, object>();
+        private List<Action> cyclicResolver = new List<Action>();
+
         /// <summary>
         /// Create a FlatBufferBuilder with a given initial size.
         /// </summary>
@@ -78,6 +82,27 @@ namespace FlatBuffers
         }
 
         /// <summary>
+        /// mark this reference to be cyclic and postpone writting the actual value till after serialization
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public int AddToCyclicResolver(Object obj) {
+            var id = --cyclicID;
+            cyclicObjMapping[id] = obj;
+            return id;
+        }
+
+        /// <summary>
+        ///Write out the right addresses to the cyclic references
+        /// </summary>
+        public void FlushCyclicResolver() {
+            int amount = cyclicResolver.Count;
+            for (int i = 0; i < amount; i++) {
+                cyclicResolver[i]();
+            }
+        }
+
+        /// <summary>
         /// Reset the FlatBufferBuilder by purging all data that it holds.
         /// </summary>
         public void Clear()
@@ -90,6 +115,9 @@ namespace FlatBuffers
             _objectStart = 0;
             _numVtables = 0;
             _vectorNumElems = 0;
+            cyclicResolver.Clear();
+            cyclicObjMapping.Clear();
+            cyclicID = -1000;
         }
 
 
@@ -354,15 +382,52 @@ namespace FlatBuffers
         /// Adds an offset, relative to where it will be written.
         /// </summary>
         /// <param name="off">The offset to add to the buffer.</param>
-        public int[] AddOffset(int off)
+        public int[] _AddOffset(int off)
         {
             Prep(sizeof(int), 0);  // Ensure alignment is already done.
             if (off > Offset)
                 throw new ArgumentException();
             int offBefore = Offset;
+            int beforeBBLen = _bb.Length;
+            int beforeBBspace = _space;
             off = Offset - off + sizeof(int);
             int addressWrittenTo = PutInt(off);
-            return new int[2] { offBefore, addressWrittenTo };
+            return new int[4] { offBefore, addressWrittenTo,beforeBBLen,beforeBBspace };
+        }
+
+        public int[] AddOffset(int offset) {
+            if (offset > 0) {
+                // default behaviour
+                return _AddOffset(offset);
+            } else {
+                if (cyclicObjMapping.TryGetValue(offset, out object objToSerialize)) {
+                    // cyclic reference. for now write some dummy offset(1895), get the position where this was written and write at this possition 
+                    // once we are done
+                    int offBefore = Offset;
+                    int beforeBBLen = _bb.Length;
+                    int[] result = _AddOffset(1895);
+                    // remove first stage mapping (-cyclicID) and replace with [addressToWriteTo]=obj
+                    cyclicObjMapping.Remove(offset);
+                    cyclicResolver.Add(() => {
+                        // now(!) get the cached offset
+                        var objOffset = Service.Serializer.FlatBufferSerializer.FindInSerializeCache(objToSerialize);
+                        if (objOffset.HasValue) {
+                            // calc diff to adjust the address
+                            int diff = _bb.Length - beforeBBLen;
+                            int addressToWriteOffsetTo = result[1] + diff;
+                            // calc relative offset
+                            var off = offBefore - objOffset.Value + sizeof(int);
+                            int i = _bb.GetInt(addressToWriteOffsetTo);
+                            _bb.PutInt(addressToWriteOffsetTo, off);
+                        }
+                    });
+                    return result;
+                } else {
+                    UnityEngine.Debug.LogError("Unknown cyclic reference:" + offset);
+                    return null;
+                }
+            }
+
         }
 
         /// @cond FLATBUFFERS_INTERNAL
@@ -570,6 +635,7 @@ namespace FlatBuffers
         /// <param name="x">The value to put into the buffer. If the value is equal to the default
         /// the value will be skipped.</param>
         /// <param name="d">The default value to compare the value against</param>
+        /// 
         public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); }  }
         public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
 

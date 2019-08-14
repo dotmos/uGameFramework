@@ -31,6 +31,7 @@ namespace Service.Serializer {
         public static Dictionary<Type, Func<object, FlatBufferBuilder, int>> serializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, int>>();
         public static Dictionary<Type, Func<object, object>> deserializeObjConverters = new Dictionary<Type, Func<object, object>>();
 
+
         private static int currentDataFormatVersion = 1;
         public static int CurrentDataFormatVersion { get => currentDataFormatVersion; set => currentDataFormatVersion = value; }
 
@@ -810,6 +811,13 @@ namespace Service.Serializer {
                 return bufferPos;
             }
 
+            if (HasSerializingFlag(serializableObj)) {
+                // this object is serializing atm and this seems to be a cyclic dependency.
+                // add this object to the cyclic resolver and let it the actual position been written after the 
+                // whole serialization-process did finish
+                return builder.AddToCyclicResolver(serializableObj);
+            }
+
             if (serializableObj is IFBSerializable) {
                 SetSerializingFlag(serializableObj);
                 // first time, so serialize it with flatbuffers
@@ -973,6 +981,7 @@ namespace Service.Serializer {
         }
 
         public static void ClearCache() {
+
             obj2FSMapping.Clear();
             fb2objMapping.Clear();
             serializeBufferposCheck.Clear();
@@ -992,7 +1001,7 @@ namespace Service.Serializer {
             fbBuilder = new FlatBufferBuilder(5000000);
 
             var rootResult = root.Serialize(fbBuilder);
-
+            fbBuilder.FlushCyclicResolver();
             fbBuilder.Finish(rootResult);
             // TODO: Check: Is this the whole buffer? Or is it even more?
             var buf = fbBuilder.DataBuffer.ToSizedArray();
@@ -1000,6 +1009,7 @@ namespace Service.Serializer {
             serializing = false;
             st.Stop();
             UnityEngine.Debug.Log("FINISHED SERIALIZATION inner:" + st.Elapsed.TotalMilliseconds / 1000.0f + "s");
+            fbBuilder.Clear();
             return buf;
         }
 
@@ -1022,5 +1032,7 @@ namespace Service.Serializer {
             UnityEngine.Debug.Log("Deserialize final took:" + stopwatch.Elapsed.TotalMilliseconds / 1000.0f);
             return dataRoot;
         }
+
+
     }
 }
