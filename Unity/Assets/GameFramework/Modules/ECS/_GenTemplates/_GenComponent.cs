@@ -17,7 +17,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
     }
 
-
     /*block:enum*/
     /// <summary>
     /*name:comment*//*endname*/
@@ -180,6 +179,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:serialization*/
     #region serialization
     public /*name:override*/override/*endname*/ int Serialize(FlatBuffers.FlatBufferBuilder builder) {
+        UnityEngine.Profiling.Profiler.BeginSample("/*name|pre#Serialize_:ComponentName*/GenTemplateComponent/*endname*/");
         PerfTest.StartWatch("/*name|pre#Serialize_:ComponentName*/GenTemplateComponent/*endname*/");
 /*block:inheritanceSer*/        var baseData = base.Serialize(builder);
 /*endblock:inheritanceSer*/
@@ -223,12 +223,14 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:inheritanceSer2*/        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/.AddBaseData(builder,new Offset<Serial./*name:basetype*/FBComponent/*endname*/>(baseData) );
 /*endblock:inheritanceSer2*/
         PerfTest.StopWatch("/*name|pre#Serialize_:ComponentName*/GenTemplateComponent/*endname*/");
+        UnityEngine.Profiling.Profiler.EndSample();
 
-return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#EndFB:ComponentName*/EndFBGenTemplateComponent/*endname*/(builder).Value;
+        return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#EndFB:ComponentName*/EndFBGenTemplateComponent/*endname*/(builder).Value;
     }
 
     public /*name:override*/override/*endname*/ void Deserialize(object data) {
         PerfTest.StartWatch("/*name|pre#Deserialize_:ComponentName*/GenTemplateComponent/*endname*/");
+        UnityEngine.Profiling.Profiler.BeginSample("/*name|pre#Deserialize_:ComponentName*/GenTemplateComponent/*endname*/");
 
         var input = (Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/)data;
 /*block:inheritance_deser*/        base.Deserialize(input.BaseData);
@@ -304,6 +306,7 @@ return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*n
         } 
 /*endblock:d_dict*/
         PerfTest.StopWatch("/*name|pre#Deserialize_:ComponentName*/GenTemplateComponent/*endname*/");
+        UnityEngine.Profiling.Profiler.EndSample();
 
     }
 

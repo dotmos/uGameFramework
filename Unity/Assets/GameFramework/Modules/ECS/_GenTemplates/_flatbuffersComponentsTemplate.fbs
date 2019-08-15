@@ -43,9 +43,14 @@ table FBEntity {
 	components : [FBIComponent];
 }
 
+
+table FBEntityListSegment{
+	entities:[FBEntity];
+}
+
 table FBEntityManager {
 	entityManagerName:string;
-	entities:[FBEntity];
+	entitySegments:[FBEntityListSegment];
 	baseData:FBRef;
 }
 
