@@ -16,6 +16,7 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -458,6 +459,27 @@ namespace FlatBuffers
             NotNested();
             StartVector(sizeof(int), offsets.Length, sizeof(int));
             for (int i = offsets.Length - 1; i >= 0; i--) AddOffset(offsets[i].Value);
+            return EndVector();
+        }
+
+        public VectorOffset CreateIntVector(IList<int> list,bool convertToByte=false) {
+            NotNested();
+
+            if (convertToByte) {
+                StartVector(sizeof(byte), list.Count, sizeof(byte));
+                for (int i = list.Count - 1; i >= 0; i--) AddByte((byte)list[i]);
+                return EndVector();
+            } else {
+                StartVector(sizeof(int), list.Count, sizeof(int));
+                for (int i = list.Count - 1; i >= 0; i--) AddInt(list[i]);
+                return EndVector();
+            }
+        }
+
+        public VectorOffset CreateOffsetVector(IList<int> list) {
+            NotNested();
+            StartVector(sizeof(int), list.Count, sizeof(int));
+            for (int i = list.Count - 1; i >= 0; i--) AddOffset(list[i]);
             return EndVector();
         }
 
