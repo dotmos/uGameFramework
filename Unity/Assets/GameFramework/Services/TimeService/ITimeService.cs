@@ -40,6 +40,10 @@ namespace Service.TimeService {
     
     [System.Serializable]
     public  class TimerElement {
+        Service.PerformanceTest.IPerformanceTestService _perfTest;
+        Service.PerformanceTest.IPerformanceTestService PerfTest {
+            get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
+        }
         
         public string info ;
         

@@ -31,7 +31,6 @@ namespace Service.Serializer {
         public static Dictionary<Type, Func<object, FlatBufferBuilder, int>> serializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, int>>();
         public static Dictionary<Type, Func<object, object>> deserializeObjConverters = new Dictionary<Type, Func<object, object>>();
 
-
         private static int currentDataFormatVersion = 1;
         public static int CurrentDataFormatVersion { get => currentDataFormatVersion; set => currentDataFormatVersion = value; }
 
@@ -51,6 +50,7 @@ namespace Service.Serializer {
         public static HashSet<int> deserializingATM = new HashSet<int>();
 
         public static bool convertersActivated = false;
+
 
         /// <summary>
         /// Take a non IFlatbufferObject and try to create an offset via the registered converters
@@ -992,13 +992,13 @@ namespace Service.Serializer {
             }
         }
 
-        public static byte[] SerializeToBytes(IFBSerializable root)  {
+        public static byte[] SerializeToBytes(IFBSerializable root,int initialBufferSize=5000000)  {
             var st = new System.Diagnostics.Stopwatch();
             st.Start();
 
             serializing = true;
             ClearCache();
-            fbBuilder = new FlatBufferBuilder(5000000);
+            fbBuilder = new FlatBufferBuilder(initialBufferSize);
 
             var rootResult = root.Serialize(fbBuilder);
             fbBuilder.FlushCyclicResolver();
