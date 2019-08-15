@@ -1,0 +1,18 @@
+## service start
+using System.Collections.Generic;
+using MoonSharp.Interpreter;
+        
+namespace Service.PerformanceTest {  
+    public interface IPerformanceTestService {  	
+        void StartWatch(string t);
+        void StopWatch(string t);
+        void PrintPerfTests();
+        void Clear();
+    }      
+}     
+## model
+ 
+
+## events 
+
+## service end
