@@ -383,30 +383,28 @@ namespace FlatBuffers
         /// Adds an offset, relative to where it will be written.
         /// </summary>
         /// <param name="off">The offset to add to the buffer.</param>
-        public int[] _AddOffset(int off)
+        public int _AddOffset(int off)
         {
             Prep(sizeof(int), 0);  // Ensure alignment is already done.
             if (off > Offset)
                 throw new ArgumentException();
-            int offBefore = Offset;
-            int beforeBBLen = _bb.Length;
-            int beforeBBspace = _space;
             off = Offset - off + sizeof(int);
             int addressWrittenTo = PutInt(off);
-            return new int[4] { offBefore, addressWrittenTo,beforeBBLen,beforeBBspace };
+            return addressWrittenTo;
+            //return new int[4] { offBefore, addressWrittenTo,beforeBBLen,beforeBBspace };
         }
 
-        public int[] AddOffset(int offset) {
+        public void AddOffset(int offset) {
             if (offset > 0) {
                 // default behaviour
-                return _AddOffset(offset);
+                _AddOffset(offset);
             } else {
                 if (cyclicObjMapping.TryGetValue(offset, out object objToSerialize)) {
                     // cyclic reference. for now write some dummy offset(1895), get the position where this was written and write at this possition 
                     // once we are done
                     int offBefore = Offset;
                     int beforeBBLen = _bb.Length;
-                    int[] result = _AddOffset(1895);
+                    int beforeAddress = _AddOffset(1895);
                     // remove first stage mapping (-cyclicID) and replace with [addressToWriteTo]=obj
                     cyclicObjMapping.Remove(offset);
                     cyclicResolver.Add(() => {
@@ -415,17 +413,15 @@ namespace FlatBuffers
                         if (objOffset.HasValue) {
                             // calc diff to adjust the address
                             int diff = _bb.Length - beforeBBLen;
-                            int addressToWriteOffsetTo = result[1] + diff;
+                            int addressToWriteOffsetTo = beforeAddress + diff;
                             // calc relative offset
                             var off = offBefore - objOffset.Value + sizeof(int);
                             int i = _bb.GetInt(addressToWriteOffsetTo);
                             _bb.PutInt(addressToWriteOffsetTo, off);
                         }
                     });
-                    return result;
                 } else {
                     UnityEngine.Debug.LogError("Unknown cyclic reference:" + offset);
-                    return null;
                 }
             }
 
@@ -659,7 +655,7 @@ namespace FlatBuffers
         /// <param name="d">The default value to compare the value against</param>
         /// 
         public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); }  }
-        public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
+        //public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
 
         public static int DUMMYREF = 2;
          
@@ -822,15 +818,16 @@ namespace FlatBuffers
                 // No match:
                 // Add the location of the current vtable to the list of
                 // vtables.
-                if (_numVtables == _vtables.Length)
-                {
-                    // Arrays.CopyOf(vtables num_vtables * 2);
-                    var newvtables = new int[ _numVtables * 2];
-                    Array.Copy(_vtables, newvtables, _vtables.Length);
+                //if (_numVtables == _vtables.Length)
+                //{
+                //    // Arrays.CopyOf(vtables num_vtables * 2);
+                //    var newvtables = new int[ _numVtables * 2];
+                //    Array.Copy(_vtables, newvtables, _vtables.Length);
 
-                    _vtables = newvtables;
-                };
-                _vtables[_numVtables++] = Offset;
+                //    _vtables = newvtables;
+                //};
+                //_vtables[_numVtables++] = Offset;
+
                 // Point table to current vtable.
                 _bb.PutInt(_bb.Length - vtableloc, Offset - vtableloc);
             }
