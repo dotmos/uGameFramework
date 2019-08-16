@@ -420,7 +420,7 @@ namespace Service.Serializer {
         /// <param name="builder"></param>
         /// <param name="dataList"></param>
         /// <returns></returns>
-        public static VectorOffset CreateTypedList<T>(FlatBufferBuilder builder, ICollection<T> dataList,bool ignoreCache=true) {
+        public static VectorOffset CreateTypedList<T>(FlatBufferBuilder builder, IList<T> dataList,bool ignoreCache=false) {
             UnityEngine.Profiling.Profiler.BeginSample("CreateTypedList");
             try {
                 if (dataList == null) {
@@ -1182,13 +1182,12 @@ namespace Service.Serializer {
         /// <param name="builder"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static int SerializeTypedObject(FlatBufferBuilder builder,object obj,bool ignoreCache=false) {
+        public static int SerializeTypedObject(FlatBufferBuilder builder,object obj) {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("SerializeTypedObject");
 
                 if (obj == null) return 0;
 
-                var cached = ignoreCache ? null : FindInSerializeCache(obj);
 
                 var typeName = GetTypeName(obj);
                 var offsetTypeName = builder.CreateSharedString(typeName);
@@ -1198,7 +1197,6 @@ namespace Service.Serializer {
                 builder.AddOffset(1, offsetData.Value, 0);
                 var result = builder.EndTable();
 
-                if (!ignoreCache) PutInSerializeCache(obj, result);
                 return result;
             }
             finally {
