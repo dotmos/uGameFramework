@@ -436,7 +436,9 @@ namespace Service.Serializer {
 
                 //                List<int> listOfOffsets = new List<int>(dataList.Count * 2);
                 List<int> listOfOffsets = poolListInt.GetList(dataList.Count * 2);
-                foreach (var elem in dataList) {
+                int amount = dataList.Count;
+                for (int i=0;i<amount;i++) {
+                    var elem = dataList[i];
                     if (elem == null) {
                         listOfOffsets.Add(0);
                         listOfOffsets.Add(0);
@@ -454,9 +456,10 @@ namespace Service.Serializer {
                 var result = builder.EndVector();
                 poolListInt.Release(listOfOffsets);
 
-                if (!ignoreCache) PutInSerializeCache(dataList, result.Value);
-
-                ClearSerializingFlag(dataList);
+                if (!ignoreCache) {
+                    PutInSerializeCache(dataList, result.Value);
+                    ClearSerializingFlag(dataList);
+                }
 
                 return result;
             }
