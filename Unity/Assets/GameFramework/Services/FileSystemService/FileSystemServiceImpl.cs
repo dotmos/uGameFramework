@@ -176,7 +176,11 @@ namespace Service.FileSystem {
         }
 
         public override List<string> GetFilesInAbsFolder(string absPath, string pattern = "*.*") {
-            return new List<string>(Directory.GetFiles(absPath, pattern, SearchOption.TopDirectoryOnly));
+            var result = new List<string>();
+            foreach (var path in Directory.GetFiles(absPath, pattern, SearchOption.TopDirectoryOnly)) {
+                result.Add(path.Replace('\\', '/'));
+            }
+            return result;
         }
 
         public override List<string> GetFilesInDomain(FSDomain domain, string innerDomainPath="",string filter = "*.*") {
