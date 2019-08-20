@@ -390,8 +390,8 @@ namespace ECS {
             RemoveComponent(component.Entity, component);
             _recycledComponentIds.Enqueue(component.ID.ID);
             component.Dispose();
-            component.ID = new UID(0);
-            component.Entity = new UID(0);
+            component.ID = UID.NULL;
+            component.Entity = UID.NULL;
         }
 
         /// <summary>
