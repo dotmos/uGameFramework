@@ -97,9 +97,16 @@ namespace FlatBuffers
         ///Write out the right addresses to the cyclic references
         /// </summary>
         public void FlushCyclicResolver() {
-            int amount = cyclicResolver.Count;
-            for (int i = 0; i < amount; i++) {
-                cyclicResolver[i]();
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("FlushCyclicResolver");
+
+                int amount = cyclicResolver.Count;
+                for (int i = 0; i < amount; i++) {
+                    cyclicResolver[i]();
+                }
+            }
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
         }
 

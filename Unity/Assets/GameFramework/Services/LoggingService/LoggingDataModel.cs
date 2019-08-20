@@ -105,27 +105,34 @@ namespace Service.LoggingService {
         }
 
         public bool Check(LogData log) {
-            if (regexDomain != null) {
-                var regexResult = regexDomain.Match(log.domain).Success;
-                if (regexResult == false) {
-                    // if we have a domain regex then it must match. if not the logdata is not valid
+            UnityEngine.Profiling.Profiler.BeginSample("CheckLogginData");
+            try {
+                if (regexDomain != null) {
+                    var regexResult = regexDomain.Match(log.domain).Success;
+                    if (regexResult == false) {
+                        // if we have a domain regex then it must match. if not the logdata is not valid
+                        return false;
+                    }
+                }
+
+                if (regexMessage != null) {
+                    var regexMessageResult = regexMessage.Match(log.message).Success;
+                    if (regexMessageResult == false) {
+                        // if we have a message regex then it must match. if not the logdata is not valid
+                        return false;
+                    }
+                }
+
+                if (typesExcluded.Contains(log.type)) {
                     return false;
                 }
-            }
 
-            if (regexMessage != null) {
-                var regexMessageResult = regexMessage.Match(log.message).Success;
-                if (regexMessageResult == false) {
-                    // if we have a message regex then it must match. if not the logdata is not valid
-                    return false;
-                }
-            }
+                return true;
 
-            if (typesExcluded.Contains(log.type)) {
-                return false;
             }
-
-            return true;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
 

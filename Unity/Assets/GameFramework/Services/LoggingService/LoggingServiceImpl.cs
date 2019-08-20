@@ -5,6 +5,7 @@ using MoonSharp.Interpreter;
 using Zenject;
 using UniRx;
 using UnityEngine;
+using System.Text;
 
 namespace Service.LoggingService {
 
@@ -18,6 +19,8 @@ namespace Service.LoggingService {
         private List<LogData> loggingData = new List<LogData>();
 
         private static List<String> preInitializeLogs = new List<string>();
+
+        private StringBuilder stb = new StringBuilder();
 
         //[RuntimeInitializeOnLoadMethod]
         //private static void OnUnityStart() {
@@ -68,22 +71,28 @@ namespace Service.LoggingService {
 
 		//docs come here
 		public override void AddLog(DebugType debugType,string message,string domain="") {
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("AddLog");
+                var newLog = new LogData() {
+                    domain = domain,
+                    message = message,
+                    type = debugType
+                };
+                // always add the new data on top
+                loggingData.Insert(0, newLog);
+
+                // check if this log applies to the current filter
+                if (CurrentFilter.Check(newLog)) {
+                    // add it to the reactive outputlog
+                    rxOutputData.Add(newLog);
+                }
+            }
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
             // TODO: remove this:
             // if (true) return;
 
-            var newLog = new LogData() {
-                domain = domain,
-                message = message,
-                type = debugType
-            };
-            // always add the new data on top
-            loggingData.Insert(0,newLog);
-
-            // check if this log applies to the current filter
-            if (CurrentFilter.Check(newLog)) {
-                // add it to the reactive outputlog
-                rxOutputData.Add(newLog);
-            }
         }
 
 		//docs come here
@@ -112,13 +121,20 @@ namespace Service.LoggingService {
         }
 
         void HandleNativeLog(string logString, string stackTrace, LogType type) {
-            string newString = "[" + type + "] : " + logString + "\n";
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("HandleNativeLog");
+                stb.Clear();
+                stb.Append("[").Append(type).Append("] : ").Append(logString).Append("\n");
 
-            if (type == LogType.Exception) {
-                newString += "\n" + stackTrace;
+                if (type == LogType.Exception) {
+                    stb.Append("\n").Append(stackTrace);
+                }
+
+                AddLog(DebugType.native, stb.ToString());
             }
-
-            AddLog(DebugType.native, newString);
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
         private void ApplyFilter() {

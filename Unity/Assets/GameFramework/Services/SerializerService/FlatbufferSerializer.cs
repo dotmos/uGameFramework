@@ -431,7 +431,7 @@ namespace Service.Serializer {
                 if (bufferPos.HasValue) {
                     return new VectorOffset(bufferPos.Value);
                 }
-                SetSerializingFlag(dataList);
+                if (!ignoreCache) SetSerializingFlag(dataList);
 
 
                 //                List<int> listOfOffsets = new List<int>(dataList.Count * 2);
@@ -572,7 +572,8 @@ namespace Service.Serializer {
             }
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("CreateNonPrimManualList");
-                SetSerializingFlag(data);
+
+                if (!ignoreCache) SetSerializingFlag(data);
                 int amount = data.Count;
                 // List<int> stOffsetList = new List<int>(amount);
                 List<int> stOffsetList = poolListInt.GetList(amount);
@@ -586,9 +587,10 @@ namespace Service.Serializer {
 
                 var result = builder.EndVector();
 
-                if (!ignoreCache) PutInSerializeCache(data, result.Value);
-
-                ClearSerializingFlag(data);
+                if (!ignoreCache) {
+                    PutInSerializeCache(data, result.Value);
+                    ClearSerializingFlag(data);
+                }
                 return result;
             }
             finally {
@@ -609,7 +611,7 @@ namespace Service.Serializer {
             }
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("CreateManualList");
-                SetSerializingFlag(data);
+                if (!ignoreCache) SetSerializingFlag(data);
                 if (type == typeof(bool)) {
                     builder.StartVector(1, data.Count, 1); for (int i = data.Count - 1; i >= 0; i--) builder.AddBool((bool)(object)data[i]);
                 } else if (type == typeof(float)) {
@@ -637,8 +639,10 @@ namespace Service.Serializer {
                     poolListInt.Release(stOffsetList);
                 }
                 var result = builder.EndVector();
-                if (!ignoreCache) PutInSerializeCache(data, result.Value);
-                ClearSerializingFlag(data);
+                if (!ignoreCache) {
+                    PutInSerializeCache(data, result.Value);
+                    ClearSerializingFlag(data);
+                }
                 return result;
             }
             finally {
@@ -702,13 +706,15 @@ namespace Service.Serializer {
             }
             UnityEngine.Profiling.Profiler.BeginSample("CreateList");
             try {
-                SetSerializingFlag(list);
+                if (!ignoreCache) SetSerializingFlag(list);
                 var tempArray = list.ToArray();
                 // call the createFunction with the array
                 var result = fbCreateList(builder, tempArray);
 
-                if (!ignoreCache) PutInSerializeCache(list, result.Value);
-                ClearSerializingFlag(list);
+                if (!ignoreCache) {
+                    PutInSerializeCache(list, result.Value);
+                    ClearSerializingFlag(list);
+                }
                 return result;
             }
             finally {
