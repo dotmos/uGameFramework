@@ -14,6 +14,7 @@ namespace Service.Serializer {
         }
 
         public static ListPool<int> poolListInt = new ListPool<int>(10,10);
+        public static ListPool<object> poolListObject = new ListPool<object>(10, 10);
         public static ArrayPool<int> poolArrayInt = new ArrayPool<int>();
 
         public static bool serializing = false;
@@ -732,7 +733,7 @@ namespace Service.Serializer {
         /// <param name="amount">The amount of elements this list contains</param>
         /// <param name="items">objects list with all objects to be converted into T-List</param>
         /// <returns></returns>
-        public static IList<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items,bool isObservableList=false) where S : IFlatbufferObject where T : new() {
+        public static ICollection<T> DeserializeList<T,S>(int bufferPos, int amount,List<object> items,ICollection<T> result=null,bool isObservableList=false) where S : IFlatbufferObject where T : new() {
             if (bufferPos == 0) {
                 return null;
             }
@@ -751,7 +752,9 @@ namespace Service.Serializer {
                     }
                 } else {
                     SetDeserializingFlag(bufferPos);
-                    var result = isObservableList ? new ObservableList<T>() : (IList<T>)new List<T>();
+                    if (result == null) {
+                        result = isObservableList ? new ObservableList<T>() : (IList<T>)new List<T>();
+                    }
                     PutIntoDeserializeCache(bufferPos, result);
                     for (int i = 0; i < amount; i++) {
                         var obj = items[i];
@@ -789,12 +792,19 @@ namespace Service.Serializer {
         /// <param name="bufferpos"></param>
         /// <returns></returns>
         public static object FindInDeserializeCache<T>(int bufferpos)  {
-            if (bufferpos == 0 || typeof(T).IsValueType) return null;
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("FindInDeserializeCache");
 
-            if (fb2objMapping.TryGetValue(bufferpos, out object value)) {
-                return value;
+                if (bufferpos == 0 || typeof(T).IsValueType) return null;
+
+                if (fb2objMapping.TryGetValue(bufferpos, out object value)) {
+                    return value;
+                }
+                return null;
             }
-            return null;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
 
@@ -833,17 +843,24 @@ namespace Service.Serializer {
         /// Triggers to call all IFBPostDeserialzation-Object's OnPostDeserialization-Method that where just deserialized
         /// </summary>
         /// <param name="userobject"></param>
-        public static void ProcessPostProcessing(object userobject) { 
-            var entityManager = Kernel.Instance.Resolve<ECS.IEntityManager>();
-            // post-process objects that are marked via FlatbufferSerializer.AddPostProcessType(type)
-            foreach (var postProcessObj in FlatBufferSerializer.postProcessObjects) {
-                var postProcessObjList = postProcessObj.Value;
-                for (int j = 0; j < postProcessObjList.Count; j++) {
-                    var elem = postProcessObjList[j];
-                    if (elem is IFBPostDeserialization) {
-                        ((IFBPostDeserialization)elem).OnPostDeserialization(entityManager,userobject);
+        public static void ProcessPostProcessing(object userobject) {
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("ProcessPostProcessing");
+
+                var entityManager = Kernel.Instance.Resolve<ECS.IEntityManager>();
+                // post-process objects that are marked via FlatbufferSerializer.AddPostProcessType(type)
+                foreach (var postProcessObj in FlatBufferSerializer.postProcessObjects) {
+                    var postProcessObjList = postProcessObj.Value;
+                    for (int j = 0; j < postProcessObjList.Count; j++) {
+                        var elem = postProcessObjList[j];
+                        if (elem is IFBPostDeserialization) {
+                            ((IFBPostDeserialization)elem).OnPostDeserialization(entityManager, userobject);
+                        }
                     }
                 }
+            }
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
         }
 

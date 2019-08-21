@@ -246,13 +246,15 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                                       /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListPrimitiveTableOffset/*endname*/,/*name:isObservable*/false/*endname*/);
                               /*endblock:d_prim_list*/
 /*block:d_nonprim_list_typed*/
-        if (input./*name|fu,post#TableOffset:name*/TestListUIDBufferPosition/*endname*/!=0) /*name:name*/testListUID/*endname*/ = manual.GetTypedList</*name:innertype*/UID/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListUIDTableOffset/*endname*/);
+        if (input./*name|fu,post#TableOffset:name*/TestListUIDBufferPosition/*endname*/!=0) /*name:name*/testListUID/*endname*/ =(List </*name:innertype*/UID/*endname*/>) manual.GetTypedList</*name:innertype*/UID/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListUIDTableOffset/*endname*/);
 /*endblock:d_nonprim_list_typed*/
 /*block:d_nonprim_list*/
         {
-            var tempList = new System.Collections.Generic.List<object>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
-            for (int i=0;i<input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) tempList.Add(input./*name|fu:name*/TestListUID/*endname*/(i));
-            /*name:name*/testListUID/*endname*/ = (/*name:type*/ System.Collections.Generic.List<UID>/*endname*/)FlatBufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList,/*name:isObservable*/false/*endname*/);
+            int size = input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/;
+            var tempList = FlatBufferSerializer.poolListObject.GetList(size); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
+            for (int i=0;i< size; i++) tempList.Add(input./*name|fu:name*/TestListUID/*endname*/(i));
+            /*name:name*/testListUID/*endname*/ = (/*name:type*/ System.Collections.Generic.List<UID>/*endname*/)FlatBufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList,null,/*name:isObservable*/false/*endname*/);
+            FlatBufferSerializer.poolListObject.Release(tempList);
         }
 /*endblock:d_nonprim_list*/
 /*block:d_enum_list*/            /*name:name*/enumList/*endname*/ = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/().Cast</*name:innertype*/State/*endname*/>().ToList();

@@ -57,23 +57,35 @@ namespace FlatBuffers
 
         public Serial.FBRef? GetFBRef(int fbPos) {  int o = __p.__offset(4 + fbPos * 2); return o != 0 ? (Serial.FBRef?)(new Serial.FBRef()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; }
         public T GetOrCreate<T>(int fbPos) where T:new() {
-            if (typeof(T) == typeof(UnityEngine.Vector2)) {
-                return GetOrCreate<T, Serial.FBVector2>(fbPos);
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("GetOrCreate");
+
+                if (typeof(T) == typeof(UnityEngine.Vector2)) {
+                    return GetOrCreate<T, Serial.FBVector2>(fbPos);
+                } else if (typeof(T) == typeof(UnityEngine.Vector3)) {
+                    return GetOrCreate<T, Serial.FBVector3>(fbPos);
+                } else if (typeof(T) == typeof(UnityEngine.Vector4)) {
+                    return GetOrCreate<T, Serial.FBVector4>(fbPos);
+                } else if (typeof(T) == typeof(UnityEngine.Quaternion)) {
+                    return GetOrCreate<T, Serial.FBQuaternion>(fbPos);
+                } else return FlatBufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
             }
-            else if (typeof(T) == typeof(UnityEngine.Vector3)) {
-                return GetOrCreate<T, Serial.FBVector3>(fbPos);
-            } else if (typeof(T) == typeof(UnityEngine.Vector4)) {
-                return GetOrCreate<T, Serial.FBVector4>(fbPos);
-            } else if (typeof(T) == typeof(UnityEngine.Quaternion)) {
-                return GetOrCreate<T, Serial.FBQuaternion>(fbPos);
-            } 
-            else return FlatBufferSerializer.GetOrCreateDeserialize<T>(GetFBRef(fbPos));
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
         public T CreateSerialObject<T>(int fbPos) where T: IFlatbufferObject, new() {
-            var t = new T();
-            t.__init(GetFBRefPos(fbPos), ByteBuffer);
-            return t;
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
+
+                var t = new T();
+                t.__init(GetFBRefPos(fbPos), ByteBuffer);
+                return t;
+            }
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
         public T GetOrCreate<T,S>(int fbPos) where T : new() where S : IFlatbufferObject,new() {
@@ -91,90 +103,127 @@ namespace FlatBuffers
 
 
         public List<string> GetStringList(int fbPos) {
-            int bufPos = GetBufferPos(fbPos);
-            if (bufPos == 0) {
-                return null;
-            }
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
 
-            object cacheResult = FlatBufferSerializer.FindInDeserializeCache<string>(bufPos);
-            if (cacheResult != null) {
-                return (List<string>)cacheResult;
+                int bufPos = GetBufferPos(fbPos);
+                if (bufPos == 0) {
+                    return null;
+                }
+
+                object cacheResult = FlatBufferSerializer.FindInDeserializeCache<string>(bufPos);
+                if (cacheResult != null) {
+                    return (List<string>)cacheResult;
+                }
+                int listLength = GetListLength(fbPos);
+                var newList = new List<string>(listLength);
+                for (int i = 0; i < listLength; i++) {
+                    newList.Add(GetStringListElementAt(fbPos, i));
+                }
+                FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+                return newList;
             }
-            int listLength = GetListLength(fbPos);
-            var newList = new List<string>(listLength);
-            for (int i = 0; i < listLength; i++) {
-                newList.Add(GetStringListElementAt(fbPos, i));
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
-            FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
-            return newList;
         }
 
         public IList<T> GetPrimitiveList<T>(int fbPos,bool isObservableList=false) where T: struct {
-            int bufPos = GetBufferPos(fbPos);
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
 
-            if (bufPos == 0) {
-                return null;
+                int bufPos = GetBufferPos(fbPos);
+
+                if (bufPos == 0) {
+                    return null;
+                }
+
+                object cacheResult = FlatBufferSerializer.FindInDeserializeCache<List<T>>(bufPos);
+                if (cacheResult != null) {
+                    return (List<T>)cacheResult;
+                }
+
+                // get the array, but don't write the result in the lookup-table, because we want to map the result to the list
+                T[] array = GetPrimitivesArray<T>(fbPos, true);
+                var newList = isObservableList ? (IList<T>)new ObservableList<T>(array) : (IList<T>)new List<T>(array);
+                FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+                return newList;
             }
-
-            object cacheResult = FlatBufferSerializer.FindInDeserializeCache<List<T>>(bufPos);
-            if (cacheResult != null) {
-                return (List<T>)cacheResult;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
-
-            // get the array, but don't write the result in the lookup-table, because we want to map the result to the list
-            T[] array = GetPrimitivesArray<T>(fbPos,true); 
-            var newList = isObservableList? (IList<T>)new ObservableList<T>(array) : (IList<T>)new List<T>(array);
-            FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
-            return newList;
         }
 
         public T[] GetPrimitivesArray<T>(int fbPos, bool ignoreLookup=false) where T : struct {
-            int bufPos = GetBufferPos(fbPos);
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
 
-            if (bufPos == 0) {
-                return null;
+                int bufPos = GetBufferPos(fbPos);
+
+                if (bufPos == 0) {
+                    return null;
+                }
+
+                object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache<T[]>(bufPos);
+                if (cacheResult != null) {
+                    return (T[])cacheResult;
+                }
+                if (typeof(T).IsEnum) {
+                    int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
+                    var result = tA.Cast<T>().ToArray();
+                    if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, result);
+                    return result;
+
+                } else {
+                    T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
+                    if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, tA);
+                    return tA;
+                }
             }
-
-            object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache<T[]>(bufPos);
-            if (cacheResult != null) {
-                return (T[])cacheResult;
-            }
-            if (typeof(T).IsEnum) {
-                int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
-                var result = tA.Cast<T>().ToArray();
-                if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, result);
-                return result;
-
-            } else {
-                T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
-                if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, tA);
-                return tA;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
         }
 
 
         public T? GetListElemAt<T>(int fbPos,int j) where T : struct,IFlatbufferObject {
-            int o = __p.__offset(4 + fbPos * 2);
-            if (o == 0) return null;
-            var result = new T();
-            result.__init(__p.__indirect(__p.__vector(o) + j * 4), __p.bb);
-            return result;
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
+
+                int o = __p.__offset(4 + fbPos * 2);
+                if (o == 0) return null;
+                var result = new T();
+                result.__init(__p.__indirect(__p.__vector(o) + j * 4), __p.bb);
+                return result;
+            }
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
-        public IList<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos) where TSerialized : struct,IFlatbufferObject where TResult: new() {
-            var bufPos = GetBufferPos(fbPos);
-            var cachedResult = FlatBufferSerializer.FindInDeserializeCache<TResult>(bufPos);
-            if (cachedResult!=null) {
-                if (cachedResult.GetType() != typeof(TResult)) {
-                    UnityEngine.Debug.LogError("Got cached value but the types are different! Cached:" + cachedResult.GetType() + " Expected:" + typeof(TResult));
+        public ICollection<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos,ICollection<TResult> result=null) where TSerialized : struct,IFlatbufferObject where TResult: new() {
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("GetNonPrimList");
+                var bufPos = GetBufferPos(fbPos);
+                var cachedResult = FlatBufferSerializer.FindInDeserializeCache<TResult>(bufPos);
+                if (cachedResult != null) {
+                    if (cachedResult.GetType() != typeof(TResult)) {
+                        UnityEngine.Debug.LogError("Got cached value but the types are different! Cached:" + cachedResult.GetType() + " Expected:" + typeof(TResult));
+                    }
+                    return (List<TResult>)cachedResult;
                 }
-                return (List<TResult>)cachedResult;
+                var listSize = GetListLength(fbPos);
+
+                var tempList = FlatBufferSerializer.poolListObject.GetList(listSize);
+                 // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
+                for (int i = 0; i < listSize; i++) tempList.Add(GetListElemAt<TSerialized>(fbPos, i));
+                result = FlatBufferSerializer.DeserializeList<TResult, TSerialized>(bufPos, listSize, tempList,result);
+                FlatBufferSerializer.poolListObject.Release(tempList);
+                return result;
             }
-            var listSize = GetListLength(fbPos);
-            var tempList = new List<object>(listSize); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
-            for (int i = 0; i < listSize; i++) tempList.Add(GetListElemAt<TSerialized>(fbPos,i));
-            var result = FlatBufferSerializer.DeserializeList<TResult, TSerialized>(bufPos,  listSize, tempList);
-            return result;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
 
@@ -195,33 +244,52 @@ namespace FlatBuffers
         /// <param name="fbPos"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public List<T> GetTypedList<T>(int fbPos,List<T> input=null)  {
-            if (input == null) {
-                input = new List<T>();
-            }
-            int listLength = GetListLength(fbPos);
-            for (int i = 0; i < listLength; i = i + 2) {
-                var typeName = GetStringListElementAt(fbPos, i);
-                if (typeName == null) {
-                    input.Add(default(T));
-                    continue;
+        public ICollection<T> GetTypedList<T>(int fbPos,ICollection<T> input=null)  {
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("GetTypedList-"+typeof(T));
+                if (input == null) {
+                    input = new List<T>();
                 }
-                var type = Type.GetType(typeName);
-                var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i+1);
-                var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
-                input.Add((T)result);
+                int listLength = GetListLength(fbPos);
+                for (int i = 0; i < listLength; i = i + 2) {
+                    var typeName = GetStringListElementAt(fbPos, i);
+                    if (typeName == null) {
+                        input.Add(default(T));
+                        continue;
+                    }
+                    var type = Type.GetType(typeName);
+                    var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i + 1);
+                    var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
+                    input.Add((T)result);
+                }
+                return input;
             }
-            return input;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
         public TResult GetObject<TSerialized,TResult>(int fbPos) where TResult : IFBSerializable, new() where TSerialized : IFlatbufferObject,new() {
-            var result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
-            return result;
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("GetObject");
+                var result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
+                return result;
+            }
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
         public T GetTypedObject<T>(int fbPos) {
-            var fbRef = GetFBRef(fbPos);
-            return FlatBufferSerializer.DeserializeTypedObject<T>(fbRef);
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("GetTypedObject");
+
+                var fbRef = GetFBRef(fbPos);
+                return FlatBufferSerializer.DeserializeTypedObject<T>(fbRef);
+            }
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
     }

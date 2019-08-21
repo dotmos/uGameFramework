@@ -512,7 +512,7 @@ public class ArrayPool<T> where T : struct {
     }
 }
 
-public class ListPool<T> where T : struct {
+public class ListPool<T>  {
     private List<List<T>> pool = new List<List<T>>();
 
     public ListPool(int initialAmount=0, int initialCapacity=0) {
