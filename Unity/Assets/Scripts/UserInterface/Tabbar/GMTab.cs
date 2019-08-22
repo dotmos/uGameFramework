@@ -19,6 +19,7 @@ namespace UserInterface
         public Color disabledColor;
 
         private GMTabbar myTabBar;
+        bool isBeingDestroyed;
 
         public bool InteractableStatus
         {
@@ -79,7 +80,9 @@ namespace UserInterface
         /// </summary>
         void ActivateContent(bool activate)
         {
-            if (content == null) return;
+            if (content == null || isBeingDestroyed) {
+                return;
+            }
 
             if (activate && isOn)
                 content.SetActive(true);
@@ -151,6 +154,10 @@ namespace UserInterface
             foreach (Graphic colorizeElement in colorizeElements) {
                 colorizeElement.color = color;
             }
+        }
+
+        protected override void OnDestroy() {
+            isBeingDestroyed = true;
         }
     }
 }
