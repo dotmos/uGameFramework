@@ -15,7 +15,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.FileSystem {
-    public interface IFileSystemService : IFBSerializable {
+    public interface IFileSystemService : IFBSerializable,RunOnMainThread {
 
 
 
@@ -97,10 +97,11 @@ namespace Service.FileSystem {
         /// Load file as bytes 
         /// <param name="pathToFile"></param>
         /// <param name="compressed"></param>
+        /// <param name="estimatedUncompressedSize"></param>
  /// </summary>
         
 
-					byte[] LoadFileAsBytes(string pathToFile,bool compressed=false);
+					byte[] LoadFileAsBytes(string pathToFile,bool compressed=false,int estimatedUncompressedSize=0);
 
 
 		/// <summary>
@@ -108,10 +109,11 @@ namespace Service.FileSystem {
         /// <param name="domain"></param>
         /// <param name="relativePathToFile"></param>
         /// <param name="compressed"></param>
+        /// <param name="estimatedUncompressedSize"></param>
  /// </summary>
         
 
-					byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false);
+					byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false,int estimatedUncompressedSize=0);
 
 
 		/// <summary>

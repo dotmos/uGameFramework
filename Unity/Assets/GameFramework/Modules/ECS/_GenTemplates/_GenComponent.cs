@@ -268,7 +268,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*endblock:d_string_list*/
 /*block:d_dict*/        
         {
-            object result = FlatBufferSerializer.FindInDeserializeCache </*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>>(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
+            //            object result = FlatBufferSerializer.FindInDeserializeCache</*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>>(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
+            object result = null;
             if (result != null) {
                 /*name:name*/testDict/*endname*/ = (/*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>)result;
             } else {
@@ -303,7 +304,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                         testDict2/*endname*/[(/*name:keyType*/SerializableHelper/*endname*/)/*name:thekey*/key/*endname*/] = (/*name:valueType*/SerializableHelper/*endname*/)/*name:thevalue*/value/*endname*/;
                     }
                 }
-                FlatBufferSerializer.PutIntoDeserializeCache(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/, /*name:name*/testDict/*endname*/);
+                //FlatBufferSerializer.PutIntoDeserializeCache(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/, /*name:name*/testDict/*endname*/);
             }
         } 
 /*endblock:d_dict*/

@@ -56,7 +56,7 @@ namespace Service.GameStateService
         /// </summary>
         public bool AllowedToTick {
             get;
-            private set;
+            set;
         }
 
         /// <summary>

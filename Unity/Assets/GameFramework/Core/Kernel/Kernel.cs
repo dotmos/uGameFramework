@@ -8,6 +8,33 @@ using System;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using ModestTree.Util;
+using System.Collections.Concurrent;
+
+/// <summary>
+/// Interface to implement if this object has actions to be executed on mainthread
+/// </summary>
+public interface RunOnMainThread {
+    /// <summary>
+    /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
+    /// </summary>
+    void _RunOnMainThreadLogic();
+    /// <summary>
+    /// Flag is already finished with execution
+    /// </summary>
+    /// <returns></returns>
+    bool IsRunOnMainFinished();
+    /// <summary>
+    /// Is this object already added to be executed on main-thread?
+    /// </summary>
+    /// <returns></returns>
+    bool IsRunOnMainRegistered();
+    Action RegisterRunOnMainThread(object ctx);
+    /// <summary>
+    /// reset state
+    /// </summary>
+    void ResetRunOnMainThread();
+}
+
 
 public partial class Kernel : SceneContext {
 
@@ -23,6 +50,21 @@ public partial class Kernel : SceneContext {
 
     public ReactivePriorityExecutionList rxStartup = new ReactivePriorityExecutionList();
     public ReactivePriorityExecutionList rxShutDown = new ReactivePriorityExecutionList();
+
+    /// <summary>
+    /// Flag if the mainThreadAction-queue should be processed. automatically set when actions are added to the queue
+    /// </summary>
+    private bool executeMainThreadActions = false;
+    /// <summary>
+    /// Concurrent queue to keep the actions that should be executed on the main-thread
+    /// </summary>
+    private ConcurrentQueue<Action> mainThreadActions = new ConcurrentQueue<Action>();
+
+    private float maxMsForMainThreadActions = 200;
+    /// <summary>
+    /// Stopwatch to make sure the main-thread-actions do not block the thread too much
+    /// </summary>
+    private System.Diagnostics.Stopwatch mainThreadWatch = new System.Diagnostics.Stopwatch();
 
     public static ReactiveProperty<Kernel> InstanceProperty = new ReactiveProperty<Kernel>();
     public static Kernel Instance {
@@ -54,6 +96,48 @@ public partial class Kernel : SceneContext {
     }
 
     /// <summary>
+    /// Add action special Action-Wrapper to main-thread that makes sure that
+    /// this action is not registered or executed,yet
+    /// </summary>
+    /// <param name="som"></param>
+    public void RegisterSerializeOnMainThread(object ctx,RunOnMainThread som) {
+        if (!som.IsRunOnMainFinished() && !som.IsRunOnMainRegistered()) {
+            AddMainThreadAction(som.RegisterRunOnMainThread(ctx));
+        }
+    }
+
+    private static int MAINTHREAD_ID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+
+    public bool IsMainThread() {
+        return System.Threading.Thread.CurrentThread.ManagedThreadId == MAINTHREAD_ID;
+    }
+
+    /// <summary>
+    /// Execute actions to be executed on the main-thread. Mainly added from another thread
+    /// </summary>
+    public void ExecuteMainThreadAction() {
+        mainThreadWatch.Restart();
+        while (!mainThreadActions.IsEmpty) {
+            if (mainThreadActions.TryDequeue(out Action act)) {
+                act();
+                if (mainThreadWatch.ElapsedMilliseconds > maxMsForMainThreadActions) {
+                    // stop because the actions exceeded its available time
+                    return;
+                }
+            } else {
+                Debug.LogError("Could not execute mainThreadAction");
+                break;
+            }
+        }
+        executeMainThreadActions = false;
+    }
+
+    public void AddMainThreadAction(Action act) {
+        executeMainThreadActions = true;
+        mainThreadActions.Enqueue(act);
+    }
+
+    /// <summary>
     /// Inject the specified injectable to Kernel Container, thus triggering DependencyInjection
     /// </summary>
     /// <param name="injectable">Injectable.</param>
@@ -80,7 +164,11 @@ public partial class Kernel : SceneContext {
         if(KernelReady) Tick(Time.deltaTime);
     }
 
-    protected virtual void Tick(float deltaTime) { }
+    protected virtual void Tick(float deltaTime) {
+        if (executeMainThreadActions) {
+            ExecuteMainThreadAction();
+        }
+    }
 
     protected virtual void Start(){
         //Resolve disposableManager

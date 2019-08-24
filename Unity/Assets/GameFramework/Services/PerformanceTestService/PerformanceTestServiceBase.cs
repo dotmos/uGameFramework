@@ -11,6 +11,7 @@ using FlatBuffers;
 using UniRx;
 using Zenject;
 using System;
+using System.Threading;
 
 namespace Service.PerformanceTest
 {
@@ -28,6 +29,10 @@ namespace Service.PerformanceTest
         protected ReactivePriorityExecutionList rxOnShutdown {
             get { return Kernel.Instance.rxShutDown; }
         }
+
+        protected bool mainThreadRegisteredForExecution = false;
+        protected bool mainThreadExecuted = false;
+        protected Semaphore mainThreadSemaphore = new Semaphore(0, 1);
 
         [Inject]
         void Initialize( 
@@ -140,6 +145,40 @@ namespace Service.PerformanceTest
         public virtual void Deserialize(ByteBuffer buf) {
             throw new NotImplementedException();
         }
+
+        public void WaitForWorkOnMainThreadFinished() {
+            if (!Kernel.Instance.IsMainThread()) {
+                mainThreadSemaphore.WaitOne();
+            } else {
+                UnityEngine.Debug.LogError("Waiting for mainthread on mainthread,...");
+            }
+        }
+
+        public void _RunOnMainThreadLogic() { mainThreadExecuted = true; mainThreadSemaphore.Release(); }
+        /// <summary>
+        /// Flag is already finished with execution. Override if you implement real logic
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool IsRunOnMainFinished() { return mainThreadExecuted; }
+        /// <summary>
+        /// Is this object already added to be executed on main-thread?
+        /// </summary>
+        /// <returns></returns>
+        public bool IsRunOnMainRegistered() { return mainThreadRegisteredForExecution; }
+        /// <summary>
+        /// Register the actions to the main thread here
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        public virtual Action RegisterRunOnMainThread(object ctx) { return _RunOnMainThreadLogic; }
+        /// <summary>
+        /// Reset values. Default sets values to prevent execution. Override to use this mechanism
+        /// </summary>
+        public virtual void ResetRunOnMainThread() {
+            mainThreadExecuted = true;
+            mainThreadRegisteredForExecution = true;
+        }
+
     }
 }
 ///////////////////////////////////////////////////////////////////////

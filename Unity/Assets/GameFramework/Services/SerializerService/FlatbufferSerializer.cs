@@ -4,9 +4,14 @@ using FlatBuffers;
 using System.Linq;
 using System.Collections;
 using System.Text;
+using System.Threading;
 
 namespace Service.Serializer {
     public class FlatBufferSerializer {
+
+        public enum Mode {
+            serializing, deserializing
+        }
 
         public class ObjMapping {
             public int objId;
@@ -737,9 +742,10 @@ namespace Service.Serializer {
             if (bufferPos == 0) {
                 return null;
             }
-            UnityEngine.Profiling.Profiler.BeginSample("DeserializeList");
+            UnityEngine.Profiling.Profiler.BeginSample("DeserializeList<T,S>");
             try {
-                var cachedResult = FindInDeserializeCache<List<T>>(bufferPos);
+                object cachedResult = null;
+                //var cachedResult = FindInDeserializeCache<List<T>>(bufferPos);
                 if (cachedResult != null) {
                     try {
                         return (List<T>)cachedResult;
@@ -753,9 +759,9 @@ namespace Service.Serializer {
                 } else {
                     SetDeserializingFlag(bufferPos);
                     if (result == null) {
-                        result = isObservableList ? new ObservableList<T>() : (IList<T>)new List<T>();
+                        result = isObservableList ? new ObservableList<T>(amount) : (IList<T>)new List<T>(amount);
                     }
-                    PutIntoDeserializeCache(bufferPos, result);
+                    //PutIntoDeserializeCache(bufferPos, result);
                     for (int i = 0; i < amount; i++) {
                         var obj = items[i];
                         if (obj != null) {
@@ -813,17 +819,20 @@ namespace Service.Serializer {
                 UnityEngine.Debug.LogWarning("Tried to put null-object at pos:" + bufferpos);
                 return;
             }
-
-            if (obj.GetType().IsValueType) {
+            if (obj is IFBDontCache || obj.GetType().IsValueType) {
                 return;
             }
+
             try {
+              //  stb.Clear();
+//                stb.Append("PutIntoDeserializeCache-").Append(obj.GetType().ToString());
                 UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
                 if (checkIfExists && FindInDeserializeCache<object>(bufferpos) != null) {
                     var beforeObj = FindInDeserializeCache<object>(bufferpos);
                     UnityEngine.Debug.LogError("WAAARNING: you are overwriting an existing object in deserialize-cache! before:" + beforeObj.GetType() + " new:" + obj.GetType());
                 }
                 fb2objMapping[bufferpos] = obj;
+                UnityEngine.Profiling.Profiler.BeginSample("IFBPostDeserialization");
                 if (obj is IFBPostDeserialization) {
                     if (postProcessObjects.TryGetValue(obj.GetType(), out List<object> objList)) {
                         objList.Add(obj);
@@ -831,6 +840,7 @@ namespace Service.Serializer {
                         postProcessObjects[obj.GetType()] = new List<object>() { obj };
                     }
                 }
+                UnityEngine.Profiling.Profiler.EndSample();
             }
             finally {
                 UnityEngine.Profiling.Profiler.EndSample();
@@ -878,7 +888,7 @@ namespace Service.Serializer {
         public static int putInDiscardValueTypes = 0;
 
         public static void PutInSerializeCache(object obj, int bufferpos, bool checkIfExists = true)  {
-            if (obj.GetType().IsValueType) {
+            if (obj.GetType().IsValueType || obj is IFBDontCache) {
                 putInDiscardValueTypes++;
                 return;
             }
@@ -915,7 +925,7 @@ namespace Service.Serializer {
         /// <returns></returns>
         public static List<T> DeserializeList<T>(int bufferPos, Func<T[]> getArray) {
             try {
-                UnityEngine.Profiling.Profiler.BeginSample("DeserializeList");
+                UnityEngine.Profiling.Profiler.BeginSample("DeserializeList<T>");
                 if (bufferPos == 0) {
                     return null;
                 }
@@ -924,13 +934,14 @@ namespace Service.Serializer {
                     UnityEngine.Debug.LogError("Trying to use primitiveList deserializer on non primitive object:" + typeof(T));
                 }
 
-                var result = FindInDeserializeCache<List<T>>(bufferPos);
+                // var result = FindInDeserializeCache<List<T>>(bufferPos);
+                object result = null;
                 if (result != null) {
                     // we already deserialized this list give back the already created version to keep the reference
                     return (List<T>)result;
                 } else {
                     List<T> newList = new List<T>(getArray());
-                    PutIntoDeserializeCache(bufferPos, newList);
+                    //PutIntoDeserializeCache(bufferPos, newList);
                     return newList;
                 }
             }
@@ -1078,7 +1089,7 @@ namespace Service.Serializer {
 
         private static void ClearDeserializingFlag(int bufferPos) {
             try {
-                UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
+                UnityEngine.Profiling.Profiler.BeginSample("ClearDeserializingFlag");
                 deserializingATM.Remove(bufferPos);
             }
             finally {
@@ -1168,12 +1179,17 @@ namespace Service.Serializer {
                 }
 
                 if (typeof(IFBSerializable).IsAssignableFrom(type)) {
+                    UnityEngine.Profiling.Profiler.BeginSample("IFBSerializable");
                     // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
                     SetDeserializingFlag(incoming.BufferPosition);
                     try {
+                        stb.Clear();
+                        stb.Append("ifb-deserialize-").Append(type.ToString());
                         newObject = newObject == null ? (IFBSerializable)Activator.CreateInstance(type) : newObject;
                         PutIntoDeserializeCache(incoming.BufferPosition, newObject);
+                        UnityEngine.Profiling.Profiler.BeginSample(stb.ToString());
                         newObject.Deserialize(incoming);
+                        UnityEngine.Profiling.Profiler.EndSample();
                         // upgrade the object if there was a version mismatch
                         UpgradeObjectIfNeeded(newObject, incoming);
 
@@ -1181,11 +1197,15 @@ namespace Service.Serializer {
                     }
                     finally {
                         ClearDeserializingFlag(incoming.BufferPosition);
+                        UnityEngine.Profiling.Profiler.EndSample();
                     }
                 } else {
                     try {
+                        UnityEngine.Profiling.Profiler.BeginSample("Convert");
                         SetDeserializingFlag(incoming.BufferPosition);
+                        UnityEngine.Profiling.Profiler.BeginSample("conv-deserialize");
                         var convResult = ConvertToObject(incoming, type);
+                        UnityEngine.Profiling.Profiler.EndSample();
                         if (convResult == null) {
                             UnityEngine.Debug.LogError("There is no deserializer for " + type);
                             return null;
@@ -1194,6 +1214,7 @@ namespace Service.Serializer {
                     }
                     finally {
                         ClearDeserializingFlag(incoming.BufferPosition);
+                        UnityEngine.Profiling.Profiler.EndSample();
                     }
                 }
             }

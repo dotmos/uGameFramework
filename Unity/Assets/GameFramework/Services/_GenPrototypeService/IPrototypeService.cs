@@ -13,7 +13,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
-    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable {
+    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable,RunOnMainThread {
 /*block:property*/
     /// <summary>
     /// /*name:documentation*//*endname*/
@@ -45,6 +45,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         Service.PerformanceTest.IPerformanceTestService PerfTest {
             get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
         }
+
         /*block:field*/
         /*name:scope*/
         public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
@@ -65,6 +66,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
         /*endblock:constructor*/
+
         /*name:classSerialization*/
         public void Deserialize(object incoming) {
             throw new System.NotImplementedException();
@@ -78,6 +80,9 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             throw new System.NotImplementedException();
         }
         /*endname*/
+        /// <summary>
+        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
+        /// </summary>
     }
 
     /*endblock:modelClass*/

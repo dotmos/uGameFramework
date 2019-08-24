@@ -15,7 +15,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.GameStateService {
-    public interface IGameStateService : IFBSerializable {
+    public interface IGameStateService : IFBSerializable,RunOnMainThread {
 
 
 
@@ -83,10 +83,15 @@ namespace Service.GameStateService {
         Service.PerformanceTest.IPerformanceTestService PerfTest {
             get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
         }
+
         
         
         
+
         
+        /// <summary>
+        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
+        /// </summary>
     }
 
     

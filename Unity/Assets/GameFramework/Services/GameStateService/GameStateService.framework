@@ -1,7 +1,7 @@
 ## service start 
 using System.Collections.Generic;
-using MoonSharp.Interpreter;
-    
+using MoonSharp.Interpreter;  
+     
 namespace Service.GameStateService {  
     public interface IGameStateService {  	
     	## "Register gamestate with its name. Optionally you can pass an overriden GameState-Classtype of your own"
@@ -16,8 +16,8 @@ namespace Service.GameStateService {
 		
 		## "Tick the current gamestate."
 		void Tick(float deltaTime, float unscaledDeltaTime);
-    }  
-}  
+    }         
+}     
 ## model
 
 public enum GSStatus {

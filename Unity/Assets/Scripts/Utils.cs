@@ -171,18 +171,22 @@ public interface IObservableList {
 
 public class ObservableList<T> : IObservableList, IList<T>, IObservableEnumeration {
 
-    private List<T> innerList = new List<T>();
+    private List<T> innerList;
     private bool isDirty = true;
 
-    public ObservableList(){}
+    public ObservableList() { innerList = new List<T>(); }
+    public ObservableList(int capacity) { innerList = new List<T>(capacity); }
     public ObservableList(ObservableList<T> list) {
+        innerList = new List<T>(list.Count);
         innerList.AddRange(list.innerList);
     }
     public ObservableList(List<T> list) {
+        innerList = new List<T>();
         innerList.AddRange(list);
     }
 
     public ObservableList(T[] t) {
+        innerList = new List<T>();
         innerList.AddRange(t);
     }
 
@@ -760,8 +764,7 @@ public static partial class UtilsExtensions
     public static void ShallowCopyFrom<T, S>(this Dictionary<T,S> dest, Dictionary<T, S> data) {
         int amount = data.Count;
 
-        for (int i = 0; i < amount; i++) {
-            var elem = data.ElementAt(i);
+        foreach (var elem in data) {
             dest[elem.Key] = elem.Value;
         }
     }
@@ -769,8 +772,7 @@ public static partial class UtilsExtensions
     public static void ShallowCopyFrom<T, S>(this ObservableDictionary<T,S> dest, ObservableDictionary<T, S> data) {
         int amount = data.Count;
 
-        for (int i = 0; i < amount; i++) {
-            var elem = data.ElementAt(i);
+        foreach (var elem in data) {
             dest[elem.Key] = elem.Value;
         }
     }
@@ -784,8 +786,8 @@ public static partial class UtilsExtensions
 
     public static void ShallowCopyFrom<T>(this HashSet<T> dest, HashSet<T> data) {
         int amount = data.Count;
-        for (int i = 0; i < amount; i++) {
-            dest.Add(data.ElementAt(i));
+        foreach (var elem in data) {
+            dest.Add(elem);
         }
     }
 

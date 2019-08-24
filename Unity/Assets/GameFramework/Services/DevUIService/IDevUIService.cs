@@ -17,7 +17,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.DevUIService {
-    public interface IDevUIService : IFBSerializable {
+    public interface IDevUIService : IFBSerializable,RunOnMainThread {
 
 
 
@@ -184,6 +184,7 @@ namespace Service.DevUIService {
         Service.PerformanceTest.IPerformanceTestService PerfTest {
             get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
         }
+
         
         public string topLevelName ;
         
@@ -191,7 +192,11 @@ namespace Service.DevUIService {
         
         
         
+
         
+        /// <summary>
+        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
+        /// </summary>
     }
 
     
@@ -201,6 +206,7 @@ namespace Service.DevUIService {
         Service.PerformanceTest.IPerformanceTestService PerfTest {
             get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
         }
+
         
         public System.Collections.IList objectList ;
         
@@ -208,7 +214,11 @@ namespace Service.DevUIService {
         
         
         
+
         
+        /// <summary>
+        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
+        /// </summary>
     }
 
     

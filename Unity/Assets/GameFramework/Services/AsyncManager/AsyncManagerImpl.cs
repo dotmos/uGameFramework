@@ -45,8 +45,6 @@ namespace Service.AsyncManager {
         /// </summary>
         private const int MAIN_THREAD_MAX_MS = 75;
 
-        private static int MAINTHREAD_ID = System.Threading.Thread.CurrentThread.ManagedThreadId;
-
         private class ConcurrentWorker {
             public ConcurrentQueue<AsyncAction> actions = new ConcurrentQueue<AsyncAction>();
         }
@@ -71,9 +69,7 @@ namespace Service.AsyncManager {
             workerWorkerThread = new ConcurrentWorker();
         }
 
-        public static bool IsMainThread() {
-            return System.Threading.Thread.CurrentThread.ManagedThreadId == MAINTHREAD_ID;
-        }
+
 
         /// <summary>
         /// Add an action and its callback

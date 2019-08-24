@@ -25,20 +25,43 @@ namespace Service.FileSystem {
         }
 
         public static byte[] Compress(byte[] data) {
-            MemoryStream output = new MemoryStream();
-            using (DeflateStream dstream = new DeflateStream(output, System.IO.Compression.CompressionLevel.Optimal)) {
-                dstream.Write(data, 0, data.Length);
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("Compress");
+                MemoryStream output = new MemoryStream();
+                using (DeflateStream dstream = new DeflateStream(output, System.IO.Compression.CompressionLevel.Optimal)) {
+                    dstream.Write(data, 0, data.Length);
+                }
+                return output.ToArray();
             }
-            return output.ToArray();
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
-        public static byte[] Decompress(byte[] data) {
-            MemoryStream input = new MemoryStream(data);
-            MemoryStream output = new MemoryStream();
-            using (DeflateStream dstream = new DeflateStream(input, CompressionMode.Decompress)) {
-                dstream.CopyTo(output);
+        public static byte[] Decompress(byte[] data,int estimatedSize=0) {
+            try {
+                UnityEngine.Profiling.Profiler.BeginSample("Decompress");
+
+                UnityEngine.Profiling.Profiler.BeginSample("MemoryStreamInput");
+                MemoryStream input = new MemoryStream(data);
+                UnityEngine.Profiling.Profiler.EndSample();
+                UnityEngine.Profiling.Profiler.BeginSample("MemoryStreamOutput");
+                MemoryStream output = new MemoryStream(estimatedSize);
+                UnityEngine.Profiling.Profiler.EndSample();
+                UnityEngine.Profiling.Profiler.BeginSample("dstream");
+                using (DeflateStream dstream = new DeflateStream(input, CompressionMode.Decompress)) {
+                    UnityEngine.Profiling.Profiler.EndSample();
+                    UnityEngine.Profiling.Profiler.BeginSample("copy");
+                    dstream.CopyTo(output);
+                    UnityEngine.Profiling.Profiler.EndSample();
+                }
+                UnityEngine.Profiling.Profiler.BeginSample("Decompress");
+                return output.ToArray();
             }
-            return output.ToArray();
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
+                UnityEngine.Profiling.Profiler.EndSample();
+            }
         }
 
         public override string GetPath(FSDomain domain,string relativePart="") {
@@ -84,20 +107,27 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
-            // TODO: Ensure Directory?
-            // TODO: Use the PC3-bulletproof writing version
             try {
-                if (compress) {
-                    File.WriteAllBytes(pathToFile, Compress(bytes));
-                } else {
-                    File.WriteAllBytes(pathToFile, bytes);
+                UnityEngine.Profiling.Profiler.BeginSample("WriteBytesToFile");
+
+                // TODO: Ensure Directory?
+                // TODO: Use the PC3-bulletproof writing version
+                try {
+                    if (compress) {
+                        File.WriteAllBytes(pathToFile, Compress(bytes));
+                    } else {
+                        File.WriteAllBytes(pathToFile, bytes);
+                    }
+                    return true;
                 }
-                return true;
+                catch (Exception e) {
+                    Debug.LogError("There was a problem using WriteBytesToFile with " + pathToFile + "=>DATA:\n" + bytes);
+                    Debug.LogException(e);
+                    return false;
+                }
             }
-            catch (Exception e) {
-                Debug.LogError("There was a problem using WriteBytesToFile with " + pathToFile + "=>DATA:\n" + bytes);
-                Debug.LogException(e);
-                return false;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
         }
 
@@ -118,22 +148,29 @@ namespace Service.FileSystem {
 
         }
 
-        public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile, bool compressed = false) {
-            return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed);
+        public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile, bool compressed = false, int estimatedUncompressedSize = 0) {
+            return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed,estimatedUncompressedSize);
         }
 
-        public override byte[] LoadFileAsBytes(string pathToFile, bool compressed = false) {
+        public override byte[] LoadFileAsBytes(string pathToFile, bool compressed = false, int estimatedUncompressedSize=0) {
             try {
-                var result = File.ReadAllBytes(pathToFile);
-                if (compressed) {
-                    result = Decompress(result);
+                UnityEngine.Profiling.Profiler.BeginSample("LoadFileAsBytes");
+
+                try {
+                    var result = File.ReadAllBytes(pathToFile);
+                    if (compressed) {
+                        result = Decompress(result,estimatedUncompressedSize);
+                    }
+                    return result;
                 }
-                return result;
+                catch (Exception e) {
+                    Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
+                    Debug.LogException(e);
+                    return null;
+                }
             }
-            catch (Exception e) {
-                Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
-                Debug.LogException(e);
-                return null;
+            finally {
+                UnityEngine.Profiling.Profiler.EndSample();
             }
         }
 

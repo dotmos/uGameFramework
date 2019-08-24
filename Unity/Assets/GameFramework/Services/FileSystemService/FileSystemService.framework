@@ -1,8 +1,8 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-        
-namespace Service.FileSystem {  
+         
+namespace Service.FileSystem {          
     public interface IFileSystemService {  	
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain,string realtivePart="");
@@ -16,12 +16,12 @@ namespace Service.FileSystem {
 		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string thedata); 
 		## "Load file as string"
 		string LoadFileAsString(string pathToFile,bool compressed=False);
-		## "Load file as string from domain"
+		## "Load file as string from domain"     
 		string LoadFileAsStringAtDomain(?FSDomain domain, string relativePathToFile);
 		## "Load file as bytes"
-		("byte[]") LoadFileAsBytes(string pathToFile,bool compressed=False);
+		("byte[]") LoadFileAsBytes(string pathToFile,bool compressed=False, int estimatedUncompressedSize=0);
 		## "Load file as string from domain"
-		("byte[]") LoadFileAsBytesAtDomain(?FSDomain domain, string relativePathToFile,bool compressed=False);
+		("byte[]") LoadFileAsBytesAtDomain(?FSDomain domain, string relativePathToFile,bool compressed=False, int estimatedUncompressedSize=0);
 		## "Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
 		List<string> GetFilesInAbsFolder(string absPath, string pattern="*.*");
 		## "Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"

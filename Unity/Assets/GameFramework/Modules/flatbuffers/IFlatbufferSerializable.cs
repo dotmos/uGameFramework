@@ -7,6 +7,8 @@ public interface IFBSerializable<T> where T : struct, FlatBuffers.IFlatbufferObj
 }
 */
 
+public interface IFBDontCache { }
+
 public interface IFBSerializable {
     int Serialize(FlatBuffers.FlatBufferBuilder builder);
     void Deserialize(object incoming); 

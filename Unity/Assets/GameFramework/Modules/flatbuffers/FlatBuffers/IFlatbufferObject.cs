@@ -111,7 +111,8 @@ namespace FlatBuffers
                     return null;
                 }
 
-                object cacheResult = FlatBufferSerializer.FindInDeserializeCache<string>(bufPos);
+                //object cacheResult = FlatBufferSerializer.FindInDeserializeCache<string>(bufPos);
+                object cacheResult = null;
                 if (cacheResult != null) {
                     return (List<string>)cacheResult;
                 }
@@ -120,7 +121,7 @@ namespace FlatBuffers
                 for (int i = 0; i < listLength; i++) {
                     newList.Add(GetStringListElementAt(fbPos, i));
                 }
-                FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+                //FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
                 return newList;
             }
             finally {
@@ -138,7 +139,8 @@ namespace FlatBuffers
                     return null;
                 }
 
-                object cacheResult = FlatBufferSerializer.FindInDeserializeCache<List<T>>(bufPos);
+                //object cacheResult = FlatBufferSerializer.FindInDeserializeCache<List<T>>(bufPos);
+                object cacheResult = null;
                 if (cacheResult != null) {
                     return (List<T>)cacheResult;
                 }
@@ -146,7 +148,7 @@ namespace FlatBuffers
                 // get the array, but don't write the result in the lookup-table, because we want to map the result to the list
                 T[] array = GetPrimitivesArray<T>(fbPos, true);
                 var newList = isObservableList ? (IList<T>)new ObservableList<T>(array) : (IList<T>)new List<T>(array);
-                FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
+                //FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
                 return newList;
             }
             finally {
@@ -164,19 +166,20 @@ namespace FlatBuffers
                     return null;
                 }
 
-                object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache<T[]>(bufPos);
+                //object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache<T[]>(bufPos);
+                object cacheResult = null;
                 if (cacheResult != null) {
                     return (T[])cacheResult;
                 }
                 if (typeof(T).IsEnum) {
                     int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
                     var result = tA.Cast<T>().ToArray();
-                    if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, result);
+                   // if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, result);
                     return result;
 
                 } else {
                     T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
-                    if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, tA);
+                   // if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, tA);
                     return tA;
                 }
             }
