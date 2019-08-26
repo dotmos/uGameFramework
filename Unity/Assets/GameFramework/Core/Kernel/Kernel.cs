@@ -47,6 +47,11 @@ public partial class Kernel : SceneContext {
 
     protected bool KernelReady { get; private set; }
 
+    /// <summary>
+    /// Flag to call(or not to call) the kernel's update-method
+    /// </summary>
+    public bool KernelCallUpdate { get; set; }
+
     public static bool applicationQuitting = false;
 
     public ReactivePriorityExecutionList rxStartup = new ReactivePriorityExecutionList();
@@ -166,13 +171,14 @@ public partial class Kernel : SceneContext {
     }
 
     protected virtual void Update() {
-        if(KernelReady) Tick(Time.deltaTime);
-    }
-
-    protected virtual void Tick(float deltaTime) {
         if (executeMainThreadActions) {
             ExecuteMainThreadAction();
         }
+
+        if (KernelReady && KernelCallUpdate) Tick(Time.deltaTime);
+    }
+
+    protected virtual void Tick(float deltaTime) {
     }
 
     protected virtual void Start(){
