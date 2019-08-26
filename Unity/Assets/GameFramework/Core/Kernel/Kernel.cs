@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using ModestTree.Util;
 using System.Collections.Concurrent;
+using Service.Serializer;
 
 /// <summary>
 /// Interface to implement if this object has actions to be executed on mainthread
@@ -133,8 +134,12 @@ public partial class Kernel : SceneContext {
     }
 
     public void AddMainThreadAction(Action act) {
-        executeMainThreadActions = true;
-        mainThreadActions.Enqueue(act);
+        if (FlatBufferSerializer.ThreadedExecution) {
+            executeMainThreadActions = true;
+            mainThreadActions.Enqueue(act);
+        } else {
+            act();
+        }
     }
 
     /// <summary>

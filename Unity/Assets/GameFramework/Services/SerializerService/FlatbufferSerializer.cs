@@ -47,6 +47,8 @@ namespace Service.Serializer {
         private static int currentDeserializingDataFormatVersion = 1;
         public static int CurrentDeserializingDataFormatVersion { get => currentDeserializingDataFormatVersion; set => currentDeserializingDataFormatVersion = value; }
 
+        public static bool ThreadedExecution { get; set; }
+
         /// <summary>
         /// Is the version of the serialized data different to the current one
         /// </summary>

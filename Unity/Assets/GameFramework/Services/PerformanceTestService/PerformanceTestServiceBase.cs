@@ -12,6 +12,7 @@ using UniRx;
 using Zenject;
 using System;
 using System.Threading;
+using Service.Serializer;
 
 namespace Service.PerformanceTest
 {
@@ -149,12 +150,17 @@ namespace Service.PerformanceTest
         public void WaitForWorkOnMainThreadFinished() {
             if (!Kernel.Instance.IsMainThread()) {
                 mainThreadSemaphore.WaitOne();
-            } else {
-                UnityEngine.Debug.LogError("Waiting for mainthread on mainthread,...");
+            } else if (FlatBufferSerializer.ThreadedExecution) {
+                UnityEngine.Debug.LogError("Waiting for mainthread on mainthread,...something went wrong");
             }
         }
 
-        public void _RunOnMainThreadLogic() { mainThreadExecuted = true; mainThreadSemaphore.Release(); }
+        public void _RunOnMainThreadLogic() {
+            mainThreadExecuted = true;
+            if (!Kernel.Instance.IsMainThread()) {
+                mainThreadSemaphore.Release();
+            }
+        }
         /// <summary>
         /// Flag is already finished with execution. Override if you implement real logic
         /// </summary>
