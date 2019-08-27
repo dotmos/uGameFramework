@@ -80,6 +80,25 @@ namespace Service.Scripting {
             if (userdata.Descriptor is StandardUserDataDescriptor) {
                 var dscr = (StandardUserDataDescriptor)userdata.Descriptor;
 
+                var methods = userdata.Object.GetType().GetMethods();
+                foreach(var m in methods) {
+                    var memberResult = m.Name;
+                    var methodparams = m.GetParameters();
+
+                    memberResult += "(";
+                    foreach (var param in methodparams) {
+                        if (memberResult[memberResult.Length - 1] != '(') {
+                            memberResult += ",";
+                        }
+                        memberResult += param.Name;
+                    }
+                    memberResult += ")";
+
+                    result.Add(memberResult);
+                }
+
+                /*
+                //NOTE: This code results in AmbiguousMatchException
                 foreach (var member in dscr.Members) {
                     var memberResult = member.Key;
 
@@ -88,7 +107,7 @@ namespace Service.Scripting {
                         var declaringType = (member.Value as OverloadedMethodMemberDescriptor).DeclaringType;
 
                         try {
-                            var m1 = declaringType.GetMethod(member.Key);
+                            var m1 = declaringType.GetMethod(member.Key); //NOTE: Will trigger AmbiguousMatchException if two functions of same name but with different parameters are found
                             //var m1 = declaringType.GetMethod(member.Key);
 
                             if (m1 == null) {
@@ -113,7 +132,9 @@ namespace Service.Scripting {
                     }
                     result.Add(memberResult);
                 }
-            } else {
+                */
+            }
+            else {
                 Debug.LogWarning("Proposal from Userdata cannot process UserData-Descriptor-Type:" + userdata.Descriptor.GetType().ToString());
             }
 
