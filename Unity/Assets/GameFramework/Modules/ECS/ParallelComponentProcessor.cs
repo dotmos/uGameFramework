@@ -145,17 +145,20 @@ namespace ECS {
                 
             }
         }
-
         public void Process(ICollection componentsToProcess, float deltaTime) {
+            Process(componentsToProcess.Count, deltaTime);
+        }
+
+        public void Process(int componentsToProcessCount, float deltaTime) {
             //Stop here if there are no components to process
-            if (componentsToProcess.Count == 0) return;
+            if (componentsToProcessCount == 0) return;
 
             //Make sure we are not using more threads than components
-            int workersToUse = Math.Min(ParallelSystemComponentsProcessorWorkers.workerCount, componentsToProcess.Count);
+            int workersToUse = Math.Min(ParallelSystemComponentsProcessorWorkers.workerCount, componentsToProcessCount);
 
             Interlocked.Exchange(ref ParallelSystemComponentsProcessorWorkers.workingCount, workersToUse);
 
-            int componentChunk = (int)Math.Floor((float)componentsToProcess.Count / (float)workersToUse);
+            int componentChunk = (int)Math.Floor((float)componentsToProcessCount / (float)workersToUse);
             for (int i = 0; i < workersToUse; ++i) {
                 int workerID = i;
 
@@ -167,7 +170,7 @@ namespace ECS {
                 }
                 //Work on last chunk. Last chunk has more elements than other chunks if (this.systemComponents.Count % this.maxThreads != 0)
                 else {
-                    endComponentIndex = componentsToProcess.Count - 1;
+                    endComponentIndex = componentsToProcessCount - 1;
                 }
                 
                 //Set process action data

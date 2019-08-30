@@ -143,11 +143,9 @@ namespace Service.TimeService
         }
 
         public void WaitForWorkOnMainThreadFinished() {
-            if (!Kernel.Instance.IsMainThread()) {
+            if (!Kernel.Instance.IsMainThread() && !mainThreadExecuted) {
                 mainThreadSemaphore.WaitOne();
-            } else if (FlatBufferSerializer.ThreadedExecution) {
-                UnityEngine.Debug.LogError("Waiting for mainthread on mainthread,...something went wrong");
-            }
+            } 
         }
 
         public void _RunOnMainThreadLogic() {
@@ -171,7 +169,7 @@ namespace Service.TimeService
         /// </summary>
         /// <param name="ctx"></param>
         /// <returns></returns>
-        public virtual Action RegisterRunOnMainThread(object ctx) { return _RunOnMainThreadLogic; }
+        public virtual Action RegisterRunOnMainThread(params object[] ctx) { return _RunOnMainThreadLogic; }
         /// <summary>
         /// Reset values. Default sets values to prevent execution. Override to use this mechanism
         /// </summary>

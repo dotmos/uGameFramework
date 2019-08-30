@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
          
-namespace Service.FileSystem {            
+namespace Service.FileSystem {             
     public interface IFileSystemService {  	
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain,string realtivePart="");

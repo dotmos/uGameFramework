@@ -29,7 +29,7 @@ public interface RunOnMainThread {
     /// </summary>
     /// <returns></returns>
     bool IsRunOnMainRegistered();
-    Action RegisterRunOnMainThread(object ctx);
+    Action RegisterRunOnMainThread(params object[] ctx);
     /// <summary>
     /// reset state
     /// </summary>
@@ -105,10 +105,10 @@ public partial class Kernel : SceneContext {
     /// Add action special Action-Wrapper to main-thread that makes sure that
     /// this action is not registered or executed,yet
     /// </summary>
-    /// <param name="som"></param>
-    public void RegisterSerializeOnMainThread(object ctx,RunOnMainThread som) {
-        if (!som.IsRunOnMainFinished() && !som.IsRunOnMainRegistered()) {
-            AddMainThreadAction(som.RegisterRunOnMainThread(ctx));
+    /// <param name="runOnMain"></param>
+    public void RegisterOnMainThread(RunOnMainThread runOnMain, params object[] ctx) {
+        if (!runOnMain.IsRunOnMainFinished() && !runOnMain.IsRunOnMainRegistered()) {
+            AddMainThreadAction(runOnMain.RegisterRunOnMainThread(ctx));
         }
     }
 

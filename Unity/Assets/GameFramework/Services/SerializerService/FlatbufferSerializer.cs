@@ -1172,35 +1172,28 @@ namespace Service.Serializer {
                 if (incoming == null || incoming.BufferPosition == 0) {
                     return null;
                 }
-                // first check if we already deserialize the object at this position
-                object result = type.IsValueType ? null : FindInDeserializeCache<object>(incoming.BufferPosition);
-                if (result != null) {
-                    //UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
-                    // yeah, we found it. no need to create a new object we got it already
-                    return result;
-                }
 
                 if (typeof(IFBSerializable).IsAssignableFrom(type)) {
-                    UnityEngine.Profiling.Profiler.BeginSample("IFBSerializable");
-                    // not deserialized, yet. Create a new object and call the deserialize method with the flatbuffers object
-                    SetDeserializingFlag(incoming.BufferPosition);
-                    try {
-                        stb.Clear();
-                        stb.Append("ifb-deserialize-").Append(type.ToString());
+                    // first check if we already deserialize the object at this position
+                    
+                    lock (fb2objMapping) {
+                        object result = type.IsValueType ? null : FindInDeserializeCache<object>(incoming.BufferPosition);
+                        if (result != null) {
+                            //UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
+                            // yeah, we found it. no need to create a new object we got it already
+                            return result;
+                        }
+
                         newObject = newObject == null ? (IFBSerializable)Activator.CreateInstance(type) : newObject;
                         PutIntoDeserializeCache(incoming.BufferPosition, newObject);
-                        UnityEngine.Profiling.Profiler.BeginSample(stb.ToString());
-                        newObject.Deserialize(incoming);
-                        UnityEngine.Profiling.Profiler.EndSample();
-                        // upgrade the object if there was a version mismatch
-                        UpgradeObjectIfNeeded(newObject, incoming);
+                    }
 
-                        return newObject;
-                    }
-                    finally {
-                        ClearDeserializingFlag(incoming.BufferPosition);
-                        UnityEngine.Profiling.Profiler.EndSample();
-                    }
+
+                    newObject.Deserialize(incoming);
+                    // upgrade the object if there was a version mismatch
+                    UpgradeObjectIfNeeded(newObject, incoming);
+
+                    return newObject;
                 } else {
                     try {
                         UnityEngine.Profiling.Profiler.BeginSample("Convert");
