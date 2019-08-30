@@ -11,12 +11,6 @@ using System.Linq;
                           /// </summary>
 [System.Serializable]
 public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS.Component {
-
-    Service.PerformanceTest.IPerformanceTestService _perfTest;
-    Service.PerformanceTest.IPerformanceTestService PerfTest {
-        get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
-    }
-
     /*block:enum*/
     /// <summary>
     /*name:comment*//*endname*/
@@ -39,10 +33,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*block:modelClass*/
     [System.Serializable]
     public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
-        Service.PerformanceTest.IPerformanceTestService _perfTest;
-        Service.PerformanceTest.IPerformanceTestService PerfTest {
-            get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
-        }
         /*block:field*/
         /// <summary>
         /// /*name:documentation*//*endname*/
@@ -179,8 +169,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:serialization*/
     #region serialization
     public /*name:override*/override/*endname*/ int Serialize(FlatBuffers.FlatBufferBuilder builder) {
-        UnityEngine.Profiling.Profiler.BeginSample("/*name|pre#Serialize_:ComponentName*/GenTemplateComponent/*endname*/");
-        PerfTest.StartWatch("/*name|pre#Serialize_:ComponentName*/GenTemplateComponent/*endname*/");
 /*block:inheritanceSer*/        var baseData = base.Serialize(builder);
 /*endblock:inheritanceSer*/
 /*block:s_enum*/        var /*name|fu,pre#s:name*/sState/*endname*/ = (int/*name:nullable*//*endname*/)/*name:name*/state/*endname*/;
@@ -222,15 +210,11 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*endblock:s2_list*/
 /*block:inheritanceSer2*/        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/.AddBaseData(builder,new Offset<Serial./*name:basetype*/FBComponent/*endname*/>(baseData) );
 /*endblock:inheritanceSer2*/
-        PerfTest.StopWatch("/*name|pre#Serialize_:ComponentName*/GenTemplateComponent/*endname*/");
-        UnityEngine.Profiling.Profiler.EndSample();
 
         return Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#EndFB:ComponentName*/EndFBGenTemplateComponent/*endname*/(builder).Value;
     }
 
     public /*name:override*/override/*endname*/ void Deserialize(object data) {
-        PerfTest.StartWatch("/*name|pre#Deserialize_:ComponentName*/GenTemplateComponent/*endname*/");
-        UnityEngine.Profiling.Profiler.BeginSample("/*name|pre#Deserialize_:ComponentName*/GenTemplateComponent/*endname*/");
 
         var input = (Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/)data;
 /*block:inheritance_deser*/        base.Deserialize(input.BaseData);
@@ -308,9 +292,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             }
         } 
 /*endblock:d_dict*/
-        PerfTest.StopWatch("/*name|pre#Deserialize_:ComponentName*/GenTemplateComponent/*endname*/");
-        UnityEngine.Profiling.Profiler.EndSample();
-
     }
 
     public /*name:override*/override/*endname*/ void Deserialize(FlatBuffers.ByteBuffer buf) {

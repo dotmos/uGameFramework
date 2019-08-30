@@ -480,39 +480,42 @@ public class ArrayPool<T> where T : struct {
     }
 
     public T[] GetArray(int capacity) {
-        if (pool.Count == 0) {
+        lock (pool) {
+            if (pool.Count == 0) {
+                return new T[capacity];
+            }
+            int amount = pool.Count;
+            int i = 0;
+            T[] theArray = null;
+            for (; i < amount; i++) {
+                theArray = pool[i];
+                int arrayLength = theArray.Length;
+                if (arrayLength == capacity) {
+                    pool.Remove(theArray);
+                    return theArray;
+                } else if (capacity < arrayLength) { // sorted list, no chance to find one with lower capactiy
+                    break;
+                }
+            }
             return new T[capacity];
         }
-        int amount = pool.Count;
-        int i = 0;
-        T[] theArray = null;
-        for (; i < amount; i++) {
-            theArray = pool[i];
-            int arrayLength = theArray.Length;
-            if (arrayLength == capacity) {
-                pool.Remove(theArray);
-                return theArray;
-            }
-            else if (capacity < arrayLength ) { // sorted list, no chance to find one with lower capactiy
-                break;
-            }
-        }
-        return new T[capacity];
     }
 
     public void Release(params T[][] releasedArray) {
-        for (int i = releasedArray.Length - 1; i >= 0; i--) {
-            if (releasedArray[i] == null) {
-                int a = 0;
+        lock (pool) {
+            for (int i = releasedArray.Length - 1; i >= 0; i--) {
+                if (releasedArray[i] == null) {
+                    int a = 0;
+                }
+                pool.Add(releasedArray[i]);
             }
-            pool.Add(releasedArray[i]);
+            pool.Sort((x, y) => {
+                if (x == null || y == null) {
+                    int b = 0;
+                }
+                return x.Length < y.Length ? -1 : 1;
+            });
         }
-        pool.Sort((x, y) => {
-            if (x==null || y == null) {
-                int b = 0;
-            }
-
-            return x.Length < y.Length ? -1 : 1; });
     }
 }
 
@@ -527,31 +530,35 @@ public class ListPool<T>  {
     }
 
     public List<T> GetList(int capacity) {
-        if (pool.Count == 0) {
-            return new List<T>(capacity);
+        lock (pool) {
+            if (pool.Count == 0) {
+                return new List<T>(capacity);
+            }
+            int amount = pool.Count;
+            int i = 0;
+            List<T> theList = null;
+            for (; i < amount; i++) {
+                theList = pool[i];
+                if (theList.Capacity > capacity) {
+                    pool.Remove(theList);
+                    return theList;
+                }
+            }
+            pool.Remove(theList);
+            return theList;
         }
-        int amount = pool.Count;
-        int i = 0;
-        List<T> theList = null;
-        for (; i < amount; i++) {
-            theList = pool[i];
-            if (theList.Capacity > capacity) {
-                pool.Remove(theList);
-                return theList;
-            } 
-        }
-        pool.Remove(theList);
-        return theList;
     }
 
     public void Release(params List<T>[] releasedList) {
-        for (int i = releasedList.Length - 1; i >= 0; i--) {
-            var list = releasedList[i];
-            list.Clear();
-            pool.Add(list);
+        lock (pool) {
+            for (int i = releasedList.Length - 1; i >= 0; i--) {
+                var list = releasedList[i];
+                list.Clear();
+                pool.Add(list);
+            }
+
+            pool.Sort((x, y) => x.Capacity < y.Capacity ? 1 : -1);
         }
-        
-        pool.Sort((x, y) => x.Capacity < y.Capacity?1:-1);
     }
 }
 

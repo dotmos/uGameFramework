@@ -188,7 +188,11 @@ namespace Service.LoggingService
         public virtual void ResetRunOnMainThread() {
             mainThreadExecuted = true;
             mainThreadRegisteredForExecution = true;
+            mainThreadSemaphore.Dispose();
+            mainThreadSemaphore = new Semaphore(0, 1);
         }
+
+
 
     }
 }

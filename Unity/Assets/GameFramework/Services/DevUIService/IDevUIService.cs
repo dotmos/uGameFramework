@@ -180,11 +180,6 @@ namespace Service.DevUIService {
     
     [System.Serializable]
     public  class DataBrowserTopLevel {
-        Service.PerformanceTest.IPerformanceTestService _perfTest;
-        Service.PerformanceTest.IPerformanceTestService PerfTest {
-            get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
-        }
-
         
         public string topLevelName ;
         
@@ -202,11 +197,6 @@ namespace Service.DevUIService {
     
     [System.Serializable]
     public  class HistoryElement {
-        Service.PerformanceTest.IPerformanceTestService _perfTest;
-        Service.PerformanceTest.IPerformanceTestService PerfTest {
-            get { if (_perfTest == null) { _perfTest = Kernel.Instance.Resolve<Service.PerformanceTest.IPerformanceTestService>(); } return _perfTest; }
-        }
-
         
         public System.Collections.IList objectList ;
         

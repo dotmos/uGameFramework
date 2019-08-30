@@ -181,6 +181,20 @@ namespace ECS {
         }
 
         /// <summary>
+        /// Creates a new entity
+        /// </summary>
+        /// <returns></returns>
+        protected UID ThreadSafeCreateEntity(int id) {
+            UID uid = new UID(id);
+            //UnityEngine.Debug.Log(uid.ID);
+            lock (_entities) {
+                _entities.Add(uid, new HashSet<IComponent>());
+                _entityIDs.Add(uid.ID);
+            }
+            return uid;
+        }
+
+        /// <summary>
         /// Destroys the entity
         /// </summary>
         /// <param name="entityID"></param>

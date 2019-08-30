@@ -84,6 +84,13 @@ namespace Service.Serializer {
             }
         }
 
+        public static void Initialize() {
+            if (!convertersActivated) {
+                ActivateConverters();
+                convertersActivated = true;
+            }
+        }
+
         /// <summary>
         /// Try to deserialize and IFlatbufferObject via converters only to the ResultType
         /// </summary>
@@ -91,11 +98,6 @@ namespace Service.Serializer {
         /// <param name="resultType"></param>
         /// <returns></returns>
         public static object ConvertToObject(object incoming,Type resultType) {
-            if (!convertersActivated) {
-                ActivateConverters();
-                convertersActivated = true;
-            }
-
             if (resultType == null) {
                 int a = 0;
                 return null;
@@ -759,7 +761,7 @@ namespace Service.Serializer {
                         return null;
                     }
                 } else {
-                    SetDeserializingFlag(bufferPos);
+                //    SetDeserializingFlag(bufferPos);
                     if (result == null) {
                         result = isObservableList ? new ObservableList<T>(amount) : (IList<T>)new List<T>(amount);
                     }
@@ -771,7 +773,7 @@ namespace Service.Serializer {
                             result.Add(deserializedElement);
                         }
                     }
-                    ClearDeserializingFlag(bufferPos);
+                   // ClearDeserializingFlag(bufferPos);
                     return result;
                 }
             }
@@ -1071,33 +1073,33 @@ namespace Service.Serializer {
             }
         }
 
-        private static bool HasDeserializingFlag(int bufferPos) {
-            return deserializingATM.Contains(bufferPos);
-        }
+        //private static bool HasDeserializingFlag(int bufferPos) {
+        //    return deserializingATM.Contains(bufferPos);
+        //}
 
 
-        private static void SetDeserializingFlag(int bufferPos) {
-            try {
-                UnityEngine.Profiling.Profiler.BeginSample("SetDeserializingFlag");
-                if (deserializingATM.Contains(bufferPos)) {
-                    UnityEngine.Debug.LogError("Try to set a bufferpos to deserialize that is already in! bPos:" + bufferPos);
-                }
-                deserializingATM.Add(bufferPos);
-            }
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-        }
+        //private static void SetDeserializingFlag(int bufferPos) {
+        //    try {
+        //        UnityEngine.Profiling.Profiler.BeginSample("SetDeserializingFlag");
+        //        if (deserializingATM.Contains(bufferPos)) {
+        //            UnityEngine.Debug.LogError("Try to set a bufferpos to deserialize that is already in! bPos:" + bufferPos);
+        //        }
+        //        deserializingATM.Add(bufferPos);
+        //    }
+        //    finally {
+        //        UnityEngine.Profiling.Profiler.EndSample();
+        //    }
+        //}
 
-        private static void ClearDeserializingFlag(int bufferPos) {
-            try {
-                UnityEngine.Profiling.Profiler.BeginSample("ClearDeserializingFlag");
-                deserializingATM.Remove(bufferPos);
-            }
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-        }
+        //private static void ClearDeserializingFlag(int bufferPos) {
+        //    try {
+        //        UnityEngine.Profiling.Profiler.BeginSample("ClearDeserializingFlag");
+        //        deserializingATM.Remove(bufferPos);
+        //    }
+        //    finally {
+        //        UnityEngine.Profiling.Profiler.EndSample();
+        //    }
+        //}
 
         public static int discardSetSerializingFlagValueType = 0;
 
@@ -1197,7 +1199,7 @@ namespace Service.Serializer {
                 } else {
                     try {
                         UnityEngine.Profiling.Profiler.BeginSample("Convert");
-                        SetDeserializingFlag(incoming.BufferPosition);
+                      //  SetDeserializingFlag(incoming.BufferPosition);
                         UnityEngine.Profiling.Profiler.BeginSample("conv-deserialize");
                         var convResult = ConvertToObject(incoming, type);
                         UnityEngine.Profiling.Profiler.EndSample();
@@ -1208,7 +1210,7 @@ namespace Service.Serializer {
                         return convResult;
                     }
                     finally {
-                        ClearDeserializingFlag(incoming.BufferPosition);
+                       // ClearDeserializingFlag(incoming.BufferPosition);
                         UnityEngine.Profiling.Profiler.EndSample();
                     }
                 }
