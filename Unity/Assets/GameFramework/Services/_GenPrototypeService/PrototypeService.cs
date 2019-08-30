@@ -31,7 +31,10 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
 
         protected bool mainThreadRegisteredForExecution = false;
         protected bool mainThreadExecuted = false;
-        protected Semaphore mainThreadSemaphore = new Semaphore(0, 1);
+        protected Semaphore mainThreadSemaphore;
+
+        protected bool DeSerializationFinished = false;
+        protected Semaphore deSerializationFinishedSempahore;
 
         [Inject]
         void Initialize( 
@@ -172,8 +175,17 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
         public virtual void ResetRunOnMainThread() {
             mainThreadExecuted = true;
             mainThreadRegisteredForExecution = true;
-            mainThreadSemaphore.Dispose();
+            if (mainThreadSemaphore!=null) mainThreadSemaphore.Dispose();
             mainThreadSemaphore = new Semaphore(0, 1);
+
+            if (deSerializationFinishedSempahore != null) deSerializationFinishedSempahore.Dispose();
+            deSerializationFinishedSempahore = new Semaphore(0, 1);
+        }
+
+        public void WaitForDeSerializationFinished() {
+            if (DeSerializationFinished || Kernel.Instance.IsMainThread()) return;
+
+            deSerializationFinishedSempahore.WaitOne();
         }
 
 

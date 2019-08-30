@@ -147,6 +147,10 @@ public partial class Kernel : SceneContext {
         }
     }
 
+    public bool HasMainThreadActions() {
+        return !executeMainThreadActions;
+    }
+
     /// <summary>
     /// Inject the specified injectable to Kernel Container, thus triggering DependencyInjection
     /// </summary>
