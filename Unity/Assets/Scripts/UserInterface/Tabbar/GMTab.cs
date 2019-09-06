@@ -71,6 +71,11 @@ namespace UserInterface
                 if (myTabBar != null)
                     myTabBar.SetAsActiveTab(this);
             }
+            else 
+            {
+                if (myTabBar != null)
+                    myTabBar.DeactivateTab(this);
+            }
 
             ActivateContent(activate);
         }

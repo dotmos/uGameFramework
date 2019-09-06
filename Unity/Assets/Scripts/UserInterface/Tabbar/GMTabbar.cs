@@ -103,6 +103,15 @@ namespace UserInterface {
             }
         }
 
+        public void DeactivateTab(GMTab tab) {
+            if (activeTab == tab) {
+                tab.isOn = false;
+                activeTab = null;
+
+                OnValueChanged();
+            }
+        }
+
         /// <summary>
         /// Adds a new tab to the tabbar.
         /// </summary>
