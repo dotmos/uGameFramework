@@ -15,7 +15,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.GameStateService {
-    public interface IGameStateService : IFBSerializable,RunOnMainThread {
+    public interface IGameStateService : IFBSerializable {
 
 
 
@@ -84,9 +84,6 @@ namespace Service.GameStateService {
         
 
         
-        /// <summary>
-        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
-        /// </summary>
     }
 
     

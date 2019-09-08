@@ -58,8 +58,6 @@ namespace Service.Serializer {
 
         // objects that are serializing atm
         public static HashSet<object> serializingATM = new HashSet<object>();
-        // objects are deserializing atm
-        public static HashSet<int> deserializingATM = new HashSet<int>();
 
         public static bool convertersActivated = false;
 
@@ -1280,7 +1278,6 @@ namespace Service.Serializer {
                 obj2FSMapping.Clear();
                 fb2objMapping.Clear();
                 serializeBufferposCheck.Clear();
-                deserializingATM.Clear();
                 serializingATM.Clear();
                 foreach (var objList in postProcessObjects) {
                     objList.Value.Clear();

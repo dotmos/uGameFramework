@@ -28,11 +28,6 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
         protected ReactivePriorityExecutionList rxOnShutdown {
             get { return Kernel.Instance.rxShutDown; }
         }
-
-        protected bool mainThreadRegisteredForExecution = false;
-        protected bool mainThreadExecuted = false;
-        protected Semaphore mainThreadSemaphore;
-
         protected bool DeSerializationFinished = false;
         protected Semaphore deSerializationFinishedSempahore;
 
@@ -141,52 +136,6 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
             throw new NotImplementedException();
         }
 
-        public void WaitForWorkOnMainThreadFinished() {
-            if (!Kernel.Instance.IsMainThread() && !mainThreadExecuted) {
-                mainThreadSemaphore.WaitOne();
-            } 
-        }
-
-        public void _RunOnMainThreadLogic() {
-            mainThreadExecuted = true;
-            if (!Kernel.Instance.IsMainThread()) {
-                mainThreadSemaphore.Release();
-            }
-        }
-        /// <summary>
-        /// Flag is already finished with execution. Override if you implement real logic
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool IsRunOnMainFinished() { return mainThreadExecuted; }
-        /// <summary>
-        /// Is this object already added to be executed on main-thread?
-        /// </summary>
-        /// <returns></returns>
-        public bool IsRunOnMainRegistered() { return mainThreadRegisteredForExecution; }
-        /// <summary>
-        /// Register the actions to the main thread here
-        /// </summary>
-        /// <param name="ctx"></param>
-        /// <returns></returns>
-        public virtual Action RegisterRunOnMainThread(params object[] ctx) { return _RunOnMainThreadLogic; }
-        /// <summary>
-        /// Reset values. Default sets values to prevent execution. Override to use this mechanism
-        /// </summary>
-        public virtual void ResetRunOnMainThread() {
-            mainThreadExecuted = true;
-            mainThreadRegisteredForExecution = true;
-            if (mainThreadSemaphore!=null) mainThreadSemaphore.Dispose();
-            mainThreadSemaphore = new Semaphore(0, 1);
-
-            if (deSerializationFinishedSempahore != null) deSerializationFinishedSempahore.Dispose();
-            deSerializationFinishedSempahore = new Semaphore(0, 1);
-        }
-
-        public void WaitForDeSerializationFinished() {
-            if (DeSerializationFinished || Kernel.Instance.IsMainThread()) return;
-
-            deSerializationFinishedSempahore.WaitOne();
-        }
 
 
 

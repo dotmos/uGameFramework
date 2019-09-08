@@ -16,7 +16,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.TimeService {
-    public interface ITimeService : IFBSerializable,RunOnMainThread {
+    public interface ITimeService : IFBSerializable {
 
 
 
@@ -55,9 +55,6 @@ namespace Service.TimeService {
         
 
         
-        /// <summary>
-        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
-        /// </summary>
     }
 
     

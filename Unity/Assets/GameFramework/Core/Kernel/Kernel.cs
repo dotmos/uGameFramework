@@ -10,32 +10,7 @@ using System.Collections.Generic;
 using ModestTree.Util;
 using System.Collections.Concurrent;
 using Service.Serializer;
-
-/// <summary>
-/// Interface to implement if this object has actions to be executed on mainthread
-/// </summary>
-public interface RunOnMainThread {
-    /// <summary>
-    /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
-    /// </summary>
-    void _RunOnMainThreadLogic();
-    /// <summary>
-    /// Flag is already finished with execution
-    /// </summary>
-    /// <returns></returns>
-    bool IsRunOnMainFinished();
-    /// <summary>
-    /// Is this object already added to be executed on main-thread?
-    /// </summary>
-    /// <returns></returns>
-    bool IsRunOnMainRegistered();
-    Action RegisterRunOnMainThread(params object[] ctx);
-    /// <summary>
-    /// reset state
-    /// </summary>
-    void ResetRunOnMainThread();
-}
-
+using ECS;
 
 public partial class Kernel : SceneContext {
 
@@ -101,54 +76,10 @@ public partial class Kernel : SceneContext {
         }
     }
 
-    /// <summary>
-    /// Add action special Action-Wrapper to main-thread that makes sure that
-    /// this action is not registered or executed,yet
-    /// </summary>
-    /// <param name="runOnMain"></param>
-    public void RegisterOnMainThread(RunOnMainThread runOnMain, params object[] ctx) {
-        if (!runOnMain.IsRunOnMainFinished() && !runOnMain.IsRunOnMainRegistered()) {
-            AddMainThreadAction(runOnMain.RegisterRunOnMainThread(ctx));
-        }
-    }
-
     private static int MAINTHREAD_ID = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
     public bool IsMainThread() {
         return System.Threading.Thread.CurrentThread.ManagedThreadId == MAINTHREAD_ID;
-    }
-
-    /// <summary>
-    /// Execute actions to be executed on the main-thread. Mainly added from another thread
-    /// </summary>
-    public void ExecuteMainThreadAction() {
-        mainThreadWatch.Restart();
-        while (!mainThreadActions.IsEmpty) {
-            if (mainThreadActions.TryDequeue(out Action act)) {
-                act();
-                if (mainThreadWatch.ElapsedMilliseconds > maxMsForMainThreadActions) {
-                    // stop because the actions exceeded its available time
-                    return;
-                }
-            } else {
-                Debug.LogError("Could not execute mainThreadAction");
-                break;
-            }
-        }
-        executeMainThreadActions = false;
-    }
-
-    public void AddMainThreadAction(Action act) {
-        if (FlatBufferSerializer.ThreadedExecution) {
-            executeMainThreadActions = true;
-            mainThreadActions.Enqueue(act);
-        } else {
-            act();
-        }
-    }
-
-    public bool HasMainThreadActions() {
-        return !executeMainThreadActions;
     }
 
     /// <summary>
@@ -175,9 +106,7 @@ public partial class Kernel : SceneContext {
     }
 
     protected virtual void Update() {
-        if (executeMainThreadActions) {
-            ExecuteMainThreadAction();
-        }
+        FutureProcessor.Instance.ProcessMainThreadActions();
 
         if (KernelReady && KernelCallUpdate) Tick(Time.deltaTime);
     }

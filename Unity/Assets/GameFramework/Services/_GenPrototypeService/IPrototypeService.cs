@@ -13,7 +13,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
-    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable,RunOnMainThread {
+    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable {
 /*block:property*/
     /// <summary>
     /// /*name:documentation*//*endname*/
@@ -75,9 +75,6 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             throw new System.NotImplementedException();
         }
         /*endname*/
-        /// <summary>
-        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
-        /// </summary>
     }
 
     /*endblock:modelClass*/

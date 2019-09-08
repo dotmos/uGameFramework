@@ -6,15 +6,94 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace ECS {
-    public class Future<T> {
+
+    public class FutureProcessor {
+        private ParallelSystemComponentsProcessor<object> parallelQueue;
+        private ConcurrentQueue<Future> parallelQueueActions = new ConcurrentQueue<Future>();
+        private List<Future> mainThreadActions = new List<Future>();
+
+        private static FutureProcessor instance = new FutureProcessor();
+
+        public static FutureProcessor Instance { get => instance; }
+
+        public FutureProcessor() {
+            parallelQueue = new ParallelSystemComponentsProcessor<object>(ProcessParallelQueueItem);
+        }
+
+        private void ProcessParallelQueueItem(int idx, float dt) {
+            if (parallelQueueActions.TryDequeue(out Future action)) {
+                action.execute();
+            }
+        }
+
+        public bool HasMainThreadActions() {
+            return mainThreadActions.Count > 0;
+        }
+
+        public void ProcessMainThreadActions() {
+            if (!Kernel.Instance.IsMainThread()) {
+                UnityEngine.Debug.LogError("You have to be on mainthread to execute the mainthread-actions");
+                return;
+            }
+            int amount = mainThreadActions.Count;
+            for (int i = 0; i < amount; i++) {
+                mainThreadActions[i].execute();
+            }
+            mainThreadActions.Clear();
+        }
+
+        public void ProcessParallelQueue(float dt=0.0f) {
+            parallelQueue.Process(parallelQueueActions.Count, dt);
+        }
+
+        public void AddFuture(Future f) {
+            if (f.ExecutionMode == FutureExecutionMode.onMainThread) {
+                if (Kernel.Instance.IsMainThread()) {
+                    f.execute();
+                } else {
+                    lock (mainThreadActions) {
+                        mainThreadActions.Add(f);
+                    }
+                }
+            } else if (f.ExecutionMode == FutureExecutionMode.onParallelQueue) {
+                parallelQueueActions.Enqueue(f);
+            } else if (f.ExecutionMode == FutureExecutionMode.onOwnTask) {
+                Task t = new Task(() => { f.execute(); });
+                t.Start();
+            }
+        }
+    }
+
+    public enum FutureExecutionMode {
+        /// <summary>
+        /// the future is executed on the main-thread
+        /// </summary>
+        onMainThread,
+        /// <summary>
+        /// a new thread is created for this future
+        /// </summary>
+        onOwnTask,
+        /// <summary>
+        /// the future is executed by an parallelQueue on the workthread
+        /// </summary>
+        onParallelQueue
+    }
+
+    public class Future {
+
         private Semaphore semaphore = new Semaphore(0, 1);
 
-        private Func<T> logic;
-        private T result;
+        private Func<object> logic;
+        private object result;
         private bool finished = false;
+        private FutureExecutionMode executionMode;
+        public FutureExecutionMode ExecutionMode { get => executionMode; }
 
-        public Future(Func<T> logic) {
+        public Future(FutureExecutionMode executionMode, Func<object> logic, bool addToFutureProcessor = true) {
             this.logic = logic;
+            this.executionMode = executionMode;
+
+            if (addToFutureProcessor) FutureProcessor.Instance.AddFuture(this);
         }
 
         public bool IsFinished() {
@@ -27,11 +106,29 @@ namespace ECS {
             semaphore.Release();
         }
 
-        public T WaitForResult() {
+        public void WaitForFinish() {
+            WaitForResult<object>();
+        }
+
+        public T WaitForResult<T>() {
             if (!finished) {
-                semaphore.WaitOne();
+                if (executionMode == FutureExecutionMode.onParallelQueue) {
+                    // waiting on main thread flushes/executes the current registered futures
+                    FutureProcessor.Instance.ProcessParallelQueue();
+                    if (result == null) {
+                        UnityEngine.Debug.LogError("Waited for result on mainthread but got none!");
+                    }
+                } else {
+                    if (executionMode == FutureExecutionMode.onMainThread && Kernel.Instance.IsMainThread()) {
+                        UnityEngine.Debug.LogError("No result but on mainthread! future should have already been executed");
+                    } else {
+                        // the futures are executed on the 
+                        semaphore.WaitOne();
+                    }
+                }
             }
-            return result;
+            return (T)result;
         }
     }
+
 }

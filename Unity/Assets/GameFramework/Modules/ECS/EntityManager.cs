@@ -185,13 +185,13 @@ namespace ECS {
         /// </summary>
         /// <returns></returns>
         protected UID ThreadSafeCreateEntity(int id) {
-            UID uid = new UID(id);
             //UnityEngine.Debug.Log(uid.ID);
             lock (_entities) {
+                UID uid = new UID(id);
                 _entities.Add(uid, new HashSet<IComponent>());
                 _entityIDs.Add(uid.ID);
+                return uid;
             }
-            return uid;
         }
 
         /// <summary>

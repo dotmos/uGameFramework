@@ -17,7 +17,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.DevUIService {
-    public interface IDevUIService : IFBSerializable,RunOnMainThread {
+    public interface IDevUIService : IFBSerializable {
 
 
 
@@ -189,9 +189,6 @@ namespace Service.DevUIService {
         
 
         
-        /// <summary>
-        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
-        /// </summary>
     }
 
     
@@ -206,9 +203,6 @@ namespace Service.DevUIService {
         
 
         
-        /// <summary>
-        /// The logic. Don't use directly. This should be returned by RegisterRunOnMainThread() and set registered
-        /// </summary>
     }
 
     
