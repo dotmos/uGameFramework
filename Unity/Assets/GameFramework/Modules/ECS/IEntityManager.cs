@@ -12,7 +12,6 @@ namespace ECS {
         UID CreateEntity();
         bool EntityExists(UID entity);
         void DestroyEntity(ref UID entity);
-        void DestroyAllEntities();
 
         T AddComponent<T>(UID entity) where T : IComponent, new();
         IComponent AddComponent(UID entity, IComponent component);

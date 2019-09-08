@@ -217,20 +217,19 @@ namespace ECS {
             }
         }
 
-        /// <summary>
-        /// Destroy all entities
-        /// </summary>
-        public void DestroyAllEntities() {
-            while (_entities.Count > 0) {
-                var entity = _entities.ElementAt(0).Key;
-                DestroyEntity(ref entity );
-            }
-
-            _recycledComponentIds.Clear();
-            _recycledEntityIds.Clear();
-            _lastComponentId = _startComponentID;
-            _lastEntityId = _startEntityID;
-        }
+        ///// <summary>
+        ///// Destroy all entities
+        ///// </summary>
+        //public void ClearAll() {
+        //    _recycledEntityIds.Clear();
+        //    _entities.Clear();
+        //    _entityIDs.Clear();
+        //    _lastEntityId = _startEntityID;
+        //    _recycledComponentIds.Clear();
+        //    _lastComponentId = _startComponentID;
+        //    isInitialized = false;
+        //    _systems.Clear();
+        //}
 
         public int EntityCount() {
             return _entityIDs.Count;
@@ -336,9 +335,26 @@ namespace ECS {
             _EntityModified(entity);
             //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
             return component;
-            
-   
         }
+
+        public IComponent ThreadSafeSetComponent(UID entity, IComponent component) {
+            lock (_entities) {
+                if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
+                    RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
+                }
+
+                //component.Entity.SetID(entity.ID);
+                component.Entity = entity;
+                SetupComponentID(component);
+                _entities[entity].Add(component);
+            }
+
+            _EntityModified(entity);
+            //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
+            return component;
+        }
+
+
 
         /// <summary>
         /// Creates a shallow copy of the component
@@ -449,6 +465,26 @@ namespace ECS {
                 IComponent c = null;// 
                 foreach (IComponent comp in _entities[entity]) {
                     if (comp.GetType()==componentType) {
+                        c = comp;
+                        break;
+                    }
+                }
+                if (c != null) {
+                    return c;
+                }
+            }
+            return null;
+        }
+
+        public object ThreadSafeGetComponent(UID entity, Type componentType) {
+            if (EntityExists(entity)) {
+                IComponent c = null;// 
+                HashSet<IComponent> entityComponents = null;
+                lock (_entities) {
+                    entityComponents = _entities[entity];
+                }
+                foreach (IComponent comp in entityComponents) {
+                    if (comp.GetType() == componentType) {
                         c = comp;
                         break;
                     }
@@ -602,8 +638,8 @@ namespace ECS {
             if (incoming == null){
                 return;
             }
-            _recycledComponentIds.Clear();
-            _recycledEntityIds.Clear();
+
+            Clear();
 
             var manual = FlatBufferSerializer.GetManualObject(incoming);
             _lastEntityId = manual.GetInt(0);
@@ -639,7 +675,9 @@ namespace ECS {
                 kv.Value.Clear();
             }
             _entities.Clear();
-
+            _entityIDs.Clear();
+            _lastComponentId = _startComponentID;
+            _lastEntityId = _startEntityID;
             _recycledEntityIds.Clear();
             _recycledComponentIds.Clear();
         }

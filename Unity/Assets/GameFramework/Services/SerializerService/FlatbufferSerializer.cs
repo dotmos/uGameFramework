@@ -1165,6 +1165,10 @@ namespace Service.Serializer {
         /// <param name="type"></param>
         /// <param name="newObject"></param>
         /// <returns></returns>
+        /// 
+
+        private static readonly Type IFBSerializableType = typeof(IFBSerializable);
+
         public static object GetOrCreateDeserialize(IFlatbufferObject incoming, Type type, IFBSerializable newObject = null) {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("GetOrCreateDeserialize");
@@ -1173,7 +1177,7 @@ namespace Service.Serializer {
                     return null;
                 }
 
-                if (typeof(IFBSerializable).IsAssignableFrom(type)) {
+                if (IFBSerializableType.IsAssignableFrom(type)) {
                     // first check if we already deserialize the object at this position
                     
                     lock (fb2objMapping) {

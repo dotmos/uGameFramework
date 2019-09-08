@@ -76,7 +76,7 @@ public partial class Kernel : SceneContext {
         }
     }
 
-    private static int MAINTHREAD_ID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+    private static int MAINTHREAD_ID;
 
     public bool IsMainThread() {
         return System.Threading.Thread.CurrentThread.ManagedThreadId == MAINTHREAD_ID;
@@ -99,6 +99,7 @@ public partial class Kernel : SceneContext {
         if(System.Threading.Thread.CurrentThread.Name != "MainThread") {
             System.Threading.Thread.CurrentThread.Name = "MainThread";
         }
+        MAINTHREAD_ID = System.Threading.Thread.CurrentThread.ManagedThreadId;
 
         Instance = this;
  
@@ -106,6 +107,9 @@ public partial class Kernel : SceneContext {
     }
 
     protected virtual void Update() {
+        if (!Kernel.Instance.IsMainThread()) {
+            Debug.Log("MainThreadID-mismatch:" + System.Threading.Thread.CurrentThread.ManagedThreadId + " != mainThread:" + MAINTHREAD_ID);
+        }
         FutureProcessor.Instance.ProcessMainThreadActions();
 
         if (KernelReady && KernelCallUpdate) Tick(Time.deltaTime);
