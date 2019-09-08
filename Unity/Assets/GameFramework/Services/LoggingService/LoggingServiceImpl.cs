@@ -71,28 +71,20 @@ namespace Service.LoggingService {
 
 		//docs come here
 		public override void AddLog(DebugType debugType,string message,string domain="") {
-            try {
-                UnityEngine.Profiling.Profiler.BeginSample("AddLog");
-                var newLog = new LogData() {
-                    domain = domain,
-                    message = message,
-                    type = debugType
-                };
-                // always add the new data on top
-                loggingData.Insert(0, newLog);
+            UnityEngine.Profiling.Profiler.BeginSample("AddLog");
+            var newLog = new LogData() {
+                domain = domain,
+                message = message,
+                type = debugType
+            };
+            // always add the new data on top
+            loggingData.Insert(0, newLog);
 
-                // check if this log applies to the current filter
-                if (CurrentFilter.Check(newLog)) {
-                    // add it to the reactive outputlog
-                    rxOutputData.Add(newLog);
-                }
+            // check if this log applies to the current filter
+            if (CurrentFilter.Check(newLog)) {
+                // add it to the reactive outputlog
+                rxOutputData.Add(newLog);
             }
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
-            // TODO: remove this:
-            // if (true) return;
-
         }
 
 		//docs come here
