@@ -10,14 +10,21 @@ namespace ECS {
     public class FutureProcessor {
         private ParallelSystemComponentsProcessor<object> parallelQueue;
         private ConcurrentQueue<Future> parallelQueueActions = new ConcurrentQueue<Future>();
-        private List<Future> mainThreadActions = new List<Future>();
+        private ConcurrentQueue<Future> mainThreadActions = new ConcurrentQueue<Future>();
+
+        System.Diagnostics.Stopwatch timeCheck = new System.Diagnostics.Stopwatch();
+        /// <summary>
+        /// The max time after which the mainThread-actions executions stop till next call
+        /// </summary>
+        private float timePerMainframe;
 
         private static FutureProcessor instance = new FutureProcessor();
 
         public static FutureProcessor Instance { get => instance; }
 
-        public FutureProcessor() {
+        public FutureProcessor(float maxMsPerMainThread=250.0f) {
             parallelQueue = new ParallelSystemComponentsProcessor<object>(ProcessParallelQueueItem);
+            timePerMainframe = maxMsPerMainThread;
         }
 
         private void ProcessParallelQueueItem(int idx, float dt) {
@@ -36,10 +43,11 @@ namespace ECS {
                 return;
             }
             int amount = mainThreadActions.Count;
-            for (int i = 0; i < amount; i++) {
-                mainThreadActions[i].execute();
+            timeCheck.Restart();
+            while (mainThreadActions.TryDequeue(out Future future)) {
+                future.execute();
+                if (timeCheck.ElapsedMilliseconds > timePerMainframe) break;
             }
-            mainThreadActions.Clear();
         }
 
         public void ProcessParallelQueue(float dt=0.0f) {
@@ -51,9 +59,7 @@ namespace ECS {
                 if (Kernel.Instance.IsMainThread()) {
                     f.execute();
                 } else {
-                    lock (mainThreadActions) {
-                        mainThreadActions.Add(f);
-                    }
+                    mainThreadActions.Enqueue(f);
                 }
             } else if (f.ExecutionMode == FutureExecutionMode.onParallelQueue) {
                 parallelQueueActions.Enqueue(f);
