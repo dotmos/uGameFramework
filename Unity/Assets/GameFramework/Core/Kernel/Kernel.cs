@@ -21,31 +21,12 @@ public partial class Kernel : SceneContext {
     public static string overrideSceneName = null;
 
     protected bool KernelReady { get; private set; }
-
-    /// <summary>
-    /// Flag to call(or not to call) the kernel's update-method
-    /// </summary>
-    public bool KernelCallUpdate { get; set; }
+    public bool KernelCallUpdate { get; set; } = true;
 
     public static bool applicationQuitting = false;
 
     public ReactivePriorityExecutionList rxStartup = new ReactivePriorityExecutionList();
     public ReactivePriorityExecutionList rxShutDown = new ReactivePriorityExecutionList();
-
-    /// <summary>
-    /// Flag if the mainThreadAction-queue should be processed. automatically set when actions are added to the queue
-    /// </summary>
-    private bool executeMainThreadActions = false;
-    /// <summary>
-    /// Concurrent queue to keep the actions that should be executed on the main-thread
-    /// </summary>
-    private ConcurrentQueue<Action> mainThreadActions = new ConcurrentQueue<Action>();
-
-    private float maxMsForMainThreadActions = 200;
-    /// <summary>
-    /// Stopwatch to make sure the main-thread-actions do not block the thread too much
-    /// </summary>
-    private System.Diagnostics.Stopwatch mainThreadWatch = new System.Diagnostics.Stopwatch();
 
     public static ReactiveProperty<Kernel> InstanceProperty = new ReactiveProperty<Kernel>();
     public static Kernel Instance {
