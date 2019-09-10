@@ -38,7 +38,7 @@ namespace ECS {
         }
 
         public void ProcessMainThreadActions() {
-            if (!Kernel.Instance.IsMainThread()) {
+            if (!Kernel.IsMainThread()) {
                 UnityEngine.Debug.LogError("You have to be on mainthread to execute the mainthread-actions");
                 return;
             }
@@ -56,7 +56,7 @@ namespace ECS {
 
         public void AddFuture(Future f) {
             if (f.ExecutionMode == FutureExecutionMode.onMainThread) {
-                if (Kernel.Instance.IsMainThread()) {
+                if (Kernel.IsMainThread()) {
                     f.execute();
                 } else {
                     mainThreadActions.Enqueue(f);
@@ -125,7 +125,7 @@ namespace ECS {
                         UnityEngine.Debug.LogError("Waited for result on mainthread but got none!");
                     }
                 } else {
-                    if (executionMode == FutureExecutionMode.onMainThread && Kernel.Instance.IsMainThread()) {
+                    if (executionMode == FutureExecutionMode.onMainThread && Kernel.IsMainThread()) {
                         UnityEngine.Debug.LogError("No result but on mainthread! future should have already been executed");
                     } else {
                         // the futures are executed on the 
