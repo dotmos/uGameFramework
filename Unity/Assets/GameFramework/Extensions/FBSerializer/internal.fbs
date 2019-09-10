@@ -18,6 +18,24 @@ table FBVector4 {
     w:float;
 }
 
+table FBVector2Int{
+	x:int;
+	y:int;
+}
+
+table FBVector3Int{
+	x:int;
+	y:int;
+	z:int;
+}
+
+table FBVector4Int{
+	x:int;
+	y:int;
+	z:int;
+	w:int;
+}
+
 table FBQuaternion {
     x:float;
     y:float;
