@@ -71,7 +71,6 @@ namespace Service.LoggingService {
 
 		//docs come here
 		public override void AddLog(DebugType debugType,string message,string domain="") {
-            UnityEngine.Profiling.Profiler.BeginSample("AddLog");
             var newLog = new LogData() {
                 domain = domain,
                 message = message,
