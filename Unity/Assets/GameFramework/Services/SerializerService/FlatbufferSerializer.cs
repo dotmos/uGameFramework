@@ -21,6 +21,7 @@ namespace Service.Serializer {
         public static ListPool<int> poolListInt = new ListPool<int>(10,10);
         public static ListPool<object> poolListObject = new ListPool<object>(10, 10);
         public static ArrayPool<int> poolArrayInt = new ArrayPool<int>();
+        public static ArrayPool<float> poolArrayFloat = new ArrayPool<float>();
 
         public static bool serializing = false;
         /// <summary>
@@ -210,112 +211,113 @@ namespace Service.Serializer {
                 return new VectorOffset(bufferPos.Value);
             }
             //var tempArray = new FlatBuffers.Offset<S>[dict.Count];
+            lock (dict) {
+                var offsetList = poolListInt.GetList(dict.Count);
+                int amount = dict.Count;
 
-            var offsetList = poolListInt.GetList(dict.Count);
-            int amount = dict.Count;
+                var keyPrimOrEnum = typeof(TKey).IsPrimitive || typeof(TKey).IsEnum;
+                var valuePrimOrEnum = typeof(TValue).IsPrimitive || typeof(TValue).IsEnum;
 
-            var keyPrimOrEnum = typeof(TKey).IsPrimitive || typeof(TKey).IsEnum;
-            var valuePrimOrEnum = typeof(TValue).IsPrimitive || typeof(TValue).IsEnum;
-
-            if (keyPrimOrEnum && valuePrimOrEnum) {
-                SetSerializingFlag(dict);
-                // a pure primitive dictionary
-                foreach (var dictElem in dict) {
-                    offsetList.Add(fbCreateElement(builder, (FBKey)((object)dictElem.Key), (FBValue)((object)dictElem.Value)).Value);
-                }
-                //var result = fbCreateList != null
-                //                ? fbCreateList(builder, tempArray)
-                //                : SerializeTempOffsetArray(builder, tempArray);
-                var result = builder.CreateOffsetVector(offsetList);
-
-                if (!ignoreCache) PutInSerializeCache(dict, result.Value);
-                ClearSerializingFlag(dict);
-                poolListInt.Release(offsetList);
-                return result;
-            } else if (keyPrimOrEnum && !valuePrimOrEnum) {
-                SetSerializingFlag(dict);
-                foreach (var dictElem in dict) {
-
-                    FBValue valueElemOffset;
-                    if (typeof(TValue) == typeof(string)) {
-                        valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Value);
-                    } else if (dictElem.Value is IList && dictElem.Value.GetType().IsGenericType) {
-                        var dictElemValueType = dictElem.Value.GetType();
-                        var listType = dictElemValueType.GetGenericTypeDefinition();
-                        valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder, (IList)dictElem.Value, listType);
-                    } else if (dictElem.Value is IObservableList) {
-                        var observableList = (IObservableList)dictElem.Value;
-                        var listType = observableList.GetListType();
-                        valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder, observableList.InnerIList, listType);
-                    } else {
-                        var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
-                        valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                if (keyPrimOrEnum && valuePrimOrEnum) {
+                    SetSerializingFlag(dict);
+                    // a pure primitive dictionary
+                    foreach (var dictElem in dict) {
+                        offsetList.Add(fbCreateElement(builder, (FBKey)((object)dictElem.Key), (FBValue)((object)dictElem.Value)).Value);
                     }
-                    offsetList.Add(fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset).Value);
-                }
-                //var result = fbCreateList != null
-                //                ? fbCreateList(builder, tempArray)
-                //                : SerializeTempOffsetArray(builder, tempArray);
-                var result = builder.CreateOffsetVector(offsetList);
+                    //var result = fbCreateList != null
+                    //                ? fbCreateList(builder, tempArray)
+                    //                : SerializeTempOffsetArray(builder, tempArray);
+                    var result = builder.CreateOffsetVector(offsetList);
 
-                if (!ignoreCache) PutInSerializeCache(dict, result.Value);
-                ClearSerializingFlag(dict);
-                poolListInt.Release(offsetList);
-                return result;
-            } else if (!keyPrimOrEnum && valuePrimOrEnum) {
-                SetSerializingFlag(dict);
-                foreach (var dictElem in dict) {
+                    if (!ignoreCache) PutInSerializeCache(dict, result.Value);
+                    ClearSerializingFlag(dict);
+                    poolListInt.Release(offsetList);
+                    return result;
+                } else if (keyPrimOrEnum && !valuePrimOrEnum) {
+                    SetSerializingFlag(dict);
+                    foreach (var dictElem in dict) {
 
-                    FBKey offsetKey;
-                    if (typeof(TKey) == typeof(string)) {
-                        offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
-                    } else {
-                        var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
-                        offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                        FBValue valueElemOffset;
+                        if (typeof(TValue) == typeof(string)) {
+                            valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Value);
+                        } else if (dictElem.Value is IList && dictElem.Value.GetType().IsGenericType) {
+                            var dictElemValueType = dictElem.Value.GetType();
+                            var listType = dictElemValueType.GetGenericTypeDefinition();
+                            valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder, (IList)dictElem.Value, listType);
+                        } else if (dictElem.Value is IObservableList) {
+                            var observableList = (IObservableList)dictElem.Value;
+                            var listType = observableList.GetListType();
+                            valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder, observableList.InnerIList, listType);
+                        } else {
+                            var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
+                            valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                        }
+                        offsetList.Add(fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset).Value);
                     }
+                    //var result = fbCreateList != null
+                    //                ? fbCreateList(builder, tempArray)
+                    //                : SerializeTempOffsetArray(builder, tempArray);
+                    var result = builder.CreateOffsetVector(offsetList);
 
-                    offsetList.Add(fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value)).Value);
-                }
-                //var result = fbCreateList != null
-                //                ? fbCreateList(builder, tempArray)
-                //                : SerializeTempOffsetArray(builder, tempArray);
-                var result = builder.CreateOffsetVector(offsetList);
+                    if (!ignoreCache) PutInSerializeCache(dict, result.Value);
+                    ClearSerializingFlag(dict);
+                    poolListInt.Release(offsetList);
+                    return result;
+                } else if (!keyPrimOrEnum && valuePrimOrEnum) {
+                    SetSerializingFlag(dict);
+                    foreach (var dictElem in dict) {
 
-                if (!ignoreCache) PutInSerializeCache(dict, result.Value);
-                ClearSerializingFlag(dict);
-                poolListInt.Release(offsetList);
-                return result;
-            } else if (!keyPrimOrEnum && !valuePrimOrEnum) {
-                SetSerializingFlag(dict);
-                foreach (var dictElem in dict) {
-                    FBKey offsetKey;
-                    if (typeof(TKey) == typeof(string)) {
-                        offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
-                    } else {
-                        var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
-                        offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                        FBKey offsetKey;
+                        if (typeof(TKey) == typeof(string)) {
+                            offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
+                        } else {
+                            var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                            offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                        }
+
+                        offsetList.Add(fbCreateElement(builder, offsetKey, (FBValue)((object)dictElem.Value)).Value);
                     }
+                    //var result = fbCreateList != null
+                    //                ? fbCreateList(builder, tempArray)
+                    //                : SerializeTempOffsetArray(builder, tempArray);
+                    var result = builder.CreateOffsetVector(offsetList);
 
-                    FBValue valueElemOffset;
-                    if (typeof(TValue) == typeof(string)) {
-                        valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Key);
-                    } else {
-                        var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
-                        valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                    if (!ignoreCache) PutInSerializeCache(dict, result.Value);
+                    ClearSerializingFlag(dict);
+                    poolListInt.Release(offsetList);
+                    return result;
+                } else if (!keyPrimOrEnum && !valuePrimOrEnum) {
+                    SetSerializingFlag(dict);
+                    foreach (var dictElem in dict) {
+                        FBKey offsetKey;
+                        if (typeof(TKey) == typeof(string)) {
+                            offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
+                        } else {
+                            var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                            offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
+                        }
+
+                        FBValue valueElemOffset;
+                        if (typeof(TValue) == typeof(string)) {
+                            valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Key);
+                        } else {
+                            var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                            valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
+                        }
+                        offsetList.Add(fbCreateElement(builder, offsetKey, valueElemOffset).Value);
                     }
-                    offsetList.Add(fbCreateElement(builder, offsetKey, valueElemOffset).Value);
-                }
-                //var result = fbCreateList != null
-                //                ? fbCreateList(builder, tempArray)
-                //                : SerializeTempOffsetArray(builder, tempArray);
-                var result = builder.CreateOffsetVector(offsetList);
+                    //var result = fbCreateList != null
+                    //                ? fbCreateList(builder, tempArray)
+                    //                : SerializeTempOffsetArray(builder, tempArray);
+                    var result = builder.CreateOffsetVector(offsetList);
 
-                if (!ignoreCache) PutInSerializeCache(dict, result.Value);
-                ClearSerializingFlag(dict);
-                poolListInt.Release(offsetList);
-                return result;
+                    if (!ignoreCache) PutInSerializeCache(dict, result.Value);
+                    ClearSerializingFlag(dict);
+                    poolListInt.Release(offsetList);
+                    return result;
+                }
+                return null;
             }
-            return null;
         }
 
         public static FlatBuffers.VectorOffset? CreateDictionary<TKey, TValue,S>(FlatBuffers.FlatBufferBuilder builder
