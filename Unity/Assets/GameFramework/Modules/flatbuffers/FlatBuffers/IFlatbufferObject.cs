@@ -166,20 +166,13 @@ namespace FlatBuffers
                     return null;
                 }
 
-                //object cacheResult = ignoreLookup ? null : FlatBufferSerializer.FindInDeserializeCache<T[]>(bufPos);
-                object cacheResult = null;
-                if (cacheResult != null) {
-                    return (T[])cacheResult;
-                }
                 if (typeof(T).IsEnum) {
                     int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
                     var result = tA.Cast<T>().ToArray();
-                   // if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, result);
                     return result;
 
                 } else {
                     T[] tA = __p.__vector_as_array<T>(4 + fbPos * 2);
-                   // if (!ignoreLookup) FlatBufferSerializer.PutIntoDeserializeCache(bufPos, tA);
                     return tA;
                 }
             }
@@ -248,51 +241,32 @@ namespace FlatBuffers
         /// <param name="input"></param>
         /// <returns></returns>
         public ICollection<T> GetTypedList<T>(int fbPos,ICollection<T> input=null)  {
-            try {
-                UnityEngine.Profiling.Profiler.BeginSample("GetTypedList-"+typeof(T));
-                if (input == null) {
-                    input = new List<T>();
-                }
-                int listLength = GetListLength(fbPos);
-                for (int i = 0; i < listLength; i = i + 2) {
-                    var typeName = GetStringListElementAt(fbPos, i);
-                    if (typeName == null) {
-                        input.Add(default(T));
-                        continue;
-                    }
-                    var type = Type.GetType(typeName);
-                    var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i + 1);
-                    var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
-                    input.Add((T)result);
-                }
-                return input;
+            if (input == null) {
+                input = new List<T>();
             }
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
+            int listLength = GetListLength(fbPos);
+            for (int i = 0; i < listLength; i = i + 2) {
+                var typeName = GetStringListElementAt(fbPos, i);
+                if (typeName == null) {
+                    input.Add(default(T));
+                    continue;
+                }
+                var type = Type.GetType(typeName);
+                var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i + 1);
+                var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
+                input.Add((T)result);
             }
+            return input;
         }
 
         public TResult GetObject<TSerialized,TResult>(int fbPos) where TResult : IFBSerializable, new() where TSerialized : IFlatbufferObject,new() {
-            try {
-                UnityEngine.Profiling.Profiler.BeginSample("GetObject");
-                var result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
-                return result;
-            }
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
+            var result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
+            return result;
         }
 
         public T GetTypedObject<T>(int fbPos) {
-            try {
-                UnityEngine.Profiling.Profiler.BeginSample("GetTypedObject");
-
-                var fbRef = GetFBRef(fbPos);
-                return FlatBufferSerializer.DeserializeTypedObject<T>(fbRef);
-            }
-            finally {
-                UnityEngine.Profiling.Profiler.EndSample();
-            }
+            var fbRef = GetFBRef(fbPos);
+            return FlatBufferSerializer.DeserializeTypedObject<T>(fbRef);
         }
 
     }
