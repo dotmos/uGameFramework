@@ -395,14 +395,14 @@ namespace FlatBuffers
             Prep(sizeof(int), 0);  // Ensure alignment is already done.
             if (off > Offset)
                 throw new ArgumentException();
-            off = Offset - off + sizeof(int);
+            off = off!=0?Offset - off + sizeof(int) : 0;
             int addressWrittenTo = PutInt(off);
             return addressWrittenTo;
             //return new int[4] { offBefore, addressWrittenTo,beforeBBLen,beforeBBspace };
         }
 
         public void AddOffset(int offset) {
-            if (offset > 0) {
+            if (offset >= 0) {
                 // default behaviour
                 _AddOffset(offset);
             } else {
