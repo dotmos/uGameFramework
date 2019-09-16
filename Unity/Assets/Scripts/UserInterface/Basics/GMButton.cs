@@ -16,6 +16,10 @@ namespace UserInterface
         public Color pressedColor;
         public Color disabledColor;
 
+        public bool isPressed {
+            get; private set;
+        }
+
         // Event delegate triggered on mouse or touch down.
         [SerializeField]
         GMButtonRightClickEvent _onRightClick = new GMButtonRightClickEvent();
@@ -23,13 +27,25 @@ namespace UserInterface
         [Serializable]
         public class GMButtonRightClickEvent : UnityEvent { }
 
+        [SerializeField]
+        GMButtonPressedEvent _onPressed = new GMButtonPressedEvent();
+
+        [Serializable]
+        public class GMButtonPressedEvent : UnityEvent { }
+
+        [SerializeField]
+        GMButtonReleaseEvent _onRelease = new GMButtonReleaseEvent();
+
+        [Serializable]
+        public class GMButtonReleaseEvent : UnityEvent { }
+
         protected GMButton() { }
 
         public override void OnPointerClick(PointerEventData eventData) {
             if (eventData.button == PointerEventData.InputButton.Left) {
-                if (interactable) onClick.Invoke();
+                if (interactable && !isPressed) onClick.Invoke();
             } else if (eventData.button == PointerEventData.InputButton.Right) {
-                if (interactable) _onRightClick.Invoke();
+                if (interactable) onRightClick.Invoke();
             }
         }
 
@@ -37,6 +53,18 @@ namespace UserInterface
             get { return _onRightClick; }
             set { _onRightClick = value; }
         }
+
+        public GMButtonPressedEvent onPressed {
+            get { return _onPressed; }
+            set { _onPressed = value; }
+        }
+
+        public GMButtonReleaseEvent onRelease {
+            get { return _onRelease; }
+            set { _onRelease = value; }
+        }
+
+
 
         protected override void DoStateTransition(SelectionState state, bool instant)
         {
@@ -62,10 +90,36 @@ namespace UserInterface
                 }
             } else if (state == SelectionState.Pressed)
             {
+                isPressed = true;
+
                 foreach (Graphic colorizeElement in colorizeElements)
                 {
                     colorizeElement.color = pressedColor;
                 }
+            }
+        }
+
+        public override void OnPointerExit(PointerEventData eventData) {
+            base.OnPointerExit(eventData);
+
+            if (isPressed) {
+                onRelease.Invoke();
+                isPressed = false;
+            }
+        }
+
+        public override void OnPointerUp(PointerEventData eventData) {
+            base.OnPointerUp(eventData);
+
+            if (isPressed) {
+                onRelease.Invoke();
+                isPressed = false;
+            }
+        }
+
+        private void Update() {
+            if (isPressed) {
+                onPressed.Invoke();
             }
         }
 
