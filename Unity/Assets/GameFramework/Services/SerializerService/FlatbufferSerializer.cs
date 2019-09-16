@@ -37,6 +37,8 @@ namespace Service.Serializer {
 
         public static Dictionary<int, object> serializeBufferposCheck = new Dictionary<int, object>();
 
+        public static Dictionary<string, List<ECS.UID>> uidlists = new Dictionary<string, List<ECS.UID>>();
+
         private static FlatBufferBuilder fbBuilder;
 
         public static Dictionary<Type, Func<object, FlatBufferBuilder, int>> serializeObjConverters = new Dictionary<Type, Func<object, FlatBufferBuilder, int>>();
@@ -87,6 +89,15 @@ namespace Service.Serializer {
             if (!convertersActivated) {
                 ActivateConverters();
                 convertersActivated = true;
+            }
+        }
+
+        public static void AddEntityToUIDList(string uidList, ECS.UID uid) {
+            if (uidlists.TryGetValue(uidList,out List<ECS.UID> lists)){
+                lists.Add(uid);
+            } else {
+                lists = new List<ECS.UID>() { uid };
+                uidlists[uidList] = lists;
             }
         }
 
@@ -754,12 +765,15 @@ namespace Service.Serializer {
             }
             fb2objMapping[bufferpos] = obj;
             UnityEngine.Profiling.Profiler.BeginSample("IFBPostDeserialization");
-            if (obj is IFBPostDeserialization) {
-                if (postProcessObjects.TryGetValue(obj.GetType(), out List<object> objList)) {
-                    objList.Add(obj);
-                } else {
-                    postProcessObjects[obj.GetType()] = new List<object>() { obj };
+            if (!(obj is Service.IService)) {
+                if (obj is IFBPostDeserialization) {
+                    if (postProcessObjects.TryGetValue(obj.GetType(), out List<object> objList)) {
+                        objList.Add(obj);
+                    } else {
+                        postProcessObjects[obj.GetType()] = new List<object>() { obj };
+                    }
                 }
+
             }
             UnityEngine.Profiling.Profiler.EndSample();
         }

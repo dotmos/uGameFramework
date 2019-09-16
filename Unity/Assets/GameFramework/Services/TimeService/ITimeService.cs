@@ -16,7 +16,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.TimeService {
-    public interface ITimeService : IFBSerializable {
+    public interface ITimeService : IFBSerializable,IService {
 
 
 

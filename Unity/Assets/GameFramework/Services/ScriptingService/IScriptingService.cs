@@ -15,7 +15,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.Scripting {
-    public interface IScriptingService : IFBSerializable {
+    public interface IScriptingService : IFBSerializable,IService {
 
 
 

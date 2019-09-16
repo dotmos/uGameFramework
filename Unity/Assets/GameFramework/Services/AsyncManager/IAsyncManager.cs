@@ -13,7 +13,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.AsyncManager {
-    public interface IAsyncManager : IFBSerializable {
+    public interface IAsyncManager : IFBSerializable,IService {
 
 
 
