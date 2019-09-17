@@ -21,6 +21,8 @@ namespace Service.Serializer {
         public static ListPool<int> poolListInt = new ListPool<int>(10,10);
         public static ListPool<object> poolListObject = new ListPool<object>(10, 10);
         public static ArrayPool<int> poolArrayInt = new ArrayPool<int>();
+        public static ArrayPool<bool> poolArrayBool = new ArrayPool<bool>();
+        public static ArrayPool<short> poolArrayShort = new ArrayPool<short>();
         public static ArrayPool<float> poolArrayFloat = new ArrayPool<float>();
 
         public static bool serializing = false;
@@ -497,6 +499,8 @@ namespace Service.Serializer {
                 builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddFloat((float)(object)data[i]);
             } else if (typeof(T) == typeof(int) || typeof(T).IsEnum) {
                 builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddInt((int)(object)data[i]);
+            } else if (typeof(T) == typeof(short)) {
+                builder.StartVector(2, data.Length, 2); for (int i = data.Length - 1; i >= 0; i--) builder.AddShort((short)(object)data[i]);
             } else if (typeof(T) == typeof(long)) {
                 builder.StartVector(8, data.Length, 8); for (int i = data.Length - 1; i >= 0; i--) builder.AddLong((long)(object)data[i]);
             } else if (typeof(T) == typeof(string)) {
@@ -586,6 +590,8 @@ namespace Service.Serializer {
             if (!ignoreCache) SetSerializingFlag(data);
             if (type == typeof(bool)) {
                 builder.StartVector(1, data.Count, 1); for (int i = data.Count - 1; i >= 0; i--) builder.AddBool((bool)(object)data[i]);
+            } else if (type == typeof(short)) {
+                builder.StartVector(2, data.Count, 2); for (int i = data.Count - 1; i >= 0; i--) builder.AddShort((short)(object)data[i]);
             } else if (type == typeof(float)) {
                 builder.StartVector(4, data.Count, 4); for (int i = data.Count - 1; i >= 0; i--) builder.AddFloat((float)(object)data[i]);
             } else if (type == typeof(int) || type.IsEnum) {
