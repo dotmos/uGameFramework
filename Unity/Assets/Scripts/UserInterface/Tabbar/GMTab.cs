@@ -135,6 +135,8 @@ namespace UserInterface
             if (IsInteractable()) {
                 if (state == SelectionState.Pressed) {
                     ColorizeElements(pressedColor);
+                } else if (state == SelectionState.Highlighted) {
+                    ColorizeElements(highlightColor);
                 } else {
                     Color color = isOn ? activeColor : defaultColor;
                     ColorizeElements(color);
