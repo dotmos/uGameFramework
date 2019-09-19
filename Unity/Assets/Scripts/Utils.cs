@@ -156,7 +156,7 @@ public class DefaultReactiveExecutionWrapper : IReactiveExecutionWrapper
 
 }
 
-public interface IObservableEnumeration {
+public interface IDirtyFlagable {
     bool IsDirty { get; }
     void SetDirtyFlag();
     void ClearDirtyFlag();
@@ -169,7 +169,7 @@ public interface IObservableList {
     }
 }
 
-public class ObservableList<T> : IObservableList, IList<T>, IObservableEnumeration {
+public class ObservableList<T> : IObservableList, IList<T>, IDirtyFlagable {
 
     private List<T> innerList;
     private bool isDirty = true;
@@ -291,7 +291,7 @@ public class Utils {
     }
 }
 
-public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IObservableEnumeration {
+public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDirtyFlagable {
     private Dictionary<TKey, TValue> innerDictionary = new Dictionary<TKey, TValue>();
     private bool isDirty = true;
 
