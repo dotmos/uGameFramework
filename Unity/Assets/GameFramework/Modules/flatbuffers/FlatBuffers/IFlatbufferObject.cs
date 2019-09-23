@@ -55,7 +55,16 @@ namespace FlatBuffers
 
         public string GetString(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? __p.__string(o + __p.bb_pos) : null; }
 
-        public Serial.FBRef? GetFBRef(int fbPos) {  int o = __p.__offset(4 + fbPos * 2); return o != 0 ? (Serial.FBRef?)(new Serial.FBRef()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; }
+        public Serial.FBRef? GetFBRef(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o != 0 ? (Serial.FBRef?)(new Serial.FBRef()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; }
+
+        public T GetFBObject<T>(int fbPos) where T: IFlatbufferObject,new() {
+            int o = __p.__offset(4 + fbPos * 2);
+            if (o == 0) return default(T);
+            var result = new T();
+            result.__init(__p.__indirect(o + __p.bb_pos), __p.bb);
+            return result;
+        }
+
         public T GetOrCreate<T>(int fbPos) where T:new() {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("GetOrCreate");
