@@ -405,7 +405,7 @@ namespace ECS {
 
             if (component != null && EntityExists(entity) && HasComponent(entity, component)) {
                 _entities[entity].Remove(component);
-                component.Entity.SetID(-1);
+                //component.Entity.SetID(-1);
                 _EntityModified(entity);
             }
         }
@@ -421,7 +421,7 @@ namespace ECS {
             _recycledComponentIds.Enqueue(component.ID.ID);
             component.Dispose();
             component.ID = UID.NULL;
-            component.Entity = UID.NULL;
+            //component.Entity = UID.NULL; //NOTE: Do not set entity to NULL. The way things are set-up right now, this might break ISystem.OnUnregistered() since components are still available, but entity is not set.
         }
 
         /// <summary>
