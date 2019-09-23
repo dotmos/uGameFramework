@@ -137,8 +137,14 @@ namespace Service.FileSystem {
 
         public override string LoadFileAsString(string pathToFile, bool compressed = false) {
             try {
-                var result = File.ReadAllText(pathToFile);
-                return result;
+                if (System.IO.File.Exists(pathToFile)) {
+                    var result = File.ReadAllText(pathToFile);
+                    return result;
+                } else {
+                    Debug.LogWarning("File " + pathToFile + " does not exist");
+                    return null;
+                }
+                
             }
             catch (Exception e) {
                 Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
@@ -148,7 +154,7 @@ namespace Service.FileSystem {
 
         }
 
-        public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile, bool compressed = false, int estimatedUncompressedSize = 0) {
+        public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile, bool compressed = false, int estimatedUncompressedSize = 0) {            
             return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed,estimatedUncompressedSize);
         }
 
@@ -157,11 +163,17 @@ namespace Service.FileSystem {
                 UnityEngine.Profiling.Profiler.BeginSample("LoadFileAsBytes");
 
                 try {
-                    var result = File.ReadAllBytes(pathToFile);
-                    if (compressed) {
-                        result = Decompress(result,estimatedUncompressedSize);
+                    if (System.IO.File.Exists(pathToFile)) {
+                        var result = File.ReadAllBytes(pathToFile);
+                        if (compressed) {
+                            result = Decompress(result, estimatedUncompressedSize);
+                        }
+                        return result;
+                    } else {
+                        
+                        return null;
                     }
-                    return result;
+                        
                 }
                 catch (Exception e) {
                     Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
