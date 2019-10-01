@@ -361,7 +361,7 @@ namespace ECS {
         /// </summary>
         /// <param name="componentToClone"></param>
         /// <returns></returns>
-        public IComponent CloneComponent(IComponent componentToClone) {
+        public IComponent CloneComponent(IComponent componentToClone) { 
             /*
             ConstructorInfo ctor = componentToClone.GetType().GetConstructor(System.Type.EmptyTypes);
             if (ctor != null) {
