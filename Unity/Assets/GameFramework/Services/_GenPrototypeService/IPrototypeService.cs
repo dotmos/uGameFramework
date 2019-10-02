@@ -53,6 +53,11 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
         /*endblock:property*/
         /*block:constructor*/
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+/*block:docParam*/        /// <param name="/*name:name*//*endname*/">/*name:documentation*//*endname*/</param>
+/*endblock:docParam*/
         public /*name:className*/SomeModel/*endname*/(/*block:rip*/int maxChannels/*endblock:rip*//*block:parameter*//*name:comma*/,/*endname*//*name:type*/string/*endname*/ /*name:paramName*/name/*endname*//*endblock:parameter*/) {
             /*block:constructorSet*/
             this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
@@ -60,6 +65,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             /*block:rip*/
             this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
+
         /*endblock:constructor*/
 
         /*name:classSerialization*/

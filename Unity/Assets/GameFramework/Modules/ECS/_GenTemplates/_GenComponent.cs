@@ -228,9 +228,16 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*endblock:d_nonprim_typed*/
         /*block:d_prim_list*/ //        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
                                       /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListPrimitiveTableOffset/*endname*/,/*name:isObservable*/false/*endname*/);
-                              /*endblock:d_prim_list*/
-/*block:d_nonprim_list_typed*/
-        if (input./*name|fu,post#TableOffset:name*/TestListUIDBufferPosition/*endname*/!=0) /*name:name*/testListUID/*endname*/ =(List </*name:innertype*/UID/*endname*/>) manual.GetTypedList</*name:innertype*/UID/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListUIDTableOffset/*endname*/);
+        /*endblock:d_prim_list*/
+        /*block:d_nonprim_list_typed*/
+        if (input./*name|fu,post#TableOffset:name*/TestListUIDBufferPosition/*endname*/!= 0) {
+            if (/*name:name*/testListUID/*endname*/== null) {
+                /*name:name*/testListUID/*endname*/ = new /*name:type*/List<UID>/*endname*/();
+            } else {
+                /*name:name*/testListUID/*endname*/.Clear();
+            }
+            /*name:name*/testListUID/*endname*/ = (/*name:type*/List<UID>/*endname*/)manual.GetTypedList</*name:innertype*/UID/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListUIDTableOffset/*endname*/,/*name:name*/testListUID/*endname*/);
+        }
 /*endblock:d_nonprim_list_typed*/
 /*block:d_nonprim_list*/
         {
