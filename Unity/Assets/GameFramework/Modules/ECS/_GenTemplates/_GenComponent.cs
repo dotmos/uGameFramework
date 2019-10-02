@@ -196,7 +196,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:s_dictold*/ 
         var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatBufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
 /*endblock:s_dictold*/
-/*block:s_dict*/                var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatBufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:dictName*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
+/*block:s_dict*/                var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatBufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:dictName*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/,true,/*name:keyTyped*/false/*endname*/,/*name:valueTyped*/false/*endname*/);
 /*endblock:s_dict*/
         Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#StartFB:ComponentName*/StartFBGenTemplateComponent/*endname*/(builder);
 /*block:s2_default*/        /*block:nullcheck*/if (/*name|fu,pre#s:name*/sState/*endname*/!=null)/*endblock:nullcheck*/ Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name|fu,pre#s:name*/sState/*endname*/);
@@ -292,6 +292,12 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                         /*endblock:nonprim_obs_list_key*/
                         /*block:nonprim_obs_list_value*/var /*name:valueName*/value4/*endname*/ = new ObservableList</*name:valueType*/SerializableHelper/*endname*/>((List</*name:valueType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1));
                         /*endblock:nonprim_obs_list_value*/
+                        /*block:nonprim_key_typed_object*/
+                        var /*name:keyName*/key5/*endname*/ = innerManual.GetTypedObject</*name:keyType*/SerializableHelper/*endname*/>(0);
+                        /*endblock:nonprim_key_typed_object*/
+                        /*block:nonprim_value_typed_object*/
+                        var /*name:valueName*/value5/*endname*/ = innerManual.GetTypedObject</*name:valueType*/SerializableHelper/*endname*/>(1);
+                        /*endblock:nonprim_value_typed_object*/
                         /*name:name*/
                         testDict2/*endname*/[(/*name:keyType*/SerializableHelper/*endname*/)/*name:thekey*/key/*endname*/] = (/*name:valueType*/SerializableHelper/*endname*/)/*name:thevalue*/value/*endname*/;
                     }

@@ -212,7 +212,7 @@ namespace Service.Serializer {
                                 , IDictionary<TKey, TValue> dict
                                 , Func<FlatBufferBuilder, FBKey,FBValue, Offset<S>> fbCreateElement
                                 , Func<FlatBufferBuilder, Offset<S>[], VectorOffset> fbCreateList=null
-                                , bool ignoreCache=true)
+                                , bool ignoreCache=true, bool keyTyped=false, bool valueTyped=false)
                                 where S : struct, FlatBuffers.IFlatbufferObject where FBValue : struct {
             if (dict == null) {
                 return null;
@@ -262,7 +262,8 @@ namespace Service.Serializer {
                             var listType = observableList.GetListType();
                             valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder, observableList.InnerIList, listType);
                         } else {
-                            var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
+                            var offset = valueTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Value)
+                                                    : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
                             valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
                         }
                         offsetList.Add(fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset).Value);
@@ -284,7 +285,8 @@ namespace Service.Serializer {
                         if (typeof(TKey) == typeof(string)) {
                             offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
                         } else {
-                            var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                            var keyElemOffset = keyTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Key)
+                                                         : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
                             offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
                         }
 
@@ -306,7 +308,8 @@ namespace Service.Serializer {
                         if (typeof(TKey) == typeof(string)) {
                             offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
                         } else {
-                            var keyElemOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                            var keyElemOffset = keyTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Key)
+                                                         : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
                             offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
                         }
 
@@ -314,7 +317,9 @@ namespace Service.Serializer {
                         if (typeof(TValue) == typeof(string)) {
                             valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Key);
                         } else {
-                            var offset = FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                            var offset = valueTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Value)
+                                                    : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+
                             valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
                         }
                         offsetList.Add(fbCreateElement(builder, offsetKey, valueElemOffset).Value);
@@ -872,7 +877,7 @@ namespace Service.Serializer {
         /// <param name="builder"></param>
         /// <param name="serializableObj"></param>
         /// <returns></returns>
-        public static StringOffset? GetOrCreateSerialize(FlatBufferBuilder builder, string serializableObj, bool ignoreCache=false) {
+        public static StringOffset GetOrCreateSerialize(FlatBufferBuilder builder, string serializableObj, bool ignoreCache=false) {
             if (serializableObj == null) {
                 return new StringOffset(0);
             }
