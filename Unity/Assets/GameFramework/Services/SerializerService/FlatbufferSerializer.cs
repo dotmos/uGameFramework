@@ -262,8 +262,8 @@ namespace Service.Serializer {
                             var listType = observableList.GetListType();
                             valueElemOffset = (FBValue)(object)FlatBufferSerializer.CreateManualList(builder, observableList.InnerIList, listType);
                         } else {
-                            var offset = valueTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Value)
-                                                    : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                            int? offset = valueTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Value)
+                                                    : FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
                             valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
                         }
                         offsetList.Add(fbCreateElement(builder, (FBKey)((object)dictElem.Key), valueElemOffset).Value);
@@ -286,7 +286,7 @@ namespace Service.Serializer {
                             offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
                         } else {
                             var keyElemOffset = keyTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Key)
-                                                         : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                                                         : FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Key);
                             offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
                         }
 
@@ -309,7 +309,7 @@ namespace Service.Serializer {
                             offsetKey = (FBKey)(object)builder.CreateString((string)(object)dictElem.Key);
                         } else {
                             var keyElemOffset = keyTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Key)
-                                                         : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Key);
+                                                         : FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Key);
                             offsetKey = (FBKey)Activator.CreateInstance(typeof(FBKey), keyElemOffset);
                         }
 
@@ -318,7 +318,7 @@ namespace Service.Serializer {
                             valueElemOffset = (FBValue)(object)builder.CreateString((string)(object)dictElem.Key);
                         } else {
                             var offset = valueTyped ? FlatBufferSerializer.SerializeTypedObject(builder, dictElem.Value)
-                                                    : FlatBufferSerializer.GetOrCreateSerialize(builder, (IFBSerializable)dictElem.Value);
+                                                    : FlatBufferSerializer.GetOrCreateSerialize(builder, dictElem.Value);
 
                             valueElemOffset = (FBValue)Activator.CreateInstance(typeof(FBValue), offset);
                         }
@@ -1100,7 +1100,7 @@ namespace Service.Serializer {
         /// <param name="builder"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static int SerializeTypedObject(FlatBufferBuilder builder,object obj) {
+        public static int? SerializeTypedObject(FlatBufferBuilder builder,object obj) {
             if (obj == null) return 0;
 
 
