@@ -40,6 +40,7 @@ namespace Service.TimeService {
     
     [System.Serializable]
     public  class TimerElement {
+        public TimerElement() { }
         
         public string info ;
         

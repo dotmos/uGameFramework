@@ -180,6 +180,7 @@ namespace Service.DevUIService {
     
     [System.Serializable]
     public  class DataBrowserTopLevel {
+        public DataBrowserTopLevel() { }
         
         public string topLevelName ;
         
@@ -194,6 +195,7 @@ namespace Service.DevUIService {
     
     [System.Serializable]
     public  class HistoryElement {
+        public HistoryElement() { }
         
         public System.Collections.IList objectList ;
         

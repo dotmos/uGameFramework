@@ -79,6 +79,7 @@ namespace Service.GameStateService {
     
     [System.Serializable]
     public  class GSContext {
+        public GSContext() { }
         
         
         

@@ -41,6 +41,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     /*block:modelClass*/
     [System.Serializable]
     public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+        public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /*name:scope*/
         public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;

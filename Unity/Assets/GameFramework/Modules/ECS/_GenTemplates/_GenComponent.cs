@@ -33,6 +33,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*block:modelClass*/
     [System.Serializable]
     public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+        public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /// <summary>
         /// /*name:documentation*//*endname*/
@@ -62,8 +63,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /// <summary>
         /// Default constructor
         /// </summary>
-        public /*name:className*/SomeModel/*endname*/() { }
-
         /*name:classSerialization*/
         public void Deserialize(int dataFormatNr,object incoming) {
             throw new System.NotImplementedException();
@@ -215,7 +214,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     }
 
     public /*name:override*/override/*endname*/ void Deserialize(object data) {
-
+        if (data is Serial.FBRef) {
+            data = FlatBufferSerializer.CastSerialObject<Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/>(data);
+        }
         var input = (Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/)data;
 /*block:inheritance_deser*/        base.Deserialize(input.BaseData);
 /*endblock:inheritance_deser*/        /*name:useManual*/var manual = FlatBufferSerializer.GetManualObject(data);/*endname*/
