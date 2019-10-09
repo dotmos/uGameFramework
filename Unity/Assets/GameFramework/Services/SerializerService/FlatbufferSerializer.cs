@@ -111,7 +111,7 @@ namespace Service.Serializer {
         /// <returns></returns>
         public static object ConvertToObject(object incoming,Type resultType) {
             if (resultType == null) {
-                int a = 0;
+                //int a = 0;
                 return null;
             }
 

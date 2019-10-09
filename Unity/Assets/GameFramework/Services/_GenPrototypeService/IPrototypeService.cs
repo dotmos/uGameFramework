@@ -70,15 +70,15 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /*endblock:constructor*/
 
         /*name:classSerialization*/
-        public void Deserialize(object incoming) {
+        public virtual void Deserialize(object incoming) {
             throw new System.NotImplementedException();
         }
 
-        public void Deserialize(ByteBuffer buf) {
+        public virtual void Deserialize(ByteBuffer buf) {
             throw new System.NotImplementedException();
         }
 
-        public int Serialize(FlatBufferBuilder builder) {
+        public virtual int Serialize(FlatBufferBuilder builder) {
             throw new System.NotImplementedException();
         }
         /*endname*/

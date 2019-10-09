@@ -2,7 +2,6 @@
 using ECS;
 using FlatBuffers;
 using Service.Serializer;
-using System.Collections.Generic;
 using System.Linq;
 /*name:using*/ /*endname*/
 
@@ -109,7 +108,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public System.Collections.Generic.Dictionary<int, int> testDict = new System.Collections.Generic.Dictionary<int, int>();
     public System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper> testDict2 = new System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper>();
     public System.Collections.Generic.List<string> testStringList = new System.Collections.Generic.List<string>();
-    public List<State> enumList = new List<State>();
+    public System.Collections.Generic.List<State> enumList = new System.Collections.Generic.List<State>();
     public ObservableList<State> enumObsList = new ObservableList<State>();
     public StringOffset? nullableStringOffset = null;
 
@@ -228,16 +227,16 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:d_nonprim_typed*/         if (input./*name|fu:name*/TestUID/*endname*/!=null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.DeserializeTypedObject</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
         /*endblock:d_nonprim_typed*/
         /*block:d_prim_list*/ //        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
-                                      /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListPrimitiveTableOffset/*endname*/,/*name:isObservable*/false/*endname*/);
+                                      /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/System.Collections.Generic.List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListPrimitiveTableOffset/*endname*/,/*name:isObservable*/false/*endname*/);
         /*endblock:d_prim_list*/
         /*block:d_nonprim_list_typed*/
         if (input./*name|fu,post#TableOffset:name*/TestListUIDBufferPosition/*endname*/!= 0) {
             if (/*name:name*/testListUID/*endname*/== null) {
-                /*name:name*/testListUID/*endname*/ = new /*name:type*/List<UID>/*endname*/();
+                /*name:name*/testListUID/*endname*/ = new /*name:type*/System.Collections.Generic.List<UID>/*endname*/();
             } else {
                 /*name:name*/testListUID/*endname*/.Clear();
             }
-            /*name:name*/testListUID/*endname*/ = (/*name:type*/List<UID>/*endname*/)manual.GetTypedList</*name:innertype*/UID/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListUIDTableOffset/*endname*/,/*name:name*/testListUID/*endname*/);
+            /*name:name*/testListUID/*endname*/ = (/*name:type*/System.Collections.Generic.List<UID>/*endname*/)manual.GetTypedList</*name:innertype*/UID/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListUIDTableOffset/*endname*/,/*name:name*/testListUID/*endname*/);
         }
 /*endblock:d_nonprim_list_typed*/
 /*block:d_nonprim_list*/
@@ -263,9 +262,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             //            object result = FlatBufferSerializer.FindInDeserializeCache</*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>>(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
             object result = null;
             if (result != null) {
-                /*name:name*/testDict/*endname*/ = (/*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>)result;
+                /*name:name*/testDict/*endname*/ = (/*name:dictType*/System.Collections.Generic.Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>)result;
             } else {
-                /*name:name*/testDict/*endname*/ = new /*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
+                /*name:name*/testDict/*endname*/ = new /*name:dictType*/System.Collections.Generic.Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
                 var innerManual = FlatBufferSerializer.GetManualObject(data);
                 for (int i = 0; i < input./*name|fu,post#Length:name*/TestDictLength/*endname*/; i++) {
                     var e = input./*name|fu:name*/TestDictNonPrim/*endname*/(i);
@@ -288,9 +287,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                         /*block:nonprim_list_value*/        
                         var /*name:valueName*/value3/*endname*/ = innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1);
                         /*endblock:nonprim_list_value*/
-                        /*block:nonprim_obs_list_key*/var /*name:keyName*/key4/*endname*/ = new ObservableList</*name:keyType*/SerializableHelper/*endname*/>((List</*name:keyType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0));
+                        /*block:nonprim_obs_list_key*/var /*name:keyName*/key4/*endname*/ = new ObservableList</*name:keyType*/SerializableHelper/*endname*/>((System.Collections.Generic.List</*name:keyType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0));
                         /*endblock:nonprim_obs_list_key*/
-                        /*block:nonprim_obs_list_value*/var /*name:valueName*/value4/*endname*/ = new ObservableList</*name:valueType*/SerializableHelper/*endname*/>((List</*name:valueType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1));
+                        /*block:nonprim_obs_list_value*/var /*name:valueName*/value4/*endname*/ = new ObservableList</*name:valueType*/SerializableHelper/*endname*/>((System.Collections.Generic.List</*name:valueType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1));
                         /*endblock:nonprim_obs_list_value*/
                         /*block:nonprim_key_typed_object*/
                         var /*name:keyName*/key5/*endname*/ = innerManual.GetTypedObject</*name:keyType*/SerializableHelper/*endname*/>(0);

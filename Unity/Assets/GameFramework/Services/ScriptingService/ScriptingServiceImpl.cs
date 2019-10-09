@@ -228,7 +228,7 @@ namespace Service.Scripting {
                 currentProposals = mainScript.Globals.Keys.Select(val=>val.String).ToList();
                 foreach (var key in mainScript.Globals.Keys) {
                     var val = mainScript.Globals[key];
-                    int a = 0;
+                    //int a = 0;
                 }
             }
 

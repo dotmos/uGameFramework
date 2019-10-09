@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
          
-namespace Service.FileSystem {             
-    public interface IFileSystemService {  	
+namespace Service.FileSystem {            
+    public interface IFileSystemService {  
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain,string realtivePart="");
 		## "Write bytes to file"

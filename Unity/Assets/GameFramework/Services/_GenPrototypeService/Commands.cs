@@ -1,5 +1,5 @@
 
-/*name:using*/using Service.Events;/*endname*/
+/*name:using*/using System.Collections.Generic;/*endname*/
 using System;
 using Service.Events;
 using Zenject;
