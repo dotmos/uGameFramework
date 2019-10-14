@@ -16,7 +16,7 @@ namespace UserInterface {
 
         void OnValueChanged(bool isOn) {
             float rotationValue = isOn ? rotationOn : rotationOff;
-            transform.rotation = Quaternion.Euler(new Vector3(0, 0, rotationValue));
+            transform.localRotation = Quaternion.Euler(new Vector3(0, 0, rotationValue));
         }
     }
 }

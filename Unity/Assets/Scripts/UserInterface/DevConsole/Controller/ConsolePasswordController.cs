@@ -16,6 +16,10 @@ namespace UserInterface {
             applyButton.onClick.AddListener(CheckPassword);
         }
 
+        private void OnEnable() {
+            if (Application.isEditor) UnlockConsole();
+        }
+
         void Update() {
             if (Input.GetKeyUp(KeyCode.Return)) {
                 CheckPassword();
