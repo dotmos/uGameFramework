@@ -510,10 +510,14 @@ public class ArrayPool<T> where T : struct {
                 pool.Add(releasedArray[i]);
             }
             pool.Sort((x, y) => {
+                /*
                 if (x == null || y == null) {
                     int b = 0;
                 }
-                return x.Length < y.Length ? -1 : 1;
+                */
+                if (x.Length < y.Length) return -1;
+                else if (x.Length > y.Length) return 1;
+                else return 0;
             });
         }
     }
@@ -557,7 +561,11 @@ public class ListPool<T>  {
                 pool.Add(list);
             }
 
-            pool.Sort((x, y) => x.Capacity < y.Capacity ? 1 : -1);
+            pool.Sort((x, y) => {
+                if (x.Capacity < y.Capacity) return 1;
+                else if (x.Capacity > y.Capacity) return -1;
+                else return 0;
+            });
         }
     }
 }
