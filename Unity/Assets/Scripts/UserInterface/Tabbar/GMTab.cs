@@ -163,6 +163,10 @@ namespace UserInterface
             }
         }
 
+        public void UpdateColors() {
+            DoStateTransition(currentSelectionState, true);
+        }
+
         protected override void OnDestroy() {
             isBeingDestroyed = true;
         }
