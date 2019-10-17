@@ -342,6 +342,10 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDi
         return ((IDictionary<TKey, TValue>)innerDictionary).ContainsKey(key);
     }
 
+    public bool ContainsValue(TValue value) {
+        return innerDictionary.ContainsValue(value);
+    }
+
     public bool Remove(TKey key) {
         SetDirtyFlag();
         return ((IDictionary<TKey, TValue>)innerDictionary).Remove(key);
