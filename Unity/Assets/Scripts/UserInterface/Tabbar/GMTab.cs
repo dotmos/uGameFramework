@@ -147,10 +147,7 @@ namespace UserInterface
         }
 
         protected virtual void OnToggleValueChanged(bool _isOn) {
-            if (interactable) {
-                Color color = _isOn ? activeColor : defaultColor;
-                ColorizeElements(color);
-            }
+            DoStateTransition(currentSelectionState, false);
 
             if (border != null) {
                 border.SetActive(_isOn);
