@@ -38,7 +38,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /// /*name:documentation*//*endname*/
         /// </summary>
         /*name:scope*/
-        public/*endname*/ /*name:type*/string/*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
+        public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
         /*endblock:field*/
         /*block:property*/
             /// <summary>
@@ -84,7 +84,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*name:comment*//*endname*/
                     /// </summary>
     /*name:attributes*//*endname*/
-    /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
+    /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
     /*endblock:field*/
     /*block:rip*/
     public string testName = "f95";
