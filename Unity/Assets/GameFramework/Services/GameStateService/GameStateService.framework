@@ -8,6 +8,9 @@ namespace Service.GameStateService {
 		("GameState") RegisterGameState(string name,("GameState") gamestate=("null"));
 		## "Get the current gamestate. Alternatively use \"[Inject] GameState current;\""
 		("GameState") GetCurrentGameState();
+		
+		## "Check if the current gamestate is the specified one"
+		bool IsInState(("GameState") gs);
 		## "Start a new gamestate after stopping the current one (if present). Optionally pass a context in which you can e.g. set gamestate-flags"
 		("IObservable<bool>") StartGameState(("GameState") gamestate,GSContext ctx=("null"));
 		("IObservable<bool>") StopGameState(("GameState") gamestate);

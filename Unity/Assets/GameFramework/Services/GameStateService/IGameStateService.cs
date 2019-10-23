@@ -38,6 +38,15 @@ namespace Service.GameStateService {
 
 
 		/// <summary>
+        /// Check if the current gamestate is the specified one 
+        /// <param name="gs"></param>
+ /// </summary>
+        
+
+					bool IsInState(GameState gs);
+
+
+		/// <summary>
         /// Start a new gamestate after stopping the current one (if present). Optionally pass a context in which you can e.g. set gamestate-flags 
         /// <param name="gamestate"></param>
         /// <param name="ctx"></param>

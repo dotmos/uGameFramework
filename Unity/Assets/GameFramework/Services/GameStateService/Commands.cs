@@ -26,6 +26,8 @@ namespace Service.GameStateService{
 
             this.OnEvent<GetCurrentGameStateCommand>().Subscribe(e => GetCurrentGameStateCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<IsInStateCommand>().Subscribe(e => IsInStateCommandHandler(e)).AddTo(this);
+
             this.OnEvent<StartGameStateCommand>().Subscribe(e => StartGameStateCommandHandler(e)).AddTo(this);
 
             this.OnEvent<StopGameStateCommand>().Subscribe(e => StopGameStateCommandHandler(e)).AddTo(this);
@@ -85,6 +87,32 @@ namespace Service.GameStateService{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("GetCurrentGameStateCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Check if the current gamestate is the specified one
+        /// </summary>
+        
+        public class IsInStateCommand  {
+            public bool result;
+                        public GameState gs;
+            
+            
+        }
+
+		protected void IsInStateCommandHandler  (IsInStateCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("IsInStateCommand");
+#endif
+        
+            cmd.result = _service.IsInState(cmd.gs);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("IsInStateCommand");
 #endif
         }
         

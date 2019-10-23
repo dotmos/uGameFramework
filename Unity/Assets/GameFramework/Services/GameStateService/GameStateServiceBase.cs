@@ -125,6 +125,9 @@ namespace Service.GameStateService
         public abstract GameState GetCurrentGameState();
 
         
+        public abstract bool IsInState(GameState gs);
+
+        
         public abstract IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
 
         
