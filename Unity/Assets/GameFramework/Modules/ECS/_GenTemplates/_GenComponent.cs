@@ -225,7 +225,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:d_nonprim*/         if (input./*name|fu:name*/TestUID/*endname*/!=null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.GetOrCreateDeserialize</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
         /*endblock:d_nonprim*/
 /*block:d_nonprim_typed*/         if (input./*name|fu:name*/TestUID/*endname*/!=null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.DeserializeTypedObject</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
-        /*endblock:d_nonprim_typed*/
+/*endblock:d_nonprim_typed*/
         /*block:d_prim_list*/ //        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
                                       /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/System.Collections.Generic.List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListPrimitiveTableOffset/*endname*/,/*name:isObservable*/false/*endname*/);
         /*endblock:d_prim_list*/
@@ -247,10 +247,19 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             /*name:name*/testListUID/*endname*/ = (/*name:type*/ System.Collections.Generic.List<UID>/*endname*/)FlatBufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/,tempList,null,/*name:isObservable*/false/*endname*/);
             FlatBufferSerializer.poolListObject.Release(tempList);
         }
-/*endblock:d_nonprim_list*/
-/*block:d_enum_list*/            /*name:name*/enumList/*endname*/ = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/().Cast</*name:innertype*/State/*endname*/>().ToList();
-/*endblock:d_enum_list*/  
-/*block:d_enum_obs_list*/            /*name:name*/enumObsList/*endname*/ = new ObservableList</*name:innertype*/State/*endname*/>(input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/().Cast</*name:innertype*/State/*endname*/>().ToList());
+        /*endblock:d_nonprim_list*/
+        /*block:d_enum_list*/
+        {
+            var arrayData = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/();
+            if (arrayData != null) /*name:name*/enumList/*endname*/ = arrayData.Cast</*name:innertype*/State/*endname*/>().ToList();
+        }
+        /*endblock:d_enum_list*/
+        /*block:d_enum_obs_list*/
+        {
+            var arrayData = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/();
+            
+            if (arrayData != null) /*name:name*/enumObsList/*endname*/ = new ObservableList</*name:innertype*/State/*endname*/>(arrayData.Cast</*name:innertype*/State/*endname*/>().ToList());
+        } 
 /*endblock:d_enum_obs_list*/  
 /*block:d_string_list*/     {
             /*name:name*/testStringList/*endname*/ = new System.Collections.Generic.List<string>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
