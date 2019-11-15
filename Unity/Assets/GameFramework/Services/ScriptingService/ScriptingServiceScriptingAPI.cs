@@ -16,7 +16,10 @@ namespace Service.Scripting {
             Publish(cmdGetScript);
             var api = new API(this);
             Kernel.Instance.Inject(api);
-            cmdGetScript.result.Globals["Scripting"] = api;
+            var script = cmdGetScript.result;
+
+            script.Globals["Scripting"] = api;
+
         } 
 
 

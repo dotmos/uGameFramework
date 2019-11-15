@@ -81,7 +81,7 @@ namespace Service.Scripting {
                 var dscr = (StandardUserDataDescriptor)userdata.Descriptor;
 
                 var methods = userdata.Object.GetType().GetMethods();
-                foreach(var m in methods) {
+                foreach (var m in methods) {
                     var memberResult = m.Name;
                     var methodparams = m.GetParameters();
 
@@ -133,6 +133,11 @@ namespace Service.Scripting {
                     result.Add(memberResult);
                 }
                 */
+            } else if (userdata.Descriptor is StandardEnumUserDataDescriptor) {
+                var dscr = (StandardEnumUserDataDescriptor)userdata.Descriptor;
+                foreach (var ev in dscr.MemberNames) {
+                    result.Add(ev.ToString());
+                }
             }
             else {
                 Debug.LogWarning("Proposal from Userdata cannot process UserData-Descriptor-Type:" + userdata.Descriptor.GetType().ToString());
