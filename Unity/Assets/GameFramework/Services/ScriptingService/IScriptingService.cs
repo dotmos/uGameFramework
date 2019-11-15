@@ -34,10 +34,11 @@ namespace Service.Scripting {
 		/// <summary>
         /// Load a script into the default lua-context 
         /// <param name="fileName"></param>
+        /// <param name="useScriptDomain"></param>
  /// </summary>
         
 
-					string ExecuteFileToMainScript(string fileName);
+					string ExecuteFileToMainScript(string fileName,bool useScriptDomain=false);
 
 
 		/// <summary>
@@ -58,8 +59,47 @@ namespace Service.Scripting {
 
 					Proposal AutocompleteProposals(string currentInput,int cursorPos);
 
+
+		/// <summary>
+        /// Creates a lua coroutine 
+        /// <param name="funcName"></param>
+ /// </summary>
+        
+
+					LuaCoroutine CreateCoroutine(DynValue funcName);
+
+
+					void Callback(string cbtype,object o2=null,object o3=null);
+
+
+					void RegisterCallback(Action<string,object,object> cbCallbackFunc);
+
+
+					void Tick(float dt);
+
 	}
 
+
+    
+    [System.Serializable]
+    public partial class LuaCoroutine {
+        public LuaCoroutine() { }
+        
+        public MoonSharp.Interpreter.DynValue co ;
+        
+        public string waitForType ;
+        
+        public object value1 ;
+        
+        public DynValue value2 ;
+        
+        public Dictionary<string,object> context ;
+        
+        
+        
+
+        
+    }
 
     
 }

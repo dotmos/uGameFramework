@@ -33,7 +33,7 @@ namespace UserInterface {
         IScriptingService scripting;
 
         protected override void AfterBind() {
-            scriptingPath = filesystem.GetPath(FSDomain.ScriptingOutput);
+            scriptingPath = filesystem.GetPath(FSDomain.Scripting);
 
             consoleInput.onEndEdit.AddListener(OnEndEdit);
             closeButton.onClick.AddListener(CloseConsole);

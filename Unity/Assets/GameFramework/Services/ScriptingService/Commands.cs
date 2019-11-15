@@ -32,6 +32,14 @@ namespace Service.Scripting{
 
             this.OnEvent<AutocompleteProposalsCommand>().Subscribe(e => AutocompleteProposalsCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<CreateCoroutineCommand>().Subscribe(e => CreateCoroutineCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<CallbackCommand>().Subscribe(e => CallbackCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<RegisterCallbackCommand>().Subscribe(e => RegisterCallbackCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -94,6 +102,7 @@ namespace Service.Scripting{
         public class ExecuteFileToMainScriptCommand  {
             public string result;
                         public string fileName;
+                        public bool useScriptDomain=false;
             
             
         }
@@ -104,7 +113,7 @@ namespace Service.Scripting{
             ptest.Start("ExecuteFileToMainScriptCommand");
 #endif
         
-            cmd.result = _service.ExecuteFileToMainScript(cmd.fileName);
+            cmd.result = _service.ExecuteFileToMainScript(cmd.fileName,cmd.useScriptDomain);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("ExecuteFileToMainScriptCommand");
@@ -161,6 +170,106 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("AutocompleteProposalsCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Creates a lua coroutine
+        /// </summary>
+        
+        public class CreateCoroutineCommand  {
+            public LuaCoroutine result;
+                        public DynValue funcName;
+            
+            
+        }
+
+		protected void CreateCoroutineCommandHandler  (CreateCoroutineCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("CreateCoroutineCommand");
+#endif
+        
+            cmd.result = _service.CreateCoroutine(cmd.funcName);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("CreateCoroutineCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class CallbackCommand  {
+            public string cbtype;
+                        public object o2=null;
+                        public object o3=null;
+            
+            
+        }
+
+		protected void CallbackCommandHandler  (CallbackCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("CallbackCommand");
+#endif
+        _service.Callback(cmd.cbtype,cmd.o2,cmd.o3);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("CallbackCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class RegisterCallbackCommand  {
+            public Action<string,object,object> cbCallbackFunc;
+            
+            
+        }
+
+		protected void RegisterCallbackCommandHandler  (RegisterCallbackCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("RegisterCallbackCommand");
+#endif
+        _service.RegisterCallback(cmd.cbCallbackFunc);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("RegisterCallbackCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class TickCommand  {
+            public float dt;
+            
+            
+        }
+
+		protected void TickCommandHandler  (TickCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("TickCommand");
+#endif
+        _service.Tick(cmd.dt);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("TickCommand");
 #endif
         }
         

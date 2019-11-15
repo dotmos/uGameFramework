@@ -18,8 +18,8 @@ namespace Service.Scripting {
             Kernel.Instance.Inject(api);
             var script = cmdGetScript.result;
 
-            script.Globals["Scripting"] = api;
-
+            //script.Globals["Scripting"] = api;
+            ActivateDefaultScripting("Scripting");
         } 
 
 

@@ -39,7 +39,7 @@ namespace Service.FileSystem {
 ## model
  
 public enum FSDomain {
-	ScriptingOutput,
+	Scripting,
 	RuntimeAssets,
 	DevUIViews,
 	DevUIViewsArchieve,

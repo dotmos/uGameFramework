@@ -69,7 +69,7 @@ namespace Service.FileSystem {
             switch (domain) {
                 case FSDomain.ConfigFolder: path = persistentDataPath+"/config"; break;
                 case FSDomain.SaveGames: path = persistentDataPath + "/savegame"; break;
-                case FSDomain.ScriptingOutput: path = persistentDataPath + "/scripting"; break;
+                case FSDomain.Scripting: path = persistentDataPath + "/scripting"; break;
                 case FSDomain.DevUIViews: path = persistentDataPath + "/dev-ui/views"; break;
                 case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archives"; break;
                 case FSDomain.RuntimeAssets: path = streamingAssetsPath; break;

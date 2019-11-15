@@ -8,7 +8,7 @@ namespace Service.Scripting {
 		## "Execute a string into the default-lua-context"
 		string ExecuteStringOnMainScript(string luaCode);
 		## "Load a script into the default lua-context" 
-		string ExecuteFileToMainScript(string fileName);
+		string ExecuteFileToMainScript(string fileName, bool useScriptDomain=False);
 		
 		## "Load a script into the default lua-context" 
 		("DynValue") ExecuteStringOnMainScriptRaw(string fileName);
@@ -16,10 +16,25 @@ namespace Service.Scripting {
 		## "Generates a list of possible proposals"
 		("Proposal") AutocompleteProposals(string currentInput,int cursorPos);
  
+ 		## "Creates a lua coroutine"
+ 		LuaCoroutine CreateCoroutine(("DynValue") funcName);
+		void Callback(string cbtype,object o2=("null"),object o3=("null"));
+		void RegisterCallback(("Action<string,object,object>") cbCallbackFunc);
+		
+		void Tick(float dt); 		
+ 
 		
 		//T GetComponent<T>(UID entity) where T : IComponent
     }   
 }      
-## events 
+## model 
+
+public partial class LuaCoroutine{
+	public ("MoonSharp.Interpreter.DynValue") co;
+	public string waitForType;
+	public object value1;
+	public ("DynValue") value2;
+	public Dictionary<string,object> context;
+}
 
 ## service end

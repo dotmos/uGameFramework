@@ -28,6 +28,8 @@ public partial class Kernel : SceneContext {
     public ReactivePriorityExecutionList rxStartup = new ReactivePriorityExecutionList();
     public ReactivePriorityExecutionList rxShutDown = new ReactivePriorityExecutionList();
 
+    private Service.Scripting.IScriptingService scriptingService;
+
     public static ReactiveProperty<Kernel> InstanceProperty = new ReactiveProperty<Kernel>();
     public static Kernel Instance {
         get{
@@ -92,6 +94,11 @@ public partial class Kernel : SceneContext {
             Debug.Log("MainThreadID-mismatch:" + System.Threading.Thread.CurrentThread.ManagedThreadId + " != mainThread:" + MAINTHREAD_ID);
         }
         FutureProcessor.Instance.ProcessMainThreadActions();
+
+#if !NO_LUA_TESTING
+        if (scriptingService == null) scriptingService = Container.Resolve<Service.Scripting.IScriptingService>();
+        scriptingService.Tick(Time.deltaTime);
+#endif
 
         if (KernelReady && KernelCallUpdate) Tick(Time.deltaTime);
     }

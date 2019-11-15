@@ -9,17 +9,42 @@ using System.IO;
 using System.Linq;
 
 namespace Service.Scripting {
+
+    public partial class LuaCoroutine {
+        public DynValue Resume(params object[] objs) {
+            if (co==null || co.Coroutine.State == CoroutineState.Dead) {
+                Debug.Log("dead lua co routine!");
+                co = null;
+                return null;
+                // TODO discard
+            }
+            var result = co.Coroutine.Resume(objs);
+            if (result.Type == DataType.Tuple) {
+                var yieldValues = result.Tuple;
+                if (yieldValues.Length >= 1) waitForType = yieldValues[0].String;
+                value1 = yieldValues.Length >= 2 ? yieldValues[1].ToObject() : null;
+                value2 = yieldValues.Length >= 3 ? yieldValues[2] : null;
+            }
+
+            return result;
+        }
+    }
     partial class ScriptingServiceImpl : ScriptingServiceBase {
 
 
         [Inject]
         private Service.LoggingService.ILoggingService logging;
+        [Inject]
+        private Service.FileSystem.IFileSystemService filesystem;
+
+        private List<LuaCoroutine> coRoutines = new List<LuaCoroutine>();
 
         private Script mainScript;
         //private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
-        private static readonly HashSet<char> delimiters = new HashSet<char>() { '(',')',',','=',';',' ','+'};
+        private static readonly HashSet<char> delimiters = new HashSet<char>() { '(', ')', ',', '=', ';', ' ', '+' };
 
-
+        private List<Action<string, object, object>> callbacks = new List<Action<string, object, object>>();
+        
         /// <summary>
         /// Is the gameconsole enabled?
         /// </summary>
@@ -34,6 +59,9 @@ namespace Service.Scripting {
 
                 // TODO: get rid of nextframe
                 Observable.NextFrame().Subscribe(_ => ActivateDefaultScripting("script")).AddTo(disposables);
+
+                RegisterCallback(LuaCallback); 
+                RegisterCallback(LuaCoroutineCallback);
             }
             catch (Exception e) {
                 Debug.LogError("COULD NOT START SCRIPTINGCONSOLE SERVICE!");
@@ -251,12 +279,19 @@ namespace Service.Scripting {
             return result;
         }
 
-        public override string ExecuteFileToMainScript(string fileName) {
+        public override string ExecuteFileToMainScript(string fileName, bool useScriptDomain=false) {
             try {
                 // TODO: User DoFile with corresponding platform-controller
                 //var result = mainScript.DoFile(fileName);
                 //return result.ToString();
-                var input = File.ReadAllText(fileName);
+
+
+                //var input = File.ReadAllText(fileName);
+
+                var input = useScriptDomain
+                                ? filesystem.LoadFileAsStringAtDomain(FileSystem.FSDomain.Scripting, fileName)
+                                : filesystem.LoadFileAsString(fileName);
+
                 return ExecuteStringOnMainScript(input);
             }
             catch (ScriptRuntimeException ex) {
@@ -270,7 +305,80 @@ namespace Service.Scripting {
             }
         }
 
+        public override void RegisterCallback(Action<string, object, object> cbCallbackAction) {
+            callbacks.Add(cbCallbackAction);
+        }
 
+        /// <summary>
+        /// Default callback to forward callbacks to the lua side
+        /// </summary>
+        /// <param name="cbType"></param>
+        /// <param name="o2"></param>
+        /// <param name="o3"></param>
+        private void LuaCallback(string cbType, object o2 = null, object o3 = null) {
+            // give it to the lua side (callback-lua func in definied 
+            mainScript.Call(mainScript.Globals["__callback"], cbType, o2, o3);
+        }
+
+        private void LuaCoroutineCallback(string cbType, object o2 = null, object o3 = null) {
+            // give it to the lua side (callback-lua func in definied
+            foreach (var lCo in coRoutines) {
+                if (lCo.waitForType == cbType) {
+                }
+            }
+        }
+
+        public override void Callback(string cbType, object o2 = null, object o3 = null) {
+            foreach (var cb in callbacks) {
+                cb(cbType, o2, o3);
+            }
+        }
+
+        List<LuaCoroutine> removeCoRoutine = new List<LuaCoroutine>();
+
+        public override void Tick(float dt) {
+#if !NO_LUATESTING
+            var tickFunc = mainScript.Globals["tick"];
+            if (tickFunc != null) {
+                mainScript.Call(tickFunc, dt);
+            }
+            
+            foreach (var coRoutine in coRoutines) {
+                if (coRoutine.waitForType == "frame") {
+                    if (coRoutine.value1!=null) {
+                        
+                    }
+                    var result = coRoutine.Resume("frame");
+                    if (result == null) {
+                        removeCoRoutine.Add(coRoutine);
+                    }
+                }
+            }
+            if (removeCoRoutine.Count > 0) {
+                foreach (var removeCo in removeCoRoutine) {
+                    coRoutines.Remove(removeCo);
+                }
+                removeCoRoutine.Clear();
+            }
+#endif
+        }
+
+        public override LuaCoroutine CreateCoroutine(DynValue coFunc) {
+            //var coFunc = mainScript.Globals.Get(funcName);
+
+            if (coFunc == null || coFunc.Type!=DataType.Function) return null;
+
+            DynValue coroutine = mainScript.CreateCoroutine(coFunc);
+
+            var luaCo = new LuaCoroutine() {
+                co = coroutine
+            };
+            var result = luaCo.Resume(); // first step
+            if (result != null) {
+                coRoutines.Add(luaCo);
+            }
+            return luaCo;
+        }
 
         public override Script GetMainScript() {
             return mainScript;

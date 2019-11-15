@@ -125,13 +125,25 @@ namespace Service.Scripting
         public abstract string ExecuteStringOnMainScript(string luaCode);
 
         
-        public abstract string ExecuteFileToMainScript(string fileName);
+        public abstract string ExecuteFileToMainScript(string fileName,bool useScriptDomain=false);
 
         
         public abstract DynValue ExecuteStringOnMainScriptRaw(string fileName);
 
         
         public abstract Proposal AutocompleteProposals(string currentInput,int cursorPos);
+
+        
+        public abstract LuaCoroutine CreateCoroutine(DynValue funcName);
+
+        
+        public abstract void Callback(string cbtype,object o2=null,object o3=null);
+
+        
+        public abstract void RegisterCallback(Action<string,object,object> cbCallbackFunc);
+
+        
+        public abstract void Tick(float dt);
 
         
 
