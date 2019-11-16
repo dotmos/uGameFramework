@@ -18,8 +18,35 @@ namespace Service.Scripting {
             Kernel.Instance.Inject(api);
             var script = cmdGetScript.result;
 
+            string scriptCode = @"
+                print('lua-lib start')
+                _luacallbacks = {}
+
+                function registerCallback(cb)
+                  table.insert(_luacallbacks,cb)
+                end
+
+		        function __callback(a,b,c)
+                    for i, cb in ipairs(_luacallbacks) do
+                        cb(a,b,c)
+                    end
+                end
+
+                function __defaultCallback(a,b,c)
+                    print('callback: '..(a or ''))
+                end
+
+                registerCallback(__defaultCallback)
+
+                print('lua-lib initialized')
+	        ";
+
+            script.DoString(scriptCode);
+
             //script.Globals["Scripting"] = api;
             ActivateDefaultScripting("Scripting");
+
+
         } 
 
 

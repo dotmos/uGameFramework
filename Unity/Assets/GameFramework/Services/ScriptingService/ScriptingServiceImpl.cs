@@ -52,6 +52,7 @@ namespace Service.Scripting {
             try {
                 // make all datatypes available
                 UserData.RegistrationPolicy = InteropRegistrationPolicy.Automatic;
+                //UserData.DefaultAccessMode = InteropAccessMode.Reflection;
 
                 //scriptingComponent = GameObject.Find("/ScriptingConsole").GetComponent<ScriptingConsoleComponent>();
                 // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
@@ -108,6 +109,14 @@ namespace Service.Scripting {
             if (userdata.Descriptor is StandardUserDataDescriptor) {
                 var dscr = (StandardUserDataDescriptor)userdata.Descriptor;
 
+
+                if (userdata.Object == null) {
+                    var st = dscr.MemberNames.First();
+                    if (dscr.Members.Count()>0 && dscr.MemberNames.First() == "__new") {
+                        result.Add("__new()");
+                    }
+                    return result;
+                }
                 var methods = userdata.Object.GetType().GetMethods();
                 foreach (var m in methods) {
                     var memberResult = m.Name;
@@ -123,6 +132,10 @@ namespace Service.Scripting {
                     memberResult += ")";
 
                     result.Add(memberResult);
+                }
+                var fields = userdata.Object.GetType().GetFields();
+                foreach (var f in fields) {
+                    result.Add(f.Name);
                 }
 
                 /*
@@ -270,7 +283,7 @@ namespace Service.Scripting {
             }
 
             result.proposalElements = currentProposals.FindAll(prop => lastInputPart.Length == 0 || prop.StartsWith(lastInputPart))
-                           .Where(elem=>!elem.StartsWith("__new") && !elem.StartsWith("ToString") && !elem.StartsWith("Dispose") && !elem.StartsWith("Equals") && !elem.StartsWith("GetHashCode") && !elem.StartsWith("GetType") )
+                           .Where(elem=>/*!elem.StartsWith("__new") &&*/ !elem.StartsWith("ToString") && !elem.StartsWith("Dispose") && !elem.StartsWith("Equals") && !elem.StartsWith("GetHashCode") && !elem.StartsWith("GetType") )
                            .Select(elem => new ProposalElement() { simple = elem, full = (currentObjectPath==""?elem:currentObjectPath + "." + elem) })
                            .ToList();
 
@@ -320,11 +333,23 @@ namespace Service.Scripting {
             mainScript.Call(mainScript.Globals["__callback"], cbType, o2, o3);
         }
 
+        
         private void LuaCoroutineCallback(string cbType, object o2 = null, object o3 = null) {
+            removeCoRoutine.Clear();
             // give it to the lua side (callback-lua func in definied
             foreach (var lCo in coRoutines) {
-                if (lCo.waitForType == cbType) {
+                if (lCo.waitForType == "callback" && (string)lCo.value1 == cbType) {
+                    var result = lCo.Resume(cbType, o2,o3);
+                    if (result == null) {
+                        removeCoRoutine.Add(lCo);
+                    }
                 }
+            }
+            if (removeCoRoutine.Count > 0) {
+                foreach (var removeCo in removeCoRoutine) {
+                    coRoutines.Remove(removeCo);
+                }
+                removeCoRoutine.Clear();
             }
         }
 
@@ -344,13 +369,25 @@ namespace Service.Scripting {
             }
             
             foreach (var coRoutine in coRoutines) {
-                if (coRoutine.waitForType == "frame") {
-                    if (coRoutine.value1!=null) {
-                        
+                if (coRoutine.waitForType == "waitFrames") {
+                    if ( (double)coRoutine.value1>0) {
+                        coRoutine.value1 = (double)coRoutine.value1 - 1;
+                    } else {
+                        var result = coRoutine.Resume();
+                        if (result == null) {
+                            removeCoRoutine.Add(coRoutine);
+                        }
                     }
-                    var result = coRoutine.Resume("frame");
-                    if (result == null) {
-                        removeCoRoutine.Add(coRoutine);
+                }
+                else if (coRoutine.waitForType == "waitSecs") {
+                    var type = coRoutine.value1.GetType();
+                    if ( (double)coRoutine.value1 > 0.0f) {
+                        coRoutine.value1 = (double)coRoutine.value1 - dt;
+                    } else {
+                        var result = coRoutine.Resume();
+                        if (result == null) {
+                            removeCoRoutine.Add(coRoutine);
+                        }
                     }
                 }
             }
