@@ -217,7 +217,7 @@ namespace UserInterface {
                                         history.Add(new HistoryElement() { historyTitle = title, objectList = list });
                                         _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
                                             // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
-                                            objectList = (IList)varObj,
+                                            objectList = new List<object>() { (IList)varObj },
                                             history = history,
                                             tableTitle = varName + ":" + varObj.GetType().Name
                                         });
@@ -243,8 +243,11 @@ namespace UserInterface {
                     return result;
                 };
 
-
-                dataTable.rows.Add(rowDataList);
+                if (rowDataList.Count == 0) {
+                    dataTable.rows.Add(CreateEmptyLine(10));
+                } else {
+                    dataTable.rows.Add(rowDataList);
+                }
             }
             return dataTable;
         }

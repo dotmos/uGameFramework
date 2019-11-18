@@ -92,36 +92,57 @@ namespace Service.MemoryBrowserService {
         }
 
         public static void Traverse(object obj,Action<string,object,MemoryBrowser.ElementType,UIDBInclude> callback) {
-            bool isManaged = IsManaged(obj);
 
             // process fields
-            foreach (var field in obj.GetType().GetFields()) {
-                var val = field.GetValue(obj);
-                var elemType = MemoryBrowser.GetElementType(val);
-                if (!isManaged) {
-                    // not managed ==> all elements are part of the table
-                    callback(field.Name, val, elemType,null);
-                } else {
-                    var attrib = GetAttribute(field);
-                    if (attrib != null) {
-                        callback(field.Name, val, elemType, attrib);
+            if (obj is IList) {
+                // traverse list
+                foreach (var val in ((IList)obj)) {
+                    bool isManaged = IsManaged(val);
+                    var elemType = MemoryBrowser.GetElementType(val);
+                    callback(val.GetType().Name, val, elemType, null);
+                    //if (!isManaged) {
+                    //    // not managed ==> all elements are part of the table
+                    //    callback(obj.GetType().Name, val, elemType, null);
+                    //} else {
+                    //    var attrib = GetAttribute(val);
+                    //    if (attrib != null) {
+                    //        callback(field.Name, val, elemType, attrib);
+                    //    }
+                    //}
+                }
+
+            } else {
+                bool isManaged = IsManaged(obj);
+                // traverse object
+                foreach (var field in obj.GetType().GetFields()) {
+                    var val = field.GetValue(obj);
+                    var elemType = MemoryBrowser.GetElementType(val);
+                    if (!isManaged) {
+                        // not managed ==> all elements are part of the table
+                        callback(field.Name, val, elemType, null);
+                    } else {
+                        var attrib = GetAttribute(field);
+                        if (attrib != null) {
+                            callback(field.Name, val, elemType, attrib);
+                        }
+                    }
+                }
+                // process properties
+                foreach (var prop in obj.GetType().GetProperties()) {
+                    var val = prop.GetValue(obj);
+                    var elemType = MemoryBrowser.GetElementType(obj);
+                    if (!isManaged) {
+                        // not managed ==> all elements are part of the table
+                        callback(prop.Name, val, elemType, null);
+                    } else {
+                        var attrib = GetAttribute(prop);
+                        if (attrib != null) {
+                            callback(prop.Name, val, elemType, attrib);
+                        }
                     }
                 }
             }
-            // process properties
-        /*    foreach (var prop in obj.GetType().GetProperties()) {
-                var val = prop.GetValue(obj);
-                var elemType = MemoryBrowser.GetElementType(obj);
-                if (!isManaged) {
-                    // not managed ==> all elements are part of the table
-                    callback(prop.Name, val, elemType, null);
-                } else {
-                    var attrib = GetAttribute(prop);
-                    if (attrib != null) {
-                        callback(prop.Name, val, elemType, attrib);
-                    }
-                }
-            }*/
+
         }
                         
     }
