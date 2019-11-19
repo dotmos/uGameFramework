@@ -20,7 +20,8 @@ namespace Service.Scripting {
  		LuaCoroutine CreateCoroutine(("DynValue") funcName);
 		void Callback(string cbtype,object o2=("null"),object o3=("null"));
 		void RegisterCallback(("Action<string,object,object>") cbCallbackFunc);
-		
+		## "custom coroutine-yield functions. return false if the coRoutine should be removed from the system"
+		void RegisterCustomYieldCheck(("Func<LuaCoroutine,bool>") coRoutines);
 		void Tick(float dt); 		
  
 		

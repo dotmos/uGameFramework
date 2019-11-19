@@ -143,6 +143,9 @@ namespace Service.Scripting
         public abstract void RegisterCallback(Action<string,object,object> cbCallbackFunc);
 
         
+        public abstract void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
+
+        
         public abstract void Tick(float dt);
 
         

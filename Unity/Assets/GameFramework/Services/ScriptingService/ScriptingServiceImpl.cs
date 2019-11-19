@@ -44,6 +44,7 @@ namespace Service.Scripting {
         private static readonly HashSet<char> delimiters = new HashSet<char>() { '(', ')', ',', '=', ';', ' ', '+' };
 
         private List<Action<string, object, object>> callbacks = new List<Action<string, object, object>>();
+        private List<Func<LuaCoroutine,bool>> customYieldsChecks = new List<Func<LuaCoroutine,bool>>();
         
         /// <summary>
         /// Is the gameconsole enabled?
@@ -380,13 +381,25 @@ namespace Service.Scripting {
                     }
                 }
                 else if (coRoutine.waitForType == "waitSecs") {
-                    var type = coRoutine.value1.GetType();
                     if ( (double)coRoutine.value1 > 0.0f) {
                         coRoutine.value1 = (double)coRoutine.value1 - dt;
                     } else {
                         var result = coRoutine.Resume();
                         if (result == null) {
                             removeCoRoutine.Add(coRoutine);
+                        }
+                    }
+                }
+                else {
+                    foreach (var customYield in customYieldsChecks) {
+                        var finished = customYield(coRoutine);
+                        if (finished) {
+                            // finished
+                            var result = coRoutine.Resume();
+                            if (result == null) {
+                                removeCoRoutine.Add(coRoutine);
+                            }
+                            break;
                         }
                     }
                 }
@@ -415,6 +428,10 @@ namespace Service.Scripting {
                 coRoutines.Add(luaCo);
             }
             return luaCo;
+        }
+
+        public override void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> yieldCheck) {
+            customYieldsChecks.Add(yieldCheck);
         }
 
         public override Script GetMainScript() {

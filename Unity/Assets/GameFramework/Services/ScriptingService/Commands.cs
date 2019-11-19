@@ -38,6 +38,8 @@ namespace Service.Scripting{
 
             this.OnEvent<RegisterCallbackCommand>().Subscribe(e => RegisterCallbackCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<RegisterCustomYieldCheckCommand>().Subscribe(e => RegisterCustomYieldCheckCommandHandler(e)).AddTo(this);
+
             this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
 
         }
@@ -246,6 +248,30 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("RegisterCallbackCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// custom coroutine-yield functions. return false if the coRoutine should be removed from the system
+        /// </summary>
+        
+        public class RegisterCustomYieldCheckCommand  {
+            public Func<LuaCoroutine,bool> coRoutines;
+            
+            
+        }
+
+		protected void RegisterCustomYieldCheckCommandHandler  (RegisterCustomYieldCheckCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("RegisterCustomYieldCheckCommand");
+#endif
+        _service.RegisterCustomYieldCheck(cmd.coRoutines);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("RegisterCustomYieldCheckCommand");
 #endif
         }
         

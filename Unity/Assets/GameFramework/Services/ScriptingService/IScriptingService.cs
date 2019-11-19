@@ -75,6 +75,15 @@ namespace Service.Scripting {
 					void RegisterCallback(Action<string,object,object> cbCallbackFunc);
 
 
+		/// <summary>
+        /// custom coroutine-yield functions. return false if the coRoutine should be removed from the system 
+        /// <param name="coRoutines"></param>
+ /// </summary>
+        
+
+					void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
+
+
 					void Tick(float dt);
 
 	}

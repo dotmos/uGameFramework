@@ -103,7 +103,7 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteStringToFileAtDomain(FSDomain domain, string relativePathToFile, string data) {
-            return WriteStringToFile(GetPath(domain) + "/" + relativePathToFile, data);
+            return WriteStringToFile(GetPath(domain, relativePathToFile), data);
         }
 
         public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
