@@ -118,14 +118,12 @@ namespace UserInterface {
         /// <param name="tab">Tab.</param>
         public void RegisterTab(GMTab tab)
         {
-            if (!tabs.Contains(tab)) {
-                tabs.Add(tab);
-                tab.Initialize(this);
-                RegisterToggle(tab);
+            tabs.Add(tab);
+            tab.Initialize(this);
+            RegisterToggle(tab);
 
-                if (activateNewTabsOnAdd) {
-                    ActivateTab(tab);
-                }
+            if (activateNewTabsOnAdd) {
+                ActivateTab(tab);
             }
         }
 
