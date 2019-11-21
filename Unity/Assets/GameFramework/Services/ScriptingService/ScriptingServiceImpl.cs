@@ -7,6 +7,7 @@ using UnityEngine;
 using MoonSharp.Interpreter.Interop;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Service.Scripting {
 
@@ -45,7 +46,7 @@ namespace Service.Scripting {
 
         private List<Action<string, object, object>> callbacks = new List<Action<string, object, object>>();
         private List<Func<LuaCoroutine,bool>> customYieldsChecks = new List<Func<LuaCoroutine,bool>>();
-        
+
         /// <summary>
         /// Is the gameconsole enabled?
         /// </summary>
@@ -437,7 +438,6 @@ namespace Service.Scripting {
         public override Script GetMainScript() {
             return mainScript;
         }
-
 
 
         protected override void OnDispose() {
