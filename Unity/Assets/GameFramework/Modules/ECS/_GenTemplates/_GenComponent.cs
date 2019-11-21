@@ -85,6 +85,12 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                     /// </summary>
     /*name:attributes*//*endname*/
     /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
+//    public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value, bool luaReplay=false) { 
+//        this./*name:name*/state/*endname*/ = value; 
+//        if (luaReplay) {
+//            // TODO
+//        }
+//    }
     /*endblock:field*/
     /*block:rip*/
     public string testName = "f95";
