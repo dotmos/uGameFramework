@@ -185,6 +185,10 @@ namespace Service.DevUIService
 
         
 
+        public void User_DoPrototype(string setttings = "") {
+
+        }
+
         public virtual int Serialize(FlatBufferBuilder builder) {
             UnityEngine.Debug.LogError("No serializer for DevUIServiceBase implemented");
             return 0;

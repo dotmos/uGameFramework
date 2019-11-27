@@ -37,6 +37,15 @@ namespace Service.Scripting {
         private Service.LoggingService.ILoggingService logging;
         [Inject]
         private Service.FileSystem.IFileSystemService filesystem;
+        
+        Service.DevUIService.IDevUIService devUIService;
+        Service.DevUIService.IDevUIService DevUI {
+            get {
+                if (devUIService == null) devUIService = Kernel.Instance.Resolve<Service.DevUIService.IDevUIService>();
+                return devUIService;
+            }
+        }
+
 
         private List<LuaCoroutine> coRoutines = new List<LuaCoroutine>();
 
@@ -46,7 +55,7 @@ namespace Service.Scripting {
 
         private List<Action<string, object, object>> callbacks = new List<Action<string, object, object>>();
         private List<Func<LuaCoroutine,bool>> customYieldsChecks = new List<Func<LuaCoroutine,bool>>();
-
+        private ScriptingServiceData data = new ScriptingServiceData();
         /// <summary>
         /// Is the gameconsole enabled?
         /// </summary>
@@ -363,6 +372,14 @@ namespace Service.Scripting {
 
         List<LuaCoroutine> removeCoRoutine = new List<LuaCoroutine>();
 
+
+        public override void Setup(bool isNewGame) {
+            if (isNewGame) {
+                if (data == null) data = new ScriptingServiceData();
+                data.replayScript.Clear();
+            }
+        }
+
         public override void Tick(float dt) {
 #if !NO_LUATESTING
             var tickFunc = mainScript.Globals["tick"];
@@ -438,6 +455,49 @@ namespace Service.Scripting {
         public override Script GetMainScript() {
             return mainScript;
         }
+
+        public override void StartLog(string filename) {
+
+        }
+
+
+
+        public override void WriteLog(string outputString, bool alsoToConsole = true) {
+            DevUI.WriteToScriptingConsole(outputString);
+        }
+
+
+        public override void ActivateLuaReplayScript(bool activate) {
+            data.saveReplayScript = activate;
+        }
+
+        public override bool LuaScriptActivated() {
+            return data.saveReplayScript;
+        }
+
+        public override StringBuilder GetLuaReplayStringBuilder() {
+            return data.replayScript;
+        }
+
+        public override string GetCurrentLuaReplay() {
+            var finalScript = "function executeLogic()\n" + data.replayScript.ToString() + "\nend \n Scripting.CreateCoroutine(executeLogic)-- start the logic - function";
+            return finalScript;
+        }
+
+        public override void SetLuaReplayStringBuilder(StringBuilder replayScript) {
+            data.replayScript = replayScript;
+        }
+
+        private void ReplayWrite_finalize(String filename) {
+            var finalScript = GetCurrentLuaReplay();
+            filesystem.WriteStringToFileAtDomain(FileSystem.FSDomain.Scripting, filename, finalScript);
+        }
+
+        public override void SaveCurrentLuaReplay(string fileName) {
+            if (!data.saveReplayScript) return;
+            ReplayWrite_finalize(fileName);
+        }
+
 
 
         protected override void OnDispose() {

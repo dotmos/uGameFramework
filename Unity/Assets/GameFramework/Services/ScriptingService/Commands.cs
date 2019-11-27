@@ -1,6 +1,7 @@
 
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using System.Text;
 
 using System;
 using Service.Events;
@@ -40,7 +41,25 @@ namespace Service.Scripting{
 
             this.OnEvent<RegisterCustomYieldCheckCommand>().Subscribe(e => RegisterCustomYieldCheckCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<SetupCommand>().Subscribe(e => SetupCommandHandler(e)).AddTo(this);
+
             this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<StartLogCommand>().Subscribe(e => StartLogCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<WriteLogCommand>().Subscribe(e => WriteLogCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<ActivateLuaReplayScriptCommand>().Subscribe(e => ActivateLuaReplayScriptCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<LuaScriptActivatedCommand>().Subscribe(e => LuaScriptActivatedCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<SaveCurrentLuaReplayCommand>().Subscribe(e => SaveCurrentLuaReplayCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<GetCurrentLuaReplayCommand>().Subscribe(e => GetCurrentLuaReplayCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<GetLuaReplayStringBuilderCommand>().Subscribe(e => GetLuaReplayStringBuilderCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<SetLuaReplayStringBuilderCommand>().Subscribe(e => SetLuaReplayStringBuilderCommandHandler(e)).AddTo(this);
 
         }
         
@@ -281,6 +300,30 @@ namespace Service.Scripting{
         /// 
         /// </summary>
         
+        public class SetupCommand  {
+            public bool isNewGame;
+            
+            
+        }
+
+		protected void SetupCommandHandler  (SetupCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("SetupCommand");
+#endif
+        _service.Setup(cmd.isNewGame);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("SetupCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class TickCommand  {
             public float dt;
             
@@ -296,6 +339,202 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("TickCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class StartLogCommand  {
+            public string filename;
+            
+            
+        }
+
+		protected void StartLogCommandHandler  (StartLogCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("StartLogCommand");
+#endif
+        _service.StartLog(cmd.filename);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("StartLogCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class WriteLogCommand  {
+            public string outputString;
+                        public bool alsoToConsole=true;
+            
+            
+        }
+
+		protected void WriteLogCommandHandler  (WriteLogCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("WriteLogCommand");
+#endif
+        _service.WriteLog(cmd.outputString,cmd.alsoToConsole);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("WriteLogCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class ActivateLuaReplayScriptCommand  {
+            public bool activate;
+            
+            
+        }
+
+		protected void ActivateLuaReplayScriptCommandHandler  (ActivateLuaReplayScriptCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("ActivateLuaReplayScriptCommand");
+#endif
+        _service.ActivateLuaReplayScript(cmd.activate);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("ActivateLuaReplayScriptCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class LuaScriptActivatedCommand  {
+            public bool result;
+            
+            
+        }
+
+		protected void LuaScriptActivatedCommandHandler  (LuaScriptActivatedCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("LuaScriptActivatedCommand");
+#endif
+        
+            cmd.result = _service.LuaScriptActivated();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("LuaScriptActivatedCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Save to this filename in the scripting-folder
+        /// </summary>
+        
+        public class SaveCurrentLuaReplayCommand  {
+            public string fileName;
+            
+            
+        }
+
+		protected void SaveCurrentLuaReplayCommandHandler  (SaveCurrentLuaReplayCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("SaveCurrentLuaReplayCommand");
+#endif
+        _service.SaveCurrentLuaReplay(cmd.fileName);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("SaveCurrentLuaReplayCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Get the current lua-replay as script
+        /// </summary>
+        
+        public class GetCurrentLuaReplayCommand  {
+            public string result;
+            
+            
+        }
+
+		protected void GetCurrentLuaReplayCommandHandler  (GetCurrentLuaReplayCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("GetCurrentLuaReplayCommand");
+#endif
+        
+            cmd.result = _service.GetCurrentLuaReplay();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("GetCurrentLuaReplayCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class GetLuaReplayStringBuilderCommand  {
+            public System.Text.StringBuilder result;
+            
+            
+        }
+
+		protected void GetLuaReplayStringBuilderCommandHandler  (GetLuaReplayStringBuilderCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("GetLuaReplayStringBuilderCommand");
+#endif
+        
+            cmd.result = _service.GetLuaReplayStringBuilder();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("GetLuaReplayStringBuilderCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class SetLuaReplayStringBuilderCommand  {
+            public StringBuilder replayScript;
+            
+            
+        }
+
+		protected void SetLuaReplayStringBuilderCommandHandler  (SetLuaReplayStringBuilderCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("SetLuaReplayStringBuilderCommand");
+#endif
+        _service.SetLuaReplayStringBuilder(cmd.replayScript);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("SetLuaReplayStringBuilderCommand");
 #endif
         }
         

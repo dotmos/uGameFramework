@@ -1,7 +1,8 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-
+using System.Text;
+ 
 namespace Service.Scripting {
     public interface IScriptingService {  	
 		("Script") GetMainScript();
@@ -22,13 +23,31 @@ namespace Service.Scripting {
 		void RegisterCallback(("Action<string,object,object>") cbCallbackFunc);
 		## "custom coroutine-yield functions. return false if the coRoutine should be removed from the system"
 		void RegisterCustomYieldCheck(("Func<LuaCoroutine,bool>") coRoutines);
+		
+		void Setup(bool isNewGame);
 		void Tick(float dt); 		
  
+ 
+ 		void StartLog(string filename);
+		void WriteLog(string outputString,bool alsoToConsole=True);
 		
+		void ActivateLuaReplayScript(bool activate);
+		bool LuaScriptActivated();		
+		## "Save to this filename in the scripting-folder"
+		void SaveCurrentLuaReplay(string fileName);
+		## "Get the current lua-replay as script"
+		string GetCurrentLuaReplay();
+		("System.Text.StringBuilder") GetLuaReplayStringBuilder();
+		void SetLuaReplayStringBuilder(("StringBuilder") replayScript);
 		//T GetComponent<T>(UID entity) where T : IComponent
     }   
 }      
 ## model 
+ 
+public class ScriptingServiceData {
+	    public ("StringBuilder":FBCustom) replayScript = ("new StringBuilder()");
+        public bool saveReplayScript = True;
+}
 
 public partial class LuaCoroutine{
 	public ("MoonSharp.Interpreter.DynValue") co;

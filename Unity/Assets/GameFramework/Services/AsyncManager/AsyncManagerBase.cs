@@ -130,6 +130,10 @@ namespace Service.AsyncManager
 
         
 
+        public void User_DoPrototype(string setttings = "") {
+
+        }
+
         public virtual int Serialize(FlatBufferBuilder builder) {
             UnityEngine.Debug.LogError("No serializer for AsyncManagerBase implemented");
             return 0;

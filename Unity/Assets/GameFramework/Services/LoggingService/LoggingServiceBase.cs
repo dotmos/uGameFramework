@@ -139,6 +139,10 @@ namespace Service.LoggingService
 
         
 
+        public void User_DoPrototype(string setttings = "") {
+
+        }
+
         public virtual int Serialize(FlatBufferBuilder builder) {
             UnityEngine.Debug.LogError("No serializer for LoggingServiceBase implemented");
             return 0;

@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////////// 
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using System.Text;
 
 
 using FlatBuffers;
@@ -146,9 +147,40 @@ namespace Service.Scripting
         public abstract void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
 
         
+        public abstract void Setup(bool isNewGame);
+
+        
         public abstract void Tick(float dt);
 
         
+        public abstract void StartLog(string filename);
+
+        
+        public abstract void WriteLog(string outputString,bool alsoToConsole=true);
+
+        
+        public abstract void ActivateLuaReplayScript(bool activate);
+
+        
+        public abstract bool LuaScriptActivated();
+
+        
+        public abstract void SaveCurrentLuaReplay(string fileName);
+
+        
+        public abstract string GetCurrentLuaReplay();
+
+        
+        public abstract System.Text.StringBuilder GetLuaReplayStringBuilder();
+
+        
+        public abstract void SetLuaReplayStringBuilder(StringBuilder replayScript);
+
+        
+
+        public void User_DoPrototype(string setttings = "") {
+
+        }
 
         public virtual int Serialize(FlatBufferBuilder builder) {
             UnityEngine.Debug.LogError("No serializer for ScriptingServiceBase implemented");

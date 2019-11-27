@@ -123,6 +123,10 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
 
         /*endblock:abstractMethod*/
 
+        public void User_DoPrototype(string setttings = "") {
+
+        }
+
         public virtual int Serialize(FlatBufferBuilder builder) {
             UnityEngine.Debug.LogError("No serializer for /*name:serviceName*/PrototypeService/*endname*/ implemented");
             return 0;

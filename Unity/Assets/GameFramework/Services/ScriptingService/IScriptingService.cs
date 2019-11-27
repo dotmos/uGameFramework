@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using System.Text;
 
 using System;
 using static Service.Scripting.Events;
@@ -84,10 +85,63 @@ namespace Service.Scripting {
 					void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
 
 
+					void Setup(bool isNewGame);
+
+
 					void Tick(float dt);
+
+
+					void StartLog(string filename);
+
+
+					void WriteLog(string outputString,bool alsoToConsole=true);
+
+
+					void ActivateLuaReplayScript(bool activate);
+
+
+					bool LuaScriptActivated();
+
+
+		/// <summary>
+        /// Save to this filename in the scripting-folder 
+        /// <param name="fileName"></param>
+ /// </summary>
+        
+
+					void SaveCurrentLuaReplay(string fileName);
+
+
+		/// <summary>
+        /// Get the current lua-replay as script 
+ /// </summary>
+        
+
+					string GetCurrentLuaReplay();
+
+
+					System.Text.StringBuilder GetLuaReplayStringBuilder();
+
+
+					void SetLuaReplayStringBuilder(StringBuilder replayScript);
 
 	}
 
+
+    
+    [System.Serializable]
+    public  class ScriptingServiceData {
+        public ScriptingServiceData() { }
+        
+        public StringBuilder replayScript = new StringBuilder();
+        
+        public bool saveReplayScript = true;
+        
+        
+        
+
+        
+    }
 
     
     [System.Serializable]
