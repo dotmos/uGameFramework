@@ -47,7 +47,9 @@ table FBMaterial {
     materialName : string;
 }
 
-
+table FBStringBuilder {
+	stringData : string;
+}
 // dummy as offsetpoint for 'manual' IFBSerializable-objects
 table FBRef{}
 

@@ -188,6 +188,17 @@ namespace Service.Serializer {
                 var quat = new UnityEngine.Quaternion(fbQuaternion.X, fbQuaternion.Y, fbQuaternion.Z, fbQuaternion.W);
                 return quat;
             };
+            // ------------------------- StringBuilder --------------------------------------
+            serializeObjConverters[typeof(System.Text.StringBuilder)] = (data, builder) => {
+                var stbData = builder.CreateString(((StringBuilder)data).ToString());
+                Serial.FBStringBuilder.StartFBStringBuilder(builder);
+                Serial.FBStringBuilder.AddStringData(builder,stbData);            
+                return Serial.FBStringBuilder.EndFBStringBuilder(builder).Value;
+            };
+            deserializeObjConverters[typeof(System.Text.StringBuilder)] = (incoming) => {
+                var fbStringBuilder = (Serial.FBStringBuilder)incoming;
+                return new StringBuilder(fbStringBuilder.StringData);
+            };
         }
 
         private static FlatBuffers.VectorOffset SerializeTempOffsetArray<S>(FlatBufferBuilder builder, FlatBuffers.Offset<S>[] tempArray) where S : struct, FlatBuffers.IFlatbufferObject {

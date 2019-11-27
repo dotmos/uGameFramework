@@ -399,6 +399,47 @@ public int MaterialNameTableOffset{ get=>0;}
   }
 };
 
+public struct FBStringBuilder : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_1_11_1(); }
+  public static FBStringBuilder GetRootAsFBStringBuilder(ByteBuffer _bb) { return GetRootAsFBStringBuilder(_bb, new FBStringBuilder()); }
+  public static FBStringBuilder GetRootAsFBStringBuilder(ByteBuffer _bb, FBStringBuilder obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public FBStringBuilder __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public string StringData { get { int o = __p.__offset(4); return o != 0 ? __p.__string(o + __p.bb_pos) : null; } }
+public int StringDataBufferPosition { get { int o = __p.__offset(4); return o != 0 ? __p.__vector(o) : 0; } }
+public int StringDataTableOffset{ get=>0;}
+#if ENABLE_SPAN_T
+  public Span<byte> GetStringDataBytes() { return __p.__vector_as_span(4); }
+#else
+  public ArraySegment<byte>? GetStringDataBytes() { return __p.__vector_as_arraysegment(4); }
+#endif
+  public byte[] GetStringDataArray() { return __p.__vector_as_array<byte>(4); }
+
+  public static Offset<Serial.FBStringBuilder> CreateFBStringBuilder(FlatBufferBuilder builder,
+      StringOffset stringDataOffset = default(StringOffset)) {
+    builder.StartTable(1);
+    FBStringBuilder.AddStringData(builder, stringDataOffset);
+    return FBStringBuilder.EndFBStringBuilder(builder);
+  }
+
+  public static void StartFBStringBuilder(FlatBufferBuilder builder) { builder.StartTable(1); }
+  public static void AddStringData(FlatBufferBuilder builder, StringOffset stringDataOffset) { builder.AddOffset(0, stringDataOffset.Value, 0); }
+  public static void AddStringData(FlatBufferBuilder builder, int  stringDataOffsetOffset) { builder.AddOffset(0, stringDataOffsetOffset, 0); }
+  public static Offset<Serial.FBStringBuilder> EndFBStringBuilder(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<Serial.FBStringBuilder>(o);
+  }
+};
+
 public struct FBRef : IFlatbufferObject
 {
   private Table __p;
