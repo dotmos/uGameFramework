@@ -17,6 +17,7 @@ namespace Service.AsyncManager {
 
 
 
+
 					AsyncFuture AddToMainThread(Action act,bool global=false);
     
 

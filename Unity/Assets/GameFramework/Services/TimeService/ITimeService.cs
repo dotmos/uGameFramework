@@ -20,6 +20,7 @@ namespace Service.TimeService {
 
 
 
+
 		/// <summary>
         /// Adds a timer in the global update-method and calls the callback n-times (or infinite till application end) 
         /// <param name="interval"></param>
@@ -45,13 +46,33 @@ namespace Service.TimeService {
     public  class TimerElement {
         public TimerElement() { }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public string info ;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         
         public float timeLeft ;
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public float interval ;
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public int repeatTimes ;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         
         public Action timerCallback ;
         

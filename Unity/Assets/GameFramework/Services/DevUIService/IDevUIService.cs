@@ -21,6 +21,7 @@ namespace Service.DevUIService {
 
 
 
+
 		/// <summary>
         /// Get ReaciveDictionar of all views 
  /// </summary>
@@ -204,7 +205,15 @@ namespace Service.DevUIService {
     public  class DataBrowserTopLevel {
         public DataBrowserTopLevel() { }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public string topLevelName ;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         
         public System.Collections.IList objectList ;
         
@@ -219,7 +228,15 @@ namespace Service.DevUIService {
     public  class HistoryElement {
         public HistoryElement() { }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public System.Collections.IList objectList ;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         
         public string historyTitle ;
         

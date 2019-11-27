@@ -22,7 +22,7 @@ namespace Service.TimeService
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
         protected Service.AsyncManager.IAsyncManager _asyncManager;
-        protected Service.Scripting.IScriptingService _scripting;
+
 
         protected CompositeDisposable disposables = new CompositeDisposable();
 
@@ -35,17 +35,23 @@ namespace Service.TimeService
         protected bool DeSerializationFinished = false;
         protected Semaphore deSerializationFinishedSempahore;
 
+        protected Service.Scripting.IScriptingService _scriptingService;
+        protected Service.Scripting.IScriptingService ScriptingService {
+            get {
+                if (_scriptingService == null) _scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+                return _scriptingService;
+            }
+        }
+
         [Inject]
         void Initialize(
           [Inject] DisposableManager dManager,
           [Inject] Service.Events.IEventsService eventService,
-          [Inject] Service.AsyncManager.IAsyncManager asyncManager,
-          [Inject] Service.Scripting.IScriptingService scripting
+          [Inject] Service.AsyncManager.IAsyncManager asyncManager
         ) {
             _dManager = dManager;
             _eventService = eventService;
             _asyncManager = asyncManager;
-            _scripting = scripting;
             
             // register as disposable
             _dManager.Add(this);

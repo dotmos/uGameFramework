@@ -20,6 +20,7 @@ namespace Service.Scripting {
 
 
 
+
 					Script GetMainScript();
     
 
@@ -167,7 +168,15 @@ namespace Service.Scripting {
     public  class ScriptingServiceData {
         public ScriptingServiceData() { }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public StringBuilder replayScript = new StringBuilder();
+        
+        /// <summary>
+        /// 
+        /// </summary>
         
         public bool saveReplayScript = true;
         
@@ -182,13 +191,33 @@ namespace Service.Scripting {
     public partial class LuaCoroutine {
         public LuaCoroutine() { }
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public MoonSharp.Interpreter.DynValue co ;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         
         public string waitForType ;
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public object value1 ;
         
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public DynValue value2 ;
+        
+        /// <summary>
+        /// 
+        /// </summary>
         
         public Dictionary<string,object> context ;
         

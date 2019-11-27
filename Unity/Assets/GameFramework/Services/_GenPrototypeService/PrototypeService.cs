@@ -19,7 +19,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
         protected Service.AsyncManager.IAsyncManager _asyncManager;
-        protected Service.Scripting.IScriptingService _scripting;
+
 
         protected CompositeDisposable disposables = new CompositeDisposable();
 
@@ -32,17 +32,23 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
         protected bool DeSerializationFinished = false;
         protected Semaphore deSerializationFinishedSempahore;
 
+        protected Service.Scripting.IScriptingService _scriptingService;
+        protected Service.Scripting.IScriptingService ScriptingService {
+            get {
+                if (_scriptingService == null) _scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+                return _scriptingService;
+            }
+        }
+
         [Inject]
         void Initialize(
           [Inject] DisposableManager dManager,
           [Inject] Service.Events.IEventsService eventService,
-          [Inject] Service.AsyncManager.IAsyncManager asyncManager,
-          [Inject] Service.Scripting.IScriptingService scripting
+          [Inject] Service.AsyncManager.IAsyncManager asyncManager
         ) {
             _dManager = dManager;
             _eventService = eventService;
             _asyncManager = asyncManager;
-            _scripting = scripting;
             
             // register as disposable
             _dManager.Add(this);
@@ -129,7 +135,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
 
 /*block:usermethod*/   public /*name:autoUsermethod*/string User_DoPrototype(string settings = "")/*endname*/ {
 #if !NO_LUA_TESTING
-            _scripting.ReplayWrite_CustomLua($"/*name:scriptName*/PrototypeService/*endname*/./*name|pre#User_:methodName*/User_DoPrototype/*endname*/(/*name:replayparams*/{settings}/*endname*/)");
+            ScriptingService.ReplayWrite_CustomLua($"/*name:scriptName*/PrototypeService/*endname*/./*name|pre#User_:methodName*/User_DoPrototype/*endname*/(/*name:replayparams*/{settings}/*endname*/)");
 #endif
             /*name:return*/
             return/*endname*/ /*name:methodName*/DoPrototype/*endname*/(/*name:proxyparams*/settings/*endname*/);

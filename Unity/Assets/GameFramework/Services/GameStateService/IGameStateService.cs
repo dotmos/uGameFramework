@@ -19,6 +19,7 @@ namespace Service.GameStateService {
 
 
 
+
 		/// <summary>
         /// Register gamestate with its name. Optionally you can pass an overriden GameState-Classtype of your own 
         /// <param name="name"></param>

@@ -20,6 +20,7 @@ namespace Service.MemoryBrowserService {
 
 
 
+
 		/// <summary>
         /// Is this obj a simple type? (int,float,bool,string).  
         /// <param name="obj"></param>

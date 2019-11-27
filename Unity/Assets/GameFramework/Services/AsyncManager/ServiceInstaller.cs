@@ -9,7 +9,7 @@ namespace Service.AsyncManager
         public override void InstallBindings()
         {
             Container.Bind<IAsyncManager>().To<AsyncManagerImpl>().AsSingle();
-            CommandsInstaller.Install(Container);
+            //CommandsInstaller.Install(Container);
         }
         
     }

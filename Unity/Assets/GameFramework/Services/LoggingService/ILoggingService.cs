@@ -20,6 +20,7 @@ namespace Service.LoggingService {
 
 
 
+
 					void AddLog(DebugType debugType,string message,string domain="");
     
 
