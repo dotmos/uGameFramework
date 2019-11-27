@@ -123,6 +123,10 @@ namespace UserInterface
             }
         }
 
+        public void UpdateColors() {
+            DoStateTransition(currentSelectionState, true);
+        }
+
         public void Highlight(bool highlight) {
             if (highlight) {
                 DoStateTransition(SelectionState.Highlighted, true);
