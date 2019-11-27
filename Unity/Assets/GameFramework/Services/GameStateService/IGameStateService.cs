@@ -27,6 +27,7 @@ namespace Service.GameStateService {
         
 
 					GameState RegisterGameState(string name,GameState gamestate=null);
+    
 
 
 		/// <summary>
@@ -35,6 +36,7 @@ namespace Service.GameStateService {
         
 
 					GameState GetCurrentGameState();
+    
 
 
 		/// <summary>
@@ -44,6 +46,7 @@ namespace Service.GameStateService {
         
 
 					bool IsInState(GameState gs);
+    
 
 
 		/// <summary>
@@ -54,9 +57,11 @@ namespace Service.GameStateService {
         
 
 					IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
+    
 
 
 					IObservable<bool> StopGameState(GameState gamestate);
+    
 
 
 		/// <summary>
@@ -66,6 +71,7 @@ namespace Service.GameStateService {
         
 
 					GameState GetGameState(string name);
+    
 
 
 		/// <summary>
@@ -76,6 +82,8 @@ namespace Service.GameStateService {
         
 
 					void Tick(float deltaTime,float unscaledDeltaTime);
+    
+
 
 	}
 

@@ -21,6 +21,7 @@ namespace Service.Scripting {
 
 
 					Script GetMainScript();
+    
 
 
 		/// <summary>
@@ -30,6 +31,7 @@ namespace Service.Scripting {
         
 
 					string ExecuteStringOnMainScript(string luaCode);
+    
 
 
 		/// <summary>
@@ -40,6 +42,7 @@ namespace Service.Scripting {
         
 
 					string ExecuteFileToMainScript(string fileName,bool useScriptDomain=false);
+    
 
 
 		/// <summary>
@@ -49,6 +52,7 @@ namespace Service.Scripting {
         
 
 					DynValue ExecuteStringOnMainScriptRaw(string fileName);
+    
 
 
 		/// <summary>
@@ -59,6 +63,7 @@ namespace Service.Scripting {
         
 
 					Proposal AutocompleteProposals(string currentInput,int cursorPos);
+    
 
 
 		/// <summary>
@@ -68,12 +73,15 @@ namespace Service.Scripting {
         
 
 					LuaCoroutine CreateCoroutine(DynValue funcName);
+    
 
 
 					void Callback(string cbtype,object o2=null,object o3=null);
+    
 
 
 					void RegisterCallback(Action<string,object,object> cbCallbackFunc);
+    
 
 
 		/// <summary>
@@ -83,24 +91,31 @@ namespace Service.Scripting {
         
 
 					void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
+    
 
 
 					void Setup(bool isNewGame);
+    
 
 
 					void Tick(float dt);
+    
 
 
 					void StartLog(string filename);
+    
 
 
 					void WriteLog(string outputString,bool alsoToConsole=true);
+    
 
 
 					void ActivateLuaReplayScript(bool activate);
+    
 
 
 					bool LuaScriptActivated();
+    
 
 
 		/// <summary>
@@ -110,6 +125,7 @@ namespace Service.Scripting {
         
 
 					void SaveCurrentLuaReplay(string fileName);
+    
 
 
 		/// <summary>
@@ -118,12 +134,30 @@ namespace Service.Scripting {
         
 
 					string GetCurrentLuaReplay();
+    
 
 
 					System.Text.StringBuilder GetLuaReplayStringBuilder();
+    
 
 
 					void SetLuaReplayStringBuilder(StringBuilder replayScript);
+    
+
+
+		/// <summary>
+        /// Sets a func to get the current gametime that is used for ReplayWrite 
+        /// <param name="getCurrentGameTime"></param>
+ /// </summary>
+        
+
+					void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime);
+    
+
+
+					void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=true);
+    
+
 
 	}
 

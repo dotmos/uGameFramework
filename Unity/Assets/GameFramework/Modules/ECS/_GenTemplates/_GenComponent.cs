@@ -37,7 +37,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /// <summary>
         /// /*name:documentation*//*endname*/
         /// </summary>
-        /*name:scope*/
+        /*name:attributes*//*endname*/
+                           /*name:scope*/
         public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
         /*endblock:field*/
         /*block:property*/
@@ -85,12 +86,12 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                     /// </summary>
     /*name:attributes*//*endname*/
     /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
-//    public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value, bool luaReplay=false) { 
-//        this./*name:name*/state/*endname*/ = value; 
-//        if (luaReplay) {
-//            // TODO
-//        }
-//    }
+    //public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value, bool luaReplay = false) {
+    //    this./*name:name*/state/*endname*/ = value;
+    //    if (luaReplay) {
+    //        TODO
+    //    }
+    //}
     /*endblock:field*/
     /*block:rip*/
     public string testName = "f95";

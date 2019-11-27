@@ -27,6 +27,7 @@ namespace Service.FileSystem {
         
 
 					string GetPath(FSDomain domain,string realtivePart="");
+    
 
 
 		/// <summary>
@@ -38,6 +39,7 @@ namespace Service.FileSystem {
         
 
 					bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false);
+    
 
 
 		/// <summary>
@@ -50,6 +52,7 @@ namespace Service.FileSystem {
         
 
 					bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
+    
 
 
 		/// <summary>
@@ -60,6 +63,7 @@ namespace Service.FileSystem {
         
 
 					bool WriteStringToFile(string pathToFile,string thedata);
+    
 
 
 		/// <summary>
@@ -71,6 +75,7 @@ namespace Service.FileSystem {
         
 
 					bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
+    
 
 
 		/// <summary>
@@ -81,6 +86,7 @@ namespace Service.FileSystem {
         
 
 					string LoadFileAsString(string pathToFile,bool compressed=false);
+    
 
 
 		/// <summary>
@@ -91,6 +97,7 @@ namespace Service.FileSystem {
         
 
 					string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
+    
 
 
 		/// <summary>
@@ -102,6 +109,7 @@ namespace Service.FileSystem {
         
 
 					byte[] LoadFileAsBytes(string pathToFile,bool compressed=false,int estimatedUncompressedSize=0);
+    
 
 
 		/// <summary>
@@ -114,6 +122,7 @@ namespace Service.FileSystem {
         
 
 					byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false,int estimatedUncompressedSize=0);
+    
 
 
 		/// <summary>
@@ -124,6 +133,7 @@ namespace Service.FileSystem {
         
 
 					List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
+    
 
 
 		/// <summary>
@@ -135,6 +145,7 @@ namespace Service.FileSystem {
         
 
 					List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*");
+    
 
 
 		/// <summary>
@@ -144,6 +155,7 @@ namespace Service.FileSystem {
         
 
 					void RemoveFile(string filePath);
+    
 
 
 		/// <summary>
@@ -154,6 +166,7 @@ namespace Service.FileSystem {
         
 
 					void RemoveFileInDomain(FSDomain domain,string relativePath);
+    
 
 
 		/// <summary>
@@ -163,6 +176,7 @@ namespace Service.FileSystem {
         
 
 					bool FileExists(string pathToFile);
+    
 
 
 		/// <summary>
@@ -173,6 +187,8 @@ namespace Service.FileSystem {
         
 
 					bool FileExistsInDomain(FSDomain domain,string relativePath);
+    
+
 
 	}
 

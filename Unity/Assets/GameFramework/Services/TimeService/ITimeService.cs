@@ -30,9 +30,12 @@ namespace Service.TimeService {
         
 
 					TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
+    
 
 
 					void RemoveGlobalTimer(TimerElement timer);
+    
+
 
 	}
 

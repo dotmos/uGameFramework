@@ -20,15 +20,20 @@ namespace Service.PerformanceTest {
 
 
 					void StartWatch(string t);
+    
 
 
 					void StopWatch(string t);
+    
 
 
 					void PrintPerfTests();
+    
 
 
 					void Clear();
+    
+
 
 	}
 

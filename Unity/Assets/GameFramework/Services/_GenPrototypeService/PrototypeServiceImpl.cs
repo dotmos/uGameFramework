@@ -40,6 +40,10 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             ActivateDefaultScripting(/*name|dq:scriptName*/"GS"/*endname*/);
         }
 
+        /*block:rip*/
+        public override string Abstract_User_DoPrototype(string settings = "") {
+            throw new NotImplementedException();
+        }/*endblock:rip*/
 
         class API
         {

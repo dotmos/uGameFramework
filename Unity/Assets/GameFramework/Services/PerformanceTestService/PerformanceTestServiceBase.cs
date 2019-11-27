@@ -21,6 +21,7 @@ namespace Service.PerformanceTest
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
         protected Service.AsyncManager.IAsyncManager _asyncManager;
+        protected Service.Scripting.IScriptingService _scripting;
 
         protected CompositeDisposable disposables = new CompositeDisposable();
 
@@ -34,14 +35,17 @@ namespace Service.PerformanceTest
         protected Semaphore deSerializationFinishedSempahore;
 
         [Inject]
-        void Initialize( 
+        void Initialize(
           [Inject] DisposableManager dManager,
           [Inject] Service.Events.IEventsService eventService,
-          [Inject] Service.AsyncManager.IAsyncManager asyncManager
+          [Inject] Service.AsyncManager.IAsyncManager asyncManager,
+          [Inject] Service.Scripting.IScriptingService scripting
         ) {
             _dManager = dManager;
             _eventService = eventService;
             _asyncManager = asyncManager;
+            _scripting = scripting;
+            
             // register as disposable
             _dManager.Add(this);
 
@@ -132,10 +136,8 @@ namespace Service.PerformanceTest
 
         
 
-        public void User_DoPrototype(string setttings = "") {
 
-        }
-
+        
         public virtual int Serialize(FlatBufferBuilder builder) {
             UnityEngine.Debug.LogError("No serializer for PerformanceTestServiceBase implemented");
             return 0;

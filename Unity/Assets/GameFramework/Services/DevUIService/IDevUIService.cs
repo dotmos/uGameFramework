@@ -27,6 +27,7 @@ namespace Service.DevUIService {
         
 
 					ReactiveCollection<DevUIView> GetRxViews();
+    
 
 
 		/// <summary>
@@ -38,6 +39,7 @@ namespace Service.DevUIService {
         
 
 					DevUIView CreateView(string viewName,bool dynamicallyCreated=false,bool extensionAllowed=true);
+    
 
 
 		/// <summary>
@@ -47,6 +49,7 @@ namespace Service.DevUIService {
         
 
 					DevUIView GetView(string viewName);
+    
 
 
 		/// <summary>
@@ -56,6 +59,7 @@ namespace Service.DevUIService {
         
 
 					bool ViewNameExists(string viewName);
+    
 
 
 		/// <summary>
@@ -65,6 +69,7 @@ namespace Service.DevUIService {
         
 
 					void RemoveViewFromModel(DevUIView view);
+    
 
 
 		/// <summary>
@@ -74,6 +79,7 @@ namespace Service.DevUIService {
         
 
 					void RemoveViewToArchieve(DevUIView view);
+    
 
 
 		/// <summary>
@@ -82,6 +88,7 @@ namespace Service.DevUIService {
         
 
 					IObservable<float> LoadViews();
+    
 
 
 		/// <summary>
@@ -90,6 +97,7 @@ namespace Service.DevUIService {
         
 
 					void SaveViews();
+    
 
 
 		/// <summary>
@@ -99,6 +107,7 @@ namespace Service.DevUIService {
         
 
 					void WriteToScriptingConsole(string text);
+    
 
 
 		/// <summary>
@@ -107,6 +116,7 @@ namespace Service.DevUIService {
         
 
 					void OpenScriptingConsole();
+    
 
 
 		/// <summary>
@@ -115,6 +125,7 @@ namespace Service.DevUIService {
         
 
 					void CloseScriptingConsole();
+    
 
 
 		/// <summary>
@@ -123,6 +134,7 @@ namespace Service.DevUIService {
         
 
 					void ToggleScriptingConsole();
+    
 
 
 		/// <summary>
@@ -131,6 +143,7 @@ namespace Service.DevUIService {
         
 
 					bool IsScriptingConsoleVisible();
+    
 
 
 		/// <summary>
@@ -139,18 +152,23 @@ namespace Service.DevUIService {
         
 
 					void StartPickingEntity();
+    
 
 
 					DevUIView CreateViewFromEntity(UID entity,string name="");
+    
 
 
 					DevUIView CreateViewFromPOCO(object entity,string name);
+    
 
 
 					void CreateDataBrowserTopLevelElement(string name,System.Collections.IList objectList);
+    
 
 
 					List<DataBrowserTopLevel> GetDataBrowserTopLevelElements();
+    
 
 
 		/// <summary>
@@ -161,6 +179,7 @@ namespace Service.DevUIService {
         
 
 					void AddDataBrowserObjectConverter(Type objType,Func<object,object> converter);
+    
 
 
 		/// <summary>
@@ -170,9 +189,12 @@ namespace Service.DevUIService {
         
 
 					object DataBrowserConvertObject(object inObject);
+    
 
 
 					void OutputGameInfo(float systemStartupTime);
+    
+
 
 	}
 

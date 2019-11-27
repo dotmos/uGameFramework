@@ -20,6 +20,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     /// </summary>
 /*name:type*/int/*endname*/ /*name:propName*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
 /*endblock:property*/
+
 /*block:method*/
 /*block:documentation*/
 		/// <summary>
@@ -29,7 +30,9 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /*block:return*//// <returns>/*name:return*//*endname*/</returns>/*endblock:return*/
 /*endblock:documentation*/
 		/*block:methodBody*/			/*name:returnType*/string/*endname*/ /*name:methodName*/DoPrototype/*endname*//*block:genericDefinition*//*name:genInput*//*endname*//*endblock:genericDefinition*/(/*block:parameter*//*name:comma*//*endname*//*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*/= ""/*endname*//*endblock:parameter*/)/*block:genericRestriction*//*name:genericRestrictionInput*//*endname*//*endblock:genericRestriction*//*endblock:methodBody*/;
+    /*name:usermethod*//*endname*/
 /*endblock:method*/
+
 	}
 
 /*block:modelEnum*/
@@ -43,6 +46,10 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+        /*name:attributes*//*endname*/
         /*name:scope*/
         public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
         /*endblock:field*/

@@ -46,6 +46,7 @@ namespace Service.Scripting {
             }
         }
 
+        private Func<float> getCurrentGameTime = null;
 
         private List<LuaCoroutine> coRoutines = new List<LuaCoroutine>();
 
@@ -496,6 +497,26 @@ namespace Service.Scripting {
         public override void SaveCurrentLuaReplay(string fileName) {
             if (!data.saveReplayScript) return;
             ReplayWrite_finalize(fileName);
+        }
+
+        private void ReplayWrite_WaitForCurrentGameTime() {
+            if (getCurrentGameTime == null) {
+                Debug.LogError("Tried to write currentGameTime to lua-replay, but there is no getCurrentGametime-func");
+                return;
+            }
+            var gametime = getCurrentGameTime();
+            data.replayScript.Append($"coroutine.yield('waitForGameTime',{gametime})\n");
+        }
+        public override void ReplayWrite_CustomLua(string luaScript, bool waitForGameTime = true) {
+            if (waitForGameTime) ReplayWrite_WaitForCurrentGameTime();
+            data.replayScript.Append(luaScript);
+            if (!luaScript.EndsWith("\n")) {
+                data.replayScript.Append('\n');
+            }
+        }
+
+        public override void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime) {
+            this.getCurrentGameTime = getCurrentGameTime;
         }
 
 

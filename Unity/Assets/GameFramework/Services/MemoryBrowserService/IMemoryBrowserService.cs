@@ -27,9 +27,11 @@ namespace Service.MemoryBrowserService {
         
 
 					bool IsSimpleType(object obj);
+    
 
 
 					MemoryBrowser CreateMemoryBrowser(string id,object root);
+    
 
 
 		/// <summary>
@@ -39,6 +41,7 @@ namespace Service.MemoryBrowserService {
         
 
 					MemoryBrowser GetBrowser(string id);
+    
 
 
 		/// <summary>
@@ -47,6 +50,8 @@ namespace Service.MemoryBrowserService {
         
 
 					ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
+    
+
 
 	}
 

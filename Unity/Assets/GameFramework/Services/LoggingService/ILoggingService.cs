@@ -21,21 +21,28 @@ namespace Service.LoggingService {
 
 
 					void AddLog(DebugType debugType,string message,string domain="");
+    
 
 
 					void Info(string message,string domain="");
+    
 
 
 					void Warn(string message,string domain="");
+    
 
 
 					void Error(string message,string domain="");
+    
 
 
 					void Severe(string message,string domain="");
+    
 
 
 					ReactiveCollection<LogData> GetRxOutputData();
+    
+
 
 	}
 

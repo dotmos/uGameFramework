@@ -39,7 +39,11 @@ namespace Service.Scripting {
 		string GetCurrentLuaReplay();
 		("System.Text.StringBuilder") GetLuaReplayStringBuilder();
 		void SetLuaReplayStringBuilder(("StringBuilder") replayScript);
-		//T GetComponent<T>(UID entity) where T : IComponent
+		## "Sets a func to get the current gametime that is used for ReplayWrite"
+		void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime);
+		   
+		void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=True);		
+	 	//T GetComponent<T>(UID entity) where T : IComponent
     }   
 }      
 ## model 
@@ -47,7 +51,7 @@ namespace Service.Scripting {
 public class ScriptingServiceData {
 	    public ("StringBuilder":FBCustom) replayScript = ("new StringBuilder()");
         public bool saveReplayScript = True;
-}
+} 
 
 public partial class LuaCoroutine{
 	public ("MoonSharp.Interpreter.DynValue") co;

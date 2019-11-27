@@ -61,6 +61,10 @@ namespace Service.Scripting{
 
             this.OnEvent<SetLuaReplayStringBuilderCommand>().Subscribe(e => SetLuaReplayStringBuilderCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<SetLuaReplayGetGameTimeFuncCommand>().Subscribe(e => SetLuaReplayGetGameTimeFuncCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<ReplayWrite_CustomLuaCommand>().Subscribe(e => ReplayWrite_CustomLuaCommandHandler(e)).AddTo(this);
+
         }
         
 
@@ -535,6 +539,55 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("SetLuaReplayStringBuilderCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Sets a func to get the current gametime that is used for ReplayWrite
+        /// </summary>
+        
+        public class SetLuaReplayGetGameTimeFuncCommand  {
+            public Func<float> getCurrentGameTime;
+            
+            
+        }
+
+		protected void SetLuaReplayGetGameTimeFuncCommandHandler  (SetLuaReplayGetGameTimeFuncCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("SetLuaReplayGetGameTimeFuncCommand");
+#endif
+        _service.SetLuaReplayGetGameTimeFunc(cmd.getCurrentGameTime);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("SetLuaReplayGetGameTimeFuncCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class ReplayWrite_CustomLuaCommand  {
+            public string luaScript;
+                        public bool waitForGameTime=true;
+            
+            
+        }
+
+		protected void ReplayWrite_CustomLuaCommandHandler  (ReplayWrite_CustomLuaCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("ReplayWrite_CustomLuaCommand");
+#endif
+        _service.ReplayWrite_CustomLua(cmd.luaScript,cmd.waitForGameTime);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("ReplayWrite_CustomLuaCommand");
 #endif
         }
         
