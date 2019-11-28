@@ -1175,6 +1175,12 @@ namespace Service.Serializer {
             return buf;
         }
 
+        public static T DeepCopy<T>(T original) where T : IFBSerializable,new() {
+            var buf = SerializeToBytes(original, 2048);
+            var result = DeserializeFromBytes<T>(buf);
+            return result;
+        }
+
         public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root)  {
             var buf = SerializeToBytes(root);
             var fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
@@ -1194,6 +1200,8 @@ namespace Service.Serializer {
             UnityEngine.Debug.Log("Deserialize final took:" + stopwatch.Elapsed.TotalMilliseconds / 1000.0f);
             return dataRoot;
         }
+
+
 
 
     }
