@@ -237,7 +237,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                                       /*name:name*/testListPrimitive/*endname*/ = (/*name:type*/System.Collections.Generic.List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListPrimitiveTableOffset/*endname*/,/*name:isObservable*/false/*endname*/);
         /*endblock:d_prim_list*/
         /*block:d_nonprim_list_typed*/
-        if (input./*name|fu,post#TableOffset:name*/TestListUIDBufferPosition/*endname*/!= 0) {
+        if (input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/!= 0) {
             if (/*name:name*/testListUID/*endname*/== null) {
                 /*name:name*/testListUID/*endname*/ = new /*name:type*/System.Collections.Generic.List<UID>/*endname*/();
             } else {
