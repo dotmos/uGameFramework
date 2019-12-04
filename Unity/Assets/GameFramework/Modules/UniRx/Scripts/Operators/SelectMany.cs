@@ -100,9 +100,9 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var disposable = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable disposable = new SingleAssignmentDisposable();
                 collectionDisposable.Add(disposable);
-                var collectionObserver = new SelectMany(this, disposable);
+                SelectMany collectionObserver = new SelectMany(this, disposable);
                 disposable.Disposable = nextObservable.Subscribe(collectionObserver);
             }
 
@@ -210,9 +210,9 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var disposable = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable disposable = new SingleAssignmentDisposable();
                 collectionDisposable.Add(disposable);
-                var collectionObserver = new SelectMany(this, disposable);
+                SelectMany collectionObserver = new SelectMany(this, disposable);
                 disposable.Disposable = nextObservable.Subscribe(collectionObserver);
             }
 
@@ -309,14 +309,14 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var e = nextEnumerable.GetEnumerator();
+                IEnumerator<TResult> e = nextEnumerable.GetEnumerator();
                 try
                 {
-                    var hasNext = true;
+                    bool hasNext = true;
                     while (hasNext)
                     {
                         hasNext = false;
-                        var current = default(TResult);
+                        TResult current = default(TResult);
 
                         try
                         {
@@ -386,14 +386,14 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var e = nextEnumerable.GetEnumerator();
+                IEnumerator<TResult> e = nextEnumerable.GetEnumerator();
                 try
                 {
-                    var hasNext = true;
+                    bool hasNext = true;
                     while (hasNext)
                     {
                         hasNext = false;
-                        var current = default(TResult);
+                        TResult current = default(TResult);
 
                         try
                         {
@@ -540,9 +540,9 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var disposable = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable disposable = new SingleAssignmentDisposable();
                 collectionDisposable.Add(disposable);
-                var collectionObserver = new SelectMany(this, value, disposable);
+                SelectMany collectionObserver = new SelectMany(this, value, disposable);
                 disposable.Disposable = nextObservable.Subscribe(collectionObserver);
             }
 
@@ -652,7 +652,7 @@ namespace UniRx.Operators
 
             public override void OnNext(TSource value)
             {
-                var i = index++;
+                int i = index++;
                 IObservable<TCollection> nextObservable;
                 try
                 {
@@ -664,9 +664,9 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var disposable = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable disposable = new SingleAssignmentDisposable();
                 collectionDisposable.Add(disposable);
-                var collectionObserver = new SelectManyObserver(this, value, i, disposable);
+                SelectManyObserver collectionObserver = new SelectManyObserver(this, value, i, disposable);
                 disposable.Disposable = nextObservable.Subscribe(collectionObserver);
             }
 
@@ -779,14 +779,14 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var e = nextEnumerable.GetEnumerator();
+                IEnumerator<TCollection> e = nextEnumerable.GetEnumerator();
                 try
                 {
-                    var hasNext = true;
+                    bool hasNext = true;
                     while (hasNext)
                     {
                         hasNext = false;
-                        var current = default(TResult);
+                        TResult current = default(TResult);
 
                         try
                         {
@@ -845,7 +845,7 @@ namespace UniRx.Operators
 
             public override void OnNext(TSource value)
             {
-                var i = index++;
+                int i = index++;
                 IEnumerable<TCollection> nextEnumerable;
                 try
                 {
@@ -857,15 +857,15 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var e = nextEnumerable.GetEnumerator();
+                IEnumerator<TCollection> e = nextEnumerable.GetEnumerator();
                 try
                 {
-                    var sequenceI = 0;
-                    var hasNext = true;
+                    int sequenceI = 0;
+                    bool hasNext = true;
                     while (hasNext)
                     {
                         hasNext = false;
-                        var current = default(TResult);
+                        TResult current = default(TResult);
 
                         try
                         {

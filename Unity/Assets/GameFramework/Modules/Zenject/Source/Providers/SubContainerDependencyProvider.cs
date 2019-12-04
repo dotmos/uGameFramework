@@ -42,7 +42,7 @@ namespace Zenject
         InjectContext CreateSubContext(
             InjectContext parent, DiContainer subContainer)
         {
-            var subContext = parent.CreateSubContext(_dependencyType, _identifier);
+            InjectContext subContext = parent.CreateSubContext(_dependencyType, _identifier);
 
             subContext.Container = subContainer;
 
@@ -57,9 +57,9 @@ namespace Zenject
         {
             Assert.IsNotNull(context);
 
-            var subContainer = _subContainerCreator.CreateSubContainer(args, context);
+            DiContainer subContainer = _subContainerCreator.CreateSubContainer(args, context);
 
-            var subContext = CreateSubContext(context, subContainer);
+            InjectContext subContext = CreateSubContext(context, subContainer);
 
             injectAction = null;
 

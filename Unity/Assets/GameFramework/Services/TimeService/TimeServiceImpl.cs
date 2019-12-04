@@ -43,7 +43,7 @@ namespace Service.TimeService {
         
 
 		public override TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="") {
-            var timer = new TimerElement() {
+            TimerElement timer = new TimerElement() {
                 info = info,
                 timerCallback = callback,
                 repeatTimes = repeatTimes,
@@ -70,7 +70,7 @@ namespace Service.TimeService {
             float dt = UnityEngine.Time.deltaTime;
 
             for (int i = globalTimers.Count-1; i >= 0; i--) {
-                var timer = globalTimers[i];
+                TimerElement timer = globalTimers[i];
                 timer.timeLeft -= dt;
                 if (timer.timeLeft <= 0) {
                     timer.timerCallback();

@@ -34,13 +34,13 @@ namespace UniRx.InternalUtil
         {
             if (index >= _size || index < 0)
                 return;
-            var parent = (index - 1) / 2;
+            int parent = (index - 1) / 2;
             if (parent < 0 || parent == index)
                 return;
 
             if (IsHigherPriority(index, parent))
             {
-                var temp = _items[index];
+                IndexedItem temp = _items[index];
                 _items[index] = _items[parent];
                 _items[parent] = temp;
                 Percolate(parent);
@@ -57,9 +57,9 @@ namespace UniRx.InternalUtil
             if (index >= _size || index < 0)
                 return;
 
-            var left = 2 * index + 1;
-            var right = 2 * index + 2;
-            var first = index;
+            int left = 2 * index + 1;
+            int right = 2 * index + 2;
+            int first = index;
 
             if (left < _size && IsHigherPriority(left, first))
                 first = left;
@@ -67,7 +67,7 @@ namespace UniRx.InternalUtil
                 first = right;
             if (first != index)
             {
-                var temp = _items[index];
+                IndexedItem temp = _items[index];
                 _items[index] = _items[first];
                 _items[first] = temp;
                 Heapify(first);
@@ -91,7 +91,7 @@ namespace UniRx.InternalUtil
             Heapify();
             if (_size < _items.Length / 4)
             {
-                var temp = _items;
+                IndexedItem[] temp = _items;
                 _items = new IndexedItem[_items.Length / 2];
                 Array.Copy(temp, 0, _items, 0, _size);
             }
@@ -99,7 +99,7 @@ namespace UniRx.InternalUtil
 
         public T Dequeue()
         {
-            var result = Peek();
+            T result = Peek();
             RemoveAt(0);
             return result;
         }
@@ -108,19 +108,19 @@ namespace UniRx.InternalUtil
         {
             if (_size >= _items.Length)
             {
-                var temp = _items;
+                IndexedItem[] temp = _items;
                 _items = new IndexedItem[_items.Length * 2];
                 Array.Copy(temp, _items, temp.Length);
             }
 
-            var index = _size++;
+            int index = _size++;
             _items[index] = new IndexedItem { Value = item, Id = Interlocked.Increment(ref _count) };
             Percolate(index);
         }
 
         public bool Remove(T item)
         {
-            for (var i = 0; i < _size; ++i)
+            for (int i = 0; i < _size; ++i)
             {
                 if (EqualityComparer<T>.Default.Equals(_items[i].Value, item))
                 {
@@ -139,7 +139,7 @@ namespace UniRx.InternalUtil
 
             public int CompareTo(IndexedItem other)
             {
-                var c = Value.CompareTo(other.Value);
+                int c = Value.CompareTo(other.Value);
                 if (c == 0)
                     c = Id.CompareTo(other.Id);
                 return c;

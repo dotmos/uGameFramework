@@ -8,7 +8,7 @@ namespace UniRx
         {
             return () =>
             {
-                var subject = new AsyncSubject<TResult>();
+                AsyncSubject<TResult> subject = new AsyncSubject<TResult>();
                 try
                 {
                     begin(iar =>
@@ -39,7 +39,7 @@ namespace UniRx
         {
             return x =>
             {
-                var subject = new AsyncSubject<TResult>();
+                AsyncSubject<TResult> subject = new AsyncSubject<TResult>();
                 try
                 {
                     begin(x, iar =>
@@ -70,7 +70,7 @@ namespace UniRx
         {
             return (x, y) =>
             {
-                var subject = new AsyncSubject<TResult>();
+                AsyncSubject<TResult> subject = new AsyncSubject<TResult>();
                 try
                 {
                     begin(x, y, iar =>

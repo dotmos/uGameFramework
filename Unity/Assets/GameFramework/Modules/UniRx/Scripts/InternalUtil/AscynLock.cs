@@ -26,7 +26,7 @@ namespace UniRx.InternalUtil
             if (action == null)
                 throw new ArgumentNullException("action");
 
-            var isOwner = false;
+            bool isOwner = false;
             lock (queue)
             {
                 if (!hasFaulted)
@@ -41,7 +41,7 @@ namespace UniRx.InternalUtil
             {
                 while (true)
                 {
-                    var work = default(Action);
+                    Action work = default(Action);
                     lock (queue)
                     {
                         if (queue.Count > 0)

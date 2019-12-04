@@ -12,7 +12,7 @@ namespace ModestTree
         public static IEnumerable<TSource> TakeUntilInclusive<TSource>(
             this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
-            foreach (var item in source)
+            foreach (TSource item in source)
             {
                 yield return item;
                 if (predicate(item))
@@ -177,8 +177,8 @@ namespace ModestTree
         static IEnumerable<TSource> DistinctByImpl<TSource, TKey>(IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
-            var knownKeys = new HashSet<TKey>(comparer);
-            foreach (var element in source)
+            HashSet<TKey> knownKeys = new HashSet<TKey>(comparer);
+            foreach (TSource element in source)
             {
                 if (knownKeys.Add(keySelector(element)))
                 {
@@ -201,12 +201,12 @@ namespace ModestTree
         {
             int numRemoved = 0;
 
-            var currentNode = list.First;
+            LinkedListNode<T> currentNode = list.First;
             while (currentNode != null)
             {
                 if (predicate(currentNode.Value))
                 {
-                    var toRemove = currentNode;
+                    LinkedListNode<T> toRemove = currentNode;
                     currentNode = currentNode.Next;
                     list.Remove(toRemove);
                     numRemoved++;
@@ -242,8 +242,8 @@ namespace ModestTree
         public static IEnumerable<T> Zipper<A, B, T>(
             this IEnumerable<A> seqA, IEnumerable<B> seqB, Func<A, B, T> func)
         {
-            using (var iteratorA = seqA.GetEnumerator())
-            using (var iteratorB = seqB.GetEnumerator())
+            using (IEnumerator<A> iteratorA = seqA.GetEnumerator())
+            using (IEnumerator<B> iteratorB = seqB.GetEnumerator())
             {
                 while (true)
                 {

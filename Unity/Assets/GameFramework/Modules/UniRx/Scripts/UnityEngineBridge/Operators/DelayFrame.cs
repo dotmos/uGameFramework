@@ -47,7 +47,7 @@ namespace UniRx.Operators
             {
                 cancelationToken = new BooleanDisposable();
 
-                var _sourceSubscription = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable _sourceSubscription = new SingleAssignmentDisposable();
                 sourceSubscription = _sourceSubscription;
                 _sourceSubscription.Disposable = parent.source.Subscribe(this);
 
@@ -80,7 +80,7 @@ namespace UniRx.Operators
                                 running = true;
                             }
 
-                            var value = q.Dequeue();
+                            T value = q.Dequeue();
                             observer.OnNext(value);
 
                             lock (gate)

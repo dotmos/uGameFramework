@@ -30,11 +30,11 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var sourceSubscription = new SingleAssignmentDisposable();
-                var sourceObserver = new SkipUntil(this, sourceSubscription);
-                
-                var otherSubscription = new SingleAssignmentDisposable();
-                var otherObserver = new SkipUntilOther(this, sourceObserver, otherSubscription);
+                SingleAssignmentDisposable sourceSubscription = new SingleAssignmentDisposable();
+                SkipUntil sourceObserver = new SkipUntil(this, sourceSubscription);
+
+                SingleAssignmentDisposable otherSubscription = new SingleAssignmentDisposable();
+                SkipUntilOther otherObserver = new SkipUntilOther(this, sourceObserver, otherSubscription);
 
                 sourceSubscription.Disposable = parent.source.Subscribe(sourceObserver);
                 otherSubscription.Disposable = parent.other.Subscribe(otherObserver);

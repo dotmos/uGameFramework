@@ -636,12 +636,12 @@ namespace UserInterface
         }
 
         void UpdateCaretFromKeyboard() {
-            var selectionRange = m_Keyboard.selection;
+            RangeInt selectionRange = m_Keyboard.selection;
 
-            var selectionStart = selectionRange.start;
-            var selectionEnd = selectionRange.end;
+            int selectionStart = selectionRange.start;
+            int selectionEnd = selectionRange.end;
 
-            var caretChanged = false;
+            bool caretChanged = false;
 
             if (caretPositionInternal != selectionStart) {
                 caretChanged = true;
@@ -756,7 +756,7 @@ namespace UserInterface
 
         [Obsolete("This function is no longer used. Please use RectTransformUtility.ScreenPointToLocalPointInRectangle() instead.")]
         public Vector2 ScreenToLocal(Vector2 screen) {
-            var theCanvas = m_TextComponent.canvas;
+            Canvas theCanvas = m_TextComponent.canvas;
             if (theCanvas == null)
                 return screen;
 
@@ -937,7 +937,7 @@ namespace UserInterface
         }
 
         protected EditState KeyPressed(Event evt) {
-            var currentEventModifiers = evt.modifiers;
+            EventModifiers currentEventModifiers = evt.modifiers;
             bool ctrl = SystemInfo.operatingSystemFamily == OperatingSystemFamily.MacOSX ? (currentEventModifiers & EventModifiers.Command) != 0 : (currentEventModifiers & EventModifiers.Control) != 0;
             bool shift = (currentEventModifiers & EventModifiers.Shift) != 0;
             bool alt = (currentEventModifiers & EventModifiers.Alt) != 0;
@@ -1092,7 +1092,7 @@ namespace UserInterface
             while (Event.PopEvent(m_ProcessingEvent)) {
                 if (m_ProcessingEvent.rawType == EventType.KeyDown) {
                     consumedEvent = true;
-                    var shouldContinue = KeyPressed(m_ProcessingEvent);
+                    EditState shouldContinue = KeyPressed(m_ProcessingEvent);
                     if (shouldContinue == EditState.Finish) {
                         DeactivateInputField();
                         break;
@@ -1481,7 +1481,7 @@ namespace UserInterface
                     // Determine what will actually fit into the given line
                     Vector2 extents = m_TextComponent.rectTransform.rect.size;
 
-                    var settings = m_TextComponent.GetGenerationSettings(extents);
+                    TextGenerationSettings settings = m_TextComponent.GetGenerationSettings(extents);
                     settings.generateOutOfBounds = true;
 
                     cachedInputTextGenerator.PopulateWithErrors(processed, settings, gameObject);
@@ -1530,7 +1530,7 @@ namespace UserInterface
             Vector2 extents = cachedInputTextGenerator.rectExtents.size;
 
             if (multiLine) {
-                var lines = cachedInputTextGenerator.lines;
+                IList<UILineInfo> lines = cachedInputTextGenerator.lines;
                 int caretLine = DetermineCharacterLine(caretPos, cachedInputTextGenerator);
 
                 if (caretPos > m_DrawEnd) {
@@ -1590,7 +1590,7 @@ namespace UserInterface
                     m_DrawStart = GetLineStartPosition(cachedInputTextGenerator, startLine);
                 }
             } else {
-                var characters = cachedInputTextGenerator.characters;
+                IList<UICharInfo> characters = cachedInputTextGenerator.characters;
                 if (m_DrawEnd > cachedInputTextGenerator.characterCountVisible)
                     m_DrawEnd = cachedInputTextGenerator.characterCountVisible;
 
@@ -1701,7 +1701,7 @@ namespace UserInterface
         }
 
         private void OnFillVBO(Mesh vbo) {
-            using (var helper = new VertexHelper()) {
+            using (VertexHelper helper = new VertexHelper()) {
                 if (!isFocused) {
                     helper.FillMesh(vbo);
                     return;
@@ -1828,7 +1828,7 @@ namespace UserInterface
                     if (endPosition.x > m_TextComponent.rectTransform.rect.xMax || endPosition.x < m_TextComponent.rectTransform.rect.xMin)
                         endPosition.x = m_TextComponent.rectTransform.rect.xMax;
 
-                    var startIndex = vbo.currentVertCount;
+                    int startIndex = vbo.currentVertCount;
                     vert.position = new Vector3(startPosition.x, endPosition.y, 0.0f) + (Vector3)roundingOffset;
                     vbo.AddVert(vert);
 
@@ -2163,7 +2163,7 @@ namespace UserInterface
             get {
                 if (textComponent == null)
                     return 0;
-                var settings = textComponent.GetGenerationSettings(Vector2.zero);
+                TextGenerationSettings settings = textComponent.GetGenerationSettings(Vector2.zero);
                 return textComponent.cachedTextGeneratorForLayout.GetPreferredWidth(m_Text, settings) / textComponent.pixelsPerUnit;
             }
         }
@@ -2174,7 +2174,7 @@ namespace UserInterface
             get {
                 if (textComponent == null)
                     return 0;
-                var settings = textComponent.GetGenerationSettings(new Vector2(textComponent.rectTransform.rect.size.x, 0.0f));
+                TextGenerationSettings settings = textComponent.GetGenerationSettings(new Vector2(textComponent.rectTransform.rect.size.x, 0.0f));
                 return textComponent.cachedTextGeneratorForLayout.GetPreferredHeight(m_Text, settings) / textComponent.pixelsPerUnit;
             }
         }

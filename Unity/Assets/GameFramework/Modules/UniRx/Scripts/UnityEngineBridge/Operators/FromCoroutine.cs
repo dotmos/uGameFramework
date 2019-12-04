@@ -16,11 +16,11 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<T> observer, IDisposable cancel)
         {
-            var fromCoroutineObserver = new FromCoroutine(observer, cancel);
+            FromCoroutine fromCoroutineObserver = new FromCoroutine(observer, cancel);
 
 #if (NET_4_6)
-            var moreCancel = new CancellationDisposable();
-            var token = moreCancel.Token;
+            CancellationDisposable moreCancel = new CancellationDisposable();
+            CancellationToken token = moreCancel.Token;
 #else
             var moreCancel = new BooleanDisposable();
             var token = new CancellationToken(moreCancel);
@@ -78,11 +78,11 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<T> observer, IDisposable cancel)
         {
-            var microCoroutineObserver = new FromMicroCoroutine(observer, cancel);
+            FromMicroCoroutine microCoroutineObserver = new FromMicroCoroutine(observer, cancel);
 
 #if (NET_4_6)
-            var moreCancel = new CancellationDisposable();
-            var token = moreCancel.Token;
+            CancellationDisposable moreCancel = new CancellationDisposable();
+            CancellationToken token = moreCancel.Token;
 #else
             var moreCancel = new BooleanDisposable();
             var token = new CancellationToken(moreCancel);

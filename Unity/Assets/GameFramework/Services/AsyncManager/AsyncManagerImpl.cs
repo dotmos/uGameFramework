@@ -82,7 +82,7 @@ namespace Service.AsyncManager {
                 return new AsyncFuture() { finished = true };
             }
 
-            var result = new AsyncFuture() { finished = false };
+            AsyncFuture result = new AsyncFuture() { finished = false };
             workerWorkerThread.actions.Enqueue(new AsyncAction() { action=act,global=global });
             workerWorkerThread.actions.Enqueue(new AsyncAction() { action = () => { result.finished = true; }, global = global });
             if (onFinished != null) {
@@ -124,7 +124,7 @@ namespace Service.AsyncManager {
         /// </summary>
         /// <param name="act"></param>
         public override AsyncFuture AddToMainThread(Action act,bool global=false) {
-            var result = new AsyncFuture() { finished = false };
+            AsyncFuture result = new AsyncFuture() { finished = false };
             workerMainThread.actions.Enqueue(new AsyncAction() { action = act, global = global });
             workerMainThread.actions.Enqueue(new AsyncAction() { action=() => { result.finished = true; } , global = global });
             // start the worker to process the queue if not running
@@ -171,7 +171,7 @@ namespace Service.AsyncManager {
                 // queue to async-queue
                 return _asyncManager.AddToMainThread(act,global);
             } else {
-                var result = new AsyncFuture() { finished = true };
+                AsyncFuture result = new AsyncFuture() { finished = true };
                 // immediately call
                 try {
                     act();

@@ -101,7 +101,7 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var pair = new Pair<T>(prev, value);
+                Pair<T> pair = new Pair<T>(prev, value);
                 prev = value;
                 observer.OnNext(pair);
             }

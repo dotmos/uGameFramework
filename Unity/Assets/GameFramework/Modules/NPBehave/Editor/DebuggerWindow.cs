@@ -90,7 +90,7 @@ namespace NPBehave
                 return;
             }
 
-            var newDebugger = (Debugger)EditorGUILayout.ObjectField("Selected Debugger:", selectedDebugger, typeof(Debugger), true);
+            Debugger newDebugger = (Debugger)EditorGUILayout.ObjectField("Selected Debugger:", selectedDebugger, typeof(Debugger), true);
 
             if (newDebugger != selectedDebugger)
             {

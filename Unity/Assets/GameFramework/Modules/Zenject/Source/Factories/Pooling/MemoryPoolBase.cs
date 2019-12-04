@@ -137,7 +137,7 @@ namespace Zenject
         {
             try
             {
-                var item = _factory.Create();
+                TContract item = _factory.Create();
 
                 if (!_container.IsValidating)
                 {
@@ -191,7 +191,7 @@ namespace Zenject
                 Assert.That(!_inactiveItems.IsEmpty());
             }
 
-            var item = _inactiveItems.Pop();
+            TContract item = _inactiveItems.Pop();
             _activeCount++;
             OnSpawned(item);
             return item;

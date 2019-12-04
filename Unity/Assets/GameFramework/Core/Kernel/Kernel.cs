@@ -43,9 +43,9 @@ public partial class Kernel : SceneContext {
                 overrideSceneName = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene().name;
 #endif
                 System.Diagnostics.StackFrame frame = new System.Diagnostics.StackFrame(1);
-                var method = frame.GetMethod();
-                var type = method.DeclaringType;
-                var name = method.Name;
+                System.Reflection.MethodBase method = frame.GetMethod();
+                Type type = method.DeclaringType;
+                string name = method.Name;
                 Debug.Log("kernel is null! Calling script:"+ frame.GetFileName() +" in scene: "+ SceneManager.GetActiveScene().name + " calling method name: "+ name);
 
                 loadingKernelScene = true;
@@ -117,14 +117,14 @@ public partial class Kernel : SceneContext {
         rxStartup
             .RxExecute()
             .SelectMany(_ => {
-                var initialGameStateName = GetInitialGamestateName();
-                var initialGameStateCtx = GetInitialGamestateContext();
+                string initialGameStateName = GetInitialGamestateName();
+                Service.GameStateService.GSContext initialGameStateCtx = GetInitialGamestateContext();
                 if (initialGameStateName == null) {
                     Debug.LogWarning("No inital gamestate specified!");
                     return Observable.Return(true);
                 } else {
-                    var gameStateService = Container.Resolve<Service.GameStateService.IGameStateService>();
-                    var initialGameState = gameStateService.GetGameState(initialGameStateName);
+                    Service.GameStateService.IGameStateService gameStateService = Container.Resolve<Service.GameStateService.IGameStateService>();
+                    Service.GameStateService.GameState initialGameState = gameStateService.GetGameState(initialGameStateName);
                     if (initialGameState == null) {
                         Debug.LogWarning("Could not find initial gamestate with name:" + initialGameStateName);
                         return Observable.Return(true);

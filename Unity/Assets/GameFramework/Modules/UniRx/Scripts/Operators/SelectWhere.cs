@@ -35,7 +35,7 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var v = default(TR);
+                TR v = default(TR);
                 try
                 {
                     v = parent.selector(value);
@@ -46,7 +46,7 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var isPassed = false;
+                bool isPassed = false;
                 try
                 {
                     isPassed = parent.predicate(v);

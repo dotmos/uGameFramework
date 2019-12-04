@@ -71,7 +71,7 @@ namespace Zenject
 
         public static GameObject TryGetPrefab()
         {
-            var prefab = (GameObject)Resources.Load(ProjectContextResourcePath);
+            GameObject prefab = (GameObject)Resources.Load(ProjectContextResourcePath);
 
             if (prefab == null)
             {
@@ -86,9 +86,9 @@ namespace Zenject
             Assert.That(GameObject.FindObjectsOfType<ProjectContext>().IsEmpty(),
                 "Tried to create multiple instances of ProjectContext!");
 
-            var prefab = TryGetPrefab();
+            GameObject prefab = TryGetPrefab();
 
-            var prefabWasActive = false;
+            bool prefabWasActive = false;
 
             if (prefab == null)
             {
@@ -181,10 +181,10 @@ namespace Zenject
                 PreInstall();
             }
 
-            var injectableMonoBehaviours = new List<MonoBehaviour>();
+            List<MonoBehaviour> injectableMonoBehaviours = new List<MonoBehaviour>();
             GetInjectableMonoBehaviours(injectableMonoBehaviours);
 
-            foreach (var instance in injectableMonoBehaviours)
+            foreach (MonoBehaviour instance in injectableMonoBehaviours)
             {
                 _container.QueueForInject(instance);
             }

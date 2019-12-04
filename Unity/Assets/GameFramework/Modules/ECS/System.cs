@@ -319,7 +319,7 @@ namespace ECS {
 
 
         void UpdateEntity(UID entity) {
-            var entityComponents = GetSystemComponentsForEntity(entity);
+            TComponents entityComponents = GetSystemComponentsForEntity(entity);
             GetEntityComponents(entityComponents, entity);
             if (!updatedComponents.Contains(entityComponents)) {
                 updatedComponents.Add(entityComponents);

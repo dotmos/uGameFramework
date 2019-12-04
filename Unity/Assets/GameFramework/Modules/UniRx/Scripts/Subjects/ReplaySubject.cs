@@ -65,7 +65,7 @@ namespace UniRx
 
         void Trim()
         {
-            var elapsedTime = Scheduler.Normalize(scheduler.Now - startTime);
+            TimeSpan elapsedTime = Scheduler.Normalize(scheduler.Now - startTime);
 
             while (queue.Count > bufferSize)
             {
@@ -136,22 +136,22 @@ namespace UniRx
         {
             if (observer == null) throw new ArgumentNullException("observer");
 
-            var ex = default(Exception);
-            var subscription = default(Subscription);
+            Exception ex = default(Exception);
+            Subscription subscription = default(Subscription);
 
             lock (observerLock)
             {
                 ThrowIfDisposed();
                 if (!isStopped)
                 {
-                    var listObserver = outObserver as ListObserver<T>;
+                    ListObserver<T> listObserver = outObserver as ListObserver<T>;
                     if (listObserver != null)
                     {
                         outObserver = listObserver.Add(observer);
                     }
                     else
                     {
-                        var current = outObserver;
+                        IObserver<T> current = outObserver;
                         if (current is EmptyObserver<T>)
                         {
                             outObserver = observer;
@@ -167,7 +167,7 @@ namespace UniRx
 
                 ex = lastError;
                 Trim();
-                foreach (var item in queue)
+                foreach (TimeInterval<T> item in queue)
                 {
                     observer.OnNext(item.Value);
                 }
@@ -230,7 +230,7 @@ namespace UniRx
                     {
                         lock (parent.observerLock)
                         {
-                            var listObserver = parent.outObserver as ListObserver<T>;
+                            ListObserver<T> listObserver = parent.outObserver as ListObserver<T>;
                             if (listObserver != null)
                             {
                                 parent.outObserver = listObserver.Remove(unsubscribeTarget);

@@ -39,7 +39,7 @@ namespace Zenject
             Assert.That(installerType.DerivesFrom<MonoInstaller>(),
                 "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'MonoInstaller'", installerType);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             ProviderFunc = 
                 (container) => new SubContainerDependencyProvider(
@@ -64,7 +64,7 @@ namespace Zenject
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             ProviderFunc = 
                 (container) => new SubContainerDependencyProvider(

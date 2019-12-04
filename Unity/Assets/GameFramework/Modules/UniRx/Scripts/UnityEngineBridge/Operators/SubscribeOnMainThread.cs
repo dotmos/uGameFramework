@@ -16,8 +16,8 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<T> observer, IDisposable cancel)
         {
-            var m = new SingleAssignmentDisposable();
-            var d = new SerialDisposable();
+            SingleAssignmentDisposable m = new SingleAssignmentDisposable();
+            SerialDisposable d = new SerialDisposable();
             d.Disposable = m;
 
             m.Disposable = subscribeTrigger.SubscribeWithState3(observer, d, source, (_, o, disp, s) =>

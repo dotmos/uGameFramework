@@ -51,8 +51,8 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var l = parent.left.Subscribe(new LeftObserver(this));
-                var r = parent.right.Subscribe(new RightObserver(this));
+                IDisposable l = parent.left.Subscribe(new LeftObserver(this));
+                IDisposable r = parent.right.Subscribe(new RightObserver(this));
 
                 return StableCompositeDisposable.Create(l, r);
             }
@@ -227,10 +227,10 @@ namespace UniRx.Operators
                 isStarted = new bool[length];
                 isCompleted = new bool[length];
 
-                var disposables = new IDisposable[length];
+                IDisposable[] disposables = new IDisposable[length];
                 for (int i = 0; i < length; i++)
                 {
-                    var source = parent.sources[i];
+                    IObservable<T> source = parent.sources[i];
                     disposables[i] = source.Subscribe(new ZipLatestObserver(this, i));
                 }
 
@@ -242,8 +242,8 @@ namespace UniRx.Operators
             {
                 isStarted[index] = true;
 
-                var hasOnCompleted = false;
-                var allValueStarted = true;
+                bool hasOnCompleted = false;
+                bool allValueStarted = true;
                 for (int i = 0; i < length; i++)
                 {
                     if (!isStarted[i])
@@ -336,7 +336,7 @@ namespace UniRx.Operators
                     {
                         parent.isCompleted[index] = true;
 
-                        var allTrue = true;
+                        bool allTrue = true;
                         for (int i = 0; i < parent.length; i++)
                         {
                             if (!parent.isCompleted[i])
@@ -408,9 +408,9 @@ namespace UniRx.Operators
                 c2 = new ZipLatestObserver<T2>(gate, this, 1);
                 c3 = new ZipLatestObserver<T3>(gate, this, 2);
 
-                var s1 = parent.source1.Subscribe(c1);
-                var s2 = parent.source2.Subscribe(c2);
-                var s3 = parent.source3.Subscribe(c3);
+                IDisposable s1 = parent.source1.Subscribe(c1);
+                IDisposable s2 = parent.source2.Subscribe(c2);
+                IDisposable s3 = parent.source3.Subscribe(c3);
 
                 return StableCompositeDisposable.Create(s1, s2, s3);
             }
@@ -495,10 +495,10 @@ namespace UniRx.Operators
                 c3 = new ZipLatestObserver<T3>(gate, this, 2);
                 c4 = new ZipLatestObserver<T4>(gate, this, 3);
 
-                var s1 = parent.source1.Subscribe(c1);
-                var s2 = parent.source2.Subscribe(c2);
-                var s3 = parent.source3.Subscribe(c3);
-                var s4 = parent.source4.Subscribe(c4);
+                IDisposable s1 = parent.source1.Subscribe(c1);
+                IDisposable s2 = parent.source2.Subscribe(c2);
+                IDisposable s3 = parent.source3.Subscribe(c3);
+                IDisposable s4 = parent.source4.Subscribe(c4);
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4);
             }
@@ -589,11 +589,11 @@ namespace UniRx.Operators
                 c4 = new ZipLatestObserver<T4>(gate, this, 3);
                 c5 = new ZipLatestObserver<T5>(gate, this, 4);
 
-                var s1 = parent.source1.Subscribe(c1);
-                var s2 = parent.source2.Subscribe(c2);
-                var s3 = parent.source3.Subscribe(c3);
-                var s4 = parent.source4.Subscribe(c4);
-                var s5 = parent.source5.Subscribe(c5);
+                IDisposable s1 = parent.source1.Subscribe(c1);
+                IDisposable s2 = parent.source2.Subscribe(c2);
+                IDisposable s3 = parent.source3.Subscribe(c3);
+                IDisposable s4 = parent.source4.Subscribe(c4);
+                IDisposable s5 = parent.source5.Subscribe(c5);
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4, s5);
             }
@@ -690,12 +690,12 @@ namespace UniRx.Operators
                 c5 = new ZipLatestObserver<T5>(gate, this, 4);
                 c6 = new ZipLatestObserver<T6>(gate, this, 5);
 
-                var s1 = parent.source1.Subscribe(c1);
-                var s2 = parent.source2.Subscribe(c2);
-                var s3 = parent.source3.Subscribe(c3);
-                var s4 = parent.source4.Subscribe(c4);
-                var s5 = parent.source5.Subscribe(c5);
-                var s6 = parent.source6.Subscribe(c6);
+                IDisposable s1 = parent.source1.Subscribe(c1);
+                IDisposable s2 = parent.source2.Subscribe(c2);
+                IDisposable s3 = parent.source3.Subscribe(c3);
+                IDisposable s4 = parent.source4.Subscribe(c4);
+                IDisposable s5 = parent.source5.Subscribe(c5);
+                IDisposable s6 = parent.source6.Subscribe(c6);
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4, s5, s6);
             }
@@ -798,13 +798,13 @@ namespace UniRx.Operators
                 c6 = new ZipLatestObserver<T6>(gate, this, 5);
                 c7 = new ZipLatestObserver<T7>(gate, this, 6);
 
-                var s1 = parent.source1.Subscribe(c1);
-                var s2 = parent.source2.Subscribe(c2);
-                var s3 = parent.source3.Subscribe(c3);
-                var s4 = parent.source4.Subscribe(c4);
-                var s5 = parent.source5.Subscribe(c5);
-                var s6 = parent.source6.Subscribe(c6);
-                var s7 = parent.source7.Subscribe(c7);
+                IDisposable s1 = parent.source1.Subscribe(c1);
+                IDisposable s2 = parent.source2.Subscribe(c2);
+                IDisposable s3 = parent.source3.Subscribe(c3);
+                IDisposable s4 = parent.source4.Subscribe(c4);
+                IDisposable s5 = parent.source5.Subscribe(c5);
+                IDisposable s6 = parent.source6.Subscribe(c6);
+                IDisposable s7 = parent.source7.Subscribe(c7);
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4, s5, s6, s7);
             }
@@ -864,8 +864,8 @@ namespace UniRx.Operators
         {
             isStarted[index] = true;
 
-            var hasOnCompleted = false;
-            var allValueStarted = true;
+            bool hasOnCompleted = false;
+            bool allValueStarted = true;
             for (int i = 0; i < length; i++)
             {
                 if (!isStarted[i])
@@ -879,7 +879,7 @@ namespace UniRx.Operators
 
             if (allValueStarted)
             {
-                var result = default(T);
+                T result = default(T);
                 try
                 {
                     result = GetResult();
@@ -923,7 +923,7 @@ namespace UniRx.Operators
         {
             isCompleted[index] = true;
 
-            var allTrue = true;
+            bool allTrue = true;
             for (int i = 0; i < length; i++)
             {
                 if (!isCompleted[i])

@@ -32,7 +32,7 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var subcription = parent.source.Subscribe(this);
+                IDisposable subcription = parent.source.Subscribe(this);
 
                 lock (parent.gate)
                 {

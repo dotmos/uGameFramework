@@ -29,7 +29,7 @@ namespace Service.PerformanceTest {
                 data.watch.Start();
                 data.calls++;
             } else {
-                var newData = new PerfTestData();
+                PerfTestData newData = new PerfTestData();
                 newData.init();
                 perfTestStopwatches[t] = newData;
                 newData.calls++;
@@ -46,7 +46,7 @@ namespace Service.PerformanceTest {
 
         public override void PrintPerfTests() {
             UnityEngine.Debug.Log("PerfTest:\n-----------------------------------");
-            foreach (var pTest in perfTestStopwatches) {
+            foreach (KeyValuePair<string, PerfTestData> pTest in perfTestStopwatches) {
                 if (pTest.Value.calls == 0) {
                     continue;
                 }

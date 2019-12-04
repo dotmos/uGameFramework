@@ -19,8 +19,8 @@ namespace UniRx
             }
             set
             {
-                var shouldDispose = false;
-                var old = default(IDisposable);
+                bool shouldDispose = false;
+                IDisposable old = default(IDisposable);
                 lock (gate)
                 {
                     shouldDispose = disposed;
@@ -43,7 +43,7 @@ namespace UniRx
 
         public void Dispose()
         {
-            var old = default(IDisposable);
+            IDisposable old = default(IDisposable);
 
             lock (gate)
             {

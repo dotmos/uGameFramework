@@ -30,8 +30,8 @@ namespace UniRx.Operators
         {
             if (dueTimeT != null)
             {
-                var d = new MultipleAssignmentDisposable();
-                var dt = Scheduler.Normalize(dueTimeT.Value);
+                MultipleAssignmentDisposable d = new MultipleAssignmentDisposable();
+                TimeSpan dt = Scheduler.Normalize(dueTimeT.Value);
 
                 d.Disposable = scheduler.Schedule(dt, () =>
                 {
@@ -42,7 +42,7 @@ namespace UniRx.Operators
             }
             else
             {
-                var d = new MultipleAssignmentDisposable();
+                MultipleAssignmentDisposable d = new MultipleAssignmentDisposable();
 
                 d.Disposable = scheduler.Schedule(dueTimeD.Value, () =>
                 {

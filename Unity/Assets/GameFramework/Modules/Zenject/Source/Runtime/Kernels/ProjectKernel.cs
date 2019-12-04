@@ -60,7 +60,7 @@ namespace Zenject
 
             // Destroy the scene contexts from bottom to top
             // Since this is the reverse order that they were loaded in
-            foreach (var sceneContext in ZenUtilInternal.GetAllSceneContexts().Reverse().ToList())
+            foreach (SceneContext sceneContext in ZenUtilInternal.GetAllSceneContexts().Reverse().ToList())
             {
                 if (immediate)
                 {

@@ -41,8 +41,8 @@ namespace UniRx
             if (source == null) return Observable.Empty<TProperty>();
             if (comparer == null) comparer = UnityEqualityComparer.GetDefault<TProperty>();
 
-            var unityObject = source as UnityEngine.Object;
-            var isUnityObject = source is UnityEngine.Object;
+            UnityEngine.Object unityObject = source as UnityEngine.Object;
+            bool isUnityObject = source is UnityEngine.Object;
             if (isUnityObject && unityObject == null) return Observable.Empty<TProperty>();
 
             // MicroCoroutine does not publish value immediately, so publish value on subscribe.
@@ -52,7 +52,7 @@ namespace UniRx
                 {
                     if (unityObject != null)
                     {
-                        var firstValue = default(TProperty);
+                        TProperty firstValue = default(TProperty);
                         try
                         {
                             firstValue = propertySelector((TSource)(object)unityObject);
@@ -75,15 +75,15 @@ namespace UniRx
             }
             else
             {
-                var reference = new WeakReference(source);
+                WeakReference reference = new WeakReference(source);
                 source = null;
 
                 return ObservableUnity.FromMicroCoroutine<TProperty>((observer, cancellationToken) =>
                 {
-                    var target = reference.Target;
+                    object target = reference.Target;
                     if (target != null)
                     {
-                        var firstValue = default(TProperty);
+                        TProperty firstValue = default(TProperty);
                         try
                         {
                             firstValue = propertySelector((TSource)target);
@@ -117,12 +117,12 @@ namespace UniRx
 
         static IEnumerator PublishPocoValueChanged<TSource, TProperty>(WeakReference sourceReference, TProperty firstValue, Func<TSource, TProperty> propertySelector, IEqualityComparer<TProperty> comparer, IObserver<TProperty> observer, CancellationToken cancellationToken)
         {
-            var currentValue = default(TProperty);
-            var prevValue = firstValue;
+            TProperty currentValue = default(TProperty);
+            TProperty prevValue = firstValue;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var target = sourceReference.Target;
+                object target = sourceReference.Target;
                 if (target != null)
                 {
                     try
@@ -157,19 +157,19 @@ namespace UniRx
 
         static IEnumerator PublishUnityObjectValueChanged<TSource, TProperty>(UnityEngine.Object unityObject, TProperty firstValue, Func<TSource, TProperty> propertySelector, IEqualityComparer<TProperty> comparer, IObserver<TProperty> observer, CancellationToken cancellationToken, bool fastDestroyCheck)
         {
-            var currentValue = default(TProperty);
-            var prevValue = firstValue;
+            TProperty currentValue = default(TProperty);
+            TProperty prevValue = firstValue;
 
-            var source = (TSource)(object)unityObject;
+            TSource source = (TSource)(object)unityObject;
 
             if (fastDestroyCheck)
             {
                 ObservableDestroyTrigger destroyTrigger = null;
                 {
-                    var gameObject = unityObject as UnityEngine.GameObject;
+                    UnityEngine.GameObject gameObject = unityObject as UnityEngine.GameObject;
                     if (gameObject == null)
                     {
-                        var comp = unityObject as UnityEngine.Component;
+                        UnityEngine.Component comp = unityObject as UnityEngine.Component;
                         if (comp != null)
                         {
                             gameObject = comp.gameObject;
@@ -185,7 +185,7 @@ namespace UniRx
                 // fast compare path
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var isDestroyed = destroyTrigger.IsActivated
+                    bool isDestroyed = destroyTrigger.IsActivated
                         ? !destroyTrigger.IsCalledOnDestroy
                         : (unityObject != null);
 
@@ -252,7 +252,7 @@ namespace UniRx
 
         static ObservableDestroyTrigger GetOrAddDestroyTrigger(UnityEngine.GameObject go)
         {
-            var dt = go.GetComponent<ObservableDestroyTrigger>();
+            ObservableDestroyTrigger dt = go.GetComponent<ObservableDestroyTrigger>();
             if (dt == null)
             {
                 dt = go.AddComponent<ObservableDestroyTrigger>();

@@ -64,7 +64,7 @@ namespace Zenject
             Assert.That(typeof(TContract).DerivesFromOrEqual(context.MemberType));
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)
@@ -99,7 +99,7 @@ namespace Zenject
             Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TParam1, TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TParam1, TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)
@@ -138,7 +138,7 @@ namespace Zenject
             Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)
@@ -180,7 +180,7 @@ namespace Zenject
             Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)
@@ -224,7 +224,7 @@ namespace Zenject
             Assert.That(args[3].Type.DerivesFromOrEqual<TParam4>());
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)
@@ -270,7 +270,7 @@ namespace Zenject
             Assert.That(args[4].Type.DerivesFromOrEqual<TParam5>());
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)
@@ -318,7 +318,7 @@ namespace Zenject
             Assert.That(args[5].Type.DerivesFromOrEqual<TParam6>());
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)
@@ -371,7 +371,7 @@ namespace Zenject
             Assert.That(args[9].Type.DerivesFromOrEqual<TParam10>());
 
             // Do this even when validating in case it has its own dependencies
-            var factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>), FactoryId);
+            object factory = Container.ResolveId(typeof(IFactory<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TContract>), FactoryId);
 
             injectAction = null;
             if (Container.IsValidating)

@@ -60,7 +60,7 @@ namespace Zenject
         public FromBinderNonGeneric To(
             Action<ConventionSelectTypesBinder> generator)
         {
-            var bindInfo = new ConventionBindInfo();
+            ConventionBindInfo bindInfo = new ConventionBindInfo();
 
             // This is nice because it allows us to do things like Bind(all interfaces).To(specific types)
             // instead of having to do Bind(all interfaces).To(specific types that inherit from one of these interfaces)

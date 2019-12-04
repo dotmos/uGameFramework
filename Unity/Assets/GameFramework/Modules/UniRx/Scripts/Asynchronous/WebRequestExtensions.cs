@@ -12,10 +12,10 @@ namespace UniRx
     {
         static IObservable<TResult> AbortableDeferredAsyncRequest<TResult>(Func<AsyncCallback, object, IAsyncResult> begin, Func<IAsyncResult, TResult> end, WebRequest request)
         {
-            var result = Observable.Create<TResult>(observer =>
+            IObservable<TResult> result = Observable.Create<TResult>(observer =>
             {
-                var isCompleted = -1;
-                var subscription = Observable.FromAsyncPattern<TResult>(begin,
+                int isCompleted = -1;
+                IDisposable subscription = Observable.FromAsyncPattern<TResult>(begin,
                     ar =>
                     {
                         try

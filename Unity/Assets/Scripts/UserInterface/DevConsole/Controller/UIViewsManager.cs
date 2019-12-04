@@ -41,7 +41,7 @@ namespace UserInterface {
             //listen to new
             _devUiService.GetRxViews().ObserveAdd().Subscribe(evt => {
                 // spawn View
-                var view = evt.Value;
+                DevUIView view = evt.Value;
                 SpawnUIView(view);
             }).AddTo(this);
 

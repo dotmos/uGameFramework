@@ -41,7 +41,7 @@ namespace Zenject
 
         InjectContext GetSubContext(InjectContext parent)
         {
-            var subContext = parent.CreateSubContext(
+            InjectContext subContext = parent.CreateSubContext(
                 typeof(TObj), _identifier);
 
             subContext.Optional = false;

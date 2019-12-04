@@ -41,7 +41,7 @@ namespace UniRx.Operators
             public IDisposable Run()
             {
                 list = new List<T>();
-                var sourceSubscription = parent.source.Subscribe(this);
+                IDisposable sourceSubscription = parent.source.Subscribe(this);
                 return StableCompositeDisposable.Create(sourceSubscription, cancellationToken);
             }
 
@@ -182,7 +182,7 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var sourceSubscription = parent.source.Subscribe(this);
+                IDisposable sourceSubscription = parent.source.Subscribe(this);
                 return StableCompositeDisposable.Create(sourceSubscription, cancellationToken);
             }
 

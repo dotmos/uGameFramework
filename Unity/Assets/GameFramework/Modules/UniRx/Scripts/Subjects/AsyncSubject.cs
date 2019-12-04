@@ -107,23 +107,23 @@ namespace UniRx
         {
             if (observer == null) throw new ArgumentNullException("observer");
 
-            var ex = default(Exception);
-            var v = default(T);
-            var hv = false;
+            Exception ex = default(Exception);
+            T v = default(T);
+            bool hv = false;
 
             lock (observerLock)
             {
                 ThrowIfDisposed();
                 if (!isStopped)
                 {
-                    var listObserver = outObserver as ListObserver<T>;
+                    ListObserver<T> listObserver = outObserver as ListObserver<T>;
                     if (listObserver != null)
                     {
                         outObserver = listObserver.Add(observer);
                     }
                     else
                     {
-                        var current = outObserver;
+                        IObserver<T> current = outObserver;
                         if (current is EmptyObserver<T>)
                         {
                             outObserver = observer;
@@ -200,7 +200,7 @@ namespace UniRx
                     {
                         lock (parent.observerLock)
                         {
-                            var listObserver = parent.outObserver as ListObserver<T>;
+                            ListObserver<T> listObserver = parent.outObserver as ListObserver<T>;
                             if (listObserver != null)
                             {
                                 parent.outObserver = listObserver.Remove(unsubscribeTarget);
@@ -308,7 +308,7 @@ namespace UniRx
         {
             if (!isStopped)
             {
-                var e = new ManualResetEvent(false);
+                ManualResetEvent e = new ManualResetEvent(false);
                 OnCompleted(() => e.Set(), false);
                 e.WaitOne();
             }

@@ -183,7 +183,7 @@ namespace Zenject
 
                 yield return ParentContext;
 
-                foreach (var context in ParentContext.ParentContexts)
+                foreach (InjectContext context in ParentContext.ParentContexts)
                 {
                     yield return context;
                 }
@@ -196,7 +196,7 @@ namespace Zenject
             {
                 yield return this;
 
-                foreach (var context in ParentContexts)
+                foreach (InjectContext context in ParentContexts)
                 {
                     yield return context;
                 }
@@ -210,7 +210,7 @@ namespace Zenject
         {
             get
             {
-                foreach (var context in ParentContextsAndSelf)
+                foreach (InjectContext context in ParentContextsAndSelf)
                 {
                     if (context.ObjectType != null)
                     {
@@ -227,7 +227,7 @@ namespace Zenject
 
         public InjectContext CreateSubContext(Type memberType, object identifier)
         {
-            var subContext = new InjectContext();
+            InjectContext subContext = new InjectContext();
 
             subContext.ParentContext = this;
             subContext.Identifier = identifier;
@@ -250,7 +250,7 @@ namespace Zenject
 
         public InjectContext Clone()
         {
-            var clone = new InjectContext();
+            InjectContext clone = new InjectContext();
 
             clone.ObjectType = this.ObjectType;
             clone.ParentContext = this.ParentContext;
@@ -270,9 +270,9 @@ namespace Zenject
         // This is very useful to print out for debugging purposes
         public string GetObjectGraphString()
         {
-            var result = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
-            foreach (var context in ParentContextsAndSelf.Reverse())
+            foreach (InjectContext context in ParentContextsAndSelf.Reverse())
             {
                 if (context.ObjectType == null)
                 {

@@ -84,7 +84,7 @@ namespace UniRx
             if (!(obj is FrameInterval<T>))
                 return false;
 
-            var other = (FrameInterval<T>)obj;
+            FrameInterval<T> other = (FrameInterval<T>)obj;
             return this.Equals(other);
         }
 
@@ -94,7 +94,7 @@ namespace UniRx
         /// <returns>A hash code for the current FrameInterval&lt;T&gt; value.</returns>
         public override int GetHashCode()
         {
-            var valueHashCode = Value == null ? 1963 : Value.GetHashCode();
+            int valueHashCode = Value == null ? 1963 : Value.GetHashCode();
 
             return Interval.GetHashCode() ^ valueHashCode;
         }

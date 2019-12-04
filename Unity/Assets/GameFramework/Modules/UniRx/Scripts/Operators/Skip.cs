@@ -105,8 +105,8 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var d1 = parent.scheduler.Schedule(parent.duration, Tick);
-                var d2 = parent.source.Subscribe(this);
+                IDisposable d1 = parent.scheduler.Schedule(parent.duration, Tick);
+                IDisposable d2 = parent.source.Subscribe(this);
 
                 return StableCompositeDisposable.Create(d1, d2);
             }

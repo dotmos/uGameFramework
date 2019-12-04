@@ -8,7 +8,7 @@ namespace UniRx
     {
         public static IEnumerable<T> AsSafeEnumerable<T>(this IEnumerable<T> source)
         {
-            var e = ((IEnumerable)source).GetEnumerator();
+            IEnumerator e = ((IEnumerable)source).GetEnumerator();
             using (e as IDisposable)
             {
                 while (e.MoveNext())

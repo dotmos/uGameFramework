@@ -135,7 +135,7 @@ namespace Service.GameStateService {
         }
 
         public override IObservable<bool> StartGameState(GameState gamestate, GSContext ctx = null) {
-            var oldGameState = CurrentGameState;
+            GameState oldGameState = CurrentGameState;
             CurrentGameState = null;
 
             List<IObservable<bool>> startupSequence = new List<IObservable<bool>>();

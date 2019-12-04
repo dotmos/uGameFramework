@@ -21,7 +21,7 @@ namespace UniRx.Diagnostics
         {
             // avoid multithread exception.
             // (value.Context == null) can only be called from the main thread.
-            var ctx = (System.Object)value.Context;
+            object ctx = (System.Object)value.Context;
 
             switch (value.LogType)
             {

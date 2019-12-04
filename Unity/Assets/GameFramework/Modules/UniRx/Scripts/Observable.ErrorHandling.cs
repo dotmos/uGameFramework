@@ -33,7 +33,7 @@ namespace UniRx
         public static IObservable<TSource> CatchIgnore<TSource, TException>(this IObservable<TSource> source, Action<TException> errorAction)
             where TException : Exception
         {
-            var result = source.Catch((TException ex) =>
+            IObservable<TSource> result = source.Catch((TException ex) =>
             {
                 errorAction(ex);
                 return Observable.Empty<TSource>();
@@ -58,7 +58,7 @@ namespace UniRx
         public static IObservable<TSource> OnErrorRetry<TSource>(
             this IObservable<TSource> source)
         {
-            var result = source.Retry();
+            IObservable<TSource> result = source.Retry();
             return result;
         }
 
@@ -109,10 +109,10 @@ namespace UniRx
             this IObservable<TSource> source, Action<TException> onError, int retryCount, TimeSpan delay, IScheduler delayScheduler)
             where TException : Exception
         {
-            var result = Observable.Defer(() =>
+            IObservable<TSource> result = Observable.Defer(() =>
             {
-                var dueTime = (delay.Ticks < 0) ? TimeSpan.Zero : delay;
-                var count = 0;
+                TimeSpan dueTime = (delay.Ticks < 0) ? TimeSpan.Zero : delay;
+                int count = 0;
 
                 IObservable<TSource> self = null;
                 self = source.Catch((TException ex) =>

@@ -44,7 +44,7 @@ namespace Zenject
         {
             _staticAutoRun = false;
 
-            var result = gameObject.AddComponent<T>();
+            T result = gameObject.AddComponent<T>();
             Assert.That(_staticAutoRun); // Should be reset
             return result;
         }

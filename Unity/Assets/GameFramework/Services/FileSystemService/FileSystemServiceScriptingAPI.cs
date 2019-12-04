@@ -13,9 +13,9 @@ namespace Service.FileSystem {
     partial class FileSystemServiceImpl : FileSystemServiceBase
     {
         protected override void InitAPI() {
-            var cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
+            Scripting.Commands.GetMainScriptCommand cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
             Publish(cmdGetScript);
-            var api = new API(this);
+            API api = new API(this);
             Kernel.Instance.Inject(api);
             cmdGetScript.result.Globals["FileSystem"] = api;
         }
@@ -37,7 +37,7 @@ namespace Service.FileSystem {
 
             public void OutputFolders() {
                 devUIService.WriteToScriptingConsole("FileSystem-Folders:");
-                foreach (var fsType in Enum.GetValues(typeof(FSDomain)).Cast<FSDomain>()) {
+                foreach (FSDomain fsType in Enum.GetValues(typeof(FSDomain)).Cast<FSDomain>()) {
                     devUIService.WriteToScriptingConsole(fsType.ToString() + " => " + instance.GetPath(fsType));
                 }
             }

@@ -148,10 +148,10 @@ namespace Zenject
         {
             // Use a random ID so that our provider is the only one that can find it and so it doesn't
             // conflict with anything else
-            var factoryId = Guid.NewGuid();
+            Guid factoryId = Guid.NewGuid();
 
             // Important to use NoFlush here otherwise the main binding will finalize early
-            var subBinder = BindContainer.BindNoFlush<IFactory<TContract>>()
+            ConcreteBinderGeneric<IFactory<TContract>> subBinder = BindContainer.BindNoFlush<IFactory<TContract>>()
                 .WithId(factoryId);
 
             factoryBindGenerator(subBinder);
@@ -166,7 +166,7 @@ namespace Zenject
                 BindInfo,
                 (container, type) => new IFactoryProvider<TContract>(container, factoryId));
 
-            var binder = new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
+            ScopeConcreteIdArgConditionCopyNonLazyBinder binder = new ScopeConcreteIdArgConditionCopyNonLazyBinder(BindInfo);
             // Needed for example if the user uses MoveIntoDirectSubContainers
             binder.AddSecondaryCopyBindInfo(subBinder.BindInfo);
             return binder;

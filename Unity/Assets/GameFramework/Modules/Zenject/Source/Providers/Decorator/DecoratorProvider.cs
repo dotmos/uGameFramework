@@ -65,8 +65,8 @@ namespace Zenject.Internal
         {
             LazyInitializeDecoratorFactories();
 
-            var rawInstances = provider.GetAllInstances(context);
-            var decoratedInstances = new List<object>(rawInstances.Count);
+            List<object> rawInstances = provider.GetAllInstances(context);
+            List<object> decoratedInstances = new List<object>(rawInstances.Count);
 
             for (int i = 0; i < rawInstances.Count; i++)
             {

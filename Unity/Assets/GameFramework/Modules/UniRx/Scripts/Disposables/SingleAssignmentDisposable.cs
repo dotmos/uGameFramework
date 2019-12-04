@@ -24,7 +24,7 @@ namespace UniRx
             }
             set
             {
-                var old = default(IDisposable);
+                IDisposable old = default(IDisposable);
                 bool alreadyDisposed;
                 lock (gate)
                 {

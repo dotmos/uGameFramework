@@ -9,7 +9,7 @@ namespace Zenject
     {
         public TValue Spawn()
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {
@@ -40,7 +40,7 @@ namespace Zenject
     {
         public TValue Spawn(TParam1 param)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {
@@ -72,7 +72,7 @@ namespace Zenject
     {
         public TValue Spawn(TParam1 param1, TParam2 param2)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {
@@ -104,7 +104,7 @@ namespace Zenject
     {
         public TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {
@@ -135,7 +135,7 @@ namespace Zenject
     {
         public TValue Spawn(TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {
@@ -167,7 +167,7 @@ namespace Zenject
         public TValue Spawn(
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
             if (!Container.IsValidating)
             {
 #if UNITY_EDITOR
@@ -199,7 +199,7 @@ namespace Zenject
         public TValue Spawn(
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {
@@ -232,7 +232,7 @@ namespace Zenject
         public TValue Spawn(
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6, TParam7 param7)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {
@@ -265,7 +265,7 @@ namespace Zenject
         public TValue Spawn(
             TParam1 param1, TParam2 param2, TParam3 param3, TParam4 param4, TParam5 param5, TParam6 param6, TParam7 param7, TParam8 param8)
         {
-            var item = GetInternal();
+            TValue item = GetInternal();
 
             if (!Container.IsValidating)
             {

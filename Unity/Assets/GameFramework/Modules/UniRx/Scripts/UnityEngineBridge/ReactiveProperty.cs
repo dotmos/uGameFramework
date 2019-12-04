@@ -71,7 +71,7 @@ namespace UniRx
                     SetValue(value);
 
                     if (isDisposed) return; // don't notify but set value
-                    var p = publisher;
+                    Subject<T> p = publisher;
                     if (p != null)
                     {
                         p.OnNext(this.value);
@@ -84,7 +84,7 @@ namespace UniRx
                     SetValue(value);
 
                     if (isDisposed) return;
-                    var p = publisher;
+                    Subject<T> p = publisher;
                     if (p != null)
                     {
                         p.OnNext(this.value);
@@ -141,7 +141,7 @@ namespace UniRx
 
             if (isDisposed) return;
 
-            var p = publisher;
+            Subject<T> p = publisher;
             if (p != null)
             {
                 p.OnNext(this.value);
@@ -169,10 +169,10 @@ namespace UniRx
                 publisher = new Subject<T>();
             }
 
-            var p = publisher;
+            Subject<T> p = publisher;
             if (p != null)
             {
-                var subscription = p.Subscribe(observer);
+                IDisposable subscription = p.Subscribe(observer);
                 if (canPublishValueOnSubscribe)
                 {
                     observer.OnNext(value); // raise latest value on subscribe
@@ -197,13 +197,13 @@ namespace UniRx
             if (!isDisposed)
             {
                 isDisposed = true;
-                var sc = sourceConnection;
+                IDisposable sc = sourceConnection;
                 if (sc != null)
                 {
                     sc.Dispose();
                     sourceConnection = null;
                 }
-                var p = publisher;
+                Subject<T> p = publisher;
                 if (p != null)
                 {
                     // when dispose, notify OnCompleted
@@ -250,7 +250,7 @@ namespace UniRx
                 if (System.Threading.Interlocked.Increment(ref isStopped) == 1)
                 {
                     parent.lastException = error;
-                    var p = parent.publisher;
+                    Subject<T> p = parent.publisher;
                     if (p != null)
                     {
                         p.OnError(error);
@@ -264,7 +264,7 @@ namespace UniRx
                 if (System.Threading.Interlocked.Increment(ref isStopped) == 1)
                 {
                     // source was completed but can publish from .Value yet.
-                    var sc = parent.sourceConnection;
+                    IDisposable sc = parent.sourceConnection;
                     parent.sourceConnection = null;
                     if (sc != null)
                     {
@@ -389,10 +389,10 @@ namespace UniRx
                 publisher = new Subject<T>();
             }
 
-            var p = publisher;
+            Subject<T> p = publisher;
             if (p != null)
             {
-                var subscription = p.Subscribe(observer);
+                IDisposable subscription = p.Subscribe(observer);
                 if (canPublishValueOnSubscribe)
                 {
                     observer.OnNext(value); // raise latest value on subscribe
@@ -417,14 +417,14 @@ namespace UniRx
             if (!isDisposed)
             {
                 isDisposed = true;
-                var sc = sourceConnection;
+                IDisposable sc = sourceConnection;
                 if (sc != null)
                 {
                     sc.Dispose();
                     sourceConnection = null;
                 }
 
-                var p = publisher;
+                Subject<T> p = publisher;
                 if (p != null)
                 {
                     // when dispose, notify OnCompleted
@@ -468,7 +468,7 @@ namespace UniRx
                     if (!parent.EqualityComparer.Equals(parent.value, value))
                     {
                         parent.value = value;
-                        var p = parent.publisher;
+                        Subject<T> p = parent.publisher;
                         if (p != null)
                         {
                             p.OnNext(value);
@@ -480,7 +480,7 @@ namespace UniRx
                     parent.value = value;
                     parent.canPublishValueOnSubscribe = true;
 
-                    var p = parent.publisher;
+                    Subject<T> p = parent.publisher;
                     if (p != null)
                     {
                         p.OnNext(value);
@@ -493,7 +493,7 @@ namespace UniRx
                 if (System.Threading.Interlocked.Increment(ref isStopped) == 1)
                 {
                     parent.lastException = error;
-                    var p = parent.publisher;
+                    Subject<T> p = parent.publisher;
                     if (p != null)
                     {
                         p.OnError(error);
@@ -507,14 +507,14 @@ namespace UniRx
                 if (System.Threading.Interlocked.Increment(ref isStopped) == 1)
                 {
                     parent.isSourceCompleted = true;
-                    var sc = parent.sourceConnection;
+                    IDisposable sc = parent.sourceConnection;
                     parent.sourceConnection = null;
                     if (sc != null)
                     {
                         sc.Dispose();
                     }
 
-                    var p = parent.publisher;
+                    Subject<T> p = parent.publisher;
                     parent.publisher = null;
                     if (p != null)
                     {
@@ -587,7 +587,7 @@ namespace UniRx
         {
             return sources.CombineLatest().Select(xs =>
             {
-                foreach (var item in xs)
+                foreach (bool item in xs)
                 {
                     if (item == false) return false;
                 }
@@ -603,7 +603,7 @@ namespace UniRx
         {
             return sources.CombineLatest().Select(xs =>
             {
-                foreach (var item in xs)
+                foreach (bool item in xs)
                 {
                     if (item == true) return false;
                 }

@@ -95,7 +95,7 @@ namespace Zenject
                     "Cannot use FromComponentInChildren to inject data into non monobehaviours!");
                 Assert.IsNotNull(ctx.ObjectInstance);
 
-                var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentInChildren<TContract>(includeInactive);
+                TContract res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentInChildren<TContract>(includeInactive);
 
                 if (res == null)
                 {
@@ -123,7 +123,7 @@ namespace Zenject
                     "Cannot use FromComponentsInChildren to inject data into non monobehaviours!");
                 Assert.IsNotNull(ctx.ObjectInstance);
 
-                var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInChildren<TContract>(includeInactive)
+                IEnumerable<TContract> res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInChildren<TContract>(includeInactive)
                     .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 
                 if (excludeSelf)
@@ -152,7 +152,7 @@ namespace Zenject
                         "Cannot use FromComponentInParents to inject data into non monobehaviours!");
                     Assert.IsNotNull(ctx.ObjectInstance);
 
-                    var matches = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>(includeInactive)
+                    IEnumerable<TContract> matches = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>(includeInactive)
                         .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 
                     if (excludeSelf)
@@ -160,7 +160,7 @@ namespace Zenject
                         matches = matches.Where(x => (x as Component).gameObject != (ctx.ObjectInstance as Component).gameObject);
                     }
 
-                    var result = matches.FirstOrDefault();
+                    TContract result = matches.FirstOrDefault();
 
                     if (result == null)
                     {
@@ -183,7 +183,7 @@ namespace Zenject
                         "Cannot use FromComponentInParents to inject data into non monobehaviours!");
                     Assert.IsNotNull(ctx.ObjectInstance);
 
-                    var res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>(includeInactive)
+                    IEnumerable<TContract> res = ((MonoBehaviour)ctx.ObjectInstance).GetComponentsInParent<TContract>(includeInactive)
                         .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 
                     if (excludeSelf)
@@ -206,7 +206,7 @@ namespace Zenject
                         "Cannot use FromComponentSibling to inject data into non monobehaviours!");
                     Assert.IsNotNull(ctx.ObjectInstance);
 
-                    var match = ((MonoBehaviour)ctx.ObjectInstance).GetComponent<TContract>();
+                    TContract match = ((MonoBehaviour)ctx.ObjectInstance).GetComponent<TContract>();
 
                     if (match == null)
                     {
@@ -240,7 +240,7 @@ namespace Zenject
 
             // Use FromMethodMultiple so that we can return the empty list when context is optional
             return FromMethodMultiple((ctx) => {
-                var res = BindContainer.Resolve<Context>().GetRootGameObjects()
+                TContract res = BindContainer.Resolve<Context>().GetRootGameObjects()
                     .Select(x => x.GetComponentInChildren<TContract>(includeInactive))
                     .Where(x => x != null).FirstOrDefault();
 
@@ -260,7 +260,7 @@ namespace Zenject
             BindingUtil.AssertIsInterfaceOrComponent(AllParentTypes);
 
             return FromMethodMultiple((ctx) => {
-                var res = BindContainer.Resolve<Context>().GetRootGameObjects()
+                IEnumerable<TContract> res = BindContainer.Resolve<Context>().GetRootGameObjects()
                     .SelectMany(x => x.GetComponentsInChildren<TContract>(includeInactive))
                     .Where(x => !ReferenceEquals(x, ctx.ObjectInstance));
 

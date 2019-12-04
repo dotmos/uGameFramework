@@ -63,7 +63,7 @@ namespace Zenject
         public FromBinderNonGeneric To(
             Action<ConventionSelectTypesBinder> generator)
         {
-            var bindInfo = new ConventionBindInfo();
+            ConventionBindInfo bindInfo = new ConventionBindInfo();
 
             // Automatically filter by the given contract types
             bindInfo.AddTypeFilter(

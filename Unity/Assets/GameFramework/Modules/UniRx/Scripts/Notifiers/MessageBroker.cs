@@ -134,8 +134,8 @@ namespace UniRx
                 }
             }
 
-            var data = notifier.Data;
-            var awaiter = new IObservable<Unit>[data.Length];
+            Func<T, IObservable<Unit>>[] data = notifier.Data;
+            IObservable<Unit>[] awaiter = new IObservable<Unit>[data.Length];
             for (int i = 0; i < data.Length; i++)
             {
                 awaiter[i] = data[i].Invoke(message);
@@ -152,13 +152,13 @@ namespace UniRx
                 object _notifier;
                 if (!notifiers.TryGetValue(typeof(T), out _notifier))
                 {
-                    var notifier = UniRx.InternalUtil.ImmutableList<Func<T, IObservable<Unit>>>.Empty;
+                    ImmutableList<Func<T, IObservable<Unit>>> notifier = UniRx.InternalUtil.ImmutableList<Func<T, IObservable<Unit>>>.Empty;
                     notifier = notifier.Add(asyncMessageReceiver);
                     notifiers.Add(typeof(T), notifier);
                 }
                 else
                 {
-                    var notifier = (ImmutableList<Func<T, IObservable<Unit>>>)_notifier;
+                    ImmutableList<Func<T, IObservable<Unit>>> notifier = (ImmutableList<Func<T, IObservable<Unit>>>)_notifier;
                     notifier = notifier.Add(asyncMessageReceiver);
                     notifiers[typeof(T)] = notifier;
                 }
@@ -197,7 +197,7 @@ namespace UniRx
                     object _notifier;
                     if (parent.notifiers.TryGetValue(typeof(T), out _notifier))
                     {
-                        var notifier = (ImmutableList<Func<T, IObservable<Unit>>>)_notifier;
+                        ImmutableList<Func<T, IObservable<Unit>>> notifier = (ImmutableList<Func<T, IObservable<Unit>>>)_notifier;
                         notifier = notifier.Remove(asyncMessageReceiver);
 
                         parent.notifiers[typeof(T)] = notifier;

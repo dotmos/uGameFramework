@@ -24,10 +24,10 @@ namespace Zenject
         {
             Assert.That(args.IsEmpty());
 
-            var prefab = _prefabProvider.GetPrefab();
-            var gameObject = _container.InstantiatePrefab(prefab, _gameObjectBindInfo);
+            UnityEngine.Object prefab = _prefabProvider.GetPrefab();
+            UnityEngine.GameObject gameObject = _container.InstantiatePrefab(prefab, _gameObjectBindInfo);
 
-            var context = gameObject.GetComponent<GameObjectContext>();
+            GameObjectContext context = gameObject.GetComponent<GameObjectContext>();
 
             Assert.That(context != null,
                 "Expected prefab with name '{0}' to container a component of type 'GameObjectContext'", prefab.name);

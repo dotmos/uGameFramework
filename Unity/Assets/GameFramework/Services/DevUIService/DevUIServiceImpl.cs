@@ -97,7 +97,7 @@ namespace Service.DevUIService {
 
 
             // on startup create some sample data
-            var rxStartup = Kernel.Instance.rxStartup;
+            ReactivePriorityExecutionList rxStartup = Kernel.Instance.rxStartup;
 
             rxStartup.Add(UtilsObservable.LoadScene(developmentSceneID),Priorities.PRIORITY_EARLY);
 
@@ -121,7 +121,7 @@ namespace Service.DevUIService {
 
 
             OnEvent<Events.PickedEntity>().Subscribe(evt => {
-                var view = CreateViewFromEntity(evt.entity);
+                DevUIView view = CreateViewFromEntity(evt.entity);
 
             }).AddTo(disposables);
 
@@ -193,11 +193,11 @@ namespace Service.DevUIService {
 
 
         public override DevUIView CreateView(string viewName,bool dynamicallyCreated=false, bool extensionAllowed=true) {
-            var view = GetView(viewName);
+            DevUIView view = GetView(viewName);
             if (view != null) {
                 return view;
             }
-            var newView = new DevUIView(viewName,dynamicallyCreated);
+            DevUIView newView = new DevUIView(viewName,dynamicallyCreated);
             newView.extensionAllowed = extensionAllowed;
             rxViews.Add(newView);
             return newView;
@@ -209,18 +209,18 @@ namespace Service.DevUIService {
 
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed
-            foreach (var view in rxViews) {
+            foreach (DevUIView view in rxViews) {
                 view.Dispose();
             }
             rxViews.Clear();
         }
 
         public override IObservable<float> LoadViews() {
-            var viewFiles = fileSystem.GetFilesInDomain(FileSystem.FSDomain.DevUIViews,"", "*.json");
+            List<string> viewFiles = fileSystem.GetFilesInDomain(FileSystem.FSDomain.DevUIViews,"", "*.json");
 
             float progressFactor = 1.0f / viewFiles.Count;
             float progress = 0;
-            var result = Observable.Return(progressFactor);
+            IObservable<float> result = Observable.Return(progressFactor);
 
             // check if we already used a viewname
             HashSet<string> usedViewNames = new HashSet<string>();
@@ -237,17 +237,17 @@ namespace Service.DevUIService {
                         return null;
                     }
 
-                    var viewDataAsString = fileSystem.LoadFileAsString(viewFile);
+                    string viewDataAsString = fileSystem.LoadFileAsString(viewFile);
                     return viewDataAsString;
                 }).ObserveOnMainThread().Select(fileData => {
                     if (fileData != null) {
-                        var viewData = serializer.DeserializeToObject<DevUIView>(fileData);
+                        DevUIView viewData = serializer.DeserializeToObject<DevUIView>(fileData);
 
                         if (usedViewNames.Contains(viewData.Name)) {
                             logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
                         }
 
-                        var view = GetView(viewData.Name);
+                        DevUIView view = GetView(viewData.Name);
                         if (view == null) {
                             // a new view
                             view = CreateView(viewData.Name, viewData.createdDynamically);
@@ -256,7 +256,7 @@ namespace Service.DevUIService {
                         usedViewNames.Add(viewData.Name);
                         view.currentFilename = viewFile;
 
-                        foreach (var uiElem in viewData.uiElements) {
+                        foreach (DevUIElement uiElem in viewData.uiElements) {
                             view.AddElement(uiElem, false);
                         }
 
@@ -269,7 +269,7 @@ namespace Service.DevUIService {
             result = result.Finally(() => {
                 // are there any files left, that were loaded before, but now vanished?
                 foreach (string oldPath in tempCurrentViewFiles) {
-                    var view = rxViews.Where(v => v.currentFilename == oldPath).FirstOrDefault();
+                    DevUIView view = rxViews.Where(v => v.currentFilename == oldPath).FirstOrDefault();
                     if (view != null) {
                         RemoveViewFromModel(view);
                     }
@@ -280,7 +280,7 @@ namespace Service.DevUIService {
         }
 
         public override void SaveViews() {
-            foreach (var view in rxViews) {
+            foreach (DevUIView view in rxViews) {
                 if (!view.extensionAllowed) {
                     continue;
                 }
@@ -289,14 +289,14 @@ namespace Service.DevUIService {
         }
 
         private void SaveViewToPath(DevUIView view, bool saveToArchieve=false,bool forceNewFilename=false) {
-            var viewAsString = serializer.Serialize(view);
+            string viewAsString = serializer.Serialize(view);
 
             if (saveToArchieve) {
-                var saveAsFilename = DateTime.Now.ToFileTime() +"-" +view.Name + ".json";
+                string saveAsFilename = DateTime.Now.ToFileTime() +"-" +view.Name + ".json";
                 fileSystem.WriteStringToFileAtDomain(FileSystem.FSDomain.DevUIViewsArchieve,saveAsFilename, viewAsString);
                 view.currentFilename = fileSystem.GetPath(FileSystem.FSDomain.DevUIViewsArchieve, saveAsFilename);
             } else {
-                var saveAsFilename = (view.currentFilename == null || forceNewFilename) ? view.Name + ".json" : Path.GetFileName(view.currentFilename);
+                string saveAsFilename = (view.currentFilename == null || forceNewFilename) ? view.Name + ".json" : Path.GetFileName(view.currentFilename);
                 fileSystem.WriteStringToFileAtDomain(FileSystem.FSDomain.DevUIViews, saveAsFilename, viewAsString);
                 view.currentFilename = fileSystem.GetPath(FileSystem.FSDomain.DevUIViews,saveAsFilename);
             }
@@ -335,18 +335,18 @@ namespace Service.DevUIService {
 
 
         private MemoryBrowser Create(DevUIView resultView, object viewObject,bool autoupdate=false, Action<object,object> onValueChanged=null) {
-            var compButton = new DevUIButton(viewObject.GetType().ToString(), () => { });
+            DevUIButton compButton = new DevUIButton(viewObject.GetType().ToString(), () => { });
             resultView.AddElement(compButton);
 
-            var mB = new MemoryBrowser(viewObject);
+            MemoryBrowser mB = new MemoryBrowser(viewObject);
 
-            var dict = new Dictionary<string, DevUIKeyValue>();
+            Dictionary<string, DevUIKeyValue> dict = new Dictionary<string, DevUIKeyValue>();
 
             foreach (string key in mB.rxCurrentSnapShot.Keys) {
                 object obj = mB.rxCurrentSnapShot[key];
 
                 if (obj == null || MemoryBrowser.IsSimple(obj.GetType()) || obj is Vector3 || obj is Vector2 || obj is Vector4) {
-                    var uiKV = new DevUIKeyValue(key, obj == null ? "null" : obj.ToString());
+                    DevUIKeyValue uiKV = new DevUIKeyValue(key, obj == null ? "null" : obj.ToString());
                     uiKV.OnValueChangeRequested = (newVal) => {
                         mB.SetValue(key, newVal);
                         if (onValueChanged != null) {
@@ -356,18 +356,18 @@ namespace Service.DevUIService {
                     resultView.AddElement(uiKV);
                     dict[key] = uiKV;
                 } else if (obj is IDevUIVisible) {
-                    var uiKV = new DevUIKeyValue(key, obj == null ? "null" : "'" + obj.ToString() + "'");
+                    DevUIKeyValue uiKV = new DevUIKeyValue(key, obj == null ? "null" : "'" + obj.ToString() + "'");
                     resultView.AddElement(uiKV);
                     // TODO: Detect changes in custom-type
                 } else if (obj is IList && ((IList)obj).Count > 0) {
-                    var thelist = (IList)obj;
-                    var firstElement = thelist[0];
+                    IList thelist = (IList)obj;
+                    object firstElement = thelist[0];
                     if (firstElement is IDevUIVisible) {
                         resultView.AddElement(new DevUIButton(key + "(List)", null));
 
                         for (int i = 0; i < thelist.Count; i++) {
-                            var listObj = thelist[i];
-                            var uiKV = new DevUIKeyValue(key, i + "| " + listObj == null ? "null" : "'" + listObj.ToString() + "'");
+                            object listObj = thelist[i];
+                            DevUIKeyValue uiKV = new DevUIKeyValue(key, i + "| " + listObj == null ? "null" : "'" + listObj.ToString() + "'");
                             resultView.AddElement(uiKV);
                             // TODO: detect list changes    
                         }
@@ -386,7 +386,7 @@ namespace Service.DevUIService {
 
                         string key = evt.Key;
                         if (dict.ContainsKey(key)) {
-                            var uiKV = dict[key];
+                            DevUIKeyValue uiKV = dict[key];
                             uiKV.Value = evt.NewValue.ToString();
                         }
                     })
@@ -408,7 +408,7 @@ namespace Service.DevUIService {
         }
 
         public override DevUIView CreateViewFromPOCO(object viewObject, string name) {
-            var resultView = CreateView(name, false, false);
+            DevUIView resultView = CreateView(name, false, false);
             Create(resultView, viewObject);
             return resultView;
         }
@@ -422,15 +422,15 @@ namespace Service.DevUIService {
                 Debug.LogError("Could not locate entity-manager");
             }
 
-            var components = entityManager.GetAllComponents(entity);
+            List<IComponent> components = entityManager.GetAllComponents(entity);
 
-            var resultView = CreateView((name==null||name=="")?"entity-" + entity.ID : name, false,false);
+            DevUIView resultView = CreateView((name==null||name=="")?"entity-" + entity.ID : name, false,false);
             
 
 
             List<MemoryBrowser> mBrowsers = new List<MemoryBrowser>();
-            foreach (var comp in components) {
-                var mB = Create(resultView, comp,true, (key, value) => {
+            foreach (IComponent comp in components) {
+                MemoryBrowser mB = Create(resultView, comp,true, (key, value) => {
                     entityManager.EntityModified(entity);
                 });
                 mBrowsers.Add(mB);
@@ -451,8 +451,8 @@ namespace Service.DevUIService {
         }
 
         public override object DataBrowserConvertObject(object inObject) {
-            var inType = inObject.GetType();
-            foreach (var converterType in typeConverter.Keys) {
+            Type inType = inObject.GetType();
+            foreach (Type converterType in typeConverter.Keys) {
                 if (converterType.IsInstanceOfType(inObject)) {
                     return typeConverter[converterType](inObject);
                 }

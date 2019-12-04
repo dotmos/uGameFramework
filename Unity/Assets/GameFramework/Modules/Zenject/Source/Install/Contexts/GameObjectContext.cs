@@ -56,11 +56,11 @@ namespace Zenject
                 PreInstall();
             }
 
-            var injectableMonoBehaviours = new List<MonoBehaviour>();
+            List<MonoBehaviour> injectableMonoBehaviours = new List<MonoBehaviour>();
 
             GetInjectableMonoBehaviours(injectableMonoBehaviours);
 
-            foreach (var instance in injectableMonoBehaviours)
+            foreach (MonoBehaviour instance in injectableMonoBehaviours)
             {
                 if (instance is MonoKernel)
                 {
@@ -121,7 +121,7 @@ namespace Zenject
             ZenUtilInternal.AddStateMachineBehaviourAutoInjectersUnderGameObject(this.gameObject);
 
             // We inject on all components on the root except ourself
-            foreach (var monoBehaviour in GetComponents<MonoBehaviour>())
+            foreach (MonoBehaviour monoBehaviour in GetComponents<MonoBehaviour>())
             {
                 if (monoBehaviour == null)
                 {
@@ -144,7 +144,7 @@ namespace Zenject
 
             for (int i = 0; i < this.transform.childCount; i++)
             {
-                var child = this.transform.GetChild(i);
+                Transform child = this.transform.GetChild(i);
 
                 if (child != null)
                 {

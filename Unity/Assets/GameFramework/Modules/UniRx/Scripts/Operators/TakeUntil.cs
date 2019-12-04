@@ -32,11 +32,11 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var otherSubscription = new SingleAssignmentDisposable();
-                var otherObserver = new TakeUntilOther(this, otherSubscription);
+                SingleAssignmentDisposable otherSubscription = new SingleAssignmentDisposable();
+                TakeUntilOther otherObserver = new TakeUntilOther(this, otherSubscription);
                 otherSubscription.Disposable = parent.other.Subscribe(otherObserver);
 
-                var sourceSubscription = parent.source.Subscribe(this);
+                IDisposable sourceSubscription = parent.source.Subscribe(this);
 
                 return StableCompositeDisposable.Create(otherSubscription, sourceSubscription);
             }

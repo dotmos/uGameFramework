@@ -60,7 +60,7 @@ namespace FlatBuffers
         public T GetFBObject<T>(int fbPos) where T: IFlatbufferObject,new() {
             int o = __p.__offset(4 + fbPos * 2);
             if (o == 0) return default(T);
-            var result = new T();
+            T result = new T();
             result.__init(__p.__indirect(o + __p.bb_pos), __p.bb);
             return result;
         }
@@ -88,7 +88,7 @@ namespace FlatBuffers
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("PutIntoDeserializeCache");
 
-                var t = new T();
+                T t = new T();
                 t.__init(GetFBRefPos(fbPos), ByteBuffer);
                 return t;
             }
@@ -98,7 +98,7 @@ namespace FlatBuffers
         }
 
         public T GetOrCreate<T,S>(int fbPos) where T : new() where S : IFlatbufferObject,new() {
-            var s = CreateSerialObject<S>(fbPos);
+            S s = CreateSerialObject<S>(fbPos);
             return FlatBufferSerializer.GetOrCreateDeserialize<T>(s);
         }
         public int GetFBRefPos(int fbPos) { int o = __p.__offset(4 + fbPos * 2); return o!=0?__p.__indirect(o + __p.bb_pos):0; }
@@ -126,7 +126,7 @@ namespace FlatBuffers
                     return (List<string>)cacheResult;
                 }
                 int listLength = GetListLength(fbPos);
-                var newList = new List<string>(listLength);
+                List<string> newList = new List<string>(listLength);
                 for (int i = 0; i < listLength; i++) {
                     newList.Add(GetStringListElementAt(fbPos, i));
                 }
@@ -156,7 +156,7 @@ namespace FlatBuffers
 
                 // get the array, but don't write the result in the lookup-table, because we want to map the result to the list
                 T[] array = GetPrimitivesArray<T>(fbPos, true);
-                var newList = isObservableList ? (IList<T>)new ObservableList<T>(array) : (IList<T>)new List<T>(array);
+                IList<T> newList = isObservableList ? (IList<T>)new ObservableList<T>(array) : (IList<T>)new List<T>(array);
                 //FlatBufferSerializer.PutIntoDeserializeCache(bufPos, newList);
                 return newList;
             }
@@ -177,7 +177,7 @@ namespace FlatBuffers
 
                 if (typeof(T).IsEnum) {
                     int[] tA = __p.__vector_as_array<int>(4 + fbPos * 2);
-                    var result = tA.Cast<T>().ToArray();
+                    T[] result = tA.Cast<T>().ToArray();
                     return result;
 
                 } else {
@@ -197,7 +197,7 @@ namespace FlatBuffers
 
                 int o = __p.__offset(4 + fbPos * 2);
                 if (o == 0) return null;
-                var result = new T();
+                T result = new T();
                 result.__init(__p.__indirect(__p.__vector(o) + j * 4), __p.bb);
                 return result;
             }
@@ -209,17 +209,17 @@ namespace FlatBuffers
         public ICollection<TResult> GetNonPrimList<TSerialized, TResult>(int fbPos,ICollection<TResult> result=null) where TSerialized : struct,IFlatbufferObject where TResult: new() {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("GetNonPrimList");
-                var bufPos = GetBufferPos(fbPos);
-                var cachedResult = FlatBufferSerializer.FindInDeserializeCache<TResult>(bufPos);
+                int bufPos = GetBufferPos(fbPos);
+                object cachedResult = FlatBufferSerializer.FindInDeserializeCache<TResult>(bufPos);
                 if (cachedResult != null) {
                     if (cachedResult.GetType() != typeof(TResult)) {
                         UnityEngine.Debug.LogError("Got cached value but the types are different! Cached:" + cachedResult.GetType() + " Expected:" + typeof(TResult));
                     }
                     return (List<TResult>)cachedResult;
                 }
-                var listSize = GetListLength(fbPos);
+                int listSize = GetListLength(fbPos);
 
-                var tempList = FlatBufferSerializer.poolListObject.GetList(listSize);
+                List<object> tempList = FlatBufferSerializer.poolListObject.GetList(listSize);
                  // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
                 for (int i = 0; i < listSize; i++) tempList.Add(GetListElemAt<TSerialized>(fbPos, i));
                 result = FlatBufferSerializer.DeserializeList<TResult, TSerialized>(bufPos, listSize, tempList,result);
@@ -255,26 +255,26 @@ namespace FlatBuffers
             }
             int listLength = GetListLength(fbPos);
             for (int i = 0; i < listLength; i = i + 2) {
-                var typeName = GetStringListElementAt(fbPos, i);
+                string typeName = GetStringListElementAt(fbPos, i);
                 if (typeName == null) {
                     input.Add(default(T));
                     continue;
                 }
-                var type = Type.GetType(typeName);
-                var fbObj = GetListElemAt<Serial.FBRef>(fbPos, i + 1);
-                var result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
+                Type type = Type.GetType(typeName);
+                Serial.FBRef? fbObj = GetListElemAt<Serial.FBRef>(fbPos, i + 1);
+                object result = FlatBufferSerializer.GetOrCreateDeserialize(fbObj, type);
                 input.Add((T)result);
             }
             return input;
         }
 
         public TResult GetObject<TSerialized,TResult>(int fbPos) where TResult : IFBSerializable, new() where TSerialized : IFlatbufferObject,new() {
-            var result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
+            TResult result = FlatBufferSerializer.GetOrCreateDeserialize<TResult>(CreateSerialObject<TSerialized>(fbPos));
             return result;
         }
 
         public T GetTypedObject<T>(int fbPos) {
-            var fbRef = GetFBRef(fbPos);
+            Serial.FBRef? fbRef = GetFBRef(fbPos);
             return FlatBufferSerializer.DeserializeTypedObject<T>(fbRef);
         }
 

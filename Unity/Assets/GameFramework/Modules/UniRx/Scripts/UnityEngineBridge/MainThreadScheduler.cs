@@ -117,8 +117,8 @@ namespace UniRx
                 }
                 else
                 {
-                    var seconds = (float)(period.TotalMilliseconds / 1000.0);
-                    var yieldInstruction = new WaitForSeconds(seconds); // cache single instruction object
+                    float seconds = (float)(period.TotalMilliseconds / 1000.0);
+                    WaitForSeconds yieldInstruction = new WaitForSeconds(seconds); // cache single instruction object
 
                     while (true)
                     {
@@ -137,7 +137,7 @@ namespace UniRx
 
             void Schedule(object state)
             {
-                var t = (Tuple<BooleanDisposable, Action>)state;
+                Tuple<BooleanDisposable, Action> t = (Tuple<BooleanDisposable, Action>)state;
                 if (!t.Item1.IsDisposed)
                 {
                     t.Item2();
@@ -146,7 +146,7 @@ namespace UniRx
 
             public IDisposable Schedule(Action action)
             {
-                var d = new BooleanDisposable();
+                BooleanDisposable d = new BooleanDisposable();
                 MainThreadDispatcher.Post(scheduleAction, Tuple.Create(d, action));
                 return d;
             }
@@ -158,8 +158,8 @@ namespace UniRx
 
             public IDisposable Schedule(TimeSpan dueTime, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(dueTime);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(dueTime);
 
                 MainThreadDispatcher.SendStartCoroutine(DelayAction(time, action, d));
 
@@ -168,8 +168,8 @@ namespace UniRx
 
             public IDisposable SchedulePeriodic(TimeSpan period, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(period);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(period);
 
                 MainThreadDispatcher.SendStartCoroutine(PeriodicAction(time, action, d));
 
@@ -178,7 +178,7 @@ namespace UniRx
 
             void ScheduleQueueing<T>(object state)
             {
-                var t = (Tuple<ICancelable, T, Action<T>>)state;
+                Tuple<ICancelable, T, Action<T>> t = (Tuple<ICancelable, T, Action<T>>)state;
                 if (!t.Item1.IsDisposed)
                 {
                     t.Item3(t.Item2);
@@ -196,7 +196,7 @@ namespace UniRx
 
                 public static void Invoke(object state)
                 {
-                    var t = (Tuple<ICancelable, T, Action<T>>)state;
+                    Tuple<ICancelable, T, Action<T>> t = (Tuple<ICancelable, T, Action<T>>)state;
 
                     if (!t.Item1.IsDisposed)
                     {
@@ -227,8 +227,8 @@ namespace UniRx
                 }
                 else
                 {
-                    var elapsed = 0f;
-                    var dt = (float)dueTime.TotalSeconds;
+                    float elapsed = 0f;
+                    float dt = (float)dueTime.TotalSeconds;
                     while (true)
                     {
                         yield return null;
@@ -259,8 +259,8 @@ namespace UniRx
                 }
                 else
                 {
-                    var elapsed = 0f;
-                    var dt = (float)period.TotalSeconds;
+                    float elapsed = 0f;
+                    float dt = (float)period.TotalSeconds;
                     while (true)
                     {
                         yield return null;
@@ -283,7 +283,7 @@ namespace UniRx
 
             void Schedule(object state)
             {
-                var t = (Tuple<BooleanDisposable, Action>)state;
+                Tuple<BooleanDisposable, Action> t = (Tuple<BooleanDisposable, Action>)state;
                 if (!t.Item1.IsDisposed)
                 {
                     t.Item2();
@@ -292,7 +292,7 @@ namespace UniRx
 
             public IDisposable Schedule(Action action)
             {
-                var d = new BooleanDisposable();
+                BooleanDisposable d = new BooleanDisposable();
                 MainThreadDispatcher.Post(scheduleAction, Tuple.Create(d, action));
                 return d;
             }
@@ -304,8 +304,8 @@ namespace UniRx
 
             public IDisposable Schedule(TimeSpan dueTime, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(dueTime);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(dueTime);
 
                 MainThreadDispatcher.SendStartCoroutine(DelayAction(time, action, d));
 
@@ -314,8 +314,8 @@ namespace UniRx
 
             public IDisposable SchedulePeriodic(TimeSpan period, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(period);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(period);
 
                 MainThreadDispatcher.SendStartCoroutine(PeriodicAction(time, action, d));
 
@@ -333,7 +333,7 @@ namespace UniRx
 
                 public static void Invoke(object state)
                 {
-                    var t = (Tuple<ICancelable, T, Action<T>>)state;
+                    Tuple<ICancelable, T, Action<T>> t = (Tuple<ICancelable, T, Action<T>>)state;
 
                     if (!t.Item1.IsDisposed)
                     {
@@ -369,14 +369,14 @@ namespace UniRx
                 }
                 else
                 {
-                    var startTime = Time.fixedTime;
-                    var dt = (float)dueTime.TotalSeconds;
+                    float startTime = Time.fixedTime;
+                    float dt = (float)dueTime.TotalSeconds;
                     while (true)
                     {
                         yield return null;
                         if (cancellation.IsDisposed) break;
 
-                        var elapsed = Time.fixedTime - startTime;
+                        float elapsed = Time.fixedTime - startTime;
                         if (elapsed >= dt)
                         {
                             MainThreadDispatcher.UnsafeSend(action);
@@ -401,15 +401,15 @@ namespace UniRx
                 }
                 else
                 {
-                    var startTime = Time.fixedTime;
-                    var dt = (float)period.TotalSeconds;
+                    float startTime = Time.fixedTime;
+                    float dt = (float)period.TotalSeconds;
                     while (true)
                     {
                         yield return null;
                         if (cancellation.IsDisposed) break;
 
-                        var ft = Time.fixedTime;
-                        var elapsed = ft - startTime;
+                        float ft = Time.fixedTime;
+                        float elapsed = ft - startTime;
                         if (elapsed >= dt)
                         {
                             MainThreadDispatcher.UnsafeSend(action);
@@ -436,8 +436,8 @@ namespace UniRx
 
             public IDisposable Schedule(TimeSpan dueTime, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(dueTime);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(dueTime);
 
                 MainThreadDispatcher.StartFixedUpdateMicroCoroutine(DelayAction(time, action, d));
 
@@ -446,8 +446,8 @@ namespace UniRx
 
             public IDisposable SchedulePeriodic(TimeSpan period, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(period);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(period);
 
                 MainThreadDispatcher.StartFixedUpdateMicroCoroutine(PeriodicAction(time, action, d));
 
@@ -486,8 +486,8 @@ namespace UniRx
                 }
                 else
                 {
-                    var elapsed = 0f;
-                    var dt = (float)dueTime.TotalSeconds;
+                    float elapsed = 0f;
+                    float dt = (float)dueTime.TotalSeconds;
                     while (true)
                     {
                         yield return null;
@@ -518,8 +518,8 @@ namespace UniRx
                 }
                 else
                 {
-                    var elapsed = 0f;
-                    var dt = (float)period.TotalSeconds;
+                    float elapsed = 0f;
+                    float dt = (float)period.TotalSeconds;
                     while (true)
                     {
                         yield return null;
@@ -552,8 +552,8 @@ namespace UniRx
 
             public IDisposable Schedule(TimeSpan dueTime, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(dueTime);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(dueTime);
 
                 MainThreadDispatcher.StartEndOfFrameMicroCoroutine(DelayAction(time, action, d));
 
@@ -562,8 +562,8 @@ namespace UniRx
 
             public IDisposable SchedulePeriodic(TimeSpan period, Action action)
             {
-                var d = new BooleanDisposable();
-                var time = Scheduler.Normalize(period);
+                BooleanDisposable d = new BooleanDisposable();
+                TimeSpan time = Scheduler.Normalize(period);
 
                 MainThreadDispatcher.StartEndOfFrameMicroCoroutine(PeriodicAction(time, action, d));
 

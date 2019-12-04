@@ -18,7 +18,7 @@ namespace UniRx
                 return disposable;
             }
 
-            var trigger = gameObject.GetComponent<ObservableDestroyTrigger>();
+            ObservableDestroyTrigger trigger = gameObject.GetComponent<ObservableDestroyTrigger>();
             if (trigger == null)
             {
                 trigger = gameObject.AddComponent<ObservableDestroyTrigger>();

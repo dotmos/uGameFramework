@@ -86,7 +86,7 @@ namespace UniRx
             if (item == null)
                 throw new ArgumentNullException("item");
 
-            var shouldDispose = false;
+            bool shouldDispose = false;
             lock (_gate)
             {
                 shouldDispose = _disposed;
@@ -111,7 +111,7 @@ namespace UniRx
             if (item == null)
                 throw new ArgumentNullException("item");
 
-            var shouldDispose = false;
+            bool shouldDispose = false;
 
             lock (_gate)
             {
@@ -124,7 +124,7 @@ namespace UniRx
                     // cycles on the Array.Copy imposed by Remove, we use a null sentinel value. We also
                     // do manual Swiss cheese detection to shrink the list if there's a lot of holes in it.
                     //
-                    var i = _disposables.IndexOf(item);
+                    int i = _disposables.IndexOf(item);
                     if (i >= 0)
                     {
                         shouldDispose = true;
@@ -133,10 +133,10 @@ namespace UniRx
 
                         if (_disposables.Capacity > SHRINK_THRESHOLD && _count < _disposables.Capacity / 2)
                         {
-                            var old = _disposables;
+                            List<IDisposable> old = _disposables;
                             _disposables = new List<IDisposable>(_disposables.Capacity / 2);
 
-                            foreach (var d in old)
+                            foreach (IDisposable d in old)
                                 if (d != null)
                                     _disposables.Add(d);
                         }
@@ -155,7 +155,7 @@ namespace UniRx
         /// </summary>
         public void Dispose()
         {
-            var currentDisposables = default(IDisposable[]);
+            IDisposable[] currentDisposables = default(IDisposable[]);
             lock (_gate)
             {
                 if (!_disposed)
@@ -169,7 +169,7 @@ namespace UniRx
 
             if (currentDisposables != null)
             {
-                foreach (var d in currentDisposables)
+                foreach (IDisposable d in currentDisposables)
                     if (d != null)
                         d.Dispose();
             }
@@ -180,7 +180,7 @@ namespace UniRx
         /// </summary>
         public void Clear()
         {
-            var currentDisposables = default(IDisposable[]);
+            IDisposable[] currentDisposables = default(IDisposable[]);
             lock (_gate)
             {
                 currentDisposables = _disposables.ToArray();
@@ -188,7 +188,7 @@ namespace UniRx
                 _count = 0;
             }
 
-            foreach (var d in currentDisposables)
+            foreach (IDisposable d in currentDisposables)
                 if (d != null)
                     d.Dispose();
         }
@@ -226,8 +226,8 @@ namespace UniRx
 
             lock (_gate)
             {
-                var disArray = new List<IDisposable>();
-                foreach (var item in _disposables)
+                List<IDisposable> disArray = new List<IDisposable>();
+                foreach (IDisposable item in _disposables)
                 {
                     if (item != null) disArray.Add(item);
                 }
@@ -250,11 +250,11 @@ namespace UniRx
         /// <returns>An enumerator to iterate over the disposables.</returns>
         public IEnumerator<IDisposable> GetEnumerator()
         {
-            var res = new List<IDisposable>();
+            List<IDisposable> res = new List<IDisposable>();
 
             lock (_gate)
             {
-                foreach (var d in _disposables)
+                foreach (IDisposable d in _disposables)
                 {
                     if (d != null) res.Add(d);
                 }

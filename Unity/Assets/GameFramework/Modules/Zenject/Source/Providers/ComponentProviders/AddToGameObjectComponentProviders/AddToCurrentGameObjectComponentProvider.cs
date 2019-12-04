@@ -66,7 +66,7 @@ namespace Zenject
 
             if (!_container.IsValidating || TypeAnalyzer.ShouldAllowDuringValidation(_componentType))
             {
-                var gameObj = ((Component)context.ObjectInstance).gameObject;
+                GameObject gameObj = ((Component)context.ObjectInstance).gameObject;
 
                 instance = gameObj.GetComponent(_componentType);
 
@@ -86,7 +86,7 @@ namespace Zenject
             // Note that we don't just use InstantiateComponentOnNewGameObjectExplicit here
             // because then circular references don't work
 
-            var injectArgs = new InjectArgs()
+            InjectArgs injectArgs = new InjectArgs()
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,

@@ -18,7 +18,7 @@ namespace Zenject
             // so put all of these before that (ie. negative)
             int order = -1 * _typeOrder.Count;
 
-            foreach (var type in _typeOrder)
+            foreach (Type type in _typeOrder)
             {
                 Container.BindExecutionOrder(type, order);
                 order++;

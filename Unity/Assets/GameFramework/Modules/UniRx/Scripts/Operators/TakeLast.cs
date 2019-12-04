@@ -75,7 +75,7 @@ namespace UniRx.Operators
 
             public override void OnCompleted()
             {
-                foreach (var item in q)
+                foreach (T item in q)
                 {
                     observer.OnNext(item);
                 }
@@ -104,8 +104,8 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var now = parent.scheduler.Now;
-                var elapsed = now - startTime;
+                DateTimeOffset now = parent.scheduler.Now;
+                TimeSpan elapsed = now - startTime;
                 q.Enqueue(new TimeInterval<T>(value, elapsed));
                 Trim(elapsed);
             }
@@ -117,11 +117,11 @@ namespace UniRx.Operators
 
             public override void OnCompleted()
             {
-                var now = parent.scheduler.Now;
-                var elapsed = now - startTime;
+                DateTimeOffset now = parent.scheduler.Now;
+                TimeSpan elapsed = now - startTime;
                 Trim(elapsed);
 
-                foreach (var item in q)
+                foreach (TimeInterval<T> item in q)
                 {
                     observer.OnNext(item.Value);
                 }

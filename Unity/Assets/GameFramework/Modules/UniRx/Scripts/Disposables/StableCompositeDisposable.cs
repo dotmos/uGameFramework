@@ -235,7 +235,7 @@ namespace UniRx
             {
                 if (Interlocked.Increment(ref disposedCallCount) == 0)
                 {
-                    foreach (var d in _disposables)
+                    foreach (IDisposable d in _disposables)
                     {
                         d.Dispose();
                     }
@@ -265,7 +265,7 @@ namespace UniRx
             {
                 if (Interlocked.Increment(ref disposedCallCount) == 0)
                 {
-                    var len = _disposables.Length;
+                    int len = _disposables.Length;
                     for (int i = 0; i < len; i++)
                     {
                         _disposables[i].Dispose();

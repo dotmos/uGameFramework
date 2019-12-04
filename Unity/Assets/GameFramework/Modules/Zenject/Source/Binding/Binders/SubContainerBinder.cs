@@ -61,7 +61,7 @@ namespace Zenject
         {
             BindingUtil.AssertIsValidPrefab(prefab);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabBindingFinalizer(
                 _bindInfo, _subIdentifier, _resolveAll,
@@ -86,7 +86,7 @@ namespace Zenject
             Assert.That(installerType.DerivesFrom<InstallerBase>(),
                 "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'Installer<>'", installerType);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabBindingFinalizer(
                 _bindInfo, _subIdentifier, _resolveAll,
@@ -104,7 +104,7 @@ namespace Zenject
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabBindingFinalizer(
                 _bindInfo, _subIdentifier, _resolveAll,
@@ -130,7 +130,7 @@ namespace Zenject
             Assert.That(installerType.DerivesFrom<InstallerBase>(),
                 "Invalid installer type given during bind command.  Expected type '{0}' to derive from 'Installer<>'", installerType);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabBindingFinalizer(
                 _bindInfo, _subIdentifier, _resolveAll,
@@ -152,7 +152,7 @@ namespace Zenject
         {
             BindingUtil.AssertIsValidPrefab(prefab);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabBindingFinalizer(
                 _bindInfo, _subIdentifier, _resolveAll,
@@ -166,7 +166,7 @@ namespace Zenject
         {
             BindingUtil.AssertIsValidResourcePath(resourcePath);
 
-            var gameObjectInfo = new GameObjectCreationParameters();
+            GameObjectCreationParameters gameObjectInfo = new GameObjectCreationParameters();
 
             SubFinalizer = new SubContainerPrefabBindingFinalizer(
                 _bindInfo, _subIdentifier, _resolveAll,

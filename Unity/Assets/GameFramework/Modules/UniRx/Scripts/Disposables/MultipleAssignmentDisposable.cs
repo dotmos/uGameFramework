@@ -34,7 +34,7 @@ namespace UniRx
             }
             set
             {
-                var shouldDispose = false;
+                bool shouldDispose = false;
                 lock (gate)
                 {
                     shouldDispose = (current == True);

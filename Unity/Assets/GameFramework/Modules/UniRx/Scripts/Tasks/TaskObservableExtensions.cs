@@ -48,7 +48,7 @@ namespace UniRx
 
         private static IObservable<Unit> ToObservableImpl(Task task, IScheduler scheduler)
         {
-            var res = default(IObservable<Unit>);
+            IObservable<Unit> res = default(IObservable<Unit>);
 
             if (task.IsCompleted)
             {
@@ -80,9 +80,9 @@ namespace UniRx
 
         private static IObservable<Unit> ToObservableSlow(Task task, IScheduler scheduler)
         {
-            var subject = new AsyncSubject<Unit>();
+            AsyncSubject<Unit> subject = new AsyncSubject<Unit>();
 
-            var options = GetTaskContinuationOptions(scheduler);
+            TaskContinuationOptions options = GetTaskContinuationOptions(scheduler);
 
             task.ContinueWith(t => ToObservableDone(task, subject), options);
 
@@ -143,7 +143,7 @@ namespace UniRx
 
         private static IObservable<TResult> ToObservableImpl<TResult>(Task<TResult> task, IScheduler scheduler)
         {
-            var res = default(IObservable<TResult>);
+            IObservable<TResult> res = default(IObservable<TResult>);
 
             if (task.IsCompleted)
             {
@@ -175,9 +175,9 @@ namespace UniRx
 
         private static IObservable<TResult> ToObservableSlow<TResult>(Task<TResult> task, IScheduler scheduler)
         {
-            var subject = new AsyncSubject<TResult>();
+            AsyncSubject<TResult> subject = new AsyncSubject<TResult>();
 
-            var options = GetTaskContinuationOptions(scheduler);
+            TaskContinuationOptions options = GetTaskContinuationOptions(scheduler);
 
             task.ContinueWith(t => ToObservableDone(task, subject), options);
 
@@ -203,7 +203,7 @@ namespace UniRx
 
         private static TaskContinuationOptions GetTaskContinuationOptions(IScheduler scheduler)
         {
-            var options = TaskContinuationOptions.None;
+            TaskContinuationOptions options = TaskContinuationOptions.None;
 
             if (scheduler != null)
             {
@@ -296,14 +296,14 @@ namespace UniRx
             if (observable == null)
                 throw new ArgumentNullException("observable");
 
-            var hasValue = false;
-            var lastValue = default(TResult);
+            bool hasValue = false;
+            TResult lastValue = default(TResult);
 
-            var tcs = new TaskCompletionSource<TResult>(state);
+            TaskCompletionSource<TResult> tcs = new TaskCompletionSource<TResult>(state);
 
-            var disposable = new SingleAssignmentDisposable();
+            SingleAssignmentDisposable disposable = new SingleAssignmentDisposable();
 
-            var ctr = default(CancellationTokenRegistration);
+            CancellationTokenRegistration ctr = default(CancellationTokenRegistration);
 
             if (cancellationToken.CanBeCanceled)
             {
@@ -314,7 +314,7 @@ namespace UniRx
                 });
             }
 
-            var taskCompletionObserver = Observer.Create<TResult>(
+            IObserver<TResult> taskCompletionObserver = Observer.Create<TResult>(
                 value =>
                 {
                     hasValue = true;

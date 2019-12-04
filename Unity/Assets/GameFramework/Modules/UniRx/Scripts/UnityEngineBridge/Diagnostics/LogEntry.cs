@@ -39,7 +39,7 @@ namespace UniRx.Diagnostics
 
         public override string ToString()
         {
-            var plusEx = (Exception != null) ? (Environment.NewLine + Exception.ToString()) : "";
+            string plusEx = (Exception != null) ? (Environment.NewLine + Exception.ToString()) : "";
             return "[" + Timestamp.ToString() + "]"
                 + "[" + LoggerName + "]"
                 + "[" + LogType.ToString() + "]"

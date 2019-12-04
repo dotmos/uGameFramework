@@ -36,7 +36,7 @@ namespace Zenject
                 // Dispose in reverse order since usually that makes the most sense
                 for (int i = that._objectPoolPairs.Count - 1; i >= 0; i--)
                 {
-                    var pair = that._objectPoolPairs[i];
+                    SpawnedObjectPoolPair pair = that._objectPoolPairs[i];
                     pair.Pool.Despawn(pair.Object);
                 }
                 ListPool<SpawnedObjectPoolPair>.Instance.Despawn(that._objectPoolPairs);
@@ -84,7 +84,7 @@ namespace Zenject
             else
             {
                 // This allocation is ok because it's a struct
-                var pair = new SpawnedObjectPoolPair()
+                SpawnedObjectPoolPair pair = new SpawnedObjectPoolPair()
                 {
                     Pool = pool,
                     Object = obj,
@@ -100,63 +100,63 @@ namespace Zenject
 
         public T Spawn<T>(IMemoryPool<T> pool)
         {
-            var obj = pool.Spawn();
+            T obj = pool.Spawn();
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public TValue Spawn<TValue, TParam1>(IMemoryPool<TParam1, TValue> pool, TParam1 p1)
         {
-            var obj = pool.Spawn(p1);
+            TValue obj = pool.Spawn(p1);
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public TValue Spawn<TValue, TParam1, TParam2>(IMemoryPool<TParam1, TParam2, TValue> pool, TParam1 p1, TParam2 p2)
         {
-            var obj = pool.Spawn(p1, p2);
+            TValue obj = pool.Spawn(p1, p2);
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public TValue Spawn<TValue, TParam1, TParam2, TParam3>(IMemoryPool<TParam1, TParam2, TParam3, TValue> pool, TParam1 p1, TParam2 p2, TParam3 p3)
         {
-            var obj = pool.Spawn(p1, p2, p3);
+            TValue obj = pool.Spawn(p1, p2, p3);
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public TValue Spawn<TValue, TParam1, TParam2, TParam3, TParam4>(IMemoryPool<TParam1, TParam2, TParam3, TParam4, TValue> pool, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
         {
-            var obj = pool.Spawn(p1, p2, p3, p4);
+            TValue obj = pool.Spawn(p1, p2, p3, p4);
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public TValue Spawn<TValue, TParam1, TParam2, TParam3, TParam4, TParam5>(IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TValue> pool, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
         {
-            var obj = pool.Spawn(p1, p2, p3, p4, p5);
+            TValue obj = pool.Spawn(p1, p2, p3, p4, p5);
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public TValue Spawn<TValue, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6>(IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TValue> pool, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6)
         {
-            var obj = pool.Spawn(p1, p2, p3, p4, p5, p6);
+            TValue obj = pool.Spawn(p1, p2, p3, p4, p5, p6);
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public TValue Spawn<TValue, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7>(IMemoryPool<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TValue> pool, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6, TParam7 p7)
         {
-            var obj = pool.Spawn(p1, p2, p3, p4, p5, p6, p7);
+            TValue obj = pool.Spawn(p1, p2, p3, p4, p5, p6, p7);
             StoreSpawnedObject(obj, pool);
             return obj;
         }
 
         public List<T> SpawnList<T>(IEnumerable<T> elements)
         {
-            var list = SpawnList<T>();
+            List<T> list = SpawnList<T>();
             list.AddRange(elements);
             return list;
         }

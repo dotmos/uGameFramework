@@ -43,7 +43,7 @@ namespace UniRx
         /// </summary>
         public IDisposable Report(T value, TimeSpan dueTime)
         {
-            var cancel = scheduler.Schedule(dueTime, () => trigger.OnNext(value));
+            IDisposable cancel = scheduler.Schedule(dueTime, () => trigger.OnNext(value));
             return cancel;
         }
 
@@ -52,7 +52,7 @@ namespace UniRx
         /// </summary>
         public IDisposable Report(T value, DateTimeOffset dueTime)
         {
-            var cancel = scheduler.Schedule(dueTime, () => trigger.OnNext(value));
+            IDisposable cancel = scheduler.Schedule(dueTime, () => trigger.OnNext(value));
             return cancel;
         }
 

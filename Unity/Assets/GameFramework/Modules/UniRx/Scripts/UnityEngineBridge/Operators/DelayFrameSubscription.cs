@@ -24,7 +24,7 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<T> observer, IDisposable cancel)
         {
-            var d = new MultipleAssignmentDisposable();
+            MultipleAssignmentDisposable d = new MultipleAssignmentDisposable();
             d.Disposable = UnityObservable.TimerFrame(frameCount, frameCountType)
                 .SubscribeWithState3(observer, d, source, (_, o, disp, s) =>
                 {

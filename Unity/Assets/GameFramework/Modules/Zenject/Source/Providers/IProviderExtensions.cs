@@ -25,7 +25,7 @@ namespace Zenject
             Assert.IsNotNull(context);
 
             Action injectAction;
-            var instances = creator.GetAllInstancesWithInjectSplit(context, args, out injectAction);
+            List<object> instances = creator.GetAllInstancesWithInjectSplit(context, args, out injectAction);
 
             Assert.IsNotNull(instances, "Null value returned from creator '{0}'", creator.GetType());
 
@@ -46,7 +46,7 @@ namespace Zenject
         public static object TryGetInstance(
             this IProvider creator, InjectContext context, List<TypeValuePair> args)
         {
-            var allInstances = creator.GetAllInstances(context, args);
+            List<object> allInstances = creator.GetAllInstances(context, args);
 
             if (allInstances.IsEmpty())
             {
@@ -68,7 +68,7 @@ namespace Zenject
         public static object GetInstance(
             this IProvider creator, InjectContext context, List<TypeValuePair> args)
         {
-            var allInstances = creator.GetAllInstances(context, args);
+            List<object> allInstances = creator.GetAllInstances(context, args);
 
             Assert.That(!allInstances.IsEmpty(),
                 "Provider returned zero instances when one was expected when looking up type '{0}'", context.MemberType);

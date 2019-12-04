@@ -24,7 +24,7 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<EventPattern<TEventArgs>> observer, IDisposable cancel)
         {
-            var fe = new FromEventPattern(this, observer);
+            FromEventPattern fe = new FromEventPattern(this, observer);
             return fe.Register() ?  fe : Disposable.Empty;
         }
 
@@ -87,7 +87,7 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<Unit> observer, IDisposable cancel)
         {
-            var fe = new FromEvent(this, observer);
+            FromEvent fe = new FromEvent(this, observer);
             return fe.Register() ?  fe : Disposable.Empty;
         }
 
@@ -151,7 +151,7 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<TEventArgs> observer, IDisposable cancel)
         {
-            var fe = new FromEvent(this, observer);
+            FromEvent fe = new FromEvent(this, observer);
             return fe.Register() ?  fe : Disposable.Empty;
         }
 
@@ -213,7 +213,7 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<Unit> observer, IDisposable cancel)
         {
-            var fe = new FromEvent(this, observer);
+            FromEvent fe = new FromEvent(this, observer);
             return fe.Register() ?  fe : Disposable.Empty;
         }
 
@@ -274,7 +274,7 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<T> observer, IDisposable cancel)
         {
-            var fe = new FromEvent(this, observer);
+            FromEvent fe = new FromEvent(this, observer);
             return fe.Register() ?  fe : Disposable.Empty;
         }
 

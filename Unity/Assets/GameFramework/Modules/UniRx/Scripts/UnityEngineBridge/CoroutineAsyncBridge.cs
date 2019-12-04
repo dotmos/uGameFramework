@@ -23,7 +23,7 @@ namespace UniRx
 
         public static CoroutineAsyncBridge Start<T>(T awaitTarget)
         {
-            var bridge = new CoroutineAsyncBridge();
+            CoroutineAsyncBridge bridge = new CoroutineAsyncBridge();
             MainThreadDispatcher.StartCoroutine(bridge.Run(awaitTarget));
             return bridge;
         }
@@ -60,7 +60,7 @@ namespace UniRx
 
         public static CoroutineAsyncBridge<T> Start(T awaitTarget)
         {
-            var bridge = new CoroutineAsyncBridge<T>(awaitTarget);
+            CoroutineAsyncBridge<T> bridge = new CoroutineAsyncBridge<T>(awaitTarget);
             MainThreadDispatcher.StartCoroutine(bridge.Run(awaitTarget));
             return bridge;
         }

@@ -22,7 +22,7 @@ namespace UserInterface.Scrollbar {
         }
 
         public void Update() {
-            foreach (var btn in buttons) {
+            foreach (NavigationButton btn in buttons) {
                 if (btn.isPointerDown) {
                     OnWhilePointerDown(btn);
                 }

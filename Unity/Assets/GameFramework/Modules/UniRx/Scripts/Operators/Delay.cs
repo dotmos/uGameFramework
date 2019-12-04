@@ -59,7 +59,7 @@ namespace UniRx.Operators
                 ready = true;
                 delay = Scheduler.Normalize(parent.dueTime);
 
-                var _sourceSubscription = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable _sourceSubscription = new SingleAssignmentDisposable();
                 sourceSubscription = _sourceSubscription; // assign to field
                 _sourceSubscription.Disposable = parent.source.Subscribe(this);
 
@@ -68,8 +68,8 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var next = parent.scheduler.Now.Add(delay);
-                var shouldRun = false;
+                DateTimeOffset next = parent.scheduler.Now.Add(delay);
+                bool shouldRun = false;
 
                 lock (gate)
                 {
@@ -89,7 +89,7 @@ namespace UniRx.Operators
             {
                 sourceSubscription.Dispose();
 
-                var shouldRun = false;
+                bool shouldRun = false;
 
                 lock (gate)
                 {
@@ -111,8 +111,8 @@ namespace UniRx.Operators
             {
                 sourceSubscription.Dispose();
 
-                var next = parent.scheduler.Now.Add(delay);
-                var shouldRun = false;
+                DateTimeOffset next = parent.scheduler.Now.Add(delay);
+                bool shouldRun = false;
 
                 lock (gate)
                 {
@@ -137,19 +137,19 @@ namespace UniRx.Operators
                     running = true;
                 }
 
-                var shouldYield = false;
+                bool shouldYield = false;
 
                 while (true)
                 {
-                    var hasFailed = false;
-                    var error = default(Exception);
+                    bool hasFailed = false;
+                    Exception error = default(Exception);
 
-                    var hasValue = false;
-                    var value = default(T);
-                    var hasCompleted = false;
+                    bool hasValue = false;
+                    T value = default(T);
+                    bool hasCompleted = false;
 
-                    var shouldRecurse = false;
-                    var recurseDueTime = default(TimeSpan);
+                    bool shouldRecurse = false;
+                    TimeSpan recurseDueTime = default(TimeSpan);
 
                     lock (gate)
                     {
@@ -163,7 +163,7 @@ namespace UniRx.Operators
                         {
                             if (queue.Count > 0)
                             {
-                                var nextDue = queue.Peek().Timestamp;
+                                DateTimeOffset nextDue = queue.Peek().Timestamp;
 
                                 if (nextDue.CompareTo(parent.scheduler.Now) <= 0 && !shouldYield)
                                 {

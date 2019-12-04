@@ -31,7 +31,7 @@ namespace UserInterface {
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.Drag, OnDrag);
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.EndDrag, OnEndDrag);
 
-            var listeners = FindObjectsOfType<MonoBehaviour>().OfType<IResizeListener>();
+            IEnumerable<IResizeListener> listeners = FindObjectsOfType<MonoBehaviour>().OfType<IResizeListener>();
             foreach (IResizeListener listener in listeners) {
                 resizeListeners.Add(listener);
             }

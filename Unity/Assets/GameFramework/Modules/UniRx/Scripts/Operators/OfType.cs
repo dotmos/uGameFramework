@@ -28,7 +28,7 @@ namespace UniRx.Operators
             {
                 if (value is TResult)
                 {
-                    var castValue = (TResult)(object)value;
+                    TResult castValue = (TResult)(object)value;
                     observer.OnNext(castValue);
                 }
             }

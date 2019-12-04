@@ -122,7 +122,7 @@ namespace Zenject
 
         static bool IsInNamespace(Type type, string requiredNs)
         {
-            var actualNs = type.Namespace ?? "";
+            string actualNs = type.Namespace ?? "";
 
             if (requiredNs.Length > actualNs.Length)
             {

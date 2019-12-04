@@ -48,16 +48,16 @@ namespace Zenject
 
             bool autoInject = false;
 
-            var instanceType = GetTypeToCreate(context.MemberType);
+            Type instanceType = GetTypeToCreate(context.MemberType);
 
-            var injectArgs = new InjectArgs()
+            InjectArgs injectArgs = new InjectArgs()
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
                 ConcreteIdentifier = _concreteIdentifier,
             };
 
-            var instance = _container.InstantiateExplicit(
+            object instance = _container.InstantiateExplicit(
                 instanceType, autoInject, injectArgs);
 
             injectAction = () => _container.InjectExplicit(instance, instanceType, injectArgs);

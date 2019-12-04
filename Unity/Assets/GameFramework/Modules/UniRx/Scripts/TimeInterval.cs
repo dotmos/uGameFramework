@@ -90,7 +90,7 @@ namespace UniRx
             if (!(obj is TimeInterval<T>))
                 return false;
 
-            var other = (TimeInterval<T>)obj;
+            TimeInterval<T> other = (TimeInterval<T>)obj;
             return this.Equals(other);
         }
 
@@ -100,7 +100,7 @@ namespace UniRx
         /// <returns>A hash code for the current TimeInterval&lt;T&gt; value.</returns>
         public override int GetHashCode()
         {
-            var valueHashCode = Value == null ? 1963 : Value.GetHashCode();
+            int valueHashCode = Value == null ? 1963 : Value.GetHashCode();
 
             return Interval.GetHashCode() ^ valueHashCode;
         }

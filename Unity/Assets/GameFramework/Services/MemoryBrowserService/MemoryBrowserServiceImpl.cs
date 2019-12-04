@@ -16,7 +16,7 @@ namespace Service.MemoryBrowserService {
         }
 
         public override MemoryBrowser CreateMemoryBrowser(string id,object root) {
-            var mBrowser = new MemoryBrowser(root);
+            MemoryBrowser mBrowser = new MemoryBrowser(root);
             browsers.Add(id, mBrowser);
             return mBrowser;
         }
@@ -39,7 +39,7 @@ namespace Service.MemoryBrowserService {
         }
 
         protected override void OnDispose() {
-            foreach (var browser in browsers) {
+            foreach (KeyValuePair<string, MemoryBrowser> browser in browsers) {
                 browser.Value.Dispose();
             }
             browsers.Dispose();

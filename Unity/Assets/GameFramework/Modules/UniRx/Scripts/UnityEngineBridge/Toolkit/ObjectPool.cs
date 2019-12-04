@@ -55,7 +55,7 @@ namespace UniRx.Toolkit
         {
             if (instance == null) return;
 
-            var go = instance.gameObject;
+            UnityEngine.GameObject go = instance.gameObject;
             if (go == null) return;
             UnityEngine.Object.Destroy(go);
         }
@@ -80,7 +80,7 @@ namespace UniRx.Toolkit
             if (disposedValue) throw new ObjectDisposedException("ObjectPool was already disposed.");
             if (q == null) q = new Queue<T>();
 
-            var instance = (q.Count > 0)
+            T instance = (q.Count > 0)
                 ? q.Dequeue()
                 : CreateInstance();
 
@@ -115,7 +115,7 @@ namespace UniRx.Toolkit
             if (q == null) return;
             while (q.Count != 0)
             {
-                var instance = q.Dequeue();
+                T instance = q.Dequeue();
                 if (callOnBeforeRent)
                 {
                     OnBeforeRent(instance);
@@ -137,12 +137,12 @@ namespace UniRx.Toolkit
             if (instanceCountRatio <= 0) instanceCountRatio = 0;
             if (instanceCountRatio >= 1.0f) instanceCountRatio = 1.0f;
 
-            var size = (int)(q.Count * instanceCountRatio);
+            int size = (int)(q.Count * instanceCountRatio);
             size = Math.Max(minSize, size);
 
             while (q.Count > size)
             {
-                var instance = q.Dequeue();
+                T instance = q.Dequeue();
                 if (callOnBeforeRent)
                 {
                     OnBeforeRent(instance);
@@ -184,16 +184,16 @@ namespace UniRx.Toolkit
         {
             while (Count < preloadCount && !cancellationToken.IsCancellationRequested)
             {
-                var requireCount = preloadCount - Count;
+                int requireCount = preloadCount - Count;
                 if (requireCount <= 0) break;
 
-                var createCount = Math.Min(requireCount, threshold);
+                int createCount = Math.Min(requireCount, threshold);
 
                 for (int i = 0; i < createCount; i++)
                 {
                     try
                     {
-                        var instance = CreateInstance();
+                        T instance = CreateInstance();
                         Return(instance);
                     }
                     catch (Exception ex)
@@ -280,7 +280,7 @@ namespace UniRx.Toolkit
         {
             if (instance == null) return;
 
-            var go = instance.gameObject;
+            UnityEngine.GameObject go = instance.gameObject;
             if (go == null) return;
             UnityEngine.Object.Destroy(go);
         }
@@ -307,13 +307,13 @@ namespace UniRx.Toolkit
 
             if (q.Count > 0)
             {
-                var instance = q.Dequeue();
+                T instance = q.Dequeue();
                 OnBeforeRent(instance);
                 return Observable.Return(instance);
             }
             else
             {
-                var instance = CreateInstanceAsync();
+                IObservable<T> instance = CreateInstanceAsync();
                 return instance.Do(x => OnBeforeRent(x));
             }
         }
@@ -350,12 +350,12 @@ namespace UniRx.Toolkit
             if (instanceCountRatio <= 0) instanceCountRatio = 0;
             if (instanceCountRatio >= 1.0f) instanceCountRatio = 1.0f;
 
-            var size = (int)(q.Count * instanceCountRatio);
+            int size = (int)(q.Count * instanceCountRatio);
             size = Math.Max(minSize, size);
 
             while (q.Count > size)
             {
-                var instance = q.Dequeue();
+                T instance = q.Dequeue();
                 if (callOnBeforeRent)
                 {
                     OnBeforeRent(instance);
@@ -389,7 +389,7 @@ namespace UniRx.Toolkit
             if (q == null) return;
             while (q.Count != 0)
             {
-                var instance = q.Dequeue();
+                T instance = q.Dequeue();
                 if (callOnBeforeRent)
                 {
                     OnBeforeRent(instance);
@@ -414,19 +414,19 @@ namespace UniRx.Toolkit
         {
             while (Count < preloadCount && !cancellationToken.IsCancellationRequested)
             {
-                var requireCount = preloadCount - Count;
+                int requireCount = preloadCount - Count;
                 if (requireCount <= 0) break;
 
-                var createCount = Math.Min(requireCount, threshold);
+                int createCount = Math.Min(requireCount, threshold);
 
-                var loaders = new IObservable<Unit>[createCount];
+                IObservable<Unit>[] loaders = new IObservable<Unit>[createCount];
                 for (int i = 0; i < createCount; i++)
                 {
-                    var instanceFuture = CreateInstanceAsync();
+                    IObservable<T> instanceFuture = CreateInstanceAsync();
                     loaders[i] = instanceFuture.ForEachAsync(x => Return(x));
                 }
 
-                var awaiter = Observable.WhenAll(loaders).ToYieldInstruction(false, cancellationToken);
+                ObservableYieldInstruction<Unit> awaiter = Observable.WhenAll(loaders).ToYieldInstruction(false, cancellationToken);
                 while (!(awaiter.HasResult || awaiter.IsCanceled || awaiter.HasError))
                 {
                     yield return null;

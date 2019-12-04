@@ -38,7 +38,7 @@ namespace Service.DevUIService {
                     return;
                 }
                 // tell the world that the uiname has been changed
-                var evt = new Events.UIViewRenamed() {
+                Events.UIViewRenamed evt = new Events.UIViewRenamed() {
                     from = nameProperty.Value,
                     to = value,
                     view = this
@@ -63,11 +63,11 @@ namespace Service.DevUIService {
         [DataMember]
         private List<DevUIElement> DATA_persistedUiElements {
             get {
-                var dynamicals = uiElements.Where(elem => elem.createdDynamically).ToList();
+                List<DevUIElement> dynamicals = uiElements.Where(elem => elem.createdDynamically).ToList();
                 return dynamicals;
             }
             set {
-                foreach (var elem in value) { uiElements.Add(elem); };
+                foreach (DevUIElement elem in value) { uiElements.Add(elem); };
             }
         }
 
@@ -99,7 +99,7 @@ namespace Service.DevUIService {
         }
 
         public virtual void Dispose() {
-            foreach (var elem in uiElements) {
+            foreach (DevUIElement elem in uiElements) {
                 elem.Dispose();
             }
             uiElements.Clear();
@@ -298,7 +298,7 @@ namespace Service.DevUIService {
 
             luaFunc = () => {
                 // execute the current command with the scripting service
-                var result = _scriptingService.ExecuteStringOnMainScript("return "+LuaExpression);
+                string result = _scriptingService.ExecuteStringOnMainScript("return "+LuaExpression);
                 return result;
             };
         }
@@ -310,7 +310,7 @@ namespace Service.DevUIService {
             if (luaFunc == null) {
                 return;
             }
-            var result = luaFunc();
+            string result = luaFunc();
             Value = result;
         }
 

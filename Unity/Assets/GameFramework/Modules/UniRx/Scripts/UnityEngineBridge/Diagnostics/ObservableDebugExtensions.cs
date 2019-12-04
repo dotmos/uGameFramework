@@ -10,7 +10,7 @@ namespace UniRx.Diagnostics
         public static IObservable<T> Debug<T>(this IObservable<T> source, string label = null)
         {
 #if DEBUG
-            var l = (label == null) ? "" : "[" + label + "]";
+            string l = (label == null) ? "" : "[" + label + "]";
             return source.Materialize()
                 .Do(x => UnityEngine.Debug.Log(l + x.ToString()))
                 .Dematerialize()

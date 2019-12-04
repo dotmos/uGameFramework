@@ -21,7 +21,7 @@ namespace Zenject
 
         public SceneContext GetSceneContextForScene(string name)
         {
-            var scene = SceneManager.GetSceneByName(name);
+            Scene scene = SceneManager.GetSceneByName(name);
             Assert.That(scene.IsValid(), "Could not find scene with name '{0}'", name);
             return GetSceneContextForScene(scene);
         }
@@ -45,7 +45,7 @@ namespace Zenject
 
         public DiContainer GetContainerForScene(Scene scene)
         {
-            var container = TryGetContainerForScene(scene);
+            DiContainer container = TryGetContainerForScene(scene);
 
             if (container != null)
             {
@@ -63,7 +63,7 @@ namespace Zenject
                 return ProjectContext.Instance.Container;
             }
 
-            var sceneContext = TryGetSceneContextForScene(scene);
+            SceneContext sceneContext = TryGetSceneContextForScene(scene);
 
             if (sceneContext != null)
             {

@@ -48,7 +48,7 @@ namespace UniRx.Operators
 
             public void Run()
             {
-                var result = default(T);
+                T result = default(T);
                 try
                 {
                     if (parent.function != null)

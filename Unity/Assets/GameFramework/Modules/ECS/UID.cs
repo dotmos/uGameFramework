@@ -57,7 +57,7 @@ namespace ECS {
         }
 
         public void Deserialize(object incoming) {
-            var data = (Serial.FBUID)incoming;
+            FBUID data = (Serial.FBUID)incoming;
             ID = data.Id;
         }
 

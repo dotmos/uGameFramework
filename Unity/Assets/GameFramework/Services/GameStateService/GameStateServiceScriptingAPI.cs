@@ -12,9 +12,9 @@ namespace Service.GameStateService {
     partial class GameStateServiceImpl : GameStateServiceBase
     {
         protected override void InitAPI() {
-            var cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
+            Scripting.Commands.GetMainScriptCommand cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
             Publish(cmdGetScript);
-            var api = new API(this);
+            API api = new API(this);
             Kernel.Instance.Inject(api);
             cmdGetScript.result.Globals["GameStateService"] = api;
         }
@@ -35,7 +35,7 @@ namespace Service.GameStateService {
 
             public void StartGamestate(string name) {
                 try {
-                    var gs = instance.gameStates[name];
+                    GameState gs = instance.gameStates[name];
                     instance.StartGameState(gs).Subscribe(_ => { }).AddTo(gs.gamestateDisposable);
                 }
                 catch (Exception e) {
@@ -45,7 +45,7 @@ namespace Service.GameStateService {
 
             public void StopGamestate(string name) {
                 try {
-                    var gs = instance.gameStates[name];
+                    GameState gs = instance.gameStates[name];
                     instance.StopGameState(gs).Subscribe(_ => { }).AddTo(gs.gamestateDisposable);
                 }
                 catch (Exception e) {

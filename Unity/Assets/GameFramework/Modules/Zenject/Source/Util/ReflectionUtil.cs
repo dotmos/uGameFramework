@@ -16,11 +16,11 @@ namespace ModestTree
     {
         public static Array CreateArray(Type elementType, List<object> instances)
         {
-            var array = Array.CreateInstance(elementType, instances.Count);
+            Array array = Array.CreateInstance(elementType, instances.Count);
 
             for (int i = 0; i < instances.Count; i++)
             {
-                var instance = instances[i];
+                object instance = instances[i];
 
                 if (instance != null)
                 {
@@ -36,13 +36,13 @@ namespace ModestTree
 
         public static IList CreateGenericList(Type elementType, List<object> instances)
         {
-            var genericType = typeof(List<>).MakeGenericType(elementType);
+            Type genericType = typeof(List<>).MakeGenericType(elementType);
 
-            var list = (IList)Activator.CreateInstance(genericType);
+            IList list = (IList)Activator.CreateInstance(genericType);
 
             for (int i = 0; i < instances.Count; i++)
             {
-                var instance = instances[i];
+                object instance = instances[i];
 
                 if (instance != null)
                 {

@@ -88,7 +88,7 @@ namespace FlatBuffers
         /// <param name="obj"></param>
         /// <returns></returns>
         public int AddToCyclicResolver(Object obj) {
-            var id = --cyclicID;
+            int id = --cyclicID;
             cyclicObjMapping[id] = obj;
             return id;
         }
@@ -169,13 +169,13 @@ namespace FlatBuffers
                 _minAlign = size;
             // Find the amount of alignment needed such that `size` is properly
             // aligned after `additional_bytes`
-            var alignSize =
+            int alignSize =
                 ((~((int)_bb.Length - _space + additionalBytes)) + 1) &
                 (size - 1);
             // Reallocate the buffer if needed.
             while (_space < alignSize + size + additionalBytes)
             {
-                var oldBufSize = (int)_bb.Length;
+                int oldBufSize = (int)_bb.Length;
                 GrowBuffer();
                 _space += (int)_bb.Length - oldBufSize;
 
@@ -416,13 +416,13 @@ namespace FlatBuffers
                     cyclicObjMapping.Remove(offset);
                     cyclicResolver.Add(() => {
                         // now(!) get the cached offset
-                        var objOffset = Service.Serializer.FlatBufferSerializer.FindInSerializeCache(objToSerialize);
+                        int? objOffset = Service.Serializer.FlatBufferSerializer.FindInSerializeCache(objToSerialize);
                         if (objOffset.HasValue) {
                             // calc diff to adjust the address
                             int diff = _bb.Length - beforeBBLen;
                             int addressToWriteOffsetTo = beforeAddress + diff;
                             // calc relative offset
-                            var off = offBefore - objOffset.Value + sizeof(int);
+                            int off = offBefore - objOffset.Value + sizeof(int);
                             int i = _bb.GetInt(addressToWriteOffsetTo);
                             _bb.PutInt(addressToWriteOffsetTo, off);
                         }
@@ -701,7 +701,7 @@ namespace FlatBuffers
         {
             NotNested();
             AddByte(0);
-            var utf8StringLen = Encoding.UTF8.GetByteCount(s);
+            int utf8StringLen = Encoding.UTF8.GetByteCount(s);
             StartVector(1, utf8StringLen, 1);
             _bb.PutStringUTF8(_space -= utf8StringLen, s);
             return new StringOffset(EndVector().Value);
@@ -749,7 +749,7 @@ namespace FlatBuffers
                 return _sharedStringMap[s];
             }
 
-            var stringOffset = CreateString(s);
+            StringOffset stringOffset = CreateString(s);
             _sharedStringMap.Add(s, stringOffset);
             return stringOffset;
         }
@@ -773,7 +773,7 @@ namespace FlatBuffers
                   "Flatbuffers: calling EndTable without a StartTable");
 
             AddInt((int)0);
-            var vtableloc = Offset;
+            int vtableloc = Offset;
             // Write out the current vtable.
             int i = _vtableSize - 1;
             // Trim trailing zeroes.

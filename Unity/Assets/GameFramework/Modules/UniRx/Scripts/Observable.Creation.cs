@@ -320,11 +320,11 @@ namespace UniRx
         {
             return () =>
             {
-                var subject = new AsyncSubject<T>();
+                AsyncSubject<T> subject = new AsyncSubject<T>();
 
                 scheduler.Schedule(() =>
                 {
-                    var result = default(T);
+                    T result = default(T);
                     try
                     {
                         result = function();
@@ -351,7 +351,7 @@ namespace UniRx
         {
             return () =>
             {
-                var subject = new AsyncSubject<Unit>();
+                AsyncSubject<Unit> subject = new AsyncSubject<Unit>();
 
                 scheduler.Schedule(() =>
                 {

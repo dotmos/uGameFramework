@@ -89,7 +89,7 @@ namespace Zenject
 
             GetInjectableMonoBehaviours(_injectableMonoBehaviours);
 
-            foreach (var instance in _injectableMonoBehaviours)
+            foreach (MonoBehaviour instance in _injectableMonoBehaviours)
             {
                 container.QueueForInject(instance);
             }
@@ -108,7 +108,7 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            var scene = this.gameObject.scene;
+            Scene scene = this.gameObject.scene;
 
             ZenUtilInternal.AddStateMachineBehaviourAutoInjectersInScene(scene);
             ZenUtilInternal.GetInjectableMonoBehavioursInScene(scene, monoBehaviours);

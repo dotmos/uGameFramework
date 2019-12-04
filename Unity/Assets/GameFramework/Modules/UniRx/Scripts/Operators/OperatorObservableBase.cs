@@ -19,7 +19,7 @@ namespace UniRx.Operators
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            var subscription = new SingleAssignmentDisposable();
+            SingleAssignmentDisposable subscription = new SingleAssignmentDisposable();
 
             // note:
             // does not make the safe observer, it breaks exception durability.

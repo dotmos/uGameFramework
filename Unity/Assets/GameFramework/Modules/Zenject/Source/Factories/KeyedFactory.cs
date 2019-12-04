@@ -45,7 +45,7 @@ namespace Zenject
                 "Expected fallback type '{0}' to derive from '{1}'", _fallbackType, typeof(TBase));
 
 #if UNITY_EDITOR
-            var duplicates = _typePairs.Select(x => x.First).GetDuplicates();
+            IEnumerable<TKey> duplicates = _typePairs.Select(x => x.First).GetDuplicates();
 
             if (!duplicates.IsEmpty())
             {
@@ -78,7 +78,7 @@ namespace Zenject
 
         public virtual void Validate()
         {
-            foreach (var constructType in _typeMap.Values)
+            foreach (Type constructType in _typeMap.Values)
             {
                 Container.InstantiateExplicit(
                     constructType, ValidationUtil.CreateDefaultArgs(ProvidedTypes.ToArray()));
@@ -103,7 +103,7 @@ namespace Zenject
 
         public virtual TBase Create(TKey key)
         {
-            var type = GetTypeForKey(key);
+            Type type = GetTypeForKey(key);
             return (TBase)Container.Instantiate(type);
         }
     }
