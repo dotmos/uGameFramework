@@ -349,7 +349,7 @@ namespace UniRx.Triggers
         static T GetOrAddComponent<T>(GameObject gameObject)
             where T : Component
         {
-            var component = gameObject.GetComponent<T>();
+            T component = gameObject.GetComponent<T>();
             if (component == null)
             {
                 component = gameObject.AddComponent<T>();

@@ -105,7 +105,7 @@ public class ReactivePriorityExecutionList : IDisposable
             return null;
         }
         // get a priority-list element from the pool
-        var priorityListElem = PriorityListElement.Pool.Spawn();
+        PriorityListElement priorityListElem = PriorityListElement.Pool.Spawn();
         // set the data
         priorityListElem.call = call;
         priorityListElem.priority = priority;
@@ -121,7 +121,7 @@ public class ReactivePriorityExecutionList : IDisposable
         }
 
         // get a priority-list element from the pool
-        var priorityListElem = PriorityListElement.Pool.Spawn();
+        PriorityListElement priorityListElem = PriorityListElement.Pool.Spawn();
         // set the data
         priorityListElem.call = executionWrapper.Wrap(call);
         priorityListElem.priority = priority;
@@ -169,8 +169,8 @@ public class ReactivePriorityExecutionList : IDisposable
             while (sortedList.Count>0 && currentPriority==sortedList[0].priority) {
                 // use the execution wrapper to add some logic before/after the call or just keep the default wrapper, that
                 // just return the IObservable<bool> itself
-                var currentElem = sortedList[0];
-                var execution = currentElem.call
+                PriorityListElement currentElem = sortedList[0];
+                IObservable<bool> execution = currentElem.call
                         .Take(1) // exactly one element is expected and accepted.
                         .Select(result => {
                             if (executingElements != null) {
@@ -184,7 +184,7 @@ public class ReactivePriorityExecutionList : IDisposable
             
             if (currentList.Count > 0) {
                 // TODO: recognize what executions did not finish properly (returned false)
-                var parallelExecution = Observable.Merge(currentList)
+                IObservable<bool> parallelExecution = Observable.Merge(currentList)
                                                   .Last(); // only propagate element the last element (that means: no matter if the single listElements returned true/false it will go on
                                                   
                 if (rxCurrent == null) {
@@ -223,7 +223,7 @@ public class ReactivePriorityExecutionList : IDisposable
         ClearExecutionElements();
 
         if (elemCache != null) {
-            foreach (var elem in elemCache) {
+            foreach (PriorityListElement elem in elemCache) {
                 PriorityListElement.Pool.Despawn(elem);
             }
             elemCache.Clear();

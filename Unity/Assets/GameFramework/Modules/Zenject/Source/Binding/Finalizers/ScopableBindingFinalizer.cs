@@ -36,7 +36,7 @@ namespace Zenject
                 return;
             }
 
-            var scope = GetScope();
+            ScopeTypes scope = GetScope();
             switch (scope)
             {
                 case ScopeTypes.Transient:
@@ -64,7 +64,7 @@ namespace Zenject
 
         void FinalizeBindingSelf(DiContainer container)
         {
-            var scope = GetScope();
+            ScopeTypes scope = GetScope();
 
             switch (scope)
             {

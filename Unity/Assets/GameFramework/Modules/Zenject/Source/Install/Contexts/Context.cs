@@ -105,7 +105,7 @@ namespace Zenject
 
         void CheckInstallerPrefabTypes(List<MonoInstaller> installers, List<MonoInstaller> installerPrefabs)
         {
-            foreach (var installer in installers)
+            foreach (MonoInstaller installer in installers)
             {
                 Assert.IsNotNull(installer, "Found null installer in Context '{0}'", this.name);
 
@@ -115,7 +115,7 @@ namespace Zenject
 #endif
             }
 
-            foreach (var installerPrefab in installerPrefabs)
+            foreach (MonoInstaller installerPrefab in installerPrefabs)
             {
                 Assert.IsNotNull(installerPrefab, "Found null prefab in Context");
 
@@ -164,29 +164,29 @@ namespace Zenject
             // ScriptableObjectInstallers are often used for settings (including settings
             // that are injected into other installers like MonoInstallers)
 
-            var allInstallers = normalInstallers.Cast<IInstaller>()
+            List<IInstaller> allInstallers = normalInstallers.Cast<IInstaller>()
                 .Concat(scriptableObjectInstallers.Cast<IInstaller>())
                 .Concat(installers.Cast<IInstaller>()).ToList();
 
-            foreach (var installerPrefab in installerPrefabs)
+            foreach (MonoInstaller installerPrefab in installerPrefabs)
             {
                 Assert.IsNotNull(installerPrefab, "Found null installer prefab in '{0}'", this.GetType());
 
-                var installerGameObject = GameObject.Instantiate(installerPrefab.gameObject);
+                GameObject installerGameObject = GameObject.Instantiate(installerPrefab.gameObject);
                 installerGameObject.transform.SetParent(this.transform, false);
-                var installer = installerGameObject.GetComponent<MonoInstaller>();
+                MonoInstaller installer = installerGameObject.GetComponent<MonoInstaller>();
 
                 Assert.IsNotNull(installer, "Could not find installer component on prefab '{0}'", installerPrefab.name);
 
                 allInstallers.Add(installer);
             }
 
-            foreach (var installerType in normalInstallerTypes)
+            foreach (Type installerType in normalInstallerTypes)
             {
                 ((InstallerBase)Container.Instantiate(installerType)).InstallBindings();
             }
 
-            foreach (var installer in allInstallers)
+            foreach (IInstaller installer in allInstallers)
             {
                 Assert.IsNotNull(installer,
                     "Found null installer in '{0}'", this.GetType());
@@ -198,7 +198,7 @@ namespace Zenject
 
         protected void InstallSceneBindings(List<MonoBehaviour> injectableMonoBehaviours)
         {
-            foreach (var binding in injectableMonoBehaviours.OfType<ZenjectBinding>())
+            foreach (ZenjectBinding binding in injectableMonoBehaviours.OfType<ZenjectBinding>())
             {
                 if (binding == null)
                 {
@@ -216,7 +216,7 @@ namespace Zenject
             // TODO: Consider changing this
             // Maybe ZenjectBinding could add itself to a registry class on Awake/OnEnable
             // then we could avoid calling the slow Resources.FindObjectsOfTypeAll here
-            foreach (var binding in Resources.FindObjectsOfTypeAll<ZenjectBinding>())
+            foreach (ZenjectBinding binding in Resources.FindObjectsOfTypeAll<ZenjectBinding>())
             {
                 if (binding == null)
                 {
@@ -261,9 +261,9 @@ namespace Zenject
                 identifier = binding.Identifier;
             }
 
-            foreach (var component in binding.Components)
+            foreach (Component component in binding.Components)
             {
-                var bindType = binding.BindType;
+                ZenjectBinding.BindTypes bindType = binding.BindType;
 
                 if (component == null)
                 {
@@ -271,7 +271,7 @@ namespace Zenject
                     continue;
                 }
 
-                var componentType = component.GetType();
+                Type componentType = component.GetType();
 
                 switch (bindType)
                 {

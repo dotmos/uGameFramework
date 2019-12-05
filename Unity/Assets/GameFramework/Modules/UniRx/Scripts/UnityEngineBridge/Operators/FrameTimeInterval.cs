@@ -35,10 +35,10 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var now = (parent.ignoreTimeScale)
+                float now = (parent.ignoreTimeScale)
                     ? UnityEngine.Time.unscaledTime
                     : UnityEngine.Time.time;
-                var span = now - lastTime;
+                float span = now - lastTime;
                 lastTime = now;
 
                 base.observer.OnNext(new UniRx.TimeInterval<T>(value, TimeSpan.FromSeconds(span)));

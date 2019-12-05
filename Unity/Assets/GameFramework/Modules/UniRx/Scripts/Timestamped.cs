@@ -90,7 +90,7 @@ namespace UniRx
             if (!(obj is Timestamped<T>))
                 return false;
 
-            var other = (Timestamped<T>)obj;
+            Timestamped<T> other = (Timestamped<T>)obj;
             return this.Equals(other);
         }
 
@@ -100,7 +100,7 @@ namespace UniRx
         /// <returns>A hash code for the current Timestamped&lt;T&gt; value.</returns>
         public override int GetHashCode()
         {
-            var valueHashCode = Value == null ? 1979 : Value.GetHashCode();
+            int valueHashCode = Value == null ? 1979 : Value.GetHashCode();
 
             return _timestamp.GetHashCode() ^ valueHashCode;
         }

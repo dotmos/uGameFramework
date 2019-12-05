@@ -54,7 +54,7 @@ namespace Service.MemoryBrowserService {
         }
 
         public static bool SetValue(object obj,string valueName, string newValueAsString) {
-            var field = obj.GetType().GetField(valueName);
+            FieldInfo field = obj.GetType().GetField(valueName);
             if (field != null) {
                 if (field.FieldType == typeof(Vector2)) {
                     field.SetValue(obj, UtilsExtensions.StringToVector2(newValueAsString));
@@ -63,7 +63,7 @@ namespace Service.MemoryBrowserService {
                     field.SetValue(obj, UtilsExtensions.StringToVector3(newValueAsString));
                 } 
                 else if (field.FieldType.IsEnum) {
-                    var enumVal = Enum.Parse(field.FieldType, newValueAsString);
+                    object enumVal = Enum.Parse(field.FieldType, newValueAsString);
                     field.SetValue(obj, enumVal);
                 }
                 else {
@@ -72,7 +72,7 @@ namespace Service.MemoryBrowserService {
                 }
             } 
             else {
-                var prop = obj.GetType().GetProperty(valueName);
+                PropertyInfo prop = obj.GetType().GetProperty(valueName);
                 if (prop != null) {
                     if (prop.PropertyType == typeof(Vector2)) {
                         prop.SetValue(obj, UtilsExtensions.StringToVector2(newValueAsString));
@@ -96,9 +96,9 @@ namespace Service.MemoryBrowserService {
             // process fields
             if (obj is IList) {
                 // traverse list
-                foreach (var val in ((IList)obj)) {
+                foreach (object val in ((IList)obj)) {
                     bool isManaged = IsManaged(val);
-                    var elemType = MemoryBrowser.GetElementType(val);
+                    MemoryBrowser.ElementType elemType = MemoryBrowser.GetElementType(val);
                     callback(val.GetType().Name, val, elemType, null);
                     //if (!isManaged) {
                     //    // not managed ==> all elements are part of the table
@@ -114,28 +114,28 @@ namespace Service.MemoryBrowserService {
             } else {
                 bool isManaged = IsManaged(obj);
                 // traverse object
-                foreach (var field in obj.GetType().GetFields()) {
-                    var val = field.GetValue(obj);
-                    var elemType = MemoryBrowser.GetElementType(val);
+                foreach (FieldInfo field in obj.GetType().GetFields()) {
+                    object val = field.GetValue(obj);
+                    MemoryBrowser.ElementType elemType = MemoryBrowser.GetElementType(val);
                     if (!isManaged) {
                         // not managed ==> all elements are part of the table
                         callback(field.Name, val, elemType, null);
                     } else {
-                        var attrib = GetAttribute(field);
+                        UIDBInclude attrib = GetAttribute(field);
                         if (attrib != null) {
                             callback(field.Name, val, elemType, attrib);
                         }
                     }
                 }
                 // process properties
-                foreach (var prop in obj.GetType().GetProperties()) {
-                    var val = prop.GetValue(obj);
-                    var elemType = MemoryBrowser.GetElementType(obj);
+                foreach (PropertyInfo prop in obj.GetType().GetProperties()) {
+                    object val = prop.GetValue(obj);
+                    MemoryBrowser.ElementType elemType = MemoryBrowser.GetElementType(obj);
                     if (!isManaged) {
                         // not managed ==> all elements are part of the table
                         callback(prop.Name, val, elemType, null);
                     } else {
-                        var attrib = GetAttribute(prop);
+                        UIDBInclude attrib = GetAttribute(prop);
                         if (attrib != null) {
                             callback(prop.Name, val, elemType, attrib);
                         }
@@ -210,13 +210,13 @@ namespace Service.MemoryBrowserService {
         /// </summary>
         /// <returns></returns>
         public ReactiveDictionary<string,object> UpdateCurrentSnapshot() {
-            var obj = Current;
+            object obj = Current;
 
             if (obj is IDictionary) {
-                var dict = (IDictionary)obj;
+                IDictionary dict = (IDictionary)obj;
 
-                var keyType = dict.GetType().GetGenericArguments()[0];
-                var valueType = dict.GetType().GetGenericArguments()[1];
+                Type keyType = dict.GetType().GetGenericArguments()[0];
+                Type valueType = dict.GetType().GetGenericArguments()[1];
 
                 if ( IsSimple(keyType) ) {
                     // string keys
@@ -227,7 +227,7 @@ namespace Service.MemoryBrowserService {
                 else {
                     int counter = 0;
                     // other keys
-                    foreach (var keyObj in dict.Keys) {
+                    foreach (object keyObj in dict.Keys) {
                         // object-keys? create counter-[key] counter-[value] entries
                         rxCurrentSnapShot[counter + "_key"] = keyObj;
                         rxCurrentSnapShot[counter + "_value"] = dict[keyObj];
@@ -235,26 +235,26 @@ namespace Service.MemoryBrowserService {
                 }
             }
             else if (obj is IList) {
-                var list = (IList)obj;
+                IList list = (IList)obj;
                 for (int i=0;i<list.Count;i++) {
-                    var name = i.ToString(); // TODO: check if use [ idx ] as name?
+                    string name = i.ToString(); // TODO: check if use [ idx ] as name?
                     rxCurrentSnapShot[name] = list[i];
                 }
             } 
             else if (obj is IDictionary) {
-                var dict = (IDictionary)obj;
-                foreach (var key in dict.Keys){
-                    var name = (string)key;
+                IDictionary dict = (IDictionary)obj;
+                foreach (object key in dict.Keys){
+                    string name = (string)key;
                     rxCurrentSnapShot[name] = dict[key];
                 }
             } else {
                 // properties
-                foreach (var field in obj.GetType().GetFields()) {
-                    var val = field.GetValue(obj);
+                foreach (FieldInfo field in obj.GetType().GetFields()) {
+                    object val = field.GetValue(obj);
                     rxCurrentSnapShot[field.Name] = val;
                 }
-                foreach (var prop in obj.GetType().GetProperties()) {
-                    var val = prop.GetValue(obj);
+                foreach (PropertyInfo prop in obj.GetType().GetProperties()) {
+                    object val = prop.GetValue(obj);
                     rxCurrentSnapShot[prop.Name] = val;
                 }
             }
@@ -278,20 +278,20 @@ namespace Service.MemoryBrowserService {
         /// <param name="newValueAsString"></param>
         /// <returns></returns>
         public bool SetValue(string valueName,string newValueAsString) {
-            var obj = Current;
+            object obj = Current;
             try {
                 if (obj is IDictionary) {
-                    var dict = (IDictionary)obj;
+                    IDictionary dict = (IDictionary)obj;
 
-                    var keyType = dict.GetType().GetGenericArguments()[0];
-                    var valueType = dict.GetType().GetGenericArguments()[1];
+                    Type keyType = dict.GetType().GetGenericArguments()[0];
+                    Type valueType = dict.GetType().GetGenericArguments()[1];
 
 
                     if ( !rxCurrentSnapShot.ContainsKey(valueName)) {
                         Debug.LogError("Unknown dictionary key:" + valueName);
                         return false;
                     }
-                    var objToChange = rxCurrentSnapShot[valueName];
+                    object objToChange = rxCurrentSnapShot[valueName];
 
                     if (!IsSimple(objToChange) || !IsSimple(valueType) ) {
                         Debug.LogError("Tried to change non simple-obj");
@@ -301,12 +301,12 @@ namespace Service.MemoryBrowserService {
                     dict[valueName]= Convert.ChangeType(newValueAsString, valueType);
                 }
                 else if (obj is IList) {
-                    var list = (IList)obj;
+                    IList list = (IList)obj;
 
                     int idx = int.Parse(valueName);
 
                     if (list.GetType().IsGenericType) {
-                        var listType = list.GetType().GetGenericArguments()[0];
+                        Type listType = list.GetType().GetGenericArguments()[0];
                         if (IsSimple(listType)) {
                             list[idx] = Convert.ChangeType(newValueAsString, listType);
                             UpdateCurrentSnapshot();
@@ -321,7 +321,7 @@ namespace Service.MemoryBrowserService {
                     }
                     
                 } else {
-                    var field = obj.GetType().GetField(valueName);
+                    FieldInfo field = obj.GetType().GetField(valueName);
                     if (field != null) {
                         if (field.FieldType == typeof(Vector3)) {
                             field.SetValue(obj, UtilsExtensions.StringToVector3(newValueAsString));
@@ -330,7 +330,7 @@ namespace Service.MemoryBrowserService {
                             field.SetValue(obj, Convert.ChangeType(newValueAsString, field.FieldType));
                         }
                     } else {
-                        var prop = obj.GetType().GetProperty(valueName);
+                        PropertyInfo prop = obj.GetType().GetProperty(valueName);
                         if (prop != null) {
                             prop.SetValue(obj, Convert.ChangeType(newValueAsString, prop.PropertyType));
                         } else {
@@ -357,7 +357,7 @@ namespace Service.MemoryBrowserService {
         /// <param name="valueName"></param>
         public void Browse(string valueName) {
             if (rxCurrentSnapShot.ContainsKey(valueName)) {
-                var nextObj = rxCurrentSnapShot[valueName];
+                object nextObj = rxCurrentSnapShot[valueName];
 
                 if (IsSimple(nextObj)) {
                     Debug.LogWarning("Cannot browse into a simpletype:" + valueName+"!! IGNORING!");
@@ -389,7 +389,7 @@ namespace Service.MemoryBrowserService {
         /// <param name="obj"></param>
         /// <returns></returns>
         private static bool IsSimple(object obj) {
-            var type = obj.GetType();
+            Type type = obj.GetType();
             return IsSimple(type);
         }
 
@@ -408,7 +408,7 @@ namespace Service.MemoryBrowserService {
         /// Convenience Method to output the current data to the console (mainly for testing)
         /// </summary>
         public void OutputToConsole() {
-            foreach (var p in rxCurrentSnapShot) {
+            foreach (KeyValuePair<string, object> p in rxCurrentSnapShot) {
                 if (p.Value == null) {
                     devUiService.WriteToScriptingConsole(p.Key + " = null");
                 } else if (IsSimple(p.Value)) {

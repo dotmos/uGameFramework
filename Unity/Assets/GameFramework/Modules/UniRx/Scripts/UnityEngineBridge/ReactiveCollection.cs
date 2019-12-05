@@ -157,7 +157,7 @@ namespace UniRx
         {
             if (collection == null) throw new ArgumentNullException("collection");
 
-            foreach (var item in collection)
+            foreach (T item in collection)
             {
                 Add(item);
             }
@@ -170,7 +170,7 @@ namespace UniRx
 
         protected override void ClearItems()
         {
-            var beforeCount = Count;
+            int beforeCount = Count;
             base.ClearItems();
 
             if (collectionReset != null) collectionReset.OnNext(Unit.Default);
@@ -226,7 +226,7 @@ namespace UniRx
         {
             if (isDisposed) return Observable.Empty<int>();
 
-            var subject = countChanged ?? (countChanged = new Subject<int>());
+            Subject<int> subject = countChanged ?? (countChanged = new Subject<int>());
             if (notifyCurrentCount)
             {
                 return subject.StartWith(() => this.Count);

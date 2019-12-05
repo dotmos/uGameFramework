@@ -59,9 +59,9 @@ namespace UniRx.Operators
 
             public override void OnNext(IObservable<T> value)
             {
-                var disposable = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable disposable = new SingleAssignmentDisposable();
                 collectionDisposable.Add(disposable);
-                var collectionObserver = new Merge(this, disposable);
+                Merge collectionObserver = new Merge(this, disposable);
                 disposable.Disposable = value.Subscribe(collectionObserver);
             }
 
@@ -204,9 +204,9 @@ namespace UniRx.Operators
 
             void Subscribe(IObservable<T> innerSource)
             {
-                var disposable = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable disposable = new SingleAssignmentDisposable();
                 collectionDisposable.Add(disposable);
-                var collectionObserver = new Merge(this, disposable);
+                Merge collectionObserver = new Merge(this, disposable);
                 disposable.Disposable = innerSource.Subscribe(collectionObserver);
             }
 
@@ -245,7 +245,7 @@ namespace UniRx.Operators
                     {
                         if (parent.q.Count > 0)
                         {
-                            var source = parent.q.Dequeue();
+                            IObservable<T> source = parent.q.Dequeue();
                             parent.Subscribe(source);
                         }
                         else

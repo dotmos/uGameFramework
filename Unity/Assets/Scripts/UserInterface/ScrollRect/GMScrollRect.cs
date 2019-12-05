@@ -556,7 +556,7 @@ namespace UserInterface {
 
             Vector3 contentSize = m_ContentBounds.size;
             Vector3 contentPos = m_ContentBounds.center;
-            var contentPivot = m_Content.pivot;
+            Vector2 contentPivot = m_Content.pivot;
             AdjustBounds(ref m_ViewBounds, ref contentPivot, ref contentSize, ref contentPos);
             m_ContentBounds.size = contentSize;
             m_ContentBounds.center = contentPos;
@@ -613,13 +613,13 @@ namespace UserInterface {
             if (m_Content == null)
                 return new Bounds();
             m_Content.GetWorldCorners(m_Corners);
-            var viewWorldToLocalMatrix = viewRect.worldToLocalMatrix;
+            Matrix4x4 viewWorldToLocalMatrix = viewRect.worldToLocalMatrix;
             return InternalGetBounds(m_Corners, ref viewWorldToLocalMatrix);
         }
 
         internal static Bounds InternalGetBounds(Vector3[] corners, ref Matrix4x4 viewWorldToLocalMatrix) {
-            var vMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            var vMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            Vector3 vMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 vMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
             for (int j = 0; j < 4; j++) {
                 Vector3 v = viewWorldToLocalMatrix.MultiplyPoint3x4(corners[j]);
@@ -627,7 +627,7 @@ namespace UserInterface {
                 vMax = Vector3.Max(v, vMax);
             }
 
-            var bounds = new Bounds(vMin, Vector3.zero);
+            Bounds bounds = new Bounds(vMin, Vector3.zero);
             bounds.Encapsulate(vMax);
             return bounds;
         }

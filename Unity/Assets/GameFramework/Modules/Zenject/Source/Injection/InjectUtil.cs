@@ -107,7 +107,7 @@ namespace Zenject
         public static bool PopValueWithType(
             List<TypeValuePair> extraArgMap, Type injectedFieldType, out object value)
         {
-            var match = extraArgMap
+            TypeValuePair match = extraArgMap
                 .Where(x => x.Type.DerivesFromOrEqual(injectedFieldType))
                 .FirstOrDefault();
 

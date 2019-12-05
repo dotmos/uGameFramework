@@ -145,7 +145,7 @@ namespace UniRx
 
             for (int i = 0; i < children.Length; i++)
             {
-                var child = children[i];
+                IPresenter child = children[i];
                 child.RegisterParent(this);
                 child.Awake(); // call Awake directly
             }
@@ -167,7 +167,7 @@ namespace UniRx
         protected void Start()
         {
             if (isStartedCapturePhase) return;
-            var root = parent;
+            IPresenter root = parent;
 
             // Search root object
             if (root == null)
@@ -192,7 +192,7 @@ namespace UniRx
 
             for (int i = 0; i < children.Length; i++)
             {
-                var child = children[i];
+                IPresenter child = children[i];
                 child.StartCapturePhase();
             }
 

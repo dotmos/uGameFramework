@@ -97,7 +97,7 @@ namespace Zenject
 
         static ZenjectTypeInfo CreateTypeInfo(Type type)
         {
-            var constructor = GetInjectConstructor(type);
+            ConstructorInfo constructor = GetInjectConstructor(type);
 
             return new ZenjectTypeInfo(
                 type,
@@ -122,12 +122,12 @@ namespace Zenject
         static InjectableInfo CreateInjectableInfoForParam(
             Type parentType, ParameterInfo paramInfo)
         {
-            var injectAttributes = paramInfo.AllAttributes<InjectAttributeBase>().ToList();
+            List<InjectAttributeBase> injectAttributes = paramInfo.AllAttributes<InjectAttributeBase>().ToList();
 
             Assert.That(injectAttributes.Count <= 1,
                 "Found multiple 'Inject' attributes on type parameter '{0}' of type '{1}'.  Parameter should only have one", paramInfo.Name, parentType);
 
-            var injectAttr = injectAttributes.SingleOrDefault();
+            InjectAttributeBase injectAttr = injectAttributes.SingleOrDefault();
 
             object identifier = null;
             bool isOptional = false;
@@ -159,22 +159,22 @@ namespace Zenject
             // This is so that we can ignore inherited attributes, which is necessary
             // otherwise a base class method marked with [Inject] would cause all overridden
             // derived methods to be added as well
-            var methods = type.GetAllInstanceMethods()
+            List<MethodInfo> methods = type.GetAllInstanceMethods()
                 .Where(x => x.GetCustomAttributes(typeof(InjectAttribute), false).Any()).ToList();
 
-            var heirarchyList = type.Yield().Concat(type.GetParentTypes()).Reverse().ToList();
+            List<Type> heirarchyList = type.Yield().Concat(type.GetParentTypes()).Reverse().ToList();
 
             // Order by base classes first
             // This is how constructors work so it makes more sense
-            var values = methods.OrderBy(x => heirarchyList.IndexOf(x.DeclaringType));
+            IOrderedEnumerable<MethodInfo> values = methods.OrderBy(x => heirarchyList.IndexOf(x.DeclaringType));
 
-            var postInjectInfos = new List<PostInjectableInfo>();
+            List<PostInjectableInfo> postInjectInfos = new List<PostInjectableInfo>();
 
-            foreach (var methodInfo in values)
+            foreach (MethodInfo methodInfo in values)
             {
-                var paramsInfo = methodInfo.GetParameters();
+                ParameterInfo[] paramsInfo = methodInfo.GetParameters();
 
-                var injectAttr = methodInfo.AllAttributes<InjectAttribute>().Single();
+                InjectAttribute injectAttr = methodInfo.AllAttributes<InjectAttribute>().Single();
                 Assert.That(!injectAttr.Optional && injectAttr.Id == null && injectAttr.Source == InjectSources.Any,
                     "Parameters of InjectAttribute do not apply to constructors and methods");
 
@@ -190,10 +190,10 @@ namespace Zenject
 
         static IEnumerable<InjectableInfo> GetPropertyInjectables(Type type)
         {
-            var propInfos = type.GetAllInstanceProperties()
+            IEnumerable<PropertyInfo> propInfos = type.GetAllInstanceProperties()
                 .Where(x => x.HasAttribute(typeof(InjectAttributeBase)));
 
-            foreach (var propInfo in propInfos)
+            foreach (PropertyInfo propInfo in propInfos)
             {
                 yield return CreateForMember(propInfo, type);
             }
@@ -201,10 +201,10 @@ namespace Zenject
 
         static IEnumerable<InjectableInfo> GetFieldInjectables(Type type)
         {
-            var fieldInfos = type.GetAllInstanceFields()
+            IEnumerable<FieldInfo> fieldInfos = type.GetAllInstanceFields()
                 .Where(x => x.HasAttribute(typeof(InjectAttributeBase)));
 
-            foreach (var fieldInfo in fieldInfos)
+            foreach (FieldInfo fieldInfo in fieldInfos)
             {
                 yield return CreateForMember(fieldInfo, type);
             }
@@ -228,10 +228,10 @@ namespace Zenject
             Assert.That(parentType != null);
             Assert.That(!string.IsNullOrEmpty(propertyName));
 
-            var allFields = GetAllFields(
+            List<FieldInfo> allFields = GetAllFields(
                 parentType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).ToList();
 
-            var writeableFields = allFields.Where(f => f.Name == string.Format("<{0}>k__BackingField", propertyName)).ToList();
+            List<FieldInfo> writeableFields = allFields.Where(f => f.Name == string.Format("<{0}>k__BackingField", propertyName)).ToList();
 
             if (!writeableFields.Any())
             {
@@ -246,12 +246,12 @@ namespace Zenject
 
         static InjectableInfo CreateForMember(MemberInfo memInfo, Type parentType)
         {
-            var injectAttributes = memInfo.AllAttributes<InjectAttributeBase>().ToList();
+            List<InjectAttributeBase> injectAttributes = memInfo.AllAttributes<InjectAttributeBase>().ToList();
 
             Assert.That(injectAttributes.Count <= 1,
                 "Found multiple 'Inject' attributes on type field '{0}' of type '{1}'.  Field should only container one Inject attribute", memInfo.Name, parentType);
 
-            var injectAttr = injectAttributes.SingleOrDefault();
+            InjectAttributeBase injectAttr = injectAttributes.SingleOrDefault();
 
             object identifier = null;
             bool isOptional = false;
@@ -269,14 +269,14 @@ namespace Zenject
 
             if (memInfo is FieldInfo)
             {
-                var fieldInfo = (FieldInfo)memInfo;
+                FieldInfo fieldInfo = (FieldInfo)memInfo;
                 setter = ((object injectable, object value) => fieldInfo.SetValue(injectable, value));
                 memberType = fieldInfo.FieldType;
             }
             else
             {
                 Assert.That(memInfo is PropertyInfo);
-                var propInfo = (PropertyInfo)memInfo;
+                PropertyInfo propInfo = (PropertyInfo)memInfo;
                 memberType = propInfo.PropertyType;
 
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
@@ -306,7 +306,7 @@ namespace Zenject
 
         static ConstructorInfo GetInjectConstructor(Type parentType)
         {
-            var constructors = parentType.Constructors();
+            ConstructorInfo[] constructors = parentType.Constructors();
 
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
             // WP8 generates a dummy constructor with signature (internal Classname(UIntPtr dummy))
@@ -321,7 +321,7 @@ namespace Zenject
 
             if (constructors.HasMoreThan(1))
             {
-                var explicitConstructor = (from c in constructors where c.HasAttribute<InjectAttribute>() select c).SingleOrDefault();
+                ConstructorInfo explicitConstructor = (from c in constructors where c.HasAttribute<InjectAttribute>() select c).SingleOrDefault();
 
                 if (explicitConstructor != null)
                 {
@@ -331,7 +331,7 @@ namespace Zenject
                 // If there is only one public constructor then use that
                 // This makes decent sense but is also necessary on WSA sometimes since the WSA generated
                 // constructor can sometimes be private with zero parameters
-                var singlePublicConstructor = constructors.Where(x => !x.IsPrivate).OnlyOrDefault();
+                ConstructorInfo singlePublicConstructor = constructors.Where(x => !x.IsPrivate).OnlyOrDefault();
 
                 if (singlePublicConstructor != null)
                 {

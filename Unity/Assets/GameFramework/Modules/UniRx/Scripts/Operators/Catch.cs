@@ -49,7 +49,7 @@ namespace UniRx.Operators
 
             public override void OnError(Exception error)
             {
-                var e = error as TException;
+                TException e = error as TException;
                 if (e != null)
                 {
                     IObservable<T> next;
@@ -124,7 +124,7 @@ namespace UniRx.Operators
                 e = parent.sources.GetEnumerator();
                 subscription = new SerialDisposable();
 
-                var schedule = Scheduler.DefaultSchedulers.TailRecursion.Schedule(RecursiveRun);
+                IDisposable schedule = Scheduler.DefaultSchedulers.TailRecursion.Schedule(RecursiveRun);
 
                 return StableCompositeDisposable.Create(schedule, subscription, Disposable.Create(() =>
                 {
@@ -143,9 +143,9 @@ namespace UniRx.Operators
                     nextSelf = self;
                     if (isDisposed) return;
 
-                    var current = default(IObservable<T>);
-                    var hasNext = false;
-                    var ex = default(Exception);
+                    IObservable<T> current = default(IObservable<T>);
+                    bool hasNext = false;
+                    Exception ex = default(Exception);
 
                     try
                     {
@@ -188,8 +188,8 @@ namespace UniRx.Operators
                         return;
                     }
 
-                    var source = current;
-                    var d = new SingleAssignmentDisposable();
+                    IObservable<T> source = current;
+                    SingleAssignmentDisposable d = new SingleAssignmentDisposable();
                     subscription.Disposable = d;
                     d.Disposable = source.Subscribe(this);
                 }

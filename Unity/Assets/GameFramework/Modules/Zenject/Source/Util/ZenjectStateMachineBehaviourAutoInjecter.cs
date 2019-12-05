@@ -22,11 +22,11 @@ namespace Zenject
         // which is why we do it here
         public void Start()
         {
-            var behaviours = _animator.GetBehaviours<StateMachineBehaviour>();
+            StateMachineBehaviour[] behaviours = _animator.GetBehaviours<StateMachineBehaviour>();
 
             if (behaviours != null)
             {
-                foreach (var behaviour in behaviours)
+                foreach (StateMachineBehaviour behaviour in behaviours)
                 {
                     _container.Inject(behaviour);
                 }

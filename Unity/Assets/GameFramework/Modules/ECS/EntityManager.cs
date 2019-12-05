@@ -623,8 +623,8 @@ namespace ECS {
 
         public virtual int Serialize(FlatBufferBuilder builder) {
 
-            var _recycledUIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledEntityIds.ToList());
-            var _recycledComponentIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledComponentIds.ToList());
+            VectorOffset _recycledUIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledEntityIds.ToList());
+            VectorOffset _recycledComponentIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledComponentIds.ToList());
             builder.StartTable(4);
             builder.AddInt(0, _lastEntityId, 0);
             builder.AddInt(1, _lastComponentId, 0);
@@ -641,12 +641,12 @@ namespace ECS {
 
             Clear();
 
-            var manual = FlatBufferSerializer.GetManualObject(incoming);
+            FBManualObject manual = FlatBufferSerializer.GetManualObject(incoming);
             _lastEntityId = manual.GetInt(0);
             _lastComponentId = manual.GetInt(1);
 
             // recycled entityIDS
-            var recycledIds = manual.GetPrimitiveList<int>(2);
+            IList<int> recycledIds = manual.GetPrimitiveList<int>(2);
             ((List<int>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
 
             // recycled componentIDs

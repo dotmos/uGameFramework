@@ -68,7 +68,7 @@ namespace Zenject
             Assert.That(!objects.IsEmpty(),
                 "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);
 
-            var injectArgs = new InjectArgs()
+            InjectArgs injectArgs = new InjectArgs()
             {
                 ExtraArgs = _extraArguments.Concat(args).ToList(),
                 Context = context,
@@ -77,7 +77,7 @@ namespace Zenject
 
             injectAction = () =>
             {
-                foreach (var obj in objects)
+                foreach (object obj in objects)
                 {
                     _container.InjectExplicit(
                         obj, _resourceType, injectArgs);

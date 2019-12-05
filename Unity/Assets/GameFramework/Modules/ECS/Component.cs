@@ -59,7 +59,7 @@ namespace ECS {
         }
 
         public virtual void Deserialize(object incoming) {
-            var data = (Serial.FBComponent)incoming;
+            Serial.FBComponent data = (Serial.FBComponent)incoming;
             ID = FlatBufferSerializer.GetOrCreateDeserialize<UID>(data.Id);
             Entity = FlatBufferSerializer.GetOrCreateDeserialize<UID>(data.Entity);
         }

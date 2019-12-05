@@ -31,7 +31,7 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var e = default(IEnumerator<T>);
+                IEnumerator<T> e = default(IEnumerator<T>);
                 try
                 {
                     e = parent.source.GetEnumerator();
@@ -47,7 +47,7 @@ namespace UniRx.Operators
                     while (true)
                     {
                         bool hasNext;
-                        var current = default(T);
+                        T current = default(T);
                         try
                         {
                             hasNext = e.MoveNext();
@@ -77,7 +77,7 @@ namespace UniRx.Operators
                     return Disposable.Empty;
                 }
 
-                var flag = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable flag = new SingleAssignmentDisposable();
                 flag.Disposable = parent.scheduler.Schedule(self =>
                 {
                     if (flag.IsDisposed)
@@ -87,7 +87,7 @@ namespace UniRx.Operators
                     }
 
                     bool hasNext;
-                    var current = default(T);
+                    T current = default(T);
                     try
                     {
                         hasNext = e.MoveNext();

@@ -29,7 +29,7 @@ namespace UniRx
 
             public IDisposable Schedule(TimeSpan dueTime, Action action)
             {
-                var wait = Scheduler.Normalize(dueTime);
+                TimeSpan wait = Scheduler.Normalize(dueTime);
                 if (wait.Ticks > 0)
                 {
                     Thread.Sleep(wait);

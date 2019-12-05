@@ -54,13 +54,13 @@ namespace Zenject
             using (ProfileBlock.Start("LazyInstanceInjector.LazyInjectAll"))
 #endif
             {
-                var tempList = new List<object>();
+                List<object> tempList = new List<object>();
                 while (!_instancesToInject.IsEmpty())
                 {
                     tempList.Clear();
                     tempList.AddRange(_instancesToInject);
                     _instancesToInject.Clear();
-                    foreach (var instance in tempList)
+                    foreach (object instance in tempList)
                     {
                         _container.Inject(instance);
                     }

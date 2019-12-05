@@ -34,8 +34,8 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var key = default(T);
-                var isAdded = false;
+                T key = default(T);
+                bool isAdded = false;
                 try
                 {
                     key = value;
@@ -100,8 +100,8 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var key = default(TKey);
-                var isAdded = false;
+                TKey key = default(TKey);
+                bool isAdded = false;
                 try
                 {
                     key = parent.keySelector(value);

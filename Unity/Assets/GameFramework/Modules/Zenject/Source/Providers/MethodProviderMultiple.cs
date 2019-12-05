@@ -49,7 +49,7 @@ namespace Zenject
             }
             else
             {
-                var result = _method(context);
+                IEnumerable<TReturn> result = _method(context);
 
                 if (result == null)
                 {

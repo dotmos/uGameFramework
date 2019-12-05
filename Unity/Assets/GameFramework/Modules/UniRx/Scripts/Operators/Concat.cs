@@ -22,11 +22,11 @@ namespace UniRx.Operators
 
         static IEnumerable<IObservable<T>> CombineSources(IEnumerable<IObservable<T>> first, IEnumerable<IObservable<T>> second)
         {
-            foreach (var item in first)
+            foreach (IObservable<T> item in first)
             {
                 yield return item;
             }
-            foreach (var item in second)
+            foreach (IObservable<T> item in second)
             {
                 yield return item;
             }
@@ -59,7 +59,7 @@ namespace UniRx.Operators
                 e = parent.sources.GetEnumerator();
                 subscription = new SerialDisposable();
 
-                var schedule = Scheduler.DefaultSchedulers.TailRecursion.Schedule(RecursiveRun);
+                IDisposable schedule = Scheduler.DefaultSchedulers.TailRecursion.Schedule(RecursiveRun);
 
                 return StableCompositeDisposable.Create(schedule, subscription, Disposable.Create(() =>
                {
@@ -78,9 +78,9 @@ namespace UniRx.Operators
                     this.nextSelf = self;
                     if (isDisposed) return;
 
-                    var current = default(IObservable<T>);
-                    var hasNext = false;
-                    var ex = default(Exception);
+                    IObservable<T> current = default(IObservable<T>);
+                    bool hasNext = false;
+                    Exception ex = default(Exception);
 
                     try
                     {
@@ -115,8 +115,8 @@ namespace UniRx.Operators
                         return;
                     }
 
-                    var source = current;
-                    var d = new SingleAssignmentDisposable();
+                    IObservable<T> source = current;
+                    SingleAssignmentDisposable d = new SingleAssignmentDisposable();
                     subscription.Disposable = d;
                     d.Disposable = source.Subscribe(this);
                 }

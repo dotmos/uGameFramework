@@ -37,20 +37,20 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var subscription = parent.sources.Subscribe(this);
+                IDisposable subscription = parent.sources.Subscribe(this);
                 return StableCompositeDisposable.Create(subscription, innerSubscription);
             }
 
             public override void OnNext(IObservable<T> value)
             {
-                var id = default(ulong);
+                ulong id = default(ulong);
                 lock (gate)
                 {
                     id = unchecked(++latest);
                     hasLatest = true;
                 }
 
-                var d = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable d = new SingleAssignmentDisposable();
                 innerSubscription.Disposable = d;
                 d.Disposable = value.Subscribe(new Switch(this, id));
             }

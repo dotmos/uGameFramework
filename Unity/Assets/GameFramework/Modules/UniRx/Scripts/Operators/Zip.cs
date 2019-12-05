@@ -47,8 +47,8 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var l = parent.left.Subscribe(new LeftZipObserver(this));
-                var r = parent.right.Subscribe(new RightZipObserver(this));
+                IDisposable l = parent.left.Subscribe(new LeftZipObserver(this));
+                IDisposable r = parent.right.Subscribe(new RightZipObserver(this));
 
                 return StableCompositeDisposable.Create(l, r, Disposable.Create(() =>
                 {
@@ -229,10 +229,10 @@ namespace UniRx.Operators
                     queues[i] = new Queue<T>();
                 }
 
-                var disposables = new IDisposable[length + 1];
+                IDisposable[] disposables = new IDisposable[length + 1];
                 for (int i = 0; i < length; i++)
                 {
-                    var source = parent.sources[i];
+                    IObservable<T> source = parent.sources[i];
                     disposables[i] = source.Subscribe(new ZipObserver(this, i));
                 }
 
@@ -242,7 +242,7 @@ namespace UniRx.Operators
                     {
                         for (int i = 0; i < length; i++)
                         {
-                            var q = queues[i];
+                            Queue<T> q = queues[i];
                             q.Clear();
                         }
                     }
@@ -254,7 +254,7 @@ namespace UniRx.Operators
             // dequeue is in the lock
             void Dequeue(int index)
             {
-                var allQueueHasValue = true;
+                bool allQueueHasValue = true;
                 for (int i = 0; i < length; i++)
                 {
                     if (queues[i].Count == 0)
@@ -266,7 +266,7 @@ namespace UniRx.Operators
 
                 if (!allQueueHasValue)
                 {
-                    var allCompletedWithoutSelf = true;
+                    bool allCompletedWithoutSelf = true;
                     for (int i = 0; i < length; i++)
                     {
                         if (i == index) continue;
@@ -289,7 +289,7 @@ namespace UniRx.Operators
                     }
                 }
 
-                var array = new T[length];
+                T[] array = new T[length];
                 for (int i = 0; i < length; i++)
                 {
                     array[i] = queues[i].Dequeue();
@@ -348,7 +348,7 @@ namespace UniRx.Operators
                     lock (parent.gate)
                     {
                         parent.isDone[index] = true;
-                        var allTrue = true;
+                        bool allTrue = true;
                         for (int i = 0; i < parent.length; i++)
                         {
                             if (!parent.isDone[i])
@@ -417,9 +417,9 @@ namespace UniRx.Operators
             public IDisposable Run()
             {
                 base.SetQueue(new System.Collections.ICollection[] { q1, q2, q3 });
-                var s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
-                var s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
-                var s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
+                IDisposable s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
+                IDisposable s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
+                IDisposable s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
 
                 return StableCompositeDisposable.Create(s1, s2, s3, Disposable.Create(() =>
                 {
@@ -506,10 +506,10 @@ namespace UniRx.Operators
             public IDisposable Run()
             {
                 base.SetQueue(new System.Collections.ICollection[] { q1, q2, q3, q4 });
-                var s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
-                var s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
-                var s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
-                var s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
+                IDisposable s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
+                IDisposable s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
+                IDisposable s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
+                IDisposable s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4, Disposable.Create(() =>
                 {
@@ -601,11 +601,11 @@ namespace UniRx.Operators
             public IDisposable Run()
             {
                 base.SetQueue(new System.Collections.ICollection[] { q1, q2, q3, q4, q5 });
-                var s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
-                var s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
-                var s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
-                var s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
-                var s5 = parent.source5.Subscribe(new ZipObserver<T5>(gate, this, 4, q5));
+                IDisposable s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
+                IDisposable s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
+                IDisposable s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
+                IDisposable s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
+                IDisposable s5 = parent.source5.Subscribe(new ZipObserver<T5>(gate, this, 4, q5));
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4, s5, Disposable.Create(() =>
                 {
@@ -702,12 +702,12 @@ namespace UniRx.Operators
             public IDisposable Run()
             {
                 base.SetQueue(new System.Collections.ICollection[] { q1, q2, q3, q4, q5, q6 });
-                var s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
-                var s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
-                var s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
-                var s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
-                var s5 = parent.source5.Subscribe(new ZipObserver<T5>(gate, this, 4, q5));
-                var s6 = parent.source6.Subscribe(new ZipObserver<T6>(gate, this, 5, q6));
+                IDisposable s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
+                IDisposable s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
+                IDisposable s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
+                IDisposable s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
+                IDisposable s5 = parent.source5.Subscribe(new ZipObserver<T5>(gate, this, 4, q5));
+                IDisposable s6 = parent.source6.Subscribe(new ZipObserver<T6>(gate, this, 5, q6));
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4, s5, s6, Disposable.Create(() =>
                 {
@@ -809,13 +809,13 @@ namespace UniRx.Operators
             public IDisposable Run()
             {
                 base.SetQueue(new System.Collections.ICollection[] { q1, q2, q3, q4, q5, q6, q7 });
-                var s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
-                var s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
-                var s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
-                var s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
-                var s5 = parent.source5.Subscribe(new ZipObserver<T5>(gate, this, 4, q5));
-                var s6 = parent.source6.Subscribe(new ZipObserver<T6>(gate, this, 5, q6));
-                var s7 = parent.source7.Subscribe(new ZipObserver<T7>(gate, this, 6, q7));
+                IDisposable s1 = parent.source1.Subscribe(new ZipObserver<T1>(gate, this, 0, q1));
+                IDisposable s2 = parent.source2.Subscribe(new ZipObserver<T2>(gate, this, 1, q2));
+                IDisposable s3 = parent.source3.Subscribe(new ZipObserver<T3>(gate, this, 2, q3));
+                IDisposable s4 = parent.source4.Subscribe(new ZipObserver<T4>(gate, this, 3, q4));
+                IDisposable s5 = parent.source5.Subscribe(new ZipObserver<T5>(gate, this, 4, q5));
+                IDisposable s6 = parent.source6.Subscribe(new ZipObserver<T6>(gate, this, 5, q6));
+                IDisposable s7 = parent.source7.Subscribe(new ZipObserver<T7>(gate, this, 6, q7));
 
                 return StableCompositeDisposable.Create(s1, s2, s3, s4, s5, s6, s7, Disposable.Create(() =>
                 {
@@ -883,7 +883,7 @@ namespace UniRx.Operators
         // operators in lock
         public void Dequeue(int index)
         {
-            var allQueueHasValue = true;
+            bool allQueueHasValue = true;
             for (int i = 0; i < length; i++)
             {
                 if (queues[i].Count == 0)
@@ -895,7 +895,7 @@ namespace UniRx.Operators
 
             if (!allQueueHasValue)
             {
-                var allCompletedWithoutSelf = true;
+                bool allCompletedWithoutSelf = true;
                 for (int i = 0; i < length; i++)
                 {
                     if (i == index) continue;
@@ -918,7 +918,7 @@ namespace UniRx.Operators
                 }
             }
 
-            var result = default(T);
+            T result = default(T);
             try
             {
                 result = GetResult();
@@ -935,7 +935,7 @@ namespace UniRx.Operators
         public void Done(int index)
         {
             isDone[index] = true;
-            var allTrue = true;
+            bool allTrue = true;
             for (int i = 0; i < length; i++)
             {
                 if (!isDone[i])

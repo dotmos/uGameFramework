@@ -138,7 +138,7 @@ namespace Service.FileSystem {
         public override string LoadFileAsString(string pathToFile, bool compressed = false) {
             try {
                 if (System.IO.File.Exists(pathToFile)) {
-                    var result = File.ReadAllText(pathToFile);
+                    string result = File.ReadAllText(pathToFile);
                     return result;
                 } else {
                     Debug.LogWarning("File " + pathToFile + " does not exist");
@@ -164,7 +164,7 @@ namespace Service.FileSystem {
 
                 try {
                     if (System.IO.File.Exists(pathToFile)) {
-                        var result = File.ReadAllBytes(pathToFile);
+                        byte[] result = File.ReadAllBytes(pathToFile);
                         if (compressed) {
                             result = Decompress(result, estimatedUncompressedSize);
                         }
@@ -225,8 +225,8 @@ namespace Service.FileSystem {
         }
 
         public override List<string> GetFilesInAbsFolder(string absPath, string pattern = "*.*") {
-            var result = new List<string>();
-            foreach (var path in Directory.GetFiles(absPath, pattern, SearchOption.TopDirectoryOnly)) {
+            List<string> result = new List<string>();
+            foreach (string path in Directory.GetFiles(absPath, pattern, SearchOption.TopDirectoryOnly)) {
                 result.Add(path.Replace('\\', '/'));
             }
             return result;
@@ -248,7 +248,7 @@ namespace Service.FileSystem {
         }
 
         public override void RemoveFileInDomain(FSDomain domain, string relativePath) {
-            var path = GetPath(domain,relativePath);
+            string path = GetPath(domain,relativePath);
             RemoveFile(path);
         }
     }

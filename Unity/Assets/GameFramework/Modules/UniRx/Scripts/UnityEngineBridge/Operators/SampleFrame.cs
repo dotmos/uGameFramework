@@ -44,8 +44,8 @@ namespace UniRx.Operators
             {
                 sourceSubscription = new SingleAssignmentDisposable();
                 sourceSubscription.Disposable = parent.source.Subscribe(this);
-                
-                var scheduling = UnityObservable.IntervalFrame(parent.frameCount, parent.frameCountType)
+
+                IDisposable scheduling = UnityObservable.IntervalFrame(parent.frameCount, parent.frameCountType)
                     .Subscribe(new SampleFrameTick(this));
 
                 return StableCompositeDisposable.Create(sourceSubscription, scheduling);
@@ -57,7 +57,7 @@ namespace UniRx.Operators
                 {
                     if (isUpdated)
                     {
-                        var value = latestValue;
+                        T value = latestValue;
                         isUpdated = false;
                         observer.OnNext(value);
                     }
@@ -116,7 +116,7 @@ namespace UniRx.Operators
                     {
                         if (parent.isUpdated)
                         {
-                            var value = parent.latestValue;
+                            T value = parent.latestValue;
                             parent.isUpdated = false;
                             parent.observer.OnNext(value);
                         }

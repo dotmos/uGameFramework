@@ -84,9 +84,9 @@ namespace UniRx.Operators
                     if (isDisposed) return;
                     if (isStopped) return;
 
-                    var current = default(IObservable<T>);
-                    var hasNext = false;
-                    var ex = default(Exception);
+                    IObservable<T> current = default(IObservable<T>);
+                    bool hasNext = false;
+                    Exception ex = default(Exception);
 
                     try
                     {
@@ -121,8 +121,8 @@ namespace UniRx.Operators
                         return;
                     }
 
-                    var source = e.Current;
-                    var d = new SingleAssignmentDisposable();
+                    IObservable<T> source = e.Current;
+                    SingleAssignmentDisposable d = new SingleAssignmentDisposable();
                     subscription.Disposable = d;
 
                     if (isFirstSubscribe)

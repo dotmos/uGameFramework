@@ -68,7 +68,7 @@ namespace UniRx
         /// </summary>
         public void Dispose()
         {
-            var disposable = default(IDisposable);
+            IDisposable disposable = default(IDisposable);
             lock (_gate)
             {
                 if (_disposable != null)
@@ -92,7 +92,7 @@ namespace UniRx
 
         private void Release()
         {
-            var disposable = default(IDisposable);
+            IDisposable disposable = default(IDisposable);
             lock (_gate)
             {
                 if (_disposable != null)

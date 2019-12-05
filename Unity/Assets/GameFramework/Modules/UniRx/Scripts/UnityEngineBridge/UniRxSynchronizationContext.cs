@@ -28,7 +28,7 @@ namespace UniRx
             {
                 MainThreadDispatcher.Post(x =>
                 {
-                    var pair = (Pair)x;
+                    Pair pair = (Pair)x;
                     pair.Callback(pair.State);
                 }, new Pair(d, state));
             }
@@ -38,7 +38,7 @@ namespace UniRx
         {
             MainThreadDispatcher.Send(x =>
             {
-                var pair = (Pair)x;
+                Pair pair = (Pair)x;
                 pair.Callback(pair.State);
             }, new Pair(d, state));
         }

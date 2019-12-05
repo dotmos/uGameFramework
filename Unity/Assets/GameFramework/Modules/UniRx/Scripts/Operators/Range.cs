@@ -35,7 +35,7 @@ namespace UniRx.Operators
             }
             else
             {
-                var i = 0;
+                int i = 0;
                 return scheduler.Schedule((Action self) =>
                 {
                     if (i < count)

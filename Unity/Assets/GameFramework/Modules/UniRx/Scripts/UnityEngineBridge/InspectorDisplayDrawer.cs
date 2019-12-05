@@ -90,7 +90,7 @@ namespace UniRx
             string fieldName;
             bool notifyPropertyChanged;
             {
-                var attr = this.attribute as InspectorDisplayAttribute;
+                InspectorDisplayAttribute attr = this.attribute as InspectorDisplayAttribute;
                 fieldName = (attr == null) ? "value" : attr.FieldName;
                 notifyPropertyChanged = (attr == null) ? true : attr.NotifyPropertyChanged;
             }
@@ -99,7 +99,7 @@ namespace UniRx
             {
                 EditorGUI.BeginChangeCheck();
             }
-            var targetSerializedProperty = property.FindPropertyRelative(fieldName);
+            SerializedProperty targetSerializedProperty = property.FindPropertyRelative(fieldName);
             if (targetSerializedProperty == null)
             {
                 UnityEditor.EditorGUI.LabelField(position, label, new GUIContent() { text = "InspectorDisplay can't find target:" + fieldName });
@@ -120,17 +120,17 @@ namespace UniRx
                 {
                     property.serializedObject.ApplyModifiedProperties(); // deserialize to field
 
-                    var paths = property.propertyPath.Split('.'); // X.Y.Z...
-                    var attachedComponent = property.serializedObject.targetObject;
+                    string[] paths = property.propertyPath.Split('.'); // X.Y.Z...
+                    UnityEngine.Object attachedComponent = property.serializedObject.targetObject;
 
-                    var targetProp = (paths.Length == 1)
+                    object targetProp = (paths.Length == 1)
                         ? fieldInfo.GetValue(attachedComponent)
                         : GetValueRecursive(attachedComponent, 0, paths);
                     if (targetProp == null) return;
-                    var propInfo = targetProp.GetType().GetProperty(fieldName, BindingFlags.IgnoreCase | BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    var modifiedValue = propInfo.GetValue(targetProp, null); // retrieve new value
+                    PropertyInfo propInfo = targetProp.GetType().GetProperty(fieldName, BindingFlags.IgnoreCase | BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    object modifiedValue = propInfo.GetValue(targetProp, null); // retrieve new value
 
-                    var methodInfo = targetProp.GetType().GetMethod("SetValueAndForceNotify", BindingFlags.IgnoreCase | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    MethodInfo methodInfo = targetProp.GetType().GetMethod("SetValueAndForceNotify", BindingFlags.IgnoreCase | BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                     if (methodInfo != null)
                     {
                         methodInfo.Invoke(targetProp, new object[] { modifiedValue });
@@ -145,8 +145,8 @@ namespace UniRx
 
         object GetValueRecursive(object obj, int index, string[] paths)
         {
-            var path = paths[index];
-            var fieldInfo = obj.GetType().GetField(path, BindingFlags.IgnoreCase | BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            string path = paths[index];
+            FieldInfo fieldInfo = obj.GetType().GetField(path, BindingFlags.IgnoreCase | BindingFlags.GetField | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
             // If array, path = Array.data[index]
             if (fieldInfo == null && path == "Array")
@@ -154,9 +154,9 @@ namespace UniRx
                 try
                 {
                     path = paths[++index];
-                    var m = Regex.Match(path, @"(.+)\[([0-9]+)*\]");
-                    var arrayIndex = int.Parse(m.Groups[2].Value);
-                    var arrayValue = (obj as System.Collections.IList)[arrayIndex];
+                    Match m = Regex.Match(path, @"(.+)\[([0-9]+)*\]");
+                    int arrayIndex = int.Parse(m.Groups[2].Value);
+                    object arrayValue = (obj as System.Collections.IList)[arrayIndex];
                     if (index < paths.Length - 1)
                     {
                         return GetValueRecursive(arrayValue, ++index, paths);
@@ -177,7 +177,7 @@ namespace UniRx
                 throw new Exception("Can't decode path, please report to UniRx's GitHub issues:" + string.Join(", ", paths));
             }
 
-            var v = fieldInfo.GetValue(obj);
+            object v = fieldInfo.GetValue(obj);
             if (index < paths.Length - 1)
             {
                 return GetValueRecursive(v, ++index, paths);
@@ -188,11 +188,11 @@ namespace UniRx
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var attr = this.attribute as InspectorDisplayAttribute;
-            var fieldName = (attr == null) ? "value" : attr.FieldName;
+            InspectorDisplayAttribute attr = this.attribute as InspectorDisplayAttribute;
+            string fieldName = (attr == null) ? "value" : attr.FieldName;
 
-            var height = base.GetPropertyHeight(property, label);
-            var valueProperty = property.FindPropertyRelative(fieldName);
+            float height = base.GetPropertyHeight(property, label);
+            SerializedProperty valueProperty = property.FindPropertyRelative(fieldName);
             if (valueProperty == null)
             {
                 return height;
@@ -208,7 +208,7 @@ namespace UniRx
             }
             if (valueProperty.propertyType == SerializedPropertyType.String)
             {
-                var multilineAttr = GetMultilineAttribute();
+                MultilineReactivePropertyAttribute multilineAttr = GetMultilineAttribute();
                 if (multilineAttr != null)
                 {
                     return ((!EditorGUIUtility.wideMode) ? 16f : 0f) + 16f + (float)((multilineAttr.Lines - 1) * 13);
@@ -217,8 +217,8 @@ namespace UniRx
 
             if (valueProperty.isExpanded)
             {
-                var count = 0;
-                var e = valueProperty.GetEnumerator();
+                int count = 0;
+                IEnumerator e = valueProperty.GetEnumerator();
                 while (e.MoveNext()) count++;
                 return ((height + 4) * count) + 6; // (Line = 20 + Padding) ?
             }
@@ -228,10 +228,10 @@ namespace UniRx
 
         protected virtual void EmitPropertyField(Rect position, UnityEditor.SerializedProperty targetSerializedProperty, GUIContent label)
         {
-            var multiline = GetMultilineAttribute();
+            MultilineReactivePropertyAttribute multiline = GetMultilineAttribute();
             if (multiline == null)
             {
-                var range = GetRangeAttribute();
+                RangeReactivePropertyAttribute range = GetRangeAttribute();
                 if (range == null)
                 {
                     UnityEditor.EditorGUI.PropertyField(position, targetSerializedProperty, label, includeChildren: true);
@@ -254,16 +254,16 @@ namespace UniRx
             }
             else
             {
-                var property = targetSerializedProperty;
+                SerializedProperty property = targetSerializedProperty;
 
                 label = EditorGUI.BeginProperty(position, label, property);
-                var method = typeof(EditorGUI).GetMethod("MultiFieldPrefixLabel", BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic);
+                MethodInfo method = typeof(EditorGUI).GetMethod("MultiFieldPrefixLabel", BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.NonPublic);
                 position = (Rect)method.Invoke(null, new object[] { position, 0, label, 1 });
 
                 EditorGUI.BeginChangeCheck();
                 int indentLevel = EditorGUI.indentLevel;
                 EditorGUI.indentLevel = 0;
-                var stringValue = EditorGUI.TextArea(position, property.stringValue);
+                string stringValue = EditorGUI.TextArea(position, property.stringValue);
                 EditorGUI.indentLevel = indentLevel;
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -275,14 +275,14 @@ namespace UniRx
 
         MultilineReactivePropertyAttribute GetMultilineAttribute()
         {
-            var fi = this.fieldInfo;
+            FieldInfo fi = this.fieldInfo;
             if (fi == null) return null;
             return fi.GetCustomAttributes(false).OfType<MultilineReactivePropertyAttribute>().FirstOrDefault();
         }
 
         RangeReactivePropertyAttribute GetRangeAttribute()
         {
-            var fi = this.fieldInfo;
+            FieldInfo fi = this.fieldInfo;
             if (fi == null) return null;
             return fi.GetCustomAttributes(false).OfType<RangeReactivePropertyAttribute>().FirstOrDefault();
         }

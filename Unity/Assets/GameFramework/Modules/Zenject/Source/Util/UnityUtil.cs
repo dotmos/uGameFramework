@@ -72,7 +72,7 @@ namespace ModestTree.Util
                 yield break;
             }
 
-            foreach (var ancestor in GetParentsAndSelf(transform.parent))
+            foreach (Transform ancestor in GetParentsAndSelf(transform.parent))
             {
                 yield return ancestor;
             }
@@ -87,7 +87,7 @@ namespace ModestTree.Util
 
             yield return transform;
 
-            foreach (var ancestor in GetParentsAndSelf(transform.parent))
+            foreach (Transform ancestor in GetParentsAndSelf(transform.parent))
             {
                 yield return ancestor;
             }

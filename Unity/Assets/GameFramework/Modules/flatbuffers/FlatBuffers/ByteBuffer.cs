@@ -413,7 +413,7 @@ namespace FlatBuffers
         public void PutByte(int offset, byte value, int count)
         {
             AssertOffsetAndLength(offset, sizeof(byte) * count);
-            for (var i = 0; i < count; ++i)
+            for (int i = 0; i < count; ++i)
                 _buffer.Buffer[offset + i] = value;
         }
 #endif

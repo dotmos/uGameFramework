@@ -29,7 +29,7 @@ namespace UniRx
                     // don't subscribe twice
                     if (connection == null)
                     {
-                        var subscription = source.Subscribe(subject);
+                        IDisposable subscription = source.Subscribe(subject);
                         connection = new Connection(this, subscription);
                     }
 

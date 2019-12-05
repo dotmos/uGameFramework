@@ -57,12 +57,12 @@ namespace UniRx.InternalUtil
 
             lock (arrayLock)
             {
-                var j = tail - 1;
+                int j = tail - 1;
 
                 // eliminate array-bound check for i
                 for (int i = 0; i < coroutines.Length; i++)
                 {
-                    var coroutine = coroutines[i];
+                    IEnumerator coroutine = coroutines[i];
                     if (coroutine != null)
                     {
                         try
@@ -98,7 +98,7 @@ namespace UniRx.InternalUtil
                     // find null, loop from tail
                     while (i < j)
                     {
-                        var fromTail = coroutines[j];
+                        IEnumerator fromTail = coroutines[j];
                         if (fromTail != null)
                         {
                             try

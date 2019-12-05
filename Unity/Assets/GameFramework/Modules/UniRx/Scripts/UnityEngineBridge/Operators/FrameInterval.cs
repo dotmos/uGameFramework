@@ -29,8 +29,8 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var now = UnityEngine.Time.frameCount;
-                var span = now - lastFrame;
+                int now = UnityEngine.Time.frameCount;
+                int span = now - lastFrame;
                 lastFrame = now;
 
                 base.observer.OnNext(new UniRx.FrameInterval<T>(value, span));

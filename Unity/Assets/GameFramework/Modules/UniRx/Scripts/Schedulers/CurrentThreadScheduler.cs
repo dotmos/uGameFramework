@@ -74,11 +74,11 @@ namespace UniRx
                 if (action == null)
                     throw new ArgumentNullException("action");
 
-                var dt = Time + Scheduler.Normalize(dueTime);
+                TimeSpan dt = Time + Scheduler.Normalize(dueTime);
 
-                var si = new ScheduledItem(action, dt);
+                ScheduledItem si = new ScheduledItem(action, dt);
 
-                var queue = GetQueue();
+                SchedulerQueue queue = GetQueue();
 
                 if (queue == null)
                 {
@@ -109,10 +109,10 @@ namespace UniRx
                 {
                     while (queue.Count > 0)
                     {
-                        var item = queue.Dequeue();
+                        ScheduledItem item = queue.Dequeue();
                         if (!item.IsCanceled)
                         {
-                            var wait = item.DueTime - CurrentThreadScheduler.Time;
+                            TimeSpan wait = item.DueTime - CurrentThreadScheduler.Time;
                             if (wait.Ticks > 0)
                             {
                                 Thread.Sleep(wait);

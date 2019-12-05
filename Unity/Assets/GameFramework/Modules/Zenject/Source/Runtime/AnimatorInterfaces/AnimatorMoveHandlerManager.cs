@@ -18,7 +18,7 @@ namespace Zenject
 
         public void OnAnimatorMove()
         {
-            foreach (var handler in _handlers)
+            foreach (IAnimatorMoveHandler handler in _handlers)
             {
                 handler.OnAnimatorMove();
             }

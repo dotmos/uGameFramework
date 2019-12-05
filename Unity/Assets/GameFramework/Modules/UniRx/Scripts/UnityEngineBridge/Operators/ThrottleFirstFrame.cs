@@ -45,7 +45,7 @@ namespace UniRx.Operators
                 tick = new ThrottleFirstFrameTick(this);
                 cancelable = new SerialDisposable();
 
-                var subscription = parent.source.Subscribe(this);
+                IDisposable subscription = parent.source.Subscribe(this);
                 return StableCompositeDisposable.Create(cancelable, subscription);
             }
 
@@ -66,7 +66,7 @@ namespace UniRx.Operators
                     open = false;
                 }
 
-                var d = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable d = new SingleAssignmentDisposable();
                 cancelable.Disposable = d;
                 d.Disposable = UnityObservable.TimerFrame(parent.frameCount, parent.frameCountType)
                     .Subscribe(tick);

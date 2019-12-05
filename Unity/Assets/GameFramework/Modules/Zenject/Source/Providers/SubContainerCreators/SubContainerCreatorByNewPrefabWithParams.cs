@@ -32,15 +32,15 @@ namespace Zenject
 
         DiContainer CreateTempContainer(List<TypeValuePair> args)
         {
-            var tempSubContainer = Container.CreateSubContainer();
+            DiContainer tempSubContainer = Container.CreateSubContainer();
 
-            var installerInjectables = TypeAnalyzer.GetInfo(_installerType);
+            ZenjectTypeInfo installerInjectables = TypeAnalyzer.GetInfo(_installerType);
 
-            foreach (var argPair in args)
+            foreach (TypeValuePair argPair in args)
             {
                 // We need to intelligently match on the exact parameters here to avoid the issue
                 // brought up in github issue #217
-                var match = installerInjectables.AllInjectables
+                InjectableInfo match = installerInjectables.AllInjectables
                     .Where(x => argPair.Type.DerivesFromOrEqual(x.MemberType))
                     .OrderBy(x => ZenUtilInternal.GetInheritanceDelta(argPair.Type, x.MemberType)).FirstOrDefault();
 
@@ -59,10 +59,10 @@ namespace Zenject
         {
             Assert.That(!args.IsEmpty());
 
-            var prefab = _prefabProvider.GetPrefab();
-            var gameObject = CreateTempContainer(args).InstantiatePrefab(prefab, _gameObjectBindInfo);
+            UnityEngine.Object prefab = _prefabProvider.GetPrefab();
+            UnityEngine.GameObject gameObject = CreateTempContainer(args).InstantiatePrefab(prefab, _gameObjectBindInfo);
 
-            var context = gameObject.GetComponent<GameObjectContext>();
+            GameObjectContext context = gameObject.GetComponent<GameObjectContext>();
 
             Assert.That(context != null,
                 "Expected prefab with name '{0}' to container a component of type 'GameObjectContext'", prefab.name);

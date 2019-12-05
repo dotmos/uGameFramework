@@ -25,11 +25,11 @@ namespace Zenject
         public DiContainer CreateSubContainer(
             List<TypeValuePair> args, InjectContext parentContext)
         {
-            var prefab = _prefabProvider.GetPrefab();
+            UnityEngine.Object prefab = _prefabProvider.GetPrefab();
 
             bool shouldMakeActive;
 
-            var gameObj = _container.CreateAndParentPrefab(
+            UnityEngine.GameObject gameObj = _container.CreateAndParentPrefab(
                 prefab, _gameObjectBindInfo, null, out shouldMakeActive);
 
             if (gameObj.GetComponent<GameObjectContext>() != null)
@@ -38,7 +38,7 @@ namespace Zenject
                     "Found GameObjectContext already attached to prefab with name '{0}'!  When using ByNewPrefabMethod, the GameObjectContext is added to the prefab dynamically", prefab.name);
             }
 
-            var context = gameObj.AddComponent<GameObjectContext>();
+            GameObjectContext context = gameObj.AddComponent<GameObjectContext>();
 
             AddInstallers(args, context);
 
@@ -80,7 +80,7 @@ namespace Zenject
             context.AddNormalInstaller(
                 new ActionInstaller((subContainer) =>
                     {
-                        var installer = (InstallerBase)subContainer.InstantiateExplicit(
+                        InstallerBase installer = (InstallerBase)subContainer.InstantiateExplicit(
                             _installerType, args.Concat(_extraArgs).ToList());
                         installer.InstallBindings();
                     }));

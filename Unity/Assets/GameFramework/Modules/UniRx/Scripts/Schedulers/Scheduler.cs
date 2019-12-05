@@ -116,15 +116,15 @@ namespace UniRx
         public static IDisposable Schedule(this IScheduler scheduler, Action<Action> action)
         {
             // InvokeRec1
-            var group = new CompositeDisposable(1);
-            var gate = new object();
+            CompositeDisposable group = new CompositeDisposable(1);
+            object gate = new object();
 
             Action recursiveAction = null;
             recursiveAction = () => action(() =>
             {
-                var isAdded = false;
-                var isDone = false;
-                var d = default(IDisposable);
+                bool isAdded = false;
+                bool isDone = false;
+                IDisposable d = default(IDisposable);
                 d = scheduler.Schedule(() =>
                 {
                     lock (gate)
@@ -156,15 +156,15 @@ namespace UniRx
         {
             // InvokeRec2
 
-            var group = new CompositeDisposable(1);
-            var gate = new object();
+            CompositeDisposable group = new CompositeDisposable(1);
+            object gate = new object();
 
             Action recursiveAction = null;
             recursiveAction = () => action(dt =>
             {
-                var isAdded = false;
-                var isDone = false;
-                var d = default(IDisposable);
+                bool isAdded = false;
+                bool isDone = false;
+                IDisposable d = default(IDisposable);
                 d = scheduler.Schedule(dt, () =>
                 {
                     lock (gate)
@@ -196,15 +196,15 @@ namespace UniRx
         {
             // InvokeRec3
 
-            var group = new CompositeDisposable(1);
-            var gate = new object();
+            CompositeDisposable group = new CompositeDisposable(1);
+            object gate = new object();
 
             Action recursiveAction = null;
             recursiveAction = () => action(dt =>
             {
-                var isAdded = false;
-                var isDone = false;
-                var d = default(IDisposable);
+                bool isAdded = false;
+                bool isDone = false;
+                IDisposable d = default(IDisposable);
                 d = scheduler.Schedule(dt, () =>
                 {
                     lock (gate)

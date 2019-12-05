@@ -22,7 +22,7 @@ namespace ModestTree.Util
 
         public override bool Equals(Object obj)
         {
-            var that = obj as ValuePair<T1, T2>;
+            ValuePair<T1, T2> that = obj as ValuePair<T1, T2>;
 
             if (that == null)
             {
@@ -76,7 +76,7 @@ namespace ModestTree.Util
 
         public override bool Equals(Object obj)
         {
-            var that = obj as ValuePair<T1, T2, T3>;
+            ValuePair<T1, T2, T3> that = obj as ValuePair<T1, T2, T3>;
 
             if (that == null)
             {
@@ -134,7 +134,7 @@ namespace ModestTree.Util
 
         public override bool Equals(Object obj)
         {
-            var that = obj as ValuePair<T1, T2, T3, T4>;
+            ValuePair<T1, T2, T3, T4> that = obj as ValuePair<T1, T2, T3, T4>;
 
             if (that == null)
             {

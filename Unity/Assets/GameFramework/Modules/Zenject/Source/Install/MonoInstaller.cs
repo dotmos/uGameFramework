@@ -42,7 +42,7 @@ namespace Zenject
 
         public static TDerived InstallFromResource(string resourcePath, DiContainer container, object[] extraArgs)
         {
-            var installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
+            TDerived installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
             container.Inject(installer, extraArgs);
             installer.InstallBindings();
             return installer;
@@ -59,7 +59,7 @@ namespace Zenject
 
         public static TDerived InstallFromResource(string resourcePath, DiContainer container, TParam1 p1)
         {
-            var installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
+            TDerived installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
             container.InjectExplicit(installer, InjectUtil.CreateArgListExplicit(p1));
             installer.InstallBindings();
             return installer;
@@ -76,7 +76,7 @@ namespace Zenject
 
         public static TDerived InstallFromResource(string resourcePath, DiContainer container, TParam1 p1, TParam2 p2)
         {
-            var installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
+            TDerived installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
             container.InjectExplicit(installer, InjectUtil.CreateArgListExplicit(p1, p2));
             installer.InstallBindings();
             return installer;
@@ -93,7 +93,7 @@ namespace Zenject
 
         public static TDerived InstallFromResource(string resourcePath, DiContainer container, TParam1 p1, TParam2 p2, TParam3 p3)
         {
-            var installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
+            TDerived installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
             container.InjectExplicit(installer, InjectUtil.CreateArgListExplicit(p1, p2, p3));
             installer.InstallBindings();
             return installer;
@@ -110,7 +110,7 @@ namespace Zenject
 
         public static TDerived InstallFromResource(string resourcePath, DiContainer container, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
         {
-            var installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
+            TDerived installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
             container.InjectExplicit(installer, InjectUtil.CreateArgListExplicit(p1, p2, p3, p4));
             installer.InstallBindings();
             return installer;
@@ -127,7 +127,7 @@ namespace Zenject
 
         public static TDerived InstallFromResource(string resourcePath, DiContainer container, TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
         {
-            var installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
+            TDerived installer = MonoInstallerUtil.CreateInstaller<TDerived>(resourcePath, container);
             container.InjectExplicit(installer, InjectUtil.CreateArgListExplicit(p1, p2, p3, p4, p5));
             installer.InstallBindings();
             return installer;
@@ -147,7 +147,7 @@ namespace Zenject
             where TInstaller : MonoInstallerBase
         {
             bool shouldMakeActive;
-            var gameObj = container.CreateAndParentPrefabResource(
+            GameObject gameObj = container.CreateAndParentPrefabResource(
                 resourcePath, GameObjectCreationParameters.Default, null, out shouldMakeActive);
 
             if (shouldMakeActive)
@@ -155,7 +155,7 @@ namespace Zenject
                 gameObj.SetActive(true);
             }
 
-            var installers = gameObj.GetComponentsInChildren<TInstaller>();
+            TInstaller[] installers = gameObj.GetComponentsInChildren<TInstaller>();
 
             Assert.That(installers.Length == 1,
                 "Could not find unique MonoInstaller with type '{0}' on prefab '{1}'", typeof(TInstaller), gameObj.name);

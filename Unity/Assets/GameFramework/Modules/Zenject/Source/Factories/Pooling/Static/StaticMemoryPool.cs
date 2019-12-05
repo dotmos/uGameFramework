@@ -147,7 +147,7 @@ namespace Zenject
 
         public TValue Spawn()
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {
@@ -181,7 +181,7 @@ namespace Zenject
 
         public TValue Spawn(TParam1 param)
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {
@@ -215,7 +215,7 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2)
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {
@@ -249,7 +249,7 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3)
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {
@@ -293,7 +293,7 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4)
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {
@@ -337,7 +337,7 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5)
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {
@@ -381,7 +381,7 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6)
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {
@@ -425,7 +425,7 @@ namespace Zenject
 
         public TValue Spawn(TParam1 p1, TParam2 p2, TParam3 p3, TParam4 p4, TParam5 p5, TParam6 p6, TParam7 p7)
         {
-            var item = SpawnInternal();
+            TValue item = SpawnInternal();
 
             if (_onSpawnMethod != null)
             {

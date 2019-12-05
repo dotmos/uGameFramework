@@ -106,7 +106,7 @@ namespace Service.LoggingService {
 
         public bool Check(LogData log) {
             if (regexDomain != null) {
-                var regexResult = regexDomain.Match(log.domain).Success;
+                bool regexResult = regexDomain.Match(log.domain).Success;
                 if (regexResult == false) {
                     // if we have a domain regex then it must match. if not the logdata is not valid
                     return false;
@@ -114,7 +114,7 @@ namespace Service.LoggingService {
             }
 
             if (regexMessage != null) {
-                var regexMessageResult = regexMessage.Match(log.message).Success;
+                bool regexMessageResult = regexMessage.Match(log.message).Success;
                 if (regexMessageResult == false) {
                     // if we have a message regex then it must match. if not the logdata is not valid
                     return false;

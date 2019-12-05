@@ -23,10 +23,10 @@ namespace Zenject
 
         protected override void OnFinalizeBinding(DiContainer container)
         {
-            var factory = new FactoryProviderWrapper<TContract>(
+            FactoryProviderWrapper<TContract> factory = new FactoryProviderWrapper<TContract>(
                 _factoryBindInfo.ProviderFunc(container), new InjectContext(container, typeof(TContract)));
 
-            var settings = new MemoryPoolSettings(
+            MemoryPoolSettings settings = new MemoryPoolSettings(
                 _poolBindInfo.InitialSize, _poolBindInfo.MaxSize, _poolBindInfo.ExpandMethod);
 
             RegisterProviderForAllContracts(

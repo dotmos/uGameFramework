@@ -19,9 +19,9 @@ namespace Service.Scripting {
                 return null;
                 // TODO discard
             }
-            var result = co.Coroutine.Resume(objs);
+            DynValue result = co.Coroutine.Resume(objs);
             if (result.Type == DataType.Tuple) {
-                var yieldValues = result.Tuple;
+                DynValue[] yieldValues = result.Tuple;
                 if (yieldValues.Length >= 1) waitForType = yieldValues[0].String;
                 value1 = yieldValues.Length >= 2 ? yieldValues[1].ToObject() : null;
                 value2 = yieldValues.Length >= 3 ? yieldValues[2] : null;
@@ -83,13 +83,13 @@ namespace Service.Scripting {
         }
 
         public override DynValue ExecuteStringOnMainScriptRaw(string luaCode) {
-            var result = mainScript.DoString(luaCode);
+            DynValue result = mainScript.DoString(luaCode);
             return result;
         }
 
         public override string ExecuteStringOnMainScript(string luaCode) {
             try {
-                var result = ExecuteStringOnMainScriptRaw(luaCode);
+                DynValue result = ExecuteStringOnMainScriptRaw(luaCode);
                 return result.ToString();
             }
             catch (ScriptRuntimeException ex) {
@@ -108,7 +108,7 @@ namespace Service.Scripting {
 
         private List<string> Proposal(DynValue dynvalue,string currentInput) {
             if (dynvalue.UserData != null) {
-                var userDataResult = Proposal(dynvalue.UserData);
+                List<string> userDataResult = Proposal(dynvalue.UserData);
                 return userDataResult;
             } else {
                 //Debug.LogWarning("Could not process proposal for Input:" + currentInput);
@@ -117,25 +117,25 @@ namespace Service.Scripting {
         }
 
         private List<string> Proposal(UserData userdata) {
-            var result = new List<string>();
+            List<string> result = new List<string>();
             if (userdata.Descriptor is StandardUserDataDescriptor) {
-                var dscr = (StandardUserDataDescriptor)userdata.Descriptor;
+                StandardUserDataDescriptor dscr = (StandardUserDataDescriptor)userdata.Descriptor;
 
 
                 if (userdata.Object == null) {
-                    var st = dscr.MemberNames.First();
+                    string st = dscr.MemberNames.First();
                     if (dscr.Members.Count()>0 && dscr.MemberNames.First() == "__new") {
                         result.Add("__new()");
                     }
                     return result;
                 }
-                var methods = userdata.Object.GetType().GetMethods();
-                foreach (var m in methods) {
-                    var memberResult = m.Name;
-                    var methodparams = m.GetParameters();
+                System.Reflection.MethodInfo[] methods = userdata.Object.GetType().GetMethods();
+                foreach (System.Reflection.MethodInfo m in methods) {
+                    string memberResult = m.Name;
+                    System.Reflection.ParameterInfo[] methodparams = m.GetParameters();
 
                     memberResult += "(";
-                    foreach (var param in methodparams) {
+                    foreach (System.Reflection.ParameterInfo param in methodparams) {
                         if (memberResult[memberResult.Length - 1] != '(') {
                             memberResult += ",";
                         }
@@ -145,8 +145,8 @@ namespace Service.Scripting {
 
                     result.Add(memberResult);
                 }
-                var fields = userdata.Object.GetType().GetFields();
-                foreach (var f in fields) {
+                System.Reflection.FieldInfo[] fields = userdata.Object.GetType().GetFields();
+                foreach (System.Reflection.FieldInfo f in fields) {
                     result.Add(f.Name);
                 }
 
@@ -187,8 +187,8 @@ namespace Service.Scripting {
                 }
                 */
             } else if (userdata.Descriptor is StandardEnumUserDataDescriptor) {
-                var dscr = (StandardEnumUserDataDescriptor)userdata.Descriptor;
-                foreach (var ev in dscr.MemberNames) {
+                StandardEnumUserDataDescriptor dscr = (StandardEnumUserDataDescriptor)userdata.Descriptor;
+                foreach (string ev in dscr.MemberNames) {
                     result.Add(ev.ToString());
                 }
             }
@@ -258,7 +258,7 @@ namespace Service.Scripting {
         }
 
         public override Proposal AutocompleteProposals(string currentInput,int cursorPos) {
-            var result = new Proposal();
+            Proposal result = new Proposal();
 
             string currentObjectPath = null;
             string lastInputPart = null;
@@ -274,7 +274,7 @@ namespace Service.Scripting {
 
             if (!root) {
                 try {
-                    var currentLuaObject = mainScript.Globals.Get(currentObjectPath);
+                    DynValue currentLuaObject = mainScript.Globals.Get(currentObjectPath);
                     currentProposals = Proposal(currentLuaObject,currentInput);
                 }
                 catch (Exception exCurrentObject) {
@@ -284,8 +284,8 @@ namespace Service.Scripting {
             } else {
                 // check root-global
                 currentProposals = mainScript.Globals.Keys.Select(val=>val.String).ToList();
-                foreach (var key in mainScript.Globals.Keys) {
-                    var val = mainScript.Globals[key];
+                foreach (DynValue key in mainScript.Globals.Keys) {
+                    object val = mainScript.Globals[key];
                     //int a = 0;
                 }
             }
@@ -313,7 +313,7 @@ namespace Service.Scripting {
 
                 //var input = File.ReadAllText(fileName);
 
-                var input = useScriptDomain
+                string input = useScriptDomain
                                 ? filesystem.LoadFileAsStringAtDomain(FileSystem.FSDomain.Scripting, fileName)
                                 : filesystem.LoadFileAsString(fileName);
 
@@ -349,16 +349,16 @@ namespace Service.Scripting {
         private void LuaCoroutineCallback(string cbType, object o2 = null, object o3 = null) {
             removeCoRoutine.Clear();
             // give it to the lua side (callback-lua func in definied
-            foreach (var lCo in coRoutines) {
+            foreach (LuaCoroutine lCo in coRoutines) {
                 if (lCo.waitForType == "callback" && (string)lCo.value1 == cbType) {
-                    var result = lCo.Resume(cbType, o2,o3);
+                    DynValue result = lCo.Resume(cbType, o2,o3);
                     if (result == null) {
                         removeCoRoutine.Add(lCo);
                     }
                 }
             }
             if (removeCoRoutine.Count > 0) {
-                foreach (var removeCo in removeCoRoutine) {
+                foreach (LuaCoroutine removeCo in removeCoRoutine) {
                     coRoutines.Remove(removeCo);
                 }
                 removeCoRoutine.Clear();
@@ -366,7 +366,7 @@ namespace Service.Scripting {
         }
 
         public override void Callback(string cbType, object o2 = null, object o3 = null) {
-            foreach (var cb in callbacks) {
+            foreach (Action<string, object, object> cb in callbacks) {
                 cb(cbType, o2, o3);
             }
         }
@@ -383,17 +383,17 @@ namespace Service.Scripting {
 
         public override void Tick(float dt) {
 #if !NO_LUATESTING
-            var tickFunc = mainScript.Globals["tick"];
+            object tickFunc = mainScript.Globals["tick"];
             if (tickFunc != null) {
                 mainScript.Call(tickFunc, dt);
             }
             
-            foreach (var coRoutine in coRoutines) {
+            foreach (LuaCoroutine coRoutine in coRoutines) {
                 if (coRoutine.waitForType == "waitFrames") {
                     if ( (double)coRoutine.value1>0) {
                         coRoutine.value1 = (double)coRoutine.value1 - 1;
                     } else {
-                        var result = coRoutine.Resume();
+                        DynValue result = coRoutine.Resume();
                         if (result == null) {
                             removeCoRoutine.Add(coRoutine);
                         }
@@ -403,18 +403,18 @@ namespace Service.Scripting {
                     if ( (double)coRoutine.value1 > 0.0f) {
                         coRoutine.value1 = (double)coRoutine.value1 - dt;
                     } else {
-                        var result = coRoutine.Resume();
+                        DynValue result = coRoutine.Resume();
                         if (result == null) {
                             removeCoRoutine.Add(coRoutine);
                         }
                     }
                 }
                 else {
-                    foreach (var customYield in customYieldsChecks) {
-                        var finished = customYield(coRoutine);
+                    foreach (Func<LuaCoroutine, bool> customYield in customYieldsChecks) {
+                        bool finished = customYield(coRoutine);
                         if (finished) {
                             // finished
-                            var result = coRoutine.Resume();
+                            DynValue result = coRoutine.Resume();
                             if (result == null) {
                                 removeCoRoutine.Add(coRoutine);
                             }
@@ -424,7 +424,7 @@ namespace Service.Scripting {
                 }
             }
             if (removeCoRoutine.Count > 0) {
-                foreach (var removeCo in removeCoRoutine) {
+                foreach (LuaCoroutine removeCo in removeCoRoutine) {
                     coRoutines.Remove(removeCo);
                 }
                 removeCoRoutine.Clear();
@@ -439,10 +439,10 @@ namespace Service.Scripting {
 
             DynValue coroutine = mainScript.CreateCoroutine(coFunc);
 
-            var luaCo = new LuaCoroutine() {
+            LuaCoroutine luaCo = new LuaCoroutine() {
                 co = coroutine
             };
-            var result = luaCo.Resume(); // first step
+            DynValue result = luaCo.Resume(); // first step
             if (result != null) {
                 coRoutines.Add(luaCo);
             }
@@ -481,7 +481,7 @@ namespace Service.Scripting {
         }
 
         public override string GetCurrentLuaReplay() {
-            var finalScript = "function executeLogic()\n" + data.replayScript.ToString() + "\nend \n Scripting.CreateCoroutine(executeLogic)-- start the logic - function";
+            string finalScript = "function executeLogic()\n" + data.replayScript.ToString() + "\nend \n Scripting.CreateCoroutine(executeLogic)-- start the logic - function";
             return finalScript;
         }
 
@@ -490,7 +490,7 @@ namespace Service.Scripting {
         }
 
         private void ReplayWrite_finalize(String filename) {
-            var finalScript = GetCurrentLuaReplay();
+            string finalScript = GetCurrentLuaReplay();
             filesystem.WriteStringToFileAtDomain(FileSystem.FSDomain.Scripting, filename, finalScript);
         }
 
@@ -504,7 +504,7 @@ namespace Service.Scripting {
                 Debug.LogError("Tried to write currentGameTime to lua-replay, but there is no getCurrentGametime-func");
                 return;
             }
-            var gametime = getCurrentGameTime();
+            float gametime = getCurrentGameTime();
             data.replayScript.Append($"coroutine.yield('waitForGameTime',{gametime})\n");
         }
         public override void ReplayWrite_CustomLua(string luaScript, bool waitForGameTime = true) {

@@ -16,7 +16,7 @@ namespace Zenject
 
         public UnityEngine.Object GetPrefab()
         {
-            var prefab = (GameObject)Resources.Load(_resourcePath);
+            GameObject prefab = (GameObject)Resources.Load(_resourcePath);
 
             Assert.That(prefab != null,
                 "Expected to find prefab at resource path '{0}'", _resourcePath);

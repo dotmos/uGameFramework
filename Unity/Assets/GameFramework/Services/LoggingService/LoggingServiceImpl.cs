@@ -61,7 +61,7 @@ namespace Service.LoggingService {
             Application.logMessageReceived += HandleNativeLog;
 
             // write the native-logs from startup till service-afterinit
-            foreach (var preLog in preInitializeLogs) {
+            foreach (string preLog in preInitializeLogs) {
                 AddLog(DebugType.native, preLog);
             }
             preInitializeLogs.Clear();
@@ -71,7 +71,7 @@ namespace Service.LoggingService {
 
 		//docs come here
 		public override void AddLog(DebugType debugType,string message,string domain="") {
-            var newLog = new LogData() {
+            LogData newLog = new LogData() {
                 domain = domain,
                 message = message,
                 type = debugType
@@ -137,7 +137,7 @@ namespace Service.LoggingService {
             int idx = 0;
             int amount = loggingData.Count;
             while (lines < MAX_LOGS && idx < amount) {
-                var logData = loggingData[idx];
+                LogData logData = loggingData[idx];
                 
                 if (CurrentFilter.Check(logData)) {
                     tempList.Insert(0,logData);

@@ -21,7 +21,7 @@ namespace Zenject
 
         protected override void OnFinalizeBinding(DiContainer container)
         {
-            var provider = _factoryBindInfo.ProviderFunc(container);
+            IProvider provider = _factoryBindInfo.ProviderFunc(container);
 
             RegisterProviderForAllContracts(
                 container,

@@ -15,7 +15,7 @@ namespace UniRx.InternalUtil
 
         public void OnCompleted()
         {
-            var targetObservers = _observers.Data;
+            IObserver<T>[] targetObservers = _observers.Data;
             for (int i = 0; i < targetObservers.Length; i++)
             {
                 targetObservers[i].OnCompleted();
@@ -24,7 +24,7 @@ namespace UniRx.InternalUtil
 
         public void OnError(Exception error)
         {
-            var targetObservers = _observers.Data;
+            IObserver<T>[] targetObservers = _observers.Data;
             for (int i = 0; i < targetObservers.Length; i++)
             {
                 targetObservers[i].OnError(error);
@@ -33,7 +33,7 @@ namespace UniRx.InternalUtil
 
         public void OnNext(T value)
         {
-            var targetObservers = _observers.Data;
+            IObserver<T>[] targetObservers = _observers.Data;
             for (int i = 0; i < targetObservers.Length; i++)
             {
                 targetObservers[i].OnNext(value);
@@ -47,7 +47,7 @@ namespace UniRx.InternalUtil
 
         internal IObserver<T> Remove(IObserver<T> observer)
         {
-            var i = Array.IndexOf(_observers.Data, observer);
+            int i = Array.IndexOf(_observers.Data, observer);
             if (i < 0)
                 return this;
 

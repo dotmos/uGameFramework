@@ -40,7 +40,7 @@ namespace Zenject
 
         public void RemoveTask(TTask task)
         {
-            var info = AllTasks.Where(x => ReferenceEquals(x.Task, task)).SingleOrDefault();
+            TaskInfo info = AllTasks.Where(x => ReferenceEquals(x.Task, task)).SingleOrDefault();
 
             Assert.IsNotNull(info, "Tried to remove a task not added to DependencyRoot, task = " + task.GetType().Name);
 
@@ -61,12 +61,12 @@ namespace Zenject
 
         public void UpdateRange(int minPriority, int maxPriority)
         {
-            var node = _tasks.First;
+            LinkedListNode<TaskInfo> node = _tasks.First;
 
             while (node != null)
             {
-                var next = node.Next;
-                var taskInfo = node.Value;
+                LinkedListNode<TaskInfo> next = node.Next;
+                TaskInfo taskInfo = node.Value;
 
                 // Make sure that tasks with priority of int.MaxValue are updated when maxPriority is int.MaxValue
                 if (!taskInfo.IsRemoved && taskInfo.Priority >= minPriority
@@ -83,12 +83,12 @@ namespace Zenject
 
         void ClearRemovedTasks(LinkedList<TaskInfo> tasks)
         {
-            var node = tasks.First;
+            LinkedListNode<TaskInfo> node = tasks.First;
 
             while (node != null)
             {
-                var next = node.Next;
-                var info = node.Value;
+                LinkedListNode<TaskInfo> next = node.Next;
+                TaskInfo info = node.Value;
 
                 if (info.IsRemoved)
                 {
@@ -104,7 +104,7 @@ namespace Zenject
         {
             for (int i = 0; i < _queuedTasks.Count; i++)
             {
-                var task = _queuedTasks[i];
+                TaskInfo task = _queuedTasks[i];
 
                 if (!task.IsRemoved)
                 {
@@ -116,7 +116,7 @@ namespace Zenject
 
         void InsertTaskSorted(TaskInfo task)
         {
-            for (var current = _tasks.First; current != null; current = current.Next)
+            for (LinkedListNode<TaskInfo> current = _tasks.First; current != null; current = current.Next)
             {
                 if (current.Value.Priority > task.Priority)
                 {

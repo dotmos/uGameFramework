@@ -24,8 +24,8 @@ namespace UniRx.Operators
 
         public IDisposable Subscribe(IObserver<TElement> observer)
         {
-            var release = refCount.GetDisposable();
-            var subscription = subject.Subscribe(observer);
+            IDisposable release = refCount.GetDisposable();
+            IDisposable subscription = subject.Subscribe(observer);
             return StableCompositeDisposable.Create(release, subscription);
         }
     }
@@ -88,7 +88,7 @@ namespace UniRx.Operators
 
             public override void OnNext(TSource value)
             {
-                var key = default(TKey);
+                TKey key = default(TKey);
                 try
                 {
                     key = parent.keySelector(value);
@@ -99,8 +99,8 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var fireNewMapEntry = false;
-                var writer = default(ISubject<TElement>);
+                bool fireNewMapEntry = false;
+                ISubject<TElement> writer = default(ISubject<TElement>);
                 try
                 {
                     if (key == null)
@@ -131,11 +131,11 @@ namespace UniRx.Operators
 
                 if (fireNewMapEntry)
                 {
-                    var group = new GroupedObservable<TKey, TElement>(key, writer, refCountDisposable);
+                    GroupedObservable<TKey, TElement> group = new GroupedObservable<TKey, TElement>(key, writer, refCountDisposable);
                     observer.OnNext(group);
                 }
 
-                var element = default(TElement);
+                TElement element = default(TElement);
                 try
                 {
                     element = parent.elementSelector(value);
@@ -160,7 +160,7 @@ namespace UniRx.Operators
                 {
                     if (nullKeySubject != null) nullKeySubject.OnCompleted();
 
-                    foreach (var s in map.Values)
+                    foreach (ISubject<TElement> s in map.Values)
                     {
                         s.OnCompleted();
                     }
@@ -179,7 +179,7 @@ namespace UniRx.Operators
                 {
                     if (nullKeySubject != null) nullKeySubject.OnError(exception);
 
-                    foreach (var s in map.Values)
+                    foreach (ISubject<TElement> s in map.Values)
                     {
                         s.OnError(exception);
                     }

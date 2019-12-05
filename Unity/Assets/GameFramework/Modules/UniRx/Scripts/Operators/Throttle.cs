@@ -41,7 +41,7 @@ namespace UniRx.Operators
             public IDisposable Run()
             {
                 cancelable = new SerialDisposable();
-                var subscription = parent.source.Subscribe(this);
+                IDisposable subscription = parent.source.Subscribe(this);
 
                 return StableCompositeDisposable.Create(cancelable, subscription);
             }
@@ -69,7 +69,7 @@ namespace UniRx.Operators
                     currentid = id;
                 }
 
-                var d = new SingleAssignmentDisposable();
+                SingleAssignmentDisposable d = new SingleAssignmentDisposable();
                 cancelable.Disposable = d;
                 d.Disposable = parent.scheduler.Schedule(parent.dueTime, () => OnNext(currentid));
             }

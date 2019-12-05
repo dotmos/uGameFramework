@@ -28,7 +28,7 @@ namespace UniRx.Operators
             }
             else
             {
-                var xs = sourcesEnumerable as IList<IObservable<T>>;
+                IList<IObservable<T>> xs = sourcesEnumerable as IList<IObservable<T>>;
                 if (xs == null)
                 {
                     xs = new List<IObservable<T>>(sourcesEnumerable); // materialize observables
@@ -66,11 +66,11 @@ namespace UniRx.Operators
                 completedCount = 0;
                 values = new T[length];
 
-                var subscriptions = new IDisposable[length];
+                IDisposable[] subscriptions = new IDisposable[length];
                 for (int index = 0; index < length; index++)
                 {
-                    var source = sources[index];
-                    var observer = new WhenAllCollectionObserver(this, index);
+                    IObservable<T> source = sources[index];
+                    WhenAllCollectionObserver observer = new WhenAllCollectionObserver(this, index);
                     subscriptions[index] = source.Subscribe(observer);
                 }
 
@@ -174,11 +174,11 @@ namespace UniRx.Operators
                 completedCount = 0;
                 values = new T[length];
 
-                var subscriptions = new IDisposable[length];
+                IDisposable[] subscriptions = new IDisposable[length];
                 for (int index = 0; index < length; index++)
                 {
-                    var source = sources[index];
-                    var observer = new WhenAllCollectionObserver(this, index);
+                    IObservable<T> source = sources[index];
+                    WhenAllCollectionObserver observer = new WhenAllCollectionObserver(this, index);
                     subscriptions[index] = source.Subscribe(observer);
                 }
 
@@ -279,7 +279,7 @@ namespace UniRx.Operators
             }
             else
             {
-                var xs = sourcesEnumerable as IList<IObservable<Unit>>;
+                IList<IObservable<Unit>> xs = sourcesEnumerable as IList<IObservable<Unit>>;
                 if (xs == null)
                 {
                     xs = new List<IObservable<Unit>>(sourcesEnumerable); // materialize observables
@@ -315,11 +315,11 @@ namespace UniRx.Operators
 
                 completedCount = 0;
 
-                var subscriptions = new IDisposable[length];
+                IDisposable[] subscriptions = new IDisposable[length];
                 for (int index = 0; index < sources.Length; index++)
                 {
-                    var source = sources[index];
-                    var observer = new WhenAllCollectionObserver(this);
+                    IObservable<Unit> source = sources[index];
+                    WhenAllCollectionObserver observer = new WhenAllCollectionObserver(this);
                     subscriptions[index] = source.Subscribe(observer);
                 }
 
@@ -412,11 +412,11 @@ namespace UniRx.Operators
 
                 completedCount = 0;
 
-                var subscriptions = new IDisposable[length];
+                IDisposable[] subscriptions = new IDisposable[length];
                 for (int index = 0; index < length; index++)
                 {
-                    var source = sources[index];
-                    var observer = new WhenAllCollectionObserver(this);
+                    IObservable<Unit> source = sources[index];
+                    WhenAllCollectionObserver observer = new WhenAllCollectionObserver(this);
                     subscriptions[index] = source.Subscribe(observer);
                 }
 

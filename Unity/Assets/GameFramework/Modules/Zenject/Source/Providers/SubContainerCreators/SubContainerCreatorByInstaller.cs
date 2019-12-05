@@ -30,9 +30,9 @@ namespace Zenject
 
         public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
         {
-            var subContainer = _container.CreateSubContainer();
+            DiContainer subContainer = _container.CreateSubContainer();
 
-            var installer = (InstallerBase)subContainer.InstantiateExplicit(
+            InstallerBase installer = (InstallerBase)subContainer.InstantiateExplicit(
                 _installerType, args.Concat(_extraArgs).ToList());
             installer.InstallBindings();
 

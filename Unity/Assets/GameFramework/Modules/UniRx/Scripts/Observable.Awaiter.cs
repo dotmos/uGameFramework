@@ -63,14 +63,14 @@ namespace UniRx
 
         static AsyncSubject<TSource> RunAsync<TSource>(IObservable<TSource> source, CancellationToken cancellationToken)
         {
-            var s = new AsyncSubject<TSource>();
+            AsyncSubject<TSource> s = new AsyncSubject<TSource>();
 
             if (cancellationToken.IsCancellationRequested)
             {
                 return Cancel(s, cancellationToken);
             }
 
-            var d = source.Subscribe(s);
+            IDisposable d = source.Subscribe(s);
 
             if (cancellationToken.CanBeCanceled)
             {
@@ -82,15 +82,15 @@ namespace UniRx
 
         static AsyncSubject<TSource> RunAsync<TSource>(IConnectableObservable<TSource> source, CancellationToken cancellationToken)
         {
-            var s = new AsyncSubject<TSource>();
+            AsyncSubject<TSource> s = new AsyncSubject<TSource>();
 
             if (cancellationToken.IsCancellationRequested)
             {
                 return Cancel(s, cancellationToken);
             }
 
-            var d = source.Subscribe(s);
-            var c = source.Connect();
+            IDisposable d = source.Subscribe(s);
+            IDisposable c = source.Connect();
 
             if (cancellationToken.CanBeCanceled)
             {
@@ -113,7 +113,7 @@ namespace UniRx
             // e.g. when CancellationToken.None is provided to the RunAsync overloads.
             //
 
-            var ctr = token.Register(() =>
+            CancellationTokenRegistration ctr = token.Register(() =>
             {
                 subscription.Dispose();
                 Cancel(subject, token);

@@ -59,7 +59,7 @@ namespace UserInterface {
             if (dataCellObject.callback == null) {
                 return;
             }
-            var val = dataCellObject.dropdownValues[index];
+            string val = dataCellObject.dropdownValues[index];
             dataCellObject.callback(val);
             dataCellObject.value = val;
         }

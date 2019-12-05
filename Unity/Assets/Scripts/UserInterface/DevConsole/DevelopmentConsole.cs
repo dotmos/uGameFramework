@@ -121,7 +121,7 @@ namespace UserInterface {
                 }
             }).AddTo(this);
 
-            var cmdGetMainScript = new Service.Scripting.Commands.GetMainScriptCommand();
+            Service.Scripting.Commands.GetMainScriptCommand cmdGetMainScript = new Service.Scripting.Commands.GetMainScriptCommand();
             Publish(cmdGetMainScript);
             cmdGetMainScript.result.Options.DebugPrint = (inputString) => {
                 AddToText(inputString);
@@ -146,14 +146,14 @@ namespace UserInterface {
         }
 
         void GetAutocompleteProposal() {
-            var proposal = scripting.AutocompleteProposals(GetCurrentText(), consoleInput.caretPosition);
+            Proposal proposal = scripting.AutocompleteProposals(GetCurrentText(), consoleInput.caretPosition);
 
             if (proposal == null || proposal.proposalElements == null) {
                 // no proposals
                 autoCompleteWindow.ClearItems();
                 return;
             }
-            var proposals = proposal.proposalElements;
+            List<ProposalElement> proposals = proposal.proposalElements;
 
             if (proposals.Count > 0) {
                 autoCompleteWindow.UpdateList(proposal);
@@ -197,7 +197,7 @@ namespace UserInterface {
                 gameObject.SetActive(false);
             } else if (input.ToLower().StartsWith("save")) {
                 // save current history to file
-                var splits = input.Split(' ');
+                string[] splits = input.Split(' ');
                 if (splits.Length < 2) {
                     AddToText("'save' needs a path (relative to the scripting folder)\ne.g.: save test.lua");
                 } else {
@@ -213,7 +213,7 @@ namespace UserInterface {
                 }
             } else if (input.ToLower().StartsWith("load")) {
                 // save current history to file
-                var splits = input.Split(' ');
+                string[] splits = input.Split(' ');
                 if (splits.Length < 2) {
                     AddToText("'load' needs a path (relative to the scripting folder)\ne.g.: load test.lua");
                 } else {
@@ -222,7 +222,7 @@ namespace UserInterface {
                     if (path.StartsWith("/") || path.StartsWith("\\")) {
                         path = path.Substring(1);
                     }
-                    var result = scripting.ExecuteFileToMainScript(scriptingPath + "/" + path);
+                    string result = scripting.ExecuteFileToMainScript(scriptingPath + "/" + path);
                     if (result != "void") {
                         AddToText(result);
                     } else {
@@ -231,7 +231,7 @@ namespace UserInterface {
                 }
             } else if (input.ToLower().StartsWith("dir")) {
                 // save current history to file
-                var splits = input.Split(' ');
+                string[] splits = input.Split(' ');
 
                 string path = splits.Length < 2 ? "" : (splits[1].StartsWith("/") ? splits[1] : splits[1].Substring(1));
                 string filePath = scriptingPath + path;
@@ -240,13 +240,13 @@ namespace UserInterface {
                     if (!Directory.Exists(filePath)) {
                         AddToText("Directory " + path + " does not exist");
                     } else {
-                        var dir = Directory.GetFiles(filePath);
+                        string[] dir = Directory.GetFiles(filePath);
 
                         AddToText("Directory:" + (path == "" ? "/" : path));
                         if (dir.Length == 0) {
                             AddToText("NO FILES (in folder" + filePath + ")");
                         } else {
-                            foreach (var entry in dir) {
+                            foreach (string entry in dir) {
                                 AddToText(entry.Replace(scriptingPath, "").Substring(1));
                             }
                         }

@@ -116,7 +116,7 @@ namespace Service.GameStateService
         /// <param name="priority"></param>
         /// <param name="exeType"></param>
         public void AddTick(Action act, int priority=Priorities.PRIORITY_DEFAULT, ExecutionDomain exeType=ExecutionDomain.unknown) {
-            var envelope = new TickEnvelope() {
+            TickEnvelope envelope = new TickEnvelope() {
                 action = act,
                 priority = priority,
                 executionDomain = exeType
@@ -132,7 +132,7 @@ namespace Service.GameStateService
         /// <param name="func"></param>
         /// <param name="priority"></param>
         public void AddTick(Func<bool> func,int priority = Priorities.PRIORITY_DEFAULT, ExecutionDomain exeType = ExecutionDomain.unknown) {
-            var envelope = new TickEnvelope() {
+            TickEnvelope envelope = new TickEnvelope() {
                 func = func,
                 priority = priority,
                 executionDomain = exeType
@@ -157,7 +157,7 @@ namespace Service.GameStateService
 
             // using this kind of execution cause I think this is the fastest way
             for (int i = OnTick.Count - 1; i >= 0; i--) {
-                var currentEnvelope = OnTick[i];
+                TickEnvelope currentEnvelope = OnTick[i];
                 if (currentEnvelope.action != null) {
                     // execute the action
                     currentEnvelope.action();

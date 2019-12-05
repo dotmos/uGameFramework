@@ -74,7 +74,7 @@ namespace UserInterface {
                 return null;
             }
 
-            var dataTable = new DataTable();
+            DataTable dataTable = new DataTable();
 
             // root object? init history
             if (history == null) {
@@ -88,7 +88,7 @@ namespace UserInterface {
             List<DataCellObject> header = new List<DataCellObject>();
             dataTable.rows.Add(header);
             for (int rowNr=0; rowNr < list.Count; rowNr++) {
-                var rowObject = list[rowNr];
+                object rowObject = list[rowNr];
                 // try to convert this object if there is an converter registered(e.g. UID)
                 rowObject = devui.DataBrowserConvertObject(rowObject);
                 List<DataCellObject> rowDataList = new List<DataCellObject>();
@@ -99,7 +99,7 @@ namespace UserInterface {
                         Debug.Log(varName + " : " + varObj);
                         if (rowNr == 0) {
                             // define the columns in the first row
-                            var headerElement = new ColumnDefinition() {
+                            ColumnDefinition headerElement = new ColumnDefinition() {
                                 width = meta == null ? 100.0f : meta.width,
                                 colName = (meta == null || meta.visualName == null) ? varName : meta.visualName
                             };
@@ -136,7 +136,7 @@ namespace UserInterface {
                         else */
                         if (varObj == null || MemoryBrowser.IsSimple(varObj.GetType()) || varObj is Vector2 || varObj is Vector3) {
                             // SIMPLE TYPE-HANDLING (int,string,enums,bool,...)
-                            var rowElem = new DataCellObject() {
+                            DataCellObject rowElem = new DataCellObject() {
                                 value = varObj,
                                 callback = (newVal) => {
                                     if (newVal == null) {
@@ -150,7 +150,7 @@ namespace UserInterface {
 
                             };
 
-                            var onlyread = varObj == null || (meta != null && meta.type == DataBrowser.UIDBInclude.Type.onlyread);
+                            bool onlyread = varObj == null || (meta != null && meta.type == DataBrowser.UIDBInclude.Type.onlyread);
 
                             if (onlyread) {
                                 rowElem.cellType = DataCellObject.CellType.Output;
@@ -176,10 +176,10 @@ namespace UserInterface {
                                 string cellTitle = (meta != null && meta.type == DataBrowser.UIDBInclude.Type.subdata)
                                                 ? "( "+(varObj.ToString() )+" )"
                                                 : "LINK";
-                                var rowElem = new DataCellObject() {
+                                DataCellObject rowElem = new DataCellObject() {
                                     value = cellTitle,
                                     callback = (newVal) => {
-                                        var objList = new ArrayList() { varObj };
+                                        ArrayList objList = new ArrayList() { varObj };
                                         Debug.Log("Go to REF:" + varObj.ToString());
                                         history.Add(new HistoryElement() { historyTitle = title, objectList = list });
                                         _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
@@ -196,7 +196,7 @@ namespace UserInterface {
                             } else if (type == MemoryBrowser.ElementType.listType) {
 
                                 // REFERENCE-LINK: LIST
-                                var theList = (IList)varObj;
+                                IList theList = (IList)varObj;
 
 
 
@@ -204,8 +204,8 @@ namespace UserInterface {
                                                 ? "( "+( OutputListAsStrings(theList) )+" )"
                                                 : "List[" + theList.Count + "]";
 
-                                
-                                var rowElem = new DataCellObject() {
+
+                                DataCellObject rowElem = new DataCellObject() {
                                     value = cellTitle,
                                     callback = (newVal) => {
                                         Debug.Log("Cannot go into empty lists");
@@ -234,7 +234,7 @@ namespace UserInterface {
                 traverseObj(rowObject,rowDataList);
 
                 Func<int,List<DataCellObject>> CreateEmptyLine = (amount)=>{
-                    var result = new List<DataCellObject>(amount);
+                    List<DataCellObject> result = new List<DataCellObject>(amount);
                     for (int i = 0; i < amount; i++) {
                         result.Add(new DataCellObject() {
                             cellType = DataCellObject.CellType.Empty
@@ -260,7 +260,7 @@ namespace UserInterface {
             // list for events to show new data
             _eventService.OnEvent<Service.DevUIService.Events.NewDataTable>().Subscribe(data => {
                 // TODO: Clear the table?
-                var dataTable = CreateDataTableFromList(data.tableTitle,data.objectList);
+                DataTable dataTable = CreateDataTableFromList(data.tableTitle,data.objectList);
                 SetupData(dataTable);
             }).AddTo(this);
 

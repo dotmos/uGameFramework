@@ -25,7 +25,7 @@ namespace UniRx
 
             public IDisposable Schedule(Action action)
             {
-                var d = new BooleanDisposable();
+                BooleanDisposable d = new BooleanDisposable();
 
                 System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                 {
@@ -116,7 +116,7 @@ namespace UniRx
                 {
                     _action = Stubs.Nop;
 
-                    var timer = default(System.Threading.Timer);
+                    System.Threading.Timer timer = default(System.Threading.Timer);
 
                     lock (s_timers)
                     {
@@ -172,7 +172,7 @@ namespace UniRx
 
                 public void Dispose()
                 {
-                    var timer = default(System.Threading.Timer);
+                    System.Threading.Timer timer = default(System.Threading.Timer);
 
                     lock (s_timers)
                     {

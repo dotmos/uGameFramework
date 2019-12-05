@@ -24,7 +24,7 @@ namespace Zenject
 
         PoolableInfo CreatePoolableInfo(IPoolable poolable, List<ModestTree.Util.ValuePair<Type, int>> priorities)
         {
-            var match = priorities.Where(x => poolable.GetType().DerivesFromOrEqual(x.First)).Select(x => (int?)(x.Second)).SingleOrDefault();
+            int? match = priorities.Where(x => poolable.GetType().DerivesFromOrEqual(x.First)).Select(x => (int?)(x.Second)).SingleOrDefault();
             int priority = match.HasValue ? match.Value : 0;
 
             return new PoolableInfo(poolable, priority);

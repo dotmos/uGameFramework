@@ -277,8 +277,8 @@ namespace Zenject
 
             ///////////// Complex conditions example
 
-            var foo1 = new Foo();
-            var foo2 = new Foo();
+            Foo foo1 = new Foo();
+            Foo foo2 = new Foo();
 
             Container.Bind<Bar>().WithId("Bar1").AsCached();
             Container.Bind<Bar>().WithId("Bar2").AsCached();
@@ -347,7 +347,7 @@ namespace Zenject
             ///////////// Manual Use of Container
 
             // This will fill in any parameters marked as [Inject] and also call any [Inject] methods
-            var foo = new Foo();
+            Foo foo = new Foo();
             Container.Inject(foo);
 
             // Return an instance for IFoo, using the bindings that have been added previously
@@ -362,7 +362,7 @@ namespace Zenject
             // Note that in this case simply calling Resolve<IFoo> will trigger an exception
             Container.BindInstance(new Foo());
             Container.BindInstance(new Foo());
-            var foos = Container.ResolveAll<IFoo>();
+            System.Collections.Generic.List<IFoo> foos = Container.ResolveAll<IFoo>();
 
             // Create a new instance of Foo and inject on any of its members
             // And fill in any constructor parameters Foo might have

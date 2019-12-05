@@ -43,7 +43,7 @@ namespace UniRx
             if (first == null) throw new ArgumentNullException("first");
             if (seconds == null) throw new ArgumentNullException("seconds");
 
-            var concat = first as ConcatObservable<TSource>;
+            ConcatObservable<TSource> concat = first as ConcatObservable<TSource>;
             if (concat != null)
             {
                 return concat.Combine(seconds);
@@ -259,7 +259,7 @@ namespace UniRx
         /// </summary>
         public static IObservable<T[]> WhenAll<T>(this IEnumerable<IObservable<T>> sources)
         {
-            var array = sources as IObservable<T>[];
+            IObservable<T>[] array = sources as IObservable<T>[];
             if (array != null) return WhenAll(array);
 
             return new WhenAllObservable<T>(sources);
@@ -270,7 +270,7 @@ namespace UniRx
         /// </summary>
         public static IObservable<Unit> WhenAll(this IEnumerable<IObservable<Unit>> sources)
         {
-            var array = sources as IObservable<Unit>[];
+            IObservable<Unit>[] array = sources as IObservable<Unit>[];
             if (array != null) return WhenAll(array);
 
             return new WhenAllObservable(sources);
@@ -303,7 +303,7 @@ namespace UniRx
 
         public static IObservable<T> StartWith<T>(this IObservable<T> source, IScheduler scheduler, IEnumerable<T> values)
         {
-            var array = values as T[];
+            T[] array = values as T[];
             if (array == null)
             {
                 array = values.ToArray();

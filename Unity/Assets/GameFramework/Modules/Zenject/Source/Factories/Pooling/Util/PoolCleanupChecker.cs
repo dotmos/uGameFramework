@@ -27,7 +27,7 @@ namespace Zenject
 
         public void LateDispose()
         {
-            foreach (var pool in _poolFactories)
+            foreach (IMemoryPool pool in _poolFactories)
             {
                 if (!_ignoredPools.Contains(pool.GetType()))
                 {

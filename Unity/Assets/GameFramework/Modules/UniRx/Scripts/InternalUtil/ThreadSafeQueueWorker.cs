@@ -27,11 +27,11 @@ namespace UniRx.InternalUtil
                     // Ensure Capacity
                     if (waitingList.Length == waitingListCount)
                     {
-                        var newLength = waitingListCount * 2;
+                        int newLength = waitingListCount * 2;
                         if ((uint)newLength > MaxArrayLength) newLength = MaxArrayLength;
 
-                        var newArray = new Action<object>[newLength];
-                        var newArrayState = new object[newLength];
+                        Action<object>[] newArray = new Action<object>[newLength];
+                        object[] newArrayState = new object[newLength];
                         Array.Copy(waitingList, newArray, waitingListCount);
                         Array.Copy(waitingStates, newArrayState, waitingListCount);
                         waitingList = newArray;
@@ -46,11 +46,11 @@ namespace UniRx.InternalUtil
                     // Ensure Capacity
                     if (actionList.Length == actionListCount)
                     {
-                        var newLength = actionListCount * 2;
+                        int newLength = actionListCount * 2;
                         if ((uint)newLength > MaxArrayLength) newLength = MaxArrayLength;
 
-                        var newArray = new Action<object>[newLength];
-                        var newArrayState = new object[newLength];
+                        Action<object>[] newArray = new Action<object>[newLength];
+                        object[] newArrayState = new object[newLength];
                         Array.Copy(actionList, newArray, actionListCount);
                         Array.Copy(actionStates, newArrayState, actionListCount);
                         actionList = newArray;
@@ -74,8 +74,8 @@ namespace UniRx.InternalUtil
 
             for (int i = 0; i < actionListCount; i++)
             {
-                var action = actionList[i];
-                var state = actionStates[i];
+                Action<object> action = actionList[i];
+                object state = actionStates[i];
                 try
                 {
                     action(state);
@@ -96,8 +96,8 @@ namespace UniRx.InternalUtil
             {
                 dequing = false;
 
-                var swapTempActionList = actionList;
-                var swapTempActionStates = actionStates;
+                Action<object>[] swapTempActionList = actionList;
+                object[] swapTempActionStates = actionStates;
 
                 actionListCount = waitingListCount;
                 actionList = waitingList;

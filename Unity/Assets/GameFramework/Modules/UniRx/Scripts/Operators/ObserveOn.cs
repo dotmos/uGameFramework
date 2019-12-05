@@ -17,7 +17,7 @@ namespace UniRx.Operators
 
         protected override IDisposable SubscribeCore(IObserver<T> observer, IDisposable cancel)
         {
-            var queueing = scheduler as ISchedulerQueueing;
+            ISchedulerQueueing queueing = scheduler as ISchedulerQueueing;
             if (queueing == null)
             {
                 return new ObserveOn(this, observer, cancel).Run();
@@ -64,7 +64,7 @@ namespace UniRx.Operators
             {
                 isDisposed = false;
 
-                var sourceDisposable = parent.source.Subscribe(this);
+                IDisposable sourceDisposable = parent.source.Subscribe(this);
 
                 return StableCompositeDisposable.Create(sourceDisposable, Disposable.Create(() =>
                 {
@@ -99,7 +99,7 @@ namespace UniRx.Operators
 
             private void QueueAction(Notification<T> data)
             {
-                var action = new SchedulableAction { data = data };
+                SchedulableAction action = new SchedulableAction { data = data };
                 lock (actions)
                 {
                     if (isDisposed) return;
@@ -116,7 +116,7 @@ namespace UniRx.Operators
                     if (actions.Count == 0 || isDisposed)
                         return;
 
-                    var action = actions.First.Value;
+                    SchedulableAction action = actions.First.Value;
 
                     if (action.IsScheduled)
                         return;
@@ -172,7 +172,7 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var sourceDisposable = parent.source.Subscribe(this);
+                IDisposable sourceDisposable = parent.source.Subscribe(this);
                 return StableCompositeDisposable.Create(sourceDisposable, isDisposed);
             }
 

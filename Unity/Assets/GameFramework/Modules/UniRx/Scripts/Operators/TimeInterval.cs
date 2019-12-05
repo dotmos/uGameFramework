@@ -33,8 +33,8 @@ namespace UniRx.Operators
 
             public override void OnNext(T value)
             {
-                var now = parent.scheduler.Now;
-                var span = now.Subtract(lastTime);
+                DateTimeOffset now = parent.scheduler.Now;
+                TimeSpan span = now.Subtract(lastTime);
                 lastTime = now;
 
                 base.observer.OnNext(new UniRx.TimeInterval<T>(value, span));

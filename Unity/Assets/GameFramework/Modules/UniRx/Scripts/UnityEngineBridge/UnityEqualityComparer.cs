@@ -29,7 +29,7 @@ namespace UniRx
 
         public static IEqualityComparer<T> GetDefault<T>()
         {
-            var t = RuntimeTypeHandlerCache<T>.TypeHandle;
+            RuntimeTypeHandle t = RuntimeTypeHandlerCache<T>.TypeHandle;
 
             if (t.Equals(vector2Type)) return (IEqualityComparer<T>)UnityEqualityComparer.Vector2;
             if (t.Equals(vector3Type)) return (IEqualityComparer<T>)UnityEqualityComparer.Vector3;

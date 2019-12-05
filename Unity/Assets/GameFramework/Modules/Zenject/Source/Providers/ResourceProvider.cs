@@ -46,7 +46,7 @@ namespace Zenject
 
             if (_matchSingle)
             {
-                var obj = Resources.Load(_resourcePath, _resourceType);
+                UnityEngine.Object obj = Resources.Load(_resourcePath, _resourceType);
 
                 Assert.That(obj != null,
                     "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);
@@ -56,7 +56,7 @@ namespace Zenject
                 return new List<object>() { obj };
             }
 
-            var objects = Resources.LoadAll(_resourcePath, _resourceType).Cast<object>().ToList();
+            List<object> objects = Resources.LoadAll(_resourcePath, _resourceType).Cast<object>().ToList();
 
             Assert.That(!objects.IsEmpty(),
                 "Could not find resource at path '{0}' with type '{1}'", _resourcePath, _resourceType);

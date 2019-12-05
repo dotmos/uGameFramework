@@ -43,9 +43,9 @@ namespace ModestTree
         // TODO: Is it possible to do this on WSA?
         public static bool IsAssignableToGenericType(Type givenType, Type genericType)
         {
-            var interfaceTypes = givenType.Interfaces();
+            Type[] interfaceTypes = givenType.Interfaces();
 
-            foreach (var it in interfaceTypes)
+            foreach (Type it in interfaceTypes)
             {
                 if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
                 {
@@ -243,9 +243,9 @@ namespace ModestTree
         // Returns name without generic arguments
         public static string GetSimpleName(this Type type)
         {
-            var name = type.Name;
+            string name = type.Name;
 
-            var quoteIndex = name.IndexOf("`");
+            int quoteIndex = name.IndexOf("`");
 
             if (quoteIndex == -1)
             {
@@ -265,7 +265,7 @@ namespace ModestTree
 
             yield return type.BaseType();
 
-            foreach (var ancestor in type.BaseType().GetParentTypes())
+            foreach (Type ancestor in type.BaseType().GetParentTypes())
             {
                 yield return ancestor;
             }
@@ -296,14 +296,14 @@ namespace ModestTree
         // Returns all instance fields, including private and public and also those in base classes
         public static IEnumerable<FieldInfo> GetAllInstanceFields(this Type type)
         {
-            foreach (var fieldInfo in type.DeclaredInstanceFields())
+            foreach (FieldInfo fieldInfo in type.DeclaredInstanceFields())
             {
                 yield return fieldInfo;
             }
 
             if (type.BaseType() != null && type.BaseType() != typeof(object))
             {
-                foreach (var fieldInfo in type.BaseType().GetAllInstanceFields())
+                foreach (FieldInfo fieldInfo in type.BaseType().GetAllInstanceFields())
                 {
                     yield return fieldInfo;
                 }
@@ -313,14 +313,14 @@ namespace ModestTree
         // Returns all instance properties, including private and public and also those in base classes
         public static IEnumerable<PropertyInfo> GetAllInstanceProperties(this Type type)
         {
-            foreach (var propInfo in type.DeclaredInstanceProperties())
+            foreach (PropertyInfo propInfo in type.DeclaredInstanceProperties())
             {
                 yield return propInfo;
             }
 
             if (type.BaseType() != null && type.BaseType() != typeof(object))
             {
-                foreach (var propInfo in type.BaseType().GetAllInstanceProperties())
+                foreach (PropertyInfo propInfo in type.BaseType().GetAllInstanceProperties())
                 {
                     yield return propInfo;
                 }
@@ -330,14 +330,14 @@ namespace ModestTree
         // Returns all instance methods, including private and public and also those in base classes
         public static IEnumerable<MethodInfo> GetAllInstanceMethods(this Type type)
         {
-            foreach (var methodInfo in type.DeclaredInstanceMethods())
+            foreach (MethodInfo methodInfo in type.DeclaredInstanceMethods())
             {
                 yield return methodInfo;
             }
 
             if (type.BaseType() != null && type.BaseType() != typeof(object))
             {
-                foreach (var methodInfo in type.BaseType().GetAllInstanceMethods())
+                foreach (MethodInfo methodInfo in type.BaseType().GetAllInstanceMethods())
                 {
                     yield return methodInfo;
                 }
@@ -359,7 +359,7 @@ namespace ModestTree
 
         static string PrettyNameInternal(Type type)
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
             if (type.IsNested)
             {
@@ -374,11 +374,11 @@ namespace ModestTree
             }
             else
             {
-                var name = GetCSharpTypeName(type.Name);
+                string name = GetCSharpTypeName(type.Name);
 
                 if (type.IsGenericType())
                 {
-                    var quoteIndex = name.IndexOf('`');
+                    int quoteIndex = name.IndexOf('`');
 
                     if (quoteIndex != -1)
                     {
@@ -393,7 +393,7 @@ namespace ModestTree
 
                     if (type.IsGenericTypeDefinition())
                     {
-                        var numArgs = type.GenericArguments().Count();
+                        int numArgs = type.GenericArguments().Count();
 
                         if (numArgs > 0)
                         {

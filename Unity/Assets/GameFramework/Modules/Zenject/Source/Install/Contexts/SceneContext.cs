@@ -85,7 +85,7 @@ namespace Zenject
         {
             get
             {
-                var result = new List<string>();
+                List<string> result = new List<string>();
                 result.AddRange(_parentContractNames);
                 return result;
             }
@@ -144,13 +144,13 @@ namespace Zenject
 
         IEnumerable<DiContainer> GetParentContainers()
         {
-            var parentContractNames = ParentContractNames;
+            IEnumerable<string> parentContractNames = ParentContractNames;
 
             if (parentContractNames.IsEmpty())
             {
                 if (ParentContainers != null)
                 {
-                    var tempParentContainer = ParentContainers;
+                    IEnumerable<DiContainer> tempParentContainer = ParentContainers;
 
                     // Always reset after using it - it is only used to pass the reference
                     // between scenes via ZenjectSceneLoader
@@ -165,7 +165,7 @@ namespace Zenject
             Assert.IsNull(ParentContainers,
                 "Scene cannot have both a parent scene context name set and also an explicit parent container given");
 
-            var parentContainers = UnityUtil.AllLoadedScenes
+            List<DiContainer> parentContainers = UnityUtil.AllLoadedScenes
                 .Except(gameObject.scene)
                 .SelectMany(scene => scene.GetRootGameObjects())
                 .SelectMany(root => root.GetComponentsInChildren<SceneContext>())
@@ -211,7 +211,7 @@ namespace Zenject
 
             Assert.IsNull(_container);
 
-            var parents = GetParentContainers();
+            IEnumerable<DiContainer> parents = GetParentContainers();
             Assert.That(!parents.IsEmpty());
             Assert.That(parents.All(x => x.IsValidating == parents.First().IsValidating));
 
@@ -241,14 +241,14 @@ namespace Zenject
             // so that it doesn't inject on the game object twice
             // InitialComponentsInjecter will also guarantee that any component that is injected into
             // another component has itself been injected
-            var injectableMonoBehaviours = new List<MonoBehaviour>();
+            List<MonoBehaviour> injectableMonoBehaviours = new List<MonoBehaviour>();
             GetInjectableMonoBehaviours(injectableMonoBehaviours);
-            foreach (var instance in injectableMonoBehaviours)
+            foreach (MonoBehaviour instance in injectableMonoBehaviours)
             {
                 _container.QueueForInject(instance);
             }
 
-            foreach (var decoratorContext in _decoratorContexts)
+            foreach (SceneDecoratorContext decoratorContext in _decoratorContexts)
             {
                 decoratorContext.Initialize(_container);
             }
@@ -297,7 +297,7 @@ namespace Zenject
             // Add to registry first and remove from registry last
             _container.BindExecutionOrder<SceneContextRegistryAdderAndRemover>(-1);
 
-            foreach (var decoratorContext in _decoratorContexts)
+            foreach (SceneDecoratorContext decoratorContext in _decoratorContexts)
             {
                 decoratorContext.InstallDecoratorSceneBindings();
             }
@@ -318,14 +318,14 @@ namespace Zenject
 
             // Always install the installers last so they can be injected with
             // everything above
-            foreach (var decoratorContext in _decoratorContexts)
+            foreach (SceneDecoratorContext decoratorContext in _decoratorContexts)
             {
                 decoratorContext.InstallDecoratorInstallers();
             }
 
             InstallInstallers();
 
-            foreach (var decoratorContext in _decoratorContexts)
+            foreach (SceneDecoratorContext decoratorContext in _decoratorContexts)
             {
                 decoratorContext.InstallLateDecoratorInstallers();
             }
@@ -340,7 +340,7 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            var scene = this.gameObject.scene;
+            Scene scene = this.gameObject.scene;
 
             ZenUtilInternal.AddStateMachineBehaviourAutoInjectersInScene(scene);
             ZenUtilInternal.GetInjectableMonoBehavioursInScene(scene, monoBehaviours);

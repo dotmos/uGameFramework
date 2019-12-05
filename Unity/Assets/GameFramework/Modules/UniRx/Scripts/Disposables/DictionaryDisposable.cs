@@ -94,7 +94,7 @@ namespace UniRx
         {
             lock (inner)
             {
-                foreach (var item in inner)
+                foreach (KeyValuePair<TKey, TValue> item in inner)
                 {
                     item.Value.Dispose();
                 }
@@ -109,7 +109,7 @@ namespace UniRx
                 TValue oldValue;
                 if (inner.TryGetValue(key, out oldValue))
                 {
-                    var isSuccessRemove = inner.Remove(key);
+                    bool isSuccessRemove = inner.Remove(key);
                     if (isSuccessRemove)
                     {
                         oldValue.Dispose();
@@ -244,7 +244,7 @@ namespace UniRx
                 if (isDisposed) return;
                 isDisposed = true;
 
-                foreach (var item in inner)
+                foreach (KeyValuePair<TKey, TValue> item in inner)
                 {
                     item.Value.Dispose();
                 }

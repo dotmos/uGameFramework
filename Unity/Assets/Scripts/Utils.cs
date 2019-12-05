@@ -48,7 +48,7 @@ public class UtilsObservable
 {
     public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
         return Observable.Create<bool>((observer) => {
-            var async = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+            AsyncOperation async = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             async.completed += (val) => {
                 if(makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 observer.OnNext(true);
@@ -61,7 +61,7 @@ public class UtilsObservable
     public static IObservable<bool> UnloadScene(string sceneName) {
         return Observable.Create<bool>((observer) => {
             int idx = SceneManager.GetSceneByName(sceneName).buildIndex;
-            var async = SceneManager.UnloadSceneAsync(idx);
+            AsyncOperation async = SceneManager.UnloadSceneAsync(idx);
             async.completed += (val) => {
                 observer.OnNext(true);
                 observer.OnCompleted();
@@ -423,7 +423,7 @@ public class GenericPool {
 
     public T Acquire<T>() where T:new() {
         if (pools.TryGetValue(typeof(T),out SimplePool<object> pool)) {
-            var result = (T)pool.Acquire();
+            T result = (T)pool.Acquire();
             return result;
         } else {
             // no pool for this type? create one
@@ -434,7 +434,7 @@ public class GenericPool {
                 createFunc = () => { return new T(); };
             }
 
-            var newPool = new SimplePool<object>(createFunc, maxElementsOnStack);
+            SimplePool<object> newPool = new SimplePool<object>(createFunc, maxElementsOnStack);
 
             // add some default release-methods to clear list-types on release
             if (typeof(T).IsAssignableFrom(typeof(IList))) {
@@ -449,14 +449,14 @@ public class GenericPool {
             }
 
             pools[typeof(T)] = newPool;
-            var newObj = newPool.Acquire();
+            object newObj = newPool.Acquire();
             return (T)newObj;
         }
     }
 
     public void Release(params object[] releaseObjs) {
         for (int i = releaseObjs.Length - 1; i >= 0; i--) {
-            var releaseObj = releaseObjs[i];
+            object releaseObj = releaseObjs[i];
             if (pools.TryGetValue(releaseObj.GetType(), out SimplePool<object> pool)) {
                 pool.Release(releaseObj);
             } else {
@@ -470,7 +470,7 @@ public class GenericPool {
     /// Clear all pools with released objects
     /// </summary>
     public void ClearPool() {
-        foreach (var pool in pools.Values) {
+        foreach (SimplePool<object> pool in pools.Values) {
             pool.Dispose(false);
         }
         pools.Clear();
@@ -532,7 +532,7 @@ public class ListPool<T>  {
 
     public ListPool(int initialAmount=0, int initialCapacity=0) {
         for (int i = 0; i < initialAmount; i++) {
-            var listElem = new List<T>(initialCapacity);
+            List<T> listElem = new List<T>(initialCapacity);
             pool.Add(listElem);
         }
     }
@@ -560,7 +560,7 @@ public class ListPool<T>  {
     public void Release(params List<T>[] releasedList) {
         lock (pool) {
             for (int i = releasedList.Length - 1; i >= 0; i--) {
-                var list = releasedList[i];
+                List<T> list = releasedList[i];
                 list.Clear();
                 pool.Add(list);
             }
@@ -680,18 +680,18 @@ public class SimplePool<T>  where T : class {
     public void Dispose(bool includingAcquiredObjects) {
         if (onDispose != null) {
             while (_stack.Count > 0) {
-                var obj = _stack.Pop();
+                T obj = _stack.Pop();
                 onDispose(obj);
             }
 
             if (includingAcquiredObjects) {
-                foreach (var weakRef in acquiredObjects) {
+                foreach (WeakReference<T> weakRef in acquiredObjects) {
                     if (weakRef.TryGetTarget(out T obj)){
                         onDispose(obj);
                     }
                 }
                 while (_stack.Count > 0) {
-                    var obj = _stack.Pop();
+                    T obj = _stack.Pop();
                     onDispose(obj);
                 }
 
@@ -714,7 +714,7 @@ public static partial class UtilsExtensions
     }
     public static IObservable<T> ToObservable<T>(this Func<T> func) {
         return Observable.Create<T>((observer) => {
-            var result = func();
+            T result = func();
             observer.OnNext(result);
             observer.OnCompleted();
             return null;
@@ -722,7 +722,7 @@ public static partial class UtilsExtensions
     }
 
     public static float NextFloat(this System.Random rand,float from,float to) {
-        var r = rand.Next((int)(from * 1000), (int)(to * 1000)) / 1000.0f;
+        float r = rand.Next((int)(from * 1000), (int)(to * 1000)) / 1000.0f;
         return r;
     }
 
@@ -783,7 +783,7 @@ public static partial class UtilsExtensions
     public static void ShallowCopyFrom<T, S>(this Dictionary<T,S> dest, Dictionary<T, S> data) {
         int amount = data.Count;
 
-        foreach (var elem in data) {
+        foreach (KeyValuePair<T, S> elem in data) {
             dest[elem.Key] = elem.Value;
         }
     }
@@ -791,7 +791,7 @@ public static partial class UtilsExtensions
     public static void ShallowCopyFrom<T, S>(this ObservableDictionary<T,S> dest, ObservableDictionary<T, S> data) {
         int amount = data.Count;
 
-        foreach (var elem in data) {
+        foreach (KeyValuePair<T, S> elem in data) {
             dest[elem.Key] = elem.Value;
         }
     }
@@ -805,7 +805,7 @@ public static partial class UtilsExtensions
 
     public static void ShallowCopyFrom<T>(this HashSet<T> dest, HashSet<T> data) {
         int amount = data.Count;
-        foreach (var elem in data) {
+        foreach (T elem in data) {
             dest.Add(elem);
         }
     }

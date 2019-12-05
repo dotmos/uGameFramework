@@ -19,7 +19,7 @@ namespace Zenject
 
         public TContract Create()
         {
-            var instance = _provider.GetInstance(_injectContext);
+            object instance = _provider.GetInstance(_injectContext);
 
             if (_injectContext.Container.IsValidating)
             {

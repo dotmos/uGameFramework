@@ -45,7 +45,7 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var sameKey = false;
+                bool sameKey = false;
                 if (isFirst)
                 {
                     isFirst = false;
@@ -126,7 +126,7 @@ namespace UniRx.Operators
                     return;
                 }
 
-                var sameKey = false;
+                bool sameKey = false;
                 if (isFirst)
                 {
                     isFirst = false;

@@ -114,7 +114,7 @@ namespace UserInterface.Scrollbar {
                 UpdateVisuals();
             }
 
-            var prefabType = UnityEditor.PrefabUtility.GetPrefabType(this);
+            UnityEditor.PrefabType prefabType = UnityEditor.PrefabUtility.GetPrefabType(this);
             if (prefabType != UnityEditor.PrefabType.Prefab && !Application.isPlaying)
                 CanvasUpdateRegistry.RegisterCanvasElementForLayoutRebuild(this);
         }
@@ -315,7 +315,7 @@ namespace UserInterface.Scrollbar {
                 if (!RectTransformUtility.RectangleContainsScreenPoint(m_HandleRect, eventData.position, eventData.enterEventCamera)) {
                     Vector2 localMousePos;
                     if (RectTransformUtility.ScreenPointToLocalPointInRectangle(m_HandleRect, eventData.position, eventData.pressEventCamera, out localMousePos)) {
-                        var axisCoordinate = behavior.ChooseValueByAxis(localMousePos.x, localMousePos.y);
+                        float axisCoordinate = behavior.ChooseValueByAxis(localMousePos.x, localMousePos.y);
                         if (axisCoordinate < 0)
                             value -= size;
                         else

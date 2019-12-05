@@ -52,15 +52,15 @@ namespace Zenject
 
         public GameObject Instantiate(List<TypeValuePair> args, out Action injectAction)
         {
-            var context = new InjectContext(_container, _argumentTarget, null);
+            InjectContext context = new InjectContext(_container, _argumentTarget, null);
             bool shouldMakeActive;
-            var gameObject = _container.CreateAndParentPrefab(
+            GameObject gameObject = _container.CreateAndParentPrefab(
                 GetPrefab(), _gameObjectBindInfo, context, out shouldMakeActive);
             Assert.IsNotNull(gameObject);
 
             injectAction = () =>
             {
-                var allArgs = _extraArguments.Concat(args).ToList();
+                List<TypeValuePair> allArgs = _extraArguments.Concat(args).ToList();
 
                 if (_argumentTarget == null)
                 {
@@ -75,7 +75,7 @@ namespace Zenject
                 }
                 else
                 {
-                    var injectArgs = new InjectArgs()
+                    InjectArgs injectArgs = new InjectArgs()
                     {
                         ExtraArgs = allArgs,
                         Context = context,

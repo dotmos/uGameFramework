@@ -40,7 +40,7 @@ namespace Zenject
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)
         {
-            var scope = GetScope();
+            ScopeTypes scope = GetScope();
 
             switch (scope)
             {
@@ -56,7 +56,7 @@ namespace Zenject
                 }
                 case ScopeTypes.Singleton:
                 {
-                    var containerCreator = CreateContainerCreator(container);
+                        ISubContainerCreator containerCreator = CreateContainerCreator(container);
 
                     RegisterProvidersForAllContractsPerConcreteType(
                         container,
@@ -75,7 +75,7 @@ namespace Zenject
 
         void FinalizeBindingSelf(DiContainer container)
         {
-            var scope = GetScope();
+            ScopeTypes scope = GetScope();
 
             switch (scope)
             {
@@ -89,7 +89,7 @@ namespace Zenject
                 }
                 case ScopeTypes.Singleton:
                 {
-                    var containerCreator = CreateContainerCreator(container);
+                        ISubContainerCreator containerCreator = CreateContainerCreator(container);
 
                     RegisterProviderPerContract(
                         container,

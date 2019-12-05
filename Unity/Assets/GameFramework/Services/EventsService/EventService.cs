@@ -76,7 +76,7 @@ namespace Service.Events {
 
         public AsyncPublishContext PublishAsync<TEvent>(TEvent evt, Action<TEvent> onFinished = null, AsyncType type = AsyncType.Publish_Main_Result_Main) {
             // create the context-object which can be used to check for finished if e.g. from within a coroutine
-            var result = new AsyncPublishContext();
+            AsyncPublishContext result = new AsyncPublishContext();
 
             if (type == AsyncType.Publish_Main_Result_Main) {
                 _asyncManager.AddToMainThread(() => {

@@ -29,7 +29,7 @@ namespace Zenject
         {
             try
             {
-                var result = _provider.GetInstance(_injectContext, extraArgs);
+                object result = _provider.GetInstance(_injectContext, extraArgs);
 
                 if (_injectContext.Container.IsValidating && result is ValidationMarker)
                 {

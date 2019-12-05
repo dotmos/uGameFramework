@@ -55,7 +55,7 @@ namespace Zenject
 
             if (_secondaryBindInfos != null)
             {
-                foreach (var secondaryBindInfo in _secondaryBindInfos)
+                foreach (BindInfo secondaryBindInfo in _secondaryBindInfos)
                 {
                     secondaryBindInfo.BindingInheritanceMethod = method;
                 }

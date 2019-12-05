@@ -39,8 +39,8 @@ namespace UniRx.Operators
 
             public IDisposable Run()
             {
-                var l = parent.left.Subscribe(new LeftObserver(this));
-                var rSubscription = new SingleAssignmentDisposable();
+                IDisposable l = parent.left.Subscribe(new LeftObserver(this));
+                SingleAssignmentDisposable rSubscription = new SingleAssignmentDisposable();
                 rSubscription.Disposable  = parent.right.Subscribe(new RightObserver(this, rSubscription));
 
                 return StableCompositeDisposable.Create(l, rSubscription);
@@ -76,7 +76,7 @@ namespace UniRx.Operators
                 {
                     if (parent.hasLatest)
                     {
-                        var result = default(TResult);
+                        TResult result = default(TResult);
                         try
                         {
                             result = parent.parent.selector(value, parent.latestValue);

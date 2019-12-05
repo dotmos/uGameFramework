@@ -36,28 +36,28 @@ namespace PhysicsHelper{
         public static Vector3 ClosestPointOnBox(BoxCollider box, Vector3 point)
         {
             // Cache the collider transform
-            var ct = box.transform;
+            Transform ct = box.transform;
 
             // Firstly, transform the point into the space of the collider
-            var local = ct.InverseTransformPoint(point);
+            Vector3 local = ct.InverseTransformPoint(point);
 
             // Now, shift it to be in the center of the box
             local -= box.center;
 
             //Pre multiply to save operations.
-            var halfSize = box.size * 0.5f;
+            Vector3 halfSize = box.size * 0.5f;
 
             // Clamp the points to the collider's extents
-            var localNorm = new Vector3(
+            Vector3 localNorm = new Vector3(
                 Mathf.Clamp(local.x, -halfSize.x, halfSize.x),
                 Mathf.Clamp(local.y, -halfSize.y, halfSize.y),
                 Mathf.Clamp(local.z, -halfSize.z, halfSize.z)
             );
 
             //Calculate distances from each edge
-            var dx = Mathf.Min(Mathf.Abs(halfSize.x - localNorm.x), Mathf.Abs(-halfSize.x - localNorm.x));
-            var dy = Mathf.Min(Mathf.Abs(halfSize.y - localNorm.y), Mathf.Abs(-halfSize.y - localNorm.y));
-            var dz = Mathf.Min(Mathf.Abs(halfSize.z - localNorm.z), Mathf.Abs(-halfSize.z - localNorm.z));
+            float dx = Mathf.Min(Mathf.Abs(halfSize.x - localNorm.x), Mathf.Abs(-halfSize.x - localNorm.x));
+            float dy = Mathf.Min(Mathf.Abs(halfSize.y - localNorm.y), Mathf.Abs(-halfSize.y - localNorm.y));
+            float dz = Mathf.Min(Mathf.Abs(halfSize.z - localNorm.z), Mathf.Abs(-halfSize.z - localNorm.z));
 
             // Select a face to project on
             if (dx < dy && dx < dz)
@@ -205,16 +205,16 @@ namespace PhysicsHelper{
         /// <param name="radius">Radius.</param>
         public static Vector3 ClosestPointOnTerrain(TerrainCollider terrain, Vector3 point, float radius = 0.01f)
         {
-            var terrainData = terrain.terrainData;
+            TerrainData terrainData = terrain.terrainData;
 
-            var local = terrain.transform.InverseTransformPoint(point);
+            Vector3 local = terrain.transform.InverseTransformPoint(point);
 
             // Calculate the size of each tile on the terrain horizontally and vertically
             float pixelSizeX = terrainData.size.x / (terrainData.heightmapResolution - 1);
             float pixelSizeZ = terrainData.size.z / (terrainData.heightmapResolution - 1);
 
-            var percentZ = Mathf.Clamp01(local.z / terrainData.size.z);
-            var percentX = Mathf.Clamp01(local.x / terrainData.size.x);
+            float percentZ = Mathf.Clamp01(local.z / terrainData.size.z);
+            float percentX = Mathf.Clamp01(local.x / terrainData.size.x);
 
             float positionX = percentX * (terrainData.heightmapResolution - 1);
             float positionZ = percentZ * (terrainData.heightmapResolution - 1);
@@ -272,7 +272,7 @@ namespace PhysicsHelper{
             }
 
             // Retrieve the heights of the tile we are in and all overlapped tiles
-            var heights = terrainData.GetHeights(startPositionX, startPositionZ, numberOfXPixels + 1, numberOfZPixels + 1);
+            float[,] heights = terrainData.GetHeights(startPositionX, startPositionZ, numberOfXPixels + 1, numberOfZPixels + 1);
 
             // Pre-scale the heights data to be world-scale instead of 0...1
             for (int i = 0; i < numberOfXPixels + 1; i++)

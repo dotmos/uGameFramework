@@ -67,7 +67,7 @@ namespace Zenject
             // to avoid infecting the test too much, so use a cache of formatted strings given
             // the input values
             // This only works if the input values do not change per frame
-            var hash = GetHashCode(sampleNameFormat, obj1, obj2);
+            int hash = GetHashCode(sampleNameFormat, obj1, obj2);
 
             string formatString;
 
@@ -95,7 +95,7 @@ namespace Zenject
             // to avoid infecting the test too much, so use a cache of formatted strings given
             // the input values
             // This only works if the input values do not change per frame
-            var hash = GetHashCode(sampleNameFormat, obj);
+            int hash = GetHashCode(sampleNameFormat, obj);
 
             string formatString;
 

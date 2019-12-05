@@ -56,7 +56,7 @@ namespace Zenject
 #endif
         public static void AssertIsNotComponent(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertIsNotComponent(type);
             }
@@ -84,7 +84,7 @@ namespace Zenject
 #endif
         public static void AssertDerivesFromUnityObject(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertDerivesFromUnityObject(type);
             }
@@ -112,7 +112,7 @@ namespace Zenject
 #endif
         public static void AssertTypesAreNotComponents(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertIsNotComponent(type);
             }
@@ -134,7 +134,7 @@ namespace Zenject
 #endif
         public static void AssertIsInterfaceOrScriptableObject(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertIsInterfaceOrScriptableObject(type);
             }
@@ -162,7 +162,7 @@ namespace Zenject
 #endif
         public static void AssertIsInterfaceOrComponent(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertIsInterfaceOrComponent(type);
             }
@@ -190,7 +190,7 @@ namespace Zenject
 #endif
         public static void AssertIsComponent(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertIsComponent(type);
             }
@@ -235,7 +235,7 @@ namespace Zenject
 #endif
         public static void AssertTypesAreNotAbstract(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertIsNotAbstract(type);
             }
@@ -246,7 +246,7 @@ namespace Zenject
 #endif
         public static void AssertIsNotAbstract(IEnumerable<Type> types)
         {
-            foreach (var type in types)
+            foreach (Type type in types)
             {
                 AssertIsNotAbstract(type);
             }
@@ -324,7 +324,7 @@ namespace Zenject
 #endif
         public static void AssertIsDerivedFromTypes(IEnumerable<Type> concreteTypes, IEnumerable<Type> parentTypes)
         {
-            foreach (var concreteType in concreteTypes)
+            foreach (Type concreteType in concreteTypes)
             {
                 AssertIsDerivedFromTypes(concreteType, parentTypes);
             }
@@ -335,7 +335,7 @@ namespace Zenject
 #endif
         public static void AssertIsDerivedFromTypes(Type concreteType, IEnumerable<Type> parentTypes)
         {
-            foreach (var parentType in parentTypes)
+            foreach (Type parentType in parentTypes)
             {
                 AssertIsDerivedFromType(concreteType, parentType);
             }
@@ -348,7 +348,7 @@ namespace Zenject
         {
             if (!ZenUtilInternal.IsNull(instance))
             {
-                foreach (var baseType in parentTypes)
+                foreach (Type baseType in parentTypes)
                 {
                     AssertInstanceDerivesFromOrEqual(instance, baseType);
                 }
