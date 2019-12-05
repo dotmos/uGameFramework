@@ -1177,7 +1177,7 @@ namespace Service.Serializer {
 
         public static T DeepCopy<T>(T original) where T : IFBSerializable,new() {
             var buf = SerializeToBytes(original, 2048);
-            var result = DeserializeFromBytes<T>(buf);
+            var result = DeserializeFromBytes<T>(buf, default(T), original.GetType());
             return result;
         }
 
@@ -1187,22 +1187,23 @@ namespace Service.Serializer {
             fs.WriteBytesToFileAtDomain(domain, filename, buf);
         }
 
-        public static T DeserializeFromBytes<T>(byte[] buf,T dataRoot=default(T)) where T : IFBSerializable,new() {
+        public static T DeserializeFromBytes<T>(byte[] buf, T dataRoot=default(T), Type type = null) where T : IFBSerializable,new() {
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
             ClearCache();
             var fbByteBuffer = new ByteBuffer(buf);
             if (dataRoot == null) {
-                dataRoot = new T();
+                if(type == null) {
+                    dataRoot = new T();
+                } else {
+                    dataRoot = (T)Activator.CreateInstance(type);
+                }
             }
             dataRoot.Deserialize(fbByteBuffer);
             stopwatch.Stop();
             UnityEngine.Debug.Log("Deserialize final took:" + stopwatch.Elapsed.TotalMilliseconds / 1000.0f);
             return dataRoot;
         }
-
-
-
 
     }
 }
