@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using System.Text;
+using ECS;
 
 
 using FlatBuffers;
@@ -157,6 +158,18 @@ namespace Service.Scripting
         public abstract void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
 
         
+        public abstract void RegisterEntity(UID entity);
+
+        
+        public abstract bool IsEntityRegistered(UID entity);
+
+        
+        public abstract int GetLUAEntityID(UID entity);
+
+        
+        public abstract IComponent GetComponent(UID entity,string componentName);
+
+        
         public abstract void Setup(bool isNewGame);
 
         
@@ -190,7 +203,13 @@ namespace Service.Scripting
         public abstract void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime);
 
         
+        public abstract void ReplayWrite_RegisterEntity(string entityVarName="entity");
+
+        
         public abstract void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=true);
+
+        
+        public abstract void ReplayWrite_SetCurrentEntity(ECS.UID uid);
 
         
 

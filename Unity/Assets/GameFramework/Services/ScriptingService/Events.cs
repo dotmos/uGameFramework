@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using System.Text;
+using ECS;
 
 using UniRx;
 using System.Runtime.Serialization;

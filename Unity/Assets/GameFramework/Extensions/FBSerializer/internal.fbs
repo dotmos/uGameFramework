@@ -74,6 +74,11 @@ table DTEST_int_int {
     value : int;
 }
 
+table DEFAULT_UID_int {
+    key : FBUID;
+    value : int;
+}
+
 table DTEST_intlinst_intlist{
     key : [int];
     value : [int];

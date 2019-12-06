@@ -8,6 +8,9 @@ using MoonSharp.Interpreter.Interop;
 using System.IO;
 using System.Linq;
 using System.Text;
+using ECS;
+using FlatBuffers;
+using Service.Serializer;
 
 namespace Service.Scripting {
 
@@ -37,12 +40,22 @@ namespace Service.Scripting {
         private Service.LoggingService.ILoggingService logging;
         [Inject]
         private Service.FileSystem.IFileSystemService filesystem;
-        
+
+
+
         Service.DevUIService.IDevUIService devUIService;
         Service.DevUIService.IDevUIService DevUI {
             get {
                 if (devUIService == null) devUIService = Kernel.Instance.Resolve<Service.DevUIService.IDevUIService>();
                 return devUIService;
+            }
+        }
+
+        private ECS.IEntityManager entitymanager;
+        ECS.IEntityManager EntityManager {
+            get {
+                if (entitymanager == null) entitymanager = Kernel.Instance.Resolve<ECS.IEntityManager>();
+                return entitymanager;
             }
         }
 
@@ -449,6 +462,16 @@ namespace Service.Scripting {
             return luaCo;
         }
 
+        public override IComponent GetComponent(UID entity, string componentName) {
+            List<IComponent> comps = EntityManager.GetAllComponents(entity);
+            foreach (IComponent comp in comps) {
+                var compName = comp.GetType().Name;
+                if (compName == componentName) {
+                    return comp;
+                }
+            }
+            return null;
+        }
         public override void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> yieldCheck) {
             customYieldsChecks.Add(yieldCheck);
         }
@@ -481,7 +504,7 @@ namespace Service.Scripting {
         }
 
         public override string GetCurrentLuaReplay() {
-            string finalScript = "function executeLogic()\n" + data.replayScript.ToString() + "\nend \n Scripting.CreateCoroutine(executeLogic)-- start the logic - function";
+            string finalScript = "uID={} function getUID(id) return uID[id] end\n\nfunction executeLogic()\n" + data.replayScript.ToString() + "end \n\n Scripting.CreateCoroutine(executeLogic)-- start the logic - function";
             return finalScript;
         }
 
@@ -515,8 +538,49 @@ namespace Service.Scripting {
             }
         }
 
+        public override void RegisterEntity(UID uid) {
+            if (uid.IsNull()) {
+                devUIService.WriteToScriptingConsole("Tried to register null-value");
+                return;
+            }
+            data.uidCounter++;
+            data.uid2creationId[uid] = data.uidCounter;
+            DynValue mapper = mainScript.Globals.Get("uID");
+            var tbl = mapper.Table;
+            tbl[data.uidCounter] = uid;
+        }
+
+        public override int GetLUAEntityID(UID entity) {
+            return data.uid2creationId[entity];
+        }
+
+        public override bool IsEntityRegistered(UID entity) {
+            return data.uid2creationId.ContainsKey(entity);
+        }
+
+        public override void ReplayWrite_RegisterEntity(string entityVarName="entity") {
+            ReplayWrite_WaitForCurrentGameTime();
+            // todo: this is done automatically
+            // data.replayScript.Append($"Scripting.RegisterEntity({entityVarName})");
+        }
+
+        public override void ReplayWrite_SetCurrentEntity(UID uid) {
+            int bid = data.uid2creationId[uid];
+            data.replayScript.Append($"entity=uID[{bid}]\n");
+        }
+
         public override void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime) {
             this.getCurrentGameTime = getCurrentGameTime;
+        }
+
+        public override int Serialize(FlatBufferBuilder builder) {
+            return 0;
+            // TODO
+        }
+
+        public override void Deserialize(object incoming) {
+            base.Deserialize(incoming);
+            // TODO
         }
 
 
@@ -524,6 +588,8 @@ namespace Service.Scripting {
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
+
+
     }
 
     public class Proposal

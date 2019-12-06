@@ -631,6 +631,48 @@ public int ValueTableOffset{ get=>1;}
   }
 };
 
+public struct DEFAULT_UID_int : IFlatbufferObject
+{
+  private Table __p;
+/// <summary>
+/// expose the current flatbuffer-object's position inside the buffer
+/// </summary>
+public int BufferPosition { get { return __p.bb_pos; } }
+public Table __table { get { return __p; } }
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static void ValidateVersion() { FlatBufferConstants.FLATBUFFERS_1_11_1(); }
+  public static DEFAULT_UID_int GetRootAsDEFAULT_UID_int(ByteBuffer _bb) { return GetRootAsDEFAULT_UID_int(_bb, new DEFAULT_UID_int()); }
+  public static DEFAULT_UID_int GetRootAsDEFAULT_UID_int(ByteBuffer _bb, DEFAULT_UID_int obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public void __init(int _i, ByteBuffer _bb) { __p = new Table(_i, _bb); }
+  public DEFAULT_UID_int __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public Serial.FBUID? Key { get { int o = __p.__offset(4); return o != 0 ? (Serial.FBUID?)(new Serial.FBUID()).__assign(__p.__indirect(o + __p.bb_pos), __p.bb) : null; } }
+public int KeyBufferPosition { get { int o = __p.__offset(4); return o != 0 ? __p.__vector(o) : 0; } }
+public int KeyTableOffset{ get=>0;}
+  public int Value { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+public int ValueBufferPosition { get { int o = __p.__offset(6); return o != 0 ? __p.__vector(o) : 0; } }
+public int ValueTableOffset{ get=>1;}
+  public bool MutateValue(int value) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, value); return true; } else { return false; } }
+
+  public static Offset<Serial.DEFAULT_UID_int> CreateDEFAULT_UID_int(FlatBufferBuilder builder,
+      Offset<Serial.FBUID> keyOffset = default(Offset<Serial.FBUID>),
+      int value = 0) {
+    builder.StartTable(2);
+    DEFAULT_UID_int.AddValue(builder, value);
+    DEFAULT_UID_int.AddKey(builder, keyOffset);
+    return DEFAULT_UID_int.EndDEFAULT_UID_int(builder);
+  }
+
+  public static void StartDEFAULT_UID_int(FlatBufferBuilder builder) { builder.StartTable(2); }
+  public static void AddKey(FlatBufferBuilder builder, Offset<Serial.FBUID> keyOffset) { builder.AddOffset(0, keyOffset.Value, 0); }
+  public static void AddKey(FlatBufferBuilder builder, int  keyOffsetOffset) { builder.AddOffset(0, keyOffsetOffset, 0); }
+  public static void AddValue(FlatBufferBuilder builder, int value) { builder.AddInt(1, value, 0); }
+  public static Offset<Serial.DEFAULT_UID_int> EndDEFAULT_UID_int(FlatBufferBuilder builder) {
+    int o = builder.EndTable();
+    return new Offset<Serial.DEFAULT_UID_int>(o);
+  }
+};
+
 public struct DTEST_intlinst_intlist : IFlatbufferObject
 {
   private Table __p;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using System.Text;
+using ECS;
 
 using System;
 using Service.Events;
@@ -41,6 +42,14 @@ namespace Service.Scripting{
 
             this.OnEvent<RegisterCustomYieldCheckCommand>().Subscribe(e => RegisterCustomYieldCheckCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<RegisterEntityCommand>().Subscribe(e => RegisterEntityCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<IsEntityRegisteredCommand>().Subscribe(e => IsEntityRegisteredCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<GetLUAEntityIDCommand>().Subscribe(e => GetLUAEntityIDCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<GetComponentCommand>().Subscribe(e => GetComponentCommandHandler(e)).AddTo(this);
+
             this.OnEvent<SetupCommand>().Subscribe(e => SetupCommandHandler(e)).AddTo(this);
 
             this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
@@ -63,7 +72,11 @@ namespace Service.Scripting{
 
             this.OnEvent<SetLuaReplayGetGameTimeFuncCommand>().Subscribe(e => SetLuaReplayGetGameTimeFuncCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<ReplayWrite_RegisterEntityCommand>().Subscribe(e => ReplayWrite_RegisterEntityCommandHandler(e)).AddTo(this);
+
             this.OnEvent<ReplayWrite_CustomLuaCommand>().Subscribe(e => ReplayWrite_CustomLuaCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<ReplayWrite_SetCurrentEntityCommand>().Subscribe(e => ReplayWrite_SetCurrentEntityCommandHandler(e)).AddTo(this);
 
         }
         
@@ -295,6 +308,109 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("RegisterCustomYieldCheckCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// Gives this uid a unique id which makes accessing this entity entity-id independed
+        /// </summary>
+        
+        public class RegisterEntityCommand  {
+            public UID entity;
+            
+            
+        }
+
+		protected void RegisterEntityCommandHandler  (RegisterEntityCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("RegisterEntityCommand");
+#endif
+        _service.RegisterEntity(cmd.entity);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("RegisterEntityCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class IsEntityRegisteredCommand  {
+            public bool result;
+                        public UID entity;
+            
+            
+        }
+
+		protected void IsEntityRegisteredCommandHandler  (IsEntityRegisteredCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("IsEntityRegisteredCommand");
+#endif
+        
+            cmd.result = _service.IsEntityRegistered(cmd.entity);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("IsEntityRegisteredCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class GetLUAEntityIDCommand  {
+            public int result;
+                        public UID entity;
+            
+            
+        }
+
+		protected void GetLUAEntityIDCommandHandler  (GetLUAEntityIDCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("GetLUAEntityIDCommand");
+#endif
+        
+            cmd.result = _service.GetLUAEntityID(cmd.entity);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("GetLUAEntityIDCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class GetComponentCommand  {
+            public IComponent result;
+                        public UID entity;
+                        public string componentName;
+            
+            
+        }
+
+		protected void GetComponentCommandHandler  (GetComponentCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("GetComponentCommand");
+#endif
+        
+            cmd.result = _service.GetComponent(cmd.entity,cmd.componentName);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("GetComponentCommand");
 #endif
         }
         
@@ -572,6 +688,30 @@ namespace Service.Scripting{
         /// 
         /// </summary>
         
+        public class ReplayWrite_RegisterEntityCommand  {
+            public string entityVarName="entity";
+            
+            
+        }
+
+		protected void ReplayWrite_RegisterEntityCommandHandler  (ReplayWrite_RegisterEntityCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("ReplayWrite_RegisterEntityCommand");
+#endif
+        _service.ReplayWrite_RegisterEntity(cmd.entityVarName);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("ReplayWrite_RegisterEntityCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
         public class ReplayWrite_CustomLuaCommand  {
             public string luaScript;
                         public bool waitForGameTime=true;
@@ -588,6 +728,30 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("ReplayWrite_CustomLuaCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class ReplayWrite_SetCurrentEntityCommand  {
+            public ECS.UID uid;
+            
+            
+        }
+
+		protected void ReplayWrite_SetCurrentEntityCommandHandler  (ReplayWrite_SetCurrentEntityCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("ReplayWrite_SetCurrentEntityCommand");
+#endif
+        _service.ReplayWrite_SetCurrentEntity(cmd.uid);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("ReplayWrite_SetCurrentEntityCommand");
 #endif
         }
         

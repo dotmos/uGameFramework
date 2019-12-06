@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
 using System.Text;
+using ECS;
 
 using System;
 using static Service.Scripting.Events;
@@ -95,6 +96,28 @@ namespace Service.Scripting {
     
 
 
+		/// <summary>
+        /// Gives this uid a unique id which makes accessing this entity entity-id independed 
+        /// <param name="entity"></param>
+ /// </summary>
+        
+
+					void RegisterEntity(UID entity);
+    
+
+
+					bool IsEntityRegistered(UID entity);
+    
+
+
+					int GetLUAEntityID(UID entity);
+    
+
+
+					IComponent GetComponent(UID entity,string componentName);
+    
+
+
 					void Setup(bool isNewGame);
     
 
@@ -156,7 +179,15 @@ namespace Service.Scripting {
     
 
 
+					void ReplayWrite_RegisterEntity(string entityVarName="entity");
+    
+
+
 					void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=true);
+    
+
+
+					void ReplayWrite_SetCurrentEntity(ECS.UID uid);
     
 
 
@@ -179,6 +210,18 @@ namespace Service.Scripting {
         /// </summary>
         
         public bool saveReplayScript = true;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public Dictionary<UID,int> uid2creationId = new Dictionary<UID, int>();
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public int uidCounter = 0;
         
         
         

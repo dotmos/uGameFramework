@@ -89,9 +89,35 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     //public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value, bool luaReplay = false) {
     //    this./*name:name*/state/*endname*/ = value;
     //    if (luaReplay) {
-    //        TODO
+    //        var scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+    //        if (scriptingService.IsEntityRegistered(Entity)) {
+    //            int uID = scriptingService.GetLUAEntityID(Entity);
+    //            scriptingService.ReplayWrite_CustomLua($"component = scripting.GetComponent(uID[{uID}],'/*name:ComponentName*/GenTemplateComponent/*endname*/')");
+    //            if (value is string) {
+    //                scriptingService.ReplayWrite_CustomLua($"component./*name:name*/state/*endname*/='{value}'", false);
+    //            } else {
+    //                scriptingService.ReplayWrite_CustomLua($"component./*name:name*/state/*endname*/={value}", false);
+    //            }
+    //        }
     //    }
     //}
+
+    public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value,bool addToLuaReplay=false, string luaValue=null) {
+        this./*name:name*/state/*endname*/ = value;
+        if (addToLuaReplay) {
+            var scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+            if (scriptingService.IsEntityRegistered(Entity)) {
+                int uID = scriptingService.GetLUAEntityID(Entity);
+                scriptingService.ReplayWrite_CustomLua($"component = script.GetComponent(uID[{uID}],'/*name:ComponentName*/GenTemplateComponent/*endname*/')");
+                if (luaValue==null && value is bool) {
+                    scriptingService.ReplayWrite_CustomLua($"component./*name:name*/state/*endname*/={luaValue ?? value.ToString().ToLower()}", false);
+                } else {
+                    scriptingService.ReplayWrite_CustomLua($"component./*name:name*/state/*endname*/={luaValue ?? value.ToString()}", false);
+                }
+            }
+        }
+    }
+
     /*endblock:field*/
     /*block:rip*/
     public string testName = "f95";
