@@ -86,21 +86,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                     /// </summary>
     /*name:attributes*//*endname*/
     /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
-    //public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value, bool luaReplay = false) {
-    //    this./*name:name*/state/*endname*/ = value;
-    //    if (luaReplay) {
-    //        var scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
-    //        if (scriptingService.IsEntityRegistered(Entity)) {
-    //            int uID = scriptingService.GetLUAEntityID(Entity);
-    //            scriptingService.ReplayWrite_CustomLua($"component = scripting.GetComponent(uID[{uID}],'/*name:ComponentName*/GenTemplateComponent/*endname*/')");
-    //            if (value is string) {
-    //                scriptingService.ReplayWrite_CustomLua($"component./*name:name*/state/*endname*/='{value}'", false);
-    //            } else {
-    //                scriptingService.ReplayWrite_CustomLua($"component./*name:name*/state/*endname*/={value}", false);
-    //            }
-    //        }
-    //    }
-    //}
 
     public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value,bool addToLuaReplay=false, string luaValue=null) {
         this./*name:name*/state/*endname*/ = value;
