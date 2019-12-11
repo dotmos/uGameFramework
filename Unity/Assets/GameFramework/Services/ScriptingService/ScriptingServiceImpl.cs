@@ -391,7 +391,17 @@ namespace Service.Scripting {
             if (isNewGame) {
                 if (data == null) data = new ScriptingServiceData();
                 data.replayScript.Clear();
+
+                data.uidCounter = 0;
+                data.uid2creationId.Clear();
+                DynValue tbl = mainScript.Globals.Get("uID");
+                if (tbl != null) {
+                    tbl.Table.Clear();
+                } 
+            } else {
+                // TODO: create mapping on lua-side
             }
+
         }
 
         public override void Tick(float dt) {

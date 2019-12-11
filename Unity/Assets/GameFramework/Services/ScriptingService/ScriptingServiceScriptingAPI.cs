@@ -20,6 +20,8 @@ namespace Service.Scripting {
 
             string scriptCode = @"
                 print('lua-lib start')
+                uID = {}
+
                 _luacallbacks = {}
 
                 function registerCallback(cb)
