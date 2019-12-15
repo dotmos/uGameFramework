@@ -88,8 +88,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
 
     public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value,bool addToLuaReplay=false, string luaValue=null) {
-        this./*name:name*/state/*endname*/ = value;
-        if (addToLuaReplay) {
+        if (addToLuaReplay && this./*name:name*/state/*endname*/ != value) {
             var scriptingService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
             if (scriptingService.IsEntityRegistered(Entity)) {
                 int uID = scriptingService.GetLUAEntityID(Entity);
@@ -101,6 +100,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
                 }
             }
         }
+        this./*name:name*/state/*endname*/ = value;
     }
 
     /*endblock:field*/
