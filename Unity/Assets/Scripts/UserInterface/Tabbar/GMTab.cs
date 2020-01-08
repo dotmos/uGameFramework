@@ -141,17 +141,16 @@ namespace UserInterface
                     Color color = isOn ? activeColor : defaultColor;
                     ColorizeElements(color);
                 }
+
+                if (border != null) border.SetActive(isOn);
             } else {
                 ColorizeElements(disabledColor);
+                if (border != null) border.SetActive(false);
             }
         }
 
         protected virtual void OnToggleValueChanged(bool _isOn) {
             DoStateTransition(currentSelectionState, false);
-
-            if (border != null) {
-                border.SetActive(_isOn);
-            }
         }
 
         void ColorizeElements(Color color) {
