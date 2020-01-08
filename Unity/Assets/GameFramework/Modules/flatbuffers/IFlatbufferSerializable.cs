@@ -15,6 +15,8 @@ public interface IFBSerializable {
     void Deserialize(FlatBuffers.ByteBuffer buf);
 }
 
+public interface IFBSerializeOnMainThread { }
+
 public interface IFBPostDeserialization {
     void OnPostDeserialization(ECS.IEntityManager entityManager,object userobject);
 }
