@@ -44,6 +44,20 @@ public interface IExecutionWrapper
     void WrapExe(Action input, ExecutionDomain executionType = ExecutionDomain.unknown);
 }
 
+
+public class DirtyFlag : IDirtyFlagable
+{
+    private bool _isDirty = false;
+
+    public bool IsDirty => _isDirty;
+    public void SetDirtyFlag() {
+        _isDirty = true;
+    }
+
+    public void ClearDirtyFlag() {
+        _isDirty = false;
+    }
+}
 public class UtilsObservable
 {
     public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
