@@ -158,7 +158,7 @@ namespace Service.Scripting
         public abstract void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
 
         
-        public abstract void RegisterEntity(UID entity);
+        public abstract void RegisterEntityToLua(int persistedId,UID entity);
 
         
         public abstract bool IsEntityRegistered(UID entity);

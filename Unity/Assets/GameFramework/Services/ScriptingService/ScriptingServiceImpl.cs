@@ -393,7 +393,7 @@ namespace Service.Scripting {
                 data.replayScript.Clear();
 
                 data.uidCounter = 0;
-                data.uid2creationId.Clear();
+                data.uid2persistedId.Clear();
                 DynValue tbl = mainScript.Globals.Get("uID");
                 if (tbl != null) {
                     tbl.Table.Clear();
@@ -548,24 +548,23 @@ namespace Service.Scripting {
             }
         }
 
-        public override void RegisterEntity(UID uid) {
+        public override void RegisterEntityToLua(int persistedId,UID uid) {
             if (uid.IsNull()) {
                 devUIService.WriteToScriptingConsole("Tried to register null-value");
                 return;
             }
-            data.uidCounter++;
-            data.uid2creationId[uid] = data.uidCounter;
+            data.uid2persistedId[uid] = persistedId;
             DynValue mapper = mainScript.Globals.Get("uID");
             var tbl = mapper.Table;
-            tbl[data.uidCounter] = uid;
+            tbl[persistedId] = uid;
         }
 
         public override int GetLUAEntityID(UID entity) {
-            return data.uid2creationId[entity];
+            return data.uid2persistedId[entity];
         }
 
         public override bool IsEntityRegistered(UID entity) {
-            return data.uid2creationId.ContainsKey(entity);
+            return data.uid2persistedId.ContainsKey(entity);
         }
 
         public override void ReplayWrite_RegisterEntity(string entityVarName="entity") {
@@ -575,7 +574,7 @@ namespace Service.Scripting {
         }
 
         public override void ReplayWrite_SetCurrentEntity(UID uid) {
-            int bid = data.uid2creationId[uid];
+            int bid = data.uid2persistedId[uid];
             data.replayScript.Append($"entity=uID[{bid}]\n");
         }
 

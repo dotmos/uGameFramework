@@ -98,11 +98,12 @@ namespace Service.Scripting {
 
 		/// <summary>
         /// Gives this uid a unique id which makes accessing this entity entity-id independed 
+        /// <param name="persistedId"></param>
         /// <param name="entity"></param>
  /// </summary>
         
 
-					void RegisterEntity(UID entity);
+					void RegisterEntityToLua(int persistedId,UID entity);
     
 
 
@@ -215,7 +216,7 @@ namespace Service.Scripting {
         /// 
         /// </summary>
         
-        public Dictionary<UID,int> uid2creationId = new Dictionary<UID, int>();
+        public Dictionary<UID,int> uid2persistedId = new Dictionary<UID, int>();
         
         /// <summary>
         /// 

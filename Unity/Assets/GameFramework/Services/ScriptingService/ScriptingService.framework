@@ -25,7 +25,7 @@ namespace Service.Scripting {
 		## "custom coroutine-yield functions. return false if the coRoutine should be removed from the system"
 		void RegisterCustomYieldCheck(("Func<LuaCoroutine,bool>") coRoutines);
 		## "Gives this uid a unique id which makes accessing this entity entity-id independed"
-		void RegisterEntity(("UID") entity);
+		void RegisterEntityToLua(int persistedId,("UID") entity);
 		bool IsEntityRegistered(("UID") entity);
 		int GetLUAEntityID(("UID") entity);
 		
@@ -59,7 +59,7 @@ namespace Service.Scripting {
 public class ScriptingServiceData {
 	    public ("StringBuilder":FBCustom) replayScript = ("new StringBuilder()");
         public bool saveReplayScript = True;
-        public Dictionary<("UID"), int> uid2creationId = ("new Dictionary<UID, int>()");
+        public Dictionary<("UID"), int> uid2persistedId = ("new Dictionary<UID, int>()");
         public int uidCounter = 0;	
 } 
 

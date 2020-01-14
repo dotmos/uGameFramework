@@ -42,7 +42,7 @@ namespace Service.Scripting{
 
             this.OnEvent<RegisterCustomYieldCheckCommand>().Subscribe(e => RegisterCustomYieldCheckCommandHandler(e)).AddTo(this);
 
-            this.OnEvent<RegisterEntityCommand>().Subscribe(e => RegisterEntityCommandHandler(e)).AddTo(this);
+            this.OnEvent<RegisterEntityToLuaCommand>().Subscribe(e => RegisterEntityToLuaCommandHandler(e)).AddTo(this);
 
             this.OnEvent<IsEntityRegisteredCommand>().Subscribe(e => IsEntityRegisteredCommandHandler(e)).AddTo(this);
 
@@ -317,21 +317,22 @@ namespace Service.Scripting{
         /// Gives this uid a unique id which makes accessing this entity entity-id independed
         /// </summary>
         
-        public class RegisterEntityCommand  {
-            public UID entity;
+        public class RegisterEntityToLuaCommand  {
+            public int persistedId;
+                        public UID entity;
             
             
         }
 
-		protected void RegisterEntityCommandHandler  (RegisterEntityCommand cmd) {
+		protected void RegisterEntityToLuaCommandHandler  (RegisterEntityToLuaCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("RegisterEntityCommand");
+            ptest.Start("RegisterEntityToLuaCommand");
 #endif
-        _service.RegisterEntity(cmd.entity);
+        _service.RegisterEntityToLua(cmd.persistedId,cmd.entity);
 #if PERFORMANCE_TEST
             // now stop the watches
-            ptest.Stop("RegisterEntityCommand");
+            ptest.Stop("RegisterEntityToLuaCommand");
 #endif
         }
         
