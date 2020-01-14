@@ -415,6 +415,93 @@ public class DebugUtils {
     }
 }
 
+public class PoolList<T> where T : new()
+{
+    public List<T> innerList;
+
+    // insane pooling of gridconnections. (sry)
+    private bool inConnectionMode = false;
+    private int connectionModeIdx = 0;
+    private List<T> pool = new List<T>();
+    private int maxPoolSize = 10;
+
+    public PoolList(List<T> externalList = null) {
+        innerList = externalList ?? new List<T>();
+    }
+
+    /// <summary>
+    /// Start adding and overwriting new elements in list
+    /// </summary>
+    public void StartConnectionMode() {
+        inConnectionMode = true;
+        connectionModeIdx = 0;
+    }
+
+    /// <summary>
+    /// Clear all pool-elements
+    /// </summary>
+    public void ClearPool() {
+        pool.Clear();
+    }
+
+    /// <summary>
+    /// Clear all (list-data and pool)
+    /// </summary>
+    public void ClearAll() {
+        pool.Clear();
+        innerList.Clear();
+    }
+
+    /// <summary>
+    /// Set max size for inner pool(default 10)
+    /// </summary>
+    /// <param name="size"></param>
+    public void SetMaxPoolSize(int size) {
+        maxPoolSize = size;
+    }
+
+    /// <summary>
+    /// Finished writing to list => elements that are extra go to the pool
+    /// </summary>
+    public void EndConnectionMode() {
+        int amount = innerList.Count;
+        // release the rest
+        for (int i = amount - 1; i >= connectionModeIdx; i--) {
+            var releaseConnection = innerList[i];
+            if (pool.Count < maxPoolSize) pool.Add(releaseConnection);
+            innerList.RemoveAt(i);
+        }
+        inConnectionMode = false;
+    }
+
+    /// <summary>
+    /// Get one element. CAUTION: This data needs to be overwritten completely!!!!
+    /// </summary>
+    /// <returns></returns>
+    public T RetrieveFreeGridConnection() {
+        if (!inConnectionMode) {
+            Debug.LogError("You need to start connection mode");
+            return default(T);
+        }
+        if (innerList.Count > connectionModeIdx) {
+            return innerList[connectionModeIdx++];
+        } else {
+            connectionModeIdx++;
+            if (pool.Count > 0) {
+                var poolElem = pool[0];
+                pool.RemoveAt(0);
+                innerList.Add(poolElem);
+                return poolElem;
+            } else {
+                var newElem = new T();
+                innerList.Add(newElem);
+                return newElem;
+            }
+        }
+    }
+}
+
+
 /// <summary>
 /// One singleton that can pool any object that has a default constructor
 /// </summary>
