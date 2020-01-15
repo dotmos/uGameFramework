@@ -1059,7 +1059,7 @@ namespace Service.Serializer {
 
         private static readonly Type IFBSerializableType = typeof(IFBSerializable);
 
-        public static object GetOrCreateDeserialize(IFlatbufferObject incoming, Type type, IFBSerializable newObject = null) {
+        public static object GetOrCreateDeserialize(IFlatbufferObject incoming, Type type, IFBSerializable newObject = null, bool forceSet = false) {
             if (incoming == null || incoming.BufferPosition == 0) {
                 return null;
             }
@@ -1069,14 +1069,16 @@ namespace Service.Serializer {
                     
                 lock (fb2objMapping) {
                     object result = type.IsValueType ? null : FindInDeserializeCache<object>(incoming.BufferPosition);
-                    if (result != null) {
+                    if (!forceSet && result != null) {
                         //UnityEngine.Debug.Log("Incoming-Type:"+incoming.GetType()+" Casting to :"+type.ToString());
                         // yeah, we found it. no need to create a new object we got it already
                         return result;
+                    } else {
+                        newObject = newObject ?? (IFBSerializable)result;
                     }
 
                     newObject = newObject == null ? (IFBSerializable)Activator.CreateInstance(type) : newObject;
-                    PutIntoDeserializeCache(incoming.BufferPosition, newObject);
+                    PutIntoDeserializeCache(incoming.BufferPosition, newObject, !forceSet);
                 }
 
 
