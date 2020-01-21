@@ -392,7 +392,6 @@ namespace Service.Scripting {
                 if (data == null) data = new ScriptingServiceData();
                 data.replayScript.Clear();
 
-                data.uidCounter = 0;
                 data.uid2persistedId.Clear();
                 DynValue tbl = mainScript.Globals.Get("uID");
                 if (tbl != null) {
@@ -553,7 +552,7 @@ namespace Service.Scripting {
                 devUIService.WriteToScriptingConsole("Tried to register null-value");
                 return;
             }
-            data.uid2persistedId[uid] = persistedId;
+
             DynValue mapper = mainScript.Globals.Get("uID");
             var tbl = mapper.Table;
             tbl[persistedId] = uid;
@@ -583,13 +582,46 @@ namespace Service.Scripting {
         }
 
         public override int Serialize(FlatBufferBuilder builder) {
-            return 0;
-            // TODO
+
+            //List<int> _dictoffsets = new List<int>();
+            //foreach (var elem in data.uid2persistedId) {
+            //    int? uidOffset = FlatBufferSerializer.GetOrCreateSerialize(builder, elem.Key);
+                
+            //    if (!uidOffset.HasValue) continue;
+                
+            //    builder.StartTable(2);
+            //    builder.AddOffset(0, uidOffset.Value, 0);
+            //    builder.AddInt(1, elem.Value, 0);
+            //    int offset = builder.EndTable();
+            //    _dictoffsets.Add(offset);
+            //}
+
+            //var offsetUID2persistence = builder.CreateVectorOfTables(_dictoffsets);
+            var offsetReplayScript = builder.CreateString(data.replayScript.ToString());
+            
+            builder.StartTable(1);
+//            builder.AddOffset(0,offsetUID2persistence.Value,0);
+            builder.AddOffset(0, offsetReplayScript.Value, 0);
+
+            return builder.EndTable();
         }
 
         public override void Deserialize(object incoming) {
-            base.Deserialize(incoming);
-            // TODO
+            var manualObject = FlatBufferSerializer.GetManualObject(incoming);
+
+            
+            if (data == null) {
+                data = new ScriptingServiceData();
+            }
+            //var dictRef = manualObject.GetPrimitiveList<int>(0);
+            //var innerManualObject = new FBManualObject();
+            //foreach (int offset in dictRef) {
+            //    innerManualObject.__init(offset, manualObject.ByteBuffer);
+            //    var uid = innerManualObject.GetOrCreate<UID>(0);
+            //    int value = innerManualObject.GetInt()
+            //}
+            data.replayScript.Clear();
+            data.replayScript.Append(manualObject.GetString(0));
         }
 
 
