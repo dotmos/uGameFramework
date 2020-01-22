@@ -226,6 +226,10 @@ namespace UserInterface {
             base.OnDisable();
         }
 
+        public void MakeScrollbarLastChild() {
+            verticalScrollbar.transform.SetAsLastSibling();
+        }
+
         public override bool IsActive() {
             return base.IsActive() && m_Content != null;
         }

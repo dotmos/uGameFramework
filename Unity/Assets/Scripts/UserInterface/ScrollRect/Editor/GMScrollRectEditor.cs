@@ -160,6 +160,13 @@ namespace UserInterface
 
             EditorGUILayout.Space();
 
+            if (GUILayout.Button("Make Scrollbar Last Child")) {
+                foreach(var s in serializedObject.targetObjects) {
+                    GMScrollRect scrollRect = (GMScrollRect)s;
+                    scrollRect.MakeScrollbarLastChild();
+                }
+            }
+
             EditorGUILayout.PropertyField(m_OnValueChanged);
 
             serializedObject.ApplyModifiedProperties();
