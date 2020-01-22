@@ -388,6 +388,7 @@ namespace Service.Scripting {
 
 
         public override void Setup(bool isNewGame) {
+            coRoutines.Clear();
             if (isNewGame) {
                 if (data == null) data = new ScriptingServiceData();
                 data.replayScript.Clear();
