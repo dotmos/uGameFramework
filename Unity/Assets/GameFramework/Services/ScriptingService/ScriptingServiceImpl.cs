@@ -556,6 +556,7 @@ namespace Service.Scripting {
             DynValue mapper = mainScript.Globals.Get("uID");
             var tbl = mapper.Table;
             tbl[persistedId] = uid;
+            data.uid2persistedId[uid] = persistedId;
         }
 
         public override int GetLUAEntityID(UID entity) {
