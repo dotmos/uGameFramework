@@ -559,7 +559,12 @@ namespace Service.Scripting {
         }
 
         public override int GetLUAEntityID(UID entity) {
-            return data.uid2persistedId[entity];
+            if (data.uid2persistedId.TryGetValue(entity,out int value)) {
+                return value;
+            } else {
+                Debug.LogWarning("Could not find uid2persist for entity:" + entity.ToString());
+                return -1;
+            }
         }
 
         public override bool IsEntityRegistered(UID entity) {
