@@ -218,12 +218,6 @@ namespace Service.Scripting {
         
         public Dictionary<UID,int> uid2persistedId = new Dictionary<UID, int>();
         
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public int uidCounter = 0;
-        
         
         
 

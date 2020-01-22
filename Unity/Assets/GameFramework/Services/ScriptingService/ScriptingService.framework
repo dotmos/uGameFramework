@@ -60,7 +60,6 @@ public class ScriptingServiceData {
 	    public ("StringBuilder":FBCustom) replayScript = ("new StringBuilder()");
         public bool saveReplayScript = True;
         public Dictionary<("UID"), int> uid2persistedId = ("new Dictionary<UID, int>()");
-        public int uidCounter = 0;	
 } 
 
 public partial class LuaCoroutine{
