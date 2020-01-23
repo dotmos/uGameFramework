@@ -153,6 +153,16 @@ namespace ECS {
         protected abstract bool UseParallelSystemComponentsProcessing();
 
         /// <summary>
+        /// Should the system be force ticked each frame if deltaTime == 0 and SystemUpdateRate > 0 ?
+        /// If force tick is enabled, ProcessAll/ProcessAtIndex will receive a deltaTime == 0 on tick.
+        /// Default is false.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool ForceTickOnDeltaZero() {
+            return false;
+        }
+
+        /// <summary>
         /// Process all entities. Will add deltaTime to an internal counter and then update entities based on SystemUpdateRate()
         /// </summary>
         protected virtual void ProcessAll(float deltaTime) {
@@ -232,8 +242,12 @@ namespace ECS {
                 currentUpdateDeltaTime += deltaTime;
                 //Process system components
                 if (currentUpdateDeltaTime >= SystemUpdateRate()) {
+                    //Regular tick
                     ProcessAll(currentUpdateDeltaTime);
                     currentUpdateDeltaTime = 0;
+                } else if(deltaTime == 0 && ForceTickOnDeltaZero()) {
+                    //Force tick with deltaTime 0
+                    ProcessAll(0);
                 }
 #if ECS_PROFILING && UNITY_EDITOR
                 watchService.Stop();
