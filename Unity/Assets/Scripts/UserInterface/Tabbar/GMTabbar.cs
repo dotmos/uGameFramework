@@ -113,6 +113,19 @@ namespace UserInterface {
         }
 
         /// <summary>
+        /// Returns 0 if tab is not registered
+        /// </summary>
+        /// <param name="tab"></param>
+        /// <returns></returns>
+        public int GetIndexOfTab(GMTab tab) {
+            if (tabs.Contains(tab)) {
+                return tabs.IndexOf(tab);
+            } else {
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Adds a new tab to the tabbar.
         /// </summary>
         /// <param name="tab">Tab.</param>
@@ -132,12 +145,13 @@ namespace UserInterface {
             //activate tab in front
             int index = tabs.IndexOf(tab);
 
-            if (tabs.Count > 0) {
+            if (index > 0 && tabs.Count > 0) {
                 ActivateTabByIndex(index - 1);
             }
 
             //Remove tab
             tabs.Remove(tab);
+            UnregisterToggle(tab);
             if (destroy) Destroy(tab.gameObject);
         }
 
