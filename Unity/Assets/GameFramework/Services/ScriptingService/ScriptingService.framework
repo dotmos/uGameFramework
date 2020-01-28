@@ -31,6 +31,7 @@ namespace Service.Scripting {
 		
 		("IComponent") GetComponent(("UID") entity,string componentName);
 		void Setup(bool isNewGame);
+		void Cleanup();
 		void Tick(float dt); 		
  
  

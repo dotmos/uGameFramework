@@ -388,21 +388,21 @@ namespace Service.Scripting {
 
 
         public override void Setup(bool isNewGame) {
-            coRoutines.Clear();
-            if (isNewGame) {
-                if (data == null) data = new ScriptingServiceData();
-                data.replayScript.Clear();
-
-                data.uid2persistedId.Clear();
-                DynValue tbl = mainScript.Globals.Get("uID");
-                if (tbl != null) {
-                    tbl.Table.Clear();
-                } 
-            } else {
-                // TODO: create mapping on lua-side
-            }
-
+            // nothing todo atm
         }
+
+        public override void Cleanup() {
+            coRoutines.Clear();
+
+            data.replayScript.Clear();
+
+            data.uid2persistedId.Clear();
+            DynValue tbl = mainScript.Globals.Get("uID");
+            if (tbl != null) {
+                tbl.Table.Clear();
+            }
+        }
+
 
         public override void Tick(float dt) {
 #if !NO_LUATESTING

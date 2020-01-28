@@ -173,6 +173,9 @@ namespace Service.Scripting
         public abstract void Setup(bool isNewGame);
 
         
+        public abstract void Cleanup();
+
+        
         public abstract void Tick(float dt);
 
         

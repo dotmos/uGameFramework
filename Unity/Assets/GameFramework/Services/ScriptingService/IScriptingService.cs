@@ -123,6 +123,10 @@ namespace Service.Scripting {
     
 
 
+					void Cleanup();
+    
+
+
 					void Tick(float dt);
     
 

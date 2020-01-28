@@ -52,6 +52,8 @@ namespace Service.Scripting{
 
             this.OnEvent<SetupCommand>().Subscribe(e => SetupCommandHandler(e)).AddTo(this);
 
+            this.OnEvent<CleanupCommand>().Subscribe(e => CleanupCommandHandler(e)).AddTo(this);
+
             this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
 
             this.OnEvent<StartLogCommand>().Subscribe(e => StartLogCommandHandler(e)).AddTo(this);
@@ -436,6 +438,29 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("SetupCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class CleanupCommand  {
+
+            
+        }
+
+		protected void CleanupCommandHandler  (CleanupCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("CleanupCommand");
+#endif
+        _service.Cleanup();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("CleanupCommand");
 #endif
         }
         
