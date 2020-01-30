@@ -111,14 +111,14 @@ namespace UserInterface
         public override void OnPointerUp(PointerEventData eventData) {
             base.OnPointerUp(eventData);
 
-            if (isPressed) {
+            if (isPressed && interactable) {
                 onRelease.Invoke();
                 isPressed = false;
             }
         }
 
         private void Update() {
-            if (isPressed) {
+            if (isPressed && interactable) {
                 onPressed.Invoke();
             }
         }
