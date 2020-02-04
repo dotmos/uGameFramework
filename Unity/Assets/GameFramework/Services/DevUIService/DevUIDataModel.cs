@@ -159,6 +159,37 @@ namespace Service.DevUIService {
     }
 
     /// <summary>
+    /// DevUI-Button
+    /// </summary>
+    [DataContract]
+    public class DevUIToggle : DevUIElement
+    {
+        /// <summary>
+        /// The Action to be called when this button is pressed
+        /// </summary>
+        protected Action<bool> callback;
+
+        public bool value = false;
+
+        public DevUIToggle(string name, Action<bool> action, bool initialValue) : base(name) {
+            callback = action;
+            this.value = initialValue;
+        }
+
+        /// <summary>
+        /// Execute the button
+        /// </summary>
+        public void Execute() {
+            if (callback != null) {
+                // toggle
+                value = !value;
+                callback(value);
+            }
+        }
+    }
+
+
+    /// <summary>
     /// Special Button to execute lua calls 
     /// </summary>
     [DataContract]
@@ -221,8 +252,14 @@ namespace Service.DevUIService {
             }
         }
 
-        public DevUIKeyValue(string name,string value="") : base(name) {
+        /// <summary>
+        /// Show the editbutton beside the key/value-field
+        /// </summary>
+        public bool showEditButton = false;
+
+        public DevUIKeyValue(string name,string value="", bool showEditButton=true) : base(name) {
             Value = value;
+            this.showEditButton = showEditButton;
         }
 
         public override void Dispose() {
