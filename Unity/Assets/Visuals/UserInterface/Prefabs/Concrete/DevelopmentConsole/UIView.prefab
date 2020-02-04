@@ -2720,6 +2720,8 @@ MonoBehaviour:
   contentContainer: {fileID: 224902872884984566}
   uiButtonPrefab: {fileID: 1700580319215624, guid: e3ecb18817c5db24691257f5b383a4b6,
     type: 3}
+  uiTogglePrefab: {fileID: 1700580319215624, guid: 35e370911d13c08429957b4cd618dd65,
+    type: 3}
   uiLUAButtonPrefab: {fileID: 1764234938857226, guid: c3e710f6f26a6d04b84c29a992b25035,
     type: 3}
   uiKeyValueOutputPrefab: {fileID: 1200075855926366, guid: d1e76e234e1119746a3120c26ac44b73,

@@ -28,6 +28,8 @@ namespace UserInterface {
             keyValue.valueProperty.Subscribe(e => {
                 valueOutput.text = e;
             }).AddTo(this);
+
+            editButton.gameObject.SetActive(keyValue.showEditButton);
         }
 
         protected override void OnEdit() {

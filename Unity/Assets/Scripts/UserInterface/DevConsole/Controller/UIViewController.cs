@@ -25,6 +25,7 @@ namespace UserInterface {
         [Space]
         public Transform contentContainer;
         public GameObject uiButtonPrefab;
+        public GameObject uiTogglePrefab;
         public GameObject uiLUAButtonPrefab;
         public GameObject uiKeyValueOutputPrefab;
         public GameObject uiLUAExpressionPrefab;
@@ -133,6 +134,8 @@ namespace UserInterface {
                 SpawnLuaButton(devUIElement as DevUILUAButton, false);
             } else if (devUIElement is DevUIButton) {
                 SpawnButton(devUIElement as DevUIButton);
+            } else if (devUIElement is DevUIToggle) {
+                SpawnToggle(devUIElement as DevUIToggle);
             } else if (devUIElement is DevUILuaExpression) {
                 SpawnLuaExpression(devUIElement as DevUILuaExpression, false);
             } else if (devUIElement is DevUIKeyValue) {
@@ -158,6 +161,14 @@ namespace UserInterface {
             button.Initialize(devButton.name, devButton.Execute);
             devUIElementGO.transform.SetParent(contentContainer, false);
             uiElements.Add(devButton, devUIElementGO);
+        }
+
+        void SpawnToggle(DevUIToggle devToggle) {
+            GameObject devUIElementGO = Instantiate(uiTogglePrefab) as GameObject;
+            UIViewToggle toggle = devUIElementGO.GetComponent<UIViewToggle>();
+            toggle.Initialize(devToggle.name, devToggle.value, devToggle.Execute);
+            devUIElementGO.transform.SetParent(contentContainer, false);
+            uiElements.Add(devToggle, devUIElementGO);
         }
 
         void SpawnKeyValueOutput(DevUIKeyValue devKeyValue) {
