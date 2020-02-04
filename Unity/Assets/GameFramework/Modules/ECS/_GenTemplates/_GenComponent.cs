@@ -106,7 +106,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*endblock:field*/
     /*block:rip*/
     public string testName = "f95";
-    public UID? testUID = new UID(1895);
+    public UID? testUID = new UID(1895, 0);
     public float testNumber = 18.95f;
 
     public class FreeTypeTestObject : IPocoBase<FreeTypeTestObject> {

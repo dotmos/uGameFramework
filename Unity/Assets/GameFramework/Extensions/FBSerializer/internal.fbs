@@ -60,6 +60,7 @@ table FBMappingElement{
 
 table FBUID {
     id:int;
+	revision:int;
 }
 
 table FBComponent {

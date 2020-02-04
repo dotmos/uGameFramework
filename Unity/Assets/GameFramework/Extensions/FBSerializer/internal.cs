@@ -524,16 +524,23 @@ public Table __table { get { return __p; } }
 public int IdBufferPosition { get { int o = __p.__offset(4); return o != 0 ? __p.__vector(o) : 0; } }
 public int IdTableOffset{ get=>0;}
   public bool MutateId(int id) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, id); return true; } else { return false; } }
+  public int Revision { get { int o = __p.__offset(6); return o != 0 ? __p.bb.GetInt(o + __p.bb_pos) : (int)0; } }
+public int RevisionBufferPosition { get { int o = __p.__offset(6); return o != 0 ? __p.__vector(o) : 0; } }
+public int RevisionTableOffset{ get=>1;}
+  public bool MutateRevision(int revision) { int o = __p.__offset(6); if (o != 0) { __p.bb.PutInt(o + __p.bb_pos, revision); return true; } else { return false; } }
 
   public static Offset<Serial.FBUID> CreateFBUID(FlatBufferBuilder builder,
-      int id = 0) {
-    builder.StartTable(1);
+      int id = 0,
+      int revision = 0) {
+    builder.StartTable(2);
+    FBUID.AddRevision(builder, revision);
     FBUID.AddId(builder, id);
     return FBUID.EndFBUID(builder);
   }
 
-  public static void StartFBUID(FlatBufferBuilder builder) { builder.StartTable(1); }
+  public static void StartFBUID(FlatBufferBuilder builder) { builder.StartTable(2); }
   public static void AddId(FlatBufferBuilder builder, int id) { builder.AddInt(0, id, 0); }
+  public static void AddRevision(FlatBufferBuilder builder, int revision) { builder.AddInt(1, revision, 0); }
   public static Offset<Serial.FBUID> EndFBUID(FlatBufferBuilder builder) {
     int o = builder.EndTable();
     return new Offset<Serial.FBUID>(o);

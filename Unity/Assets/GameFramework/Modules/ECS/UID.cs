@@ -11,14 +11,31 @@ namespace ECS {
     public struct UID : IFBSerializable  {
 
         public int ID;
-
-        public UID(int ID) {
-            this.ID = ID;
+        private int revision;
+        public int Revision {
+            get { return revision; }
+            private set { revision = value; }
         }
 
+        public UID(int ID, int revision) {
+            this.ID = ID;
+            this.revision = revision;
+        }
+
+        /*
+        public void IncreaseRevision() {
+            if(this.Revision + 1 >= int.MaxValue) {
+                this.Revision = 0;
+            }
+            this.Revision++;
+        }
+        */
+
+            /*
         public void SetID(int ID) {
             this.ID = ID;
         }
+        */
 
         public bool IsNull() {
             return ID == 0;
@@ -26,29 +43,40 @@ namespace ECS {
 
         public void SetNull() {
             ID = 0;
+            revision = -1;
         }
 
         public override bool Equals(object obj) {
             if (obj is UID) {
-                return ((UID)obj).ID == ID;
+                UID otherUID = (UID)obj;
+                return otherUID.ID == ID && otherUID.revision == revision;
             } else {
                 return base.Equals(obj);
             }
         }
 
         public static bool operator ==(UID c1, UID c2) {
-            return c1.ID == c2.ID;
+            return (c1.ID == c2.ID && c1.revision == c2.revision);
         }
 
         public static bool operator !=(UID c1, UID c2) {
-            return c1.ID != c2.ID;
+            return (c1.ID != c2.ID || c1.revision != c2.revision);
         }
 
         public override int GetHashCode() {
-            return ID;
+            //Simple int hash
+            //return ID;
+
+            //Fast hashcode for ID & revision
+            //See https://stackoverflow.com/questions/892618/create-a-hashcode-of-two-numbers
+            int rotatedRevision = (revision << 16) | (revision >> (32 - 16));
+            return ID ^ rotatedRevision;
         }
 
-        public static readonly UID NULL = new UID() { ID = 0 };
+        /// <summary>
+        /// Creates a null entity. NOTE: Do not use this to check if an entity is Null! Ise UID.IsNull() instead!
+        /// </summary>
+        public static readonly UID CreateNull = new UID() { ID = 0, revision = -1 };
 
 
 
@@ -59,6 +87,7 @@ namespace ECS {
         public void Deserialize(object incoming) {
             FBUID data = (Serial.FBUID)incoming;
             ID = data.Id;
+            revision = data.Revision;
         }
 
         int IFBSerializable.Serialize(FlatBufferBuilder builder) {

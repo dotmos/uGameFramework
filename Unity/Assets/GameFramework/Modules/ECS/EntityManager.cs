@@ -17,7 +17,7 @@ namespace ECS {
         //This is super cache unfriendly.
         //TODO: Make cache friendly and do not use a list of components, but use a list of ids, targeting component arrays of same component type. I.e. one array per component type
         protected readonly Dictionary<UID, HashSet<IComponent>> _entities;
-        private readonly HashSet<int> _entityIDs;
+        private readonly HashSet<UID> _entityIDs;
 
         /// <summary>
         /// List of all registered systems
@@ -38,11 +38,11 @@ namespace ECS {
         public static bool showLog = false;
 #endif
 
-        private readonly Queue<int> _recycledEntityIds;
+        private readonly Queue<UID> _recycledEntityIds;
         private int _lastEntityId { get; set; }
         static readonly int _startEntityID = 1;
 
-        private readonly Queue<int> _recycledComponentIds;
+        private readonly Queue<UID> _recycledComponentIds;
         private int _lastComponentId { get; set; }
         static readonly int _startComponentID = 1;
 
@@ -59,10 +59,10 @@ namespace ECS {
 
         public EntityManager() {
             _entities = new Dictionary<UID, HashSet<IComponent>>();
-            _entityIDs = new HashSet<int>();
+            _entityIDs = new HashSet<UID>();
             _systems = new List<ISystem>();
-            _recycledEntityIds = new Queue<int>();
-            _recycledComponentIds = new Queue<int>();
+            _recycledEntityIds = new Queue<UID>();
+            _recycledComponentIds = new Queue<UID>();
             _lastEntityId = _startEntityID;
             _lastComponentId = _startComponentID;
         }
@@ -151,31 +151,38 @@ namespace ECS {
         /// <returns></returns>
         public UID CreateEntity() {
             int id = -1;
+            int revision = 0;
 
             if (_lastEntityId + 1 >= int.MaxValue && _recycledEntityIds.Count == 0) {
-                //UnityEngine.Debug.LogError("WARNING: No free entity IDs! Restarting from 0. This should not happen!");
+                UnityEngine.Debug.LogError("WARNING: No free entity IDs! Restarting from 0. This is VERY unlikly to happen! There is a UID leak somewhere...");
                 _lastEntityId = _startEntityID;
             }
 
             if (_recycledEntityIds.Count > 0) {
-                id = _recycledEntityIds.Dequeue();
+                UID  uid = _recycledEntityIds.Dequeue();
+                id = uid.ID;
+                revision = uid.Revision;
+                if(revision+1 >= int.MaxValue) {
+                    revision = 0;
+                }
+                revision++;
             } else {
                 id = _lastEntityId;
                 _lastEntityId++;
             }
-            return CreateEntity(id);
+            return CreateEntity(id, revision);
         }
 
         /// <summary>
         /// Creates a new entity
         /// </summary>
         /// <returns></returns>
-        protected UID CreateEntity(int id) {
-            UID uid = new UID(id);
+        protected UID CreateEntity(int id, int revision) {
+            UID uid = new UID(id, revision);
             //UnityEngine.Debug.Log(uid.ID);
 
             _entities.Add(uid, new HashSet<IComponent>());
-            _entityIDs.Add(uid.ID);
+            _entityIDs.Add(uid);
 
             return uid;
         }
@@ -184,12 +191,12 @@ namespace ECS {
         /// Creates a new entity
         /// </summary>
         /// <returns></returns>
-        protected UID ThreadSafeCreateEntity(int id) {
+        protected UID ThreadSafeCreateEntity(int id, int revision) {
             //UnityEngine.Debug.Log(uid.ID);
             lock (_entities) {
-                UID uid = new UID(id);
+                UID uid = new UID(id, revision);
                 _entities.Add(uid, new HashSet<IComponent>());
-                _entityIDs.Add(uid.ID);
+                _entityIDs.Add(uid);
                 return uid;
             }
         }
@@ -208,12 +215,12 @@ namespace ECS {
                 }
 
                 _entities[entity].Clear();
-                _entityIDs.Remove(entity.ID);
+                _entityIDs.Remove(entity);
                 _EntityModified(entity);
                 _entities[entity] = null;
                 _entities.Remove(entity);
-                _recycledEntityIds.Enqueue(entity.ID);
-                entity.ID = 0; // make it NULL
+                _recycledEntityIds.Enqueue(entity);
+                entity.SetNull(); // make it NULL
             }
         }
 
@@ -244,7 +251,19 @@ namespace ECS {
             //return _entities.ContainsKey(entity);
             if (entity.ID == 0) return false;
 
-            return _entityIDs.Contains(entity.ID);
+            return _entityIDs.Contains(entity);
+        }
+
+        /// <summary>
+        /// Tries to find an entity for the supplied ID. This funtion is VERY slow!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public UID? GetEntityForID_SLOW(int id) {
+            foreach(UID uid in _entityIDs) {
+                if (uid.ID == id) return uid;
+            }
+            return null;
         }
 
         /// <summary>
@@ -255,6 +274,7 @@ namespace ECS {
             if (component.ID.IsNull()) {
 
                 int id = -1;
+                int revision = 0;
 
                 if (_lastComponentId + 1 >= int.MaxValue && _recycledComponentIds.Count == 0) {
                     //UnityEngine.Debug.LogError("WARNING: No free entity IDs! Restarting from 0. This should not happen!");
@@ -262,14 +282,20 @@ namespace ECS {
                 }
 
                 if (_recycledComponentIds.Count > 0) {
-                    id = _recycledComponentIds.Dequeue();
+                    UID uid = _recycledComponentIds.Dequeue();
+                    id = uid.ID;
+                    revision = uid.Revision;
+                    if(revision+1 > int.MaxValue) {
+                        revision = 0;
+                    }
+                    revision++;
                 }
                 else {
                     id = _lastComponentId;
                     _lastComponentId++;
                 }
 
-                component.ID = new UID(id);
+                component.ID = new UID(id, revision);
                 //UnityEngine.Debug.Log(uid.ID);
             }
         }
@@ -418,9 +444,9 @@ namespace ECS {
             if (applicationIsQuitting) return;
 
             RemoveComponent(component.Entity, component);
-            _recycledComponentIds.Enqueue(component.ID.ID);
+            _recycledComponentIds.Enqueue(component.ID);
             component.Dispose();
-            component.ID = UID.NULL;
+            component.ID.SetNull();
             //component.Entity = UID.NULL; //NOTE: Do not set entity to NULL. The way things are set-up right now, this might break ISystem.OnUnregistered() since components are still available, but entity is not set.
         }
 
@@ -623,8 +649,8 @@ namespace ECS {
 
         public virtual int Serialize(FlatBufferBuilder builder) {
 
-            VectorOffset _recycledUIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledEntityIds.ToList());
-            VectorOffset _recycledComponentIDOffset = FlatBufferSerializer.CreateManualList<int>(builder, _recycledComponentIds.ToList());
+            VectorOffset _recycledUIDOffset = FlatBufferSerializer.CreateManualList<UID>(builder, _recycledEntityIds.ToList());
+            VectorOffset _recycledComponentIDOffset = FlatBufferSerializer.CreateManualList<UID>(builder, _recycledComponentIds.ToList());
             builder.StartTable(4);
             builder.AddInt(0, _lastEntityId, 0);
             builder.AddInt(1, _lastComponentId, 0);
@@ -646,12 +672,12 @@ namespace ECS {
             _lastComponentId = manual.GetInt(1);
 
             // recycled entityIDS
-            IList<int> recycledIds = manual.GetPrimitiveList<int>(2);
-            ((List<int>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
+            IList<UID> recycledIds = manual.GetPrimitiveList<UID>(2);
+            ((List<UID>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
 
             // recycled componentIDs
-            recycledIds = manual.GetPrimitiveList<int>(3);
-            ((List<int>)recycledIds).ForEach(o => _recycledComponentIds.Enqueue(o));
+            recycledIds = manual.GetPrimitiveList<UID>(3);
+            ((List<UID>)recycledIds).ForEach(o => _recycledComponentIds.Enqueue(o));
         }
 
         public virtual void Deserialize(ByteBuffer buf) {

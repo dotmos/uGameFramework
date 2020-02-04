@@ -42,6 +42,13 @@ namespace ECS {
 
         int EntityCount();
 
+        /// <summary>
+        /// Tries to find an entity for the supplied ID. This funtion is VERY slow!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        UID? GetEntityForID_SLOW(int id);
+
         void Clear();
     }
 }
