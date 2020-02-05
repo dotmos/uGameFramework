@@ -651,12 +651,15 @@ namespace ECS {
 
             VectorOffset _recycledUIDOffset = FlatBufferSerializer.CreateManualList<UID>(builder, _recycledEntityIds.ToList());
             VectorOffset _recycledComponentIDOffset = FlatBufferSerializer.CreateManualList<UID>(builder, _recycledComponentIds.ToList());
-            builder.StartTable(4);
+            builder.StartTable(6);
             builder.AddInt(0, _lastEntityId, 0);
             builder.AddInt(1, _lastComponentId, 0);
-            builder.AddOffset(2, _recycledUIDOffset.Value, 0);
-            builder.AddOffset(3, _recycledComponentIDOffset.Value, 0);
+            builder.AddInt(2, _recycledEntityIds.Count, 0);
+            builder.AddOffset(3, _recycledUIDOffset.Value, 0);
+            builder.AddInt(4, _recycledComponentIds.Count, 0);
+            builder.AddOffset(5, _recycledComponentIDOffset.Value, 0);
             
+
             return builder.EndTable();
         }
 
@@ -672,12 +675,22 @@ namespace ECS {
             _lastComponentId = manual.GetInt(1);
 
             // recycled entityIDS
-            IList<UID> recycledIds = manual.GetPrimitiveList<UID>(2);
-            ((List<UID>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
+            //IList<UID> recycledIds = manual.GetPrimitiveList<UID>(2);
+            //((List<UID>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
+            int recycledIdsCount = manual.GetInt(2);
+            List<object> tempList = FlatBufferSerializer.poolListObject.GetList(recycledIdsCount);
+            List<UID> recycledIds = (List<UID>)FlatBufferSerializer.DeserializeList<UID, Serial.FBUID>(3, recycledIdsCount, tempList, null, false);
+            recycledIds.ForEach(o => _recycledEntityIds.Enqueue(o));
+            FlatBufferSerializer.poolListObject.Release(tempList);
 
             // recycled componentIDs
-            recycledIds = manual.GetPrimitiveList<UID>(3);
-            ((List<UID>)recycledIds).ForEach(o => _recycledComponentIds.Enqueue(o));
+            //recycledIds = manual.GetPrimitiveList<UID>(5);
+            //((List<UID>)recycledIds).ForEach(o => _recycledComponentIds.Enqueue(o));
+            recycledIdsCount = manual.GetInt(4);
+            tempList = FlatBufferSerializer.poolListObject.GetList(recycledIdsCount);
+            recycledIds = (List<UID>)FlatBufferSerializer.DeserializeList<UID, Serial.FBUID>(5, recycledIdsCount, tempList, null, false);
+            recycledIds.ForEach(o => _recycledComponentIds.Enqueue(o));
+            FlatBufferSerializer.poolListObject.Release(tempList);
         }
 
         public virtual void Deserialize(ByteBuffer buf) {
