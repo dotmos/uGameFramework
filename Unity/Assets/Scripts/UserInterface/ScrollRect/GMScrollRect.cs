@@ -690,8 +690,8 @@ namespace UserInterface {
         /// <param name="target"></param>
         public void SnapToVertical(RectTransform target) {
             Canvas.ForceUpdateCanvases();
-            float normalizedPosition = Mathf.Clamp01(Mathf.Abs(target.localPosition.y) / content.sizeDelta.y);
-            m_VerticalScrollbar.value = normalizedPosition;
+            Vector2 targetPosition = new Vector2(target.position.x, target.position.y);
+            content.anchoredPosition = (Vector2)transform.InverseTransformPoint(content.position) - (Vector2)transform.InverseTransformPoint(targetPosition);
             Canvas.ForceUpdateCanvases();
         }
 
