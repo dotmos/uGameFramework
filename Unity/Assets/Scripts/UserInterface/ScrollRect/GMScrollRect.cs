@@ -684,6 +684,17 @@ namespace UserInterface {
             LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
         }
 
+        /// <summary>
+        /// Snaps scrollRect to target. Target needs to be a child!
+        /// </summary>
+        /// <param name="target"></param>
+        public void SnapToVertical(RectTransform target) {
+            Canvas.ForceUpdateCanvases();
+            float normalizedPosition = Mathf.Clamp01(Mathf.Abs(target.localPosition.y) / content.sizeDelta.y);
+            m_VerticalScrollbar.value = normalizedPosition;
+            Canvas.ForceUpdateCanvases();
+        }
+
 #if UNITY_EDITOR
         protected override void OnValidate() {
             SetDirtyCaching();
