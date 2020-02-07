@@ -679,6 +679,7 @@ namespace ECS {
             //((List<UID>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
             int recycledIdsCount = manual.GetInt(2);
             List<object> tempList = FlatBufferSerializer.poolListObject.GetList(recycledIdsCount);
+            for (int i = 0; i < recycledIdsCount; i++) tempList.Add(manual.GetListElemAt<Serial.FBUID>(3,i));
             List<UID> recycledIds = (List<UID>)FlatBufferSerializer.DeserializeList<UID, Serial.FBUID>(3, recycledIdsCount, tempList, null, false);
             recycledIds.ForEach(o => _recycledEntityIds.Enqueue(o));
             FlatBufferSerializer.poolListObject.Release(tempList);
@@ -688,6 +689,9 @@ namespace ECS {
             //((List<UID>)recycledIds).ForEach(o => _recycledComponentIds.Enqueue(o));
             recycledIdsCount = manual.GetInt(4);
             tempList = FlatBufferSerializer.poolListObject.GetList(recycledIdsCount);
+            int listLength = manual.GetListLength(5);
+            for (int i = 0; i < recycledIdsCount; i++) tempList.Add(manual.GetListElemAt<Serial.FBUID>(5, i));
+            
             recycledIds = (List<UID>)FlatBufferSerializer.DeserializeList<UID, Serial.FBUID>(5, recycledIdsCount, tempList, null, false);
             recycledIds.ForEach(o => _recycledComponentIds.Enqueue(o));
             FlatBufferSerializer.poolListObject.Release(tempList);
