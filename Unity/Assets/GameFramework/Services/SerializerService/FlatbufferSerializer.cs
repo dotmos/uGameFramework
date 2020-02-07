@@ -807,12 +807,15 @@ namespace Service.Serializer {
         public static void ProcessPostProcessing(object userobject) {
             ECS.IEntityManager entityManager = Kernel.Instance.Resolve<ECS.IEntityManager>();
             // post-process objects that are marked via FlatbufferSerializer.AddPostProcessType(type)
+            int savedFormat = FlatBufferSerializer.CurrentDeserializingDataFormatVersion; // the format of the file just loaded
+            int currentFormat = FlatBufferSerializer.CurrentDataFormatVersion; // the current format of this codebase            
+
             foreach (KeyValuePair<Type, List<object>> postProcessObj in FlatBufferSerializer.postProcessObjects) {
                 List<object> postProcessObjList = postProcessObj.Value;
                 for (int j = 0; j < postProcessObjList.Count; j++) {
                     object elem = postProcessObjList[j];
                     if (elem is IFBPostDeserialization) {
-                        ((IFBPostDeserialization)elem).OnPostDeserialization(entityManager, userobject);
+                        ((IFBPostDeserialization)elem).OnPostDeserialization(entityManager, userobject,savedFormat, currentFormat);
                     }
                 }
             }

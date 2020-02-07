@@ -18,7 +18,7 @@ public interface IFBSerializable {
 public interface IFBSerializeOnMainThread { }
 
 public interface IFBPostDeserialization {
-    void OnPostDeserialization(ECS.IEntityManager entityManager,object userobject);
+    void OnPostDeserialization(ECS.IEntityManager entityManager,object userobject,int savedDataFormat, int currentDataFormat);
 }
 
 
