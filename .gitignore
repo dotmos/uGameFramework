@@ -1,2 +1,6 @@
 /Unity/Library
 /Unity/Temp
+/Unity/Assets/GameFramework/Modules/flatbuffers/FlatBuffers/obj.meta
+/Unity/Assets/GameFramework/Modules/flatbuffers/FlatBuffers/bin.meta
+/Unity/NonUnityBuild/Bin.meta
+/NonUnityBuild/Temp.meta
