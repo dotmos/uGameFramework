@@ -28,6 +28,10 @@ namespace ECS {
         //protected List<UID> validEntities;
         protected HashSet<UID> validEntities;
         protected List<TComponents> componentsToProcess; //Was hashset in the past, but hashsets were super slow when multithreading systems. Testcase showed 28ms (hashset) vs 14ms (list)!
+        /// <summary>
+        /// LUT for quick TComponent access
+        /// </summary>
+        Dictionary<int, TComponents> componentsToProcessLUT;
 
         /// <summary>
         /// Temporarily store newly registered Component(packs) here, when a new entity got valid
@@ -67,7 +71,8 @@ namespace ECS {
 
         public System(IEntityManager entityManager) {
             validEntities = new HashSet<UID>();
-            componentsToProcess = new List<TComponents>(65535); //Initial size is ushort. Will allocate more, if needed.
+            componentsToProcess = new List<TComponents>();
+            componentsToProcessLUT = new Dictionary<int, TComponents>();
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
             updatedComponents = new List<TComponents>();
@@ -327,8 +332,13 @@ namespace ECS {
         /// <param name="entity"></param>
         /// <returns></returns>
         protected TComponents GetSystemComponentsForEntity(UID entity) {
-            TComponents components = componentsToProcess.Find(o => o.Entity == entity);
-            return components;
+            //TComponents components = componentsToProcess.Find(o => o.Entity == entity);
+            TComponents components;
+            if(componentsToProcessLUT.TryGetValue(entity.ID, out components)) {
+                return components;
+            } else {
+                return default(TComponents);
+            }
         }
 
 
@@ -352,6 +362,7 @@ namespace ECS {
             //Add components to process
             TComponents components = _CreateSystemComponentsForEntity(entity);
             componentsToProcess.Add(components);
+            componentsToProcessLUT.Add(entity.ID, components);
 
             newComponents.Add(components);
         }
@@ -369,6 +380,7 @@ namespace ECS {
             TComponents components = GetSystemComponentsForEntity(entity);
             if (components != null) {
                 componentsToProcess.Remove(components);
+                componentsToProcessLUT.Remove(components.Entity.ID);
             }
             
             //componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
@@ -407,6 +419,7 @@ namespace ECS {
             
             validEntities.Clear();
             componentsToProcess.Clear();
+            componentsToProcessLUT.Clear();
         }
 
         public virtual void Dispose() {
@@ -416,6 +429,7 @@ namespace ECS {
 
             validEntities.Clear();
             componentsToProcess.Clear();
+            componentsToProcessLUT.Clear();
 
             UnityEngine.Debug.Log("System("+this.GetType().Name+") disposed");
         }

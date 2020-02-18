@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using FlatBuffers;
 using Serial;
@@ -8,7 +9,7 @@ namespace ECS {
     /// <summary>
     /// Unique ID
     /// </summary>
-    public struct UID : IFBSerializable  {
+    public struct UID : IFBSerializable, IEquatable<UID>, IEqualityComparer<UID> {
 
         public int ID;
         private int revision;
@@ -47,20 +48,37 @@ namespace ECS {
         }
 
         public override bool Equals(object obj) {
+            //Generic equal. Creates garbage due to boxing
             if (obj is UID) {
                 UID otherUID = (UID)obj;
-                return otherUID.ID == ID && otherUID.revision == revision;
+                return Equals(otherUID);
             } else {
                 return base.Equals(obj);
             }
         }
 
+        //Garbage free IEquatable<UID> (non-boxing)
+        public bool Equals(UID other) {
+            return other.ID == ID && other.revision == revision;
+        }
+
+        // IEqualityComparer<UID>
+        public bool Equals(UID x, UID y) {
+            return x.Equals(y);
+        }
+
+        // IEqualityComparer<UID>
+        public int GetHashCode(UID obj) {
+            return obj.GetHashCode();
+        }
+
+
         public static bool operator ==(UID c1, UID c2) {
-            return (c1.ID == c2.ID && c1.revision == c2.revision);
+            return c1.Equals(c2);// (c1.ID == c2.ID && c1.revision == c2.revision);
         }
 
         public static bool operator !=(UID c1, UID c2) {
-            return (c1.ID != c2.ID || c1.revision != c2.revision);
+            return !c1.Equals(c2); // (c1.ID != c2.ID || c1.revision != c2.revision);
         }
 
         public override int GetHashCode() {
@@ -101,7 +119,7 @@ namespace ECS {
         public override string ToString() {
             return "UID:"+ID.ToString();
         }
-
+        
     }
 
 }
