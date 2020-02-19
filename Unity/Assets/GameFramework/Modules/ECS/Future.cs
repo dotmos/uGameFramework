@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using ParallelProcessing;
+using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ECS {
 
     public class FutureProcessor {
-        private ParallelProcessor<object> parallelQueue;
+        private ParallelProcessor parallelQueue;
         private ConcurrentQueue<Future> parallelQueueActions = new ConcurrentQueue<Future>();
         private ConcurrentQueue<Future> mainThreadActions = new ConcurrentQueue<Future>();
 
@@ -23,7 +22,7 @@ namespace ECS {
         public static FutureProcessor Instance { get => instance; }
 
         public FutureProcessor(float maxMsPerMainThread=250.0f) {
-            parallelQueue = new ParallelProcessor<object>(ProcessParallelQueueItem);
+            parallelQueue = new ParallelProcessor(ProcessParallelQueueItem);
             timePerMainframe = maxMsPerMainThread;
         }
 

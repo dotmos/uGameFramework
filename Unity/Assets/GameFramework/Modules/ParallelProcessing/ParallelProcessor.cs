@@ -1,92 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace ECS {
-
-    /// <summary>
-    /// Helper class, holding static thread data used by ParallelSystemComponentsProcessor<T>
-    /// </summary>
-    public static class ParallelProcessorWorkers{
-        static readonly object _locker = new object();
-        static Thread[] _workers;
-        public static int WorkerCount { get; private set; }
-        static ConcurrentQueue<Action> _itemQ = new ConcurrentQueue<Action>();
-
-        public static readonly object _workingCountLocker = new object();
-        public static long workingCount = 0;
-
-        /// <summary>
-        /// Processors using the workers
-        /// </summary>
-        public static int processorInstanceCount = 0;
-
-        public static Thread[] GetWorkers() {
-            if (_workers == null) {
-                WorkerCount = Math.Max(Environment.ProcessorCount, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
-                _workers = new Thread[WorkerCount];
-                // Create and start a separate thread for each worker
-                for (int i = 0; i < WorkerCount; i++) {
-                    Thread t = new Thread(Consume);
-                    t.Name = "ParallelComponentProcessor-" + i.ToString();
-                    t.IsBackground = true;
-                    t.Start();
-                    //Task t = Task.Factory.StartNew(Consume, TaskCreationOptions.LongRunning);
-                    _workers[i] = t;
-                }
-            }
-
-            return _workers;
-        }
-
-        /// <summary>
-        /// Consume and process a worker item
-        /// </summary>
-        static void Consume() {
-            // Keep consuming until told otherwise.
-            while (true) {
-                Action item;
-                lock (_locker) {
-                    while (_itemQ.Count == 0) Monitor.Wait(_locker);
-                    if (!_itemQ.TryDequeue(out item)) {
-                        continue;
-                    }
-                }
-                // This signals our exit.
-                if (item == null) return;
-
-                // Execute item
-                try {
-                    item();
-                }
-                catch (Exception e) {
-                    //Console.WriteLine(e.Message);
-                    UnityEngine.Debug.LogException(e);
-                }
-
-            }
-        }
-
-        /// <summary>
-        /// Add a new item to the worker queue
-        /// </summary>
-        /// <param name="item"></param>
-        public static void EnqueueItem(Action item) {
-            lock (_locker) {
-                _itemQ.Enqueue(item);
-                // We must pulse because we're changing a blocking condition.
-                Monitor.Pulse(_locker);
-            }
-        }
-    }
-
-    public class ParallelProcessor<T> : IDisposable /*where T : ISystemComponents*/ {
-        
-        
-        /// <summary>
+namespace ParallelProcessing {
+    public class ParallelProcessor : IDisposable /*where T : ISystemComponents*/ {
+                /// <summary>
         /// Cached action to process for this system
         /// </summary>
         Action[] processActions;
@@ -102,8 +20,8 @@ namespace ECS {
 
 
         public ParallelProcessor(Action<int, float> componentAction) {
-            ParallelProcessorWorkers.GetWorkers();
-            ParallelProcessorWorkers.processorInstanceCount++;
+            ParallelProcessorWorkers.Setup();
+            ParallelProcessorWorkers._processorInstanceCount++;
 
             processActionData = new ProcessActionData[ParallelProcessorWorkers.WorkerCount];
             processActions = new Action[ParallelProcessorWorkers.WorkerCount];
@@ -125,7 +43,7 @@ namespace ECS {
                     finally {
                         //Interlocked.Decrement(ref workingCount);
                         lock (ParallelProcessorWorkers._workingCountLocker) {
-                            ParallelProcessorWorkers.workingCount--;
+                            ParallelProcessorWorkers._workingCount--;
                             Monitor.Pulse(ParallelProcessorWorkers._workingCountLocker);
                         }
                     }
@@ -143,12 +61,12 @@ namespace ECS {
         /// <param name="waitForWorkers"></param>
         void Shutdown(bool waitForWorkers) {
             // Enqueue one null item per worker to make each exit.
-            foreach (Thread worker in ParallelProcessorWorkers.GetWorkers())
+            foreach (Thread worker in ParallelProcessorWorkers.Workers)
                 ParallelProcessorWorkers.EnqueueItem(null);
 
             // Wait for workers to finish
             if (waitForWorkers)
-                foreach (Thread worker in ParallelProcessorWorkers.GetWorkers())
+                foreach (Thread worker in ParallelProcessorWorkers.Workers)
                     worker.Join();
         }
         
@@ -163,7 +81,7 @@ namespace ECS {
             //Make sure we are not using more threads than components
             int workersToUse = Math.Min(ParallelProcessorWorkers.WorkerCount, componentsToProcessCount);
 
-            Interlocked.Exchange(ref ParallelProcessorWorkers.workingCount, workersToUse);
+            Interlocked.Exchange(ref ParallelProcessorWorkers._workingCount, workersToUse);
 
             int componentChunk = (int)Math.Floor((float)componentsToProcessCount / (float)workersToUse);
             for (int i = 0; i < workersToUse; ++i) {
@@ -199,13 +117,13 @@ namespace ECS {
 
             //Wait for queue to finish
             lock (ParallelProcessorWorkers._workingCountLocker) {
-                while (ParallelProcessorWorkers.workingCount > 0) Monitor.Wait(ParallelProcessorWorkers._workingCountLocker);
+                while (ParallelProcessorWorkers._workingCount > 0) Monitor.Wait(ParallelProcessorWorkers._workingCountLocker);
             }
         }
 
         public void Dispose() {
-            ParallelProcessorWorkers.processorInstanceCount--;
-            if(ParallelProcessorWorkers.processorInstanceCount <= 0) {
+            ParallelProcessorWorkers._processorInstanceCount--;
+            if(ParallelProcessorWorkers._processorInstanceCount <= 0) {
                 Shutdown(true);
             }
         }

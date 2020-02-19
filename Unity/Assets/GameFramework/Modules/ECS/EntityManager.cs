@@ -457,27 +457,16 @@ namespace ECS {
         /// <param name="entity"></param>
         /// <returns></returns>
         public T GetComponent<T>(UID entity) where T : IComponent{
-            /*if (EntityExists(entity)) {
-                //TODO: This is slow. Rethink how entities are stored.
-                //IComponent c = _entities[entity].Find(o => o is T);
-
-                //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
-                IComponent c = null;// 
-                foreach(IComponent comp in _entities[entity]) {
-                    if(comp is T) {
-                        c = comp;
-                        break;
+            if (EntityExists(entity)) {
+                HashSet<IComponent> components = _entities[entity];
+                foreach (IComponent comp in components) {
+                    if (comp is T castedComp) {
+                        return castedComp;
                     }
-                }
-                if(c != null) {
-                    return (T)c;
                 }
             }
 
-            //UnityEngine.Debug.LogError("Entity " + entity.ID + " does not exist!");
-            //throw new Exception("Entity " + entity.ID + " does not exist!");
-            return default(T);*/
-            return (T)GetComponent(entity, typeof(T));
+            return default;
         }
 
         /// <summary>
@@ -489,7 +478,8 @@ namespace ECS {
         public object GetComponent(UID entity,Type componentType) {
             if (EntityExists(entity)) {
                 IComponent c = null;// 
-                foreach (IComponent comp in _entities[entity]) {
+                HashSet<IComponent> components = _entities[entity];
+                foreach (IComponent comp in components) {
                     if (comp.GetType()==componentType) {
                         c = comp;
                         break;

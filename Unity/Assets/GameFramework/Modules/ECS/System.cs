@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Zenject;
 using UniRx;
+using ParallelProcessing;
 
 namespace ECS {
     public abstract class System<TComponents> : ISystem where TComponents : ISystemComponents, new(){
@@ -52,7 +53,7 @@ namespace ECS {
         /// </summary>
         float currentUpdateDeltaTime = 0;
 
-        protected ParallelProcessor<TComponents> parallelSystemComponentProcessor;
+        protected ParallelProcessor parallelSystemComponentProcessor;
 
         string _systemName = null;
         string SystemName {
@@ -105,7 +106,7 @@ namespace ECS {
 #if UNITY_EDITOR
                 sampler = UnityEngine.Profiling.CustomSampler.Create(SystemName);
 #endif
-                parallelSystemComponentProcessor = new ParallelProcessor<TComponents>(ProcessAtIndex);
+                parallelSystemComponentProcessor = new ParallelProcessor(ProcessAtIndex);
             }
         }
 
@@ -399,8 +400,6 @@ namespace ECS {
         private TComponents _CreateSystemComponentsForEntity(UID entity) {
             TComponents tc = new TComponents();
             tc.Entity = entity;
-            // TODO: Get rid of this again
-            //tc.EntityManager = entityManager;
             return GetEntityComponents(tc, entity);
         }
 
