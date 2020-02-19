@@ -52,7 +52,7 @@ namespace ECS {
         /// </summary>
         float currentUpdateDeltaTime = 0;
 
-        protected ParallelSystemComponentsProcessor<TComponents> parallelSystemComponentProcessor;
+        protected ParallelProcessor<TComponents> parallelSystemComponentProcessor;
 
         string _systemName = null;
         string SystemName {
@@ -105,7 +105,7 @@ namespace ECS {
 #if UNITY_EDITOR
                 sampler = UnityEngine.Profiling.CustomSampler.Create(SystemName);
 #endif
-                parallelSystemComponentProcessor = new ParallelSystemComponentsProcessor<TComponents>(ProcessAtIndex);
+                parallelSystemComponentProcessor = new ParallelProcessor<TComponents>(ProcessAtIndex);
             }
         }
 

@@ -14,7 +14,7 @@ namespace ECS {
         static readonly object _locker = new object();
         static Thread[] _workers;
         public static int WorkerCount { get; private set; }
-        public static ConcurrentQueue<Action> _itemQ = new ConcurrentQueue<Action>();
+        static ConcurrentQueue<Action> _itemQ = new ConcurrentQueue<Action>();
 
         public static readonly object _workingCountLocker = new object();
         public static long workingCount = 0;
@@ -83,7 +83,7 @@ namespace ECS {
         }
     }
 
-    public class ParallelSystemComponentsProcessor<T> : IDisposable /*where T : ISystemComponents*/ {
+    public class ParallelProcessor<T> : IDisposable /*where T : ISystemComponents*/ {
         
         
         /// <summary>
@@ -101,7 +101,8 @@ namespace ECS {
         ProcessActionData[] processActionData;
 
 
-        public ParallelSystemComponentsProcessor(Action<int, float> componentAction) {
+        public ParallelProcessor(Action<int, float> componentAction) {
+            ParallelProcessorWorkers.GetWorkers();
             ParallelProcessorWorkers.processorInstanceCount++;
 
             processActionData = new ProcessActionData[ParallelProcessorWorkers.WorkerCount];

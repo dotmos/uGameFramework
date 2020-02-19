@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ECS {
 
     public class FutureProcessor {
-        private ParallelSystemComponentsProcessor<object> parallelQueue;
+        private ParallelProcessor<object> parallelQueue;
         private ConcurrentQueue<Future> parallelQueueActions = new ConcurrentQueue<Future>();
         private ConcurrentQueue<Future> mainThreadActions = new ConcurrentQueue<Future>();
 
@@ -23,7 +23,7 @@ namespace ECS {
         public static FutureProcessor Instance { get => instance; }
 
         public FutureProcessor(float maxMsPerMainThread=250.0f) {
-            parallelQueue = new ParallelSystemComponentsProcessor<object>(ProcessParallelQueueItem);
+            parallelQueue = new ParallelProcessor<object>(ProcessParallelQueueItem);
             timePerMainframe = maxMsPerMainThread;
         }
 
