@@ -11,7 +11,7 @@ namespace ParallelProcessing {
     /// Once the processor is finished, you can access all list entries using GetAllLists and ProcessLists
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ParallelProcessorAddList<T> : IList<T> {
+    public class ParallelProcessorList<T> : IList<T> {
 
         List<List<T>> threadLists;
         /// <summary>
@@ -19,15 +19,36 @@ namespace ParallelProcessing {
         /// </summary>
         Dictionary<int, List<T>> threadListLUT;
 
-        public ParallelProcessorAddList() {
+        /// <summary>
+        /// If otherThreads is supplied, otherThreads will also get lists in addition to the ParallelProcessorWorker threads
+        /// </summary>
+        /// <param name="mainThread"></param>
+        public ParallelProcessorList(Thread[] otherThreads = null) : this(0, otherThreads) { }
+
+        public ParallelProcessorList(int initialSize, Thread[] otherThreads = null) {
             ParallelProcessorWorkers.Setup();
 
-            threadLists = new List<List<T>>();
-            threadListLUT = new Dictionary<int, List<T>>();
-            foreach(Thread t in ParallelProcessorWorkers.Workers) {
+            if(initialSize > 0) {
+                threadLists = new List<List<T>>(initialSize);
+            } else {
+                threadLists = new List<List<T>>();
+            }
+            
+            threadListLUT = new Dictionary<int, List<T>>(ParallelProcessorWorkers.WorkerCount);
+
+            //Create worker thread lists
+            foreach (Thread t in ParallelProcessorWorkers.Workers) {
                 List<T> list = new List<T>();
                 threadLists.Add(list);
                 threadListLUT[t.ManagedThreadId] = list;
+            }
+            //Also create lists for other threads?
+            if(otherThreads != null) {
+                foreach(Thread t in otherThreads) {
+                    List<T> list = new List<T>();
+                    threadLists.Add(list);
+                    threadListLUT[t.ManagedThreadId] = list;
+                }
             }
         }
 
@@ -58,16 +79,26 @@ namespace ParallelProcessing {
         }
 
         /// <summary>
-        /// Process an action on all lists. Call this AFTER ParallelProcessor.Process() is finished and the lists are no longer accessed by other threads.
+        /// Apply an action on ALL items of ALL lists. Call this AFTER ParallelProcessor.Process() is finished and the lists are no longer accessed by other threads.
         /// </summary>
         /// <param name="a"></param>
-        public void ProcessLists(Action<T> a) {
+        public void ProcessListItems(Action<T> a) {
             for(int l=0; l<threadLists.Count; ++l) {
                 List<T> list = threadLists[l];
                 int count = list.Count;
                 for (int i = 0; i < count; ++i) {
                     a(list[i]);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Apply an action to all lists. Call this AFTER ParallelProcessor.Process() is finished and the lists are no longer accessed by other threads.
+        /// </summary>
+        /// <param name="a"></param>
+        public void ProcessLists(Action<List<T>> a) {
+            for(int i=0; i<threadLists.Count; ++i) {
+                a(threadLists[i]);
             }
         }
 
@@ -79,6 +110,14 @@ namespace ParallelProcessing {
             return threadLists;
         }
 
+        /// <summary>
+        /// Clears all lists
+        /// </summary>
+        public void ClearAllLists() {
+            for (int i=0; i<threadLists.Count; ++i) {
+                threadLists[i].Clear();
+            }
+        }
 
 
 
