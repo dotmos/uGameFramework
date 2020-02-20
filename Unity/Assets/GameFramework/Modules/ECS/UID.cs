@@ -92,7 +92,7 @@ namespace ECS {
         }
 
         /// <summary>
-        /// Creates a null entity. NOTE: Do not use this to check if an entity is Null! Ise UID.IsNull() instead!
+        /// Creates a null entity. NOTE: Do not use this to check if an entity is Null! Use UID.IsNull() instead!
         /// </summary>
         public static readonly UID CreateNull = new UID() { ID = 0, revision = -1 };
 
