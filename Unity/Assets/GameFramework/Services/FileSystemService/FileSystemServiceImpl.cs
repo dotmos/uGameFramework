@@ -35,10 +35,10 @@ namespace Service.FileSystem {
 
             //Check if there are locas in streaming assets. If not, use game/Localization folder
             localizationPath = streamingAssetsPath + "/Localizations";
+            
             if (!Directory.Exists(localizationPath) || Directory.GetFiles(localizationPath, "*.json").Length == 0) {
                 localizationPath = gamePath + "/Localizations";
             }
-            
         }
 
         public static byte[] Compress(byte[] data) {
