@@ -17,11 +17,28 @@ namespace Service.FileSystem {
         /// <summary>
         /// cache the unity-paths here since you cannot use those in a thread
         /// </summary>
-        private string streamingAssetsPath = Application.streamingAssetsPath;
-        private string persistentDataPath = Application.persistentDataPath;
+        private readonly string streamingAssetsPath = Application.streamingAssetsPath;
+        private readonly string persistentDataPath = Application.persistentDataPath;
+        private readonly string gamePath =  Application.dataPath.Remove(Application.dataPath.LastIndexOf("/"));
+
+        private string configPath;
+        private string savegamePath;
+        private string scriptingPath;
+        private string devUIViewsPath;
+        private string localizationPath;
 
         protected override void AfterInitialize() {
-            // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
+            configPath = persistentDataPath + "/config";
+            savegamePath = persistentDataPath + "/savegame";
+            scriptingPath = persistentDataPath + "/scripting";
+            devUIViewsPath = persistentDataPath + "/dev-ui/views";
+
+            //Check if there are locas in streaming assets. If not, use game/Localization folder
+            localizationPath = streamingAssetsPath + "/Localizations";
+            if (!Directory.Exists(localizationPath) || Directory.GetFiles(localizationPath, "*.json").Length == 0) {
+                localizationPath = gamePath + "/Localizations";
+            }
+            
         }
 
         public static byte[] Compress(byte[] data) {
@@ -67,25 +84,25 @@ namespace Service.FileSystem {
         public override string GetPath(FSDomain domain,string relativePart="") {
             string path = MISC_PATH;
             switch (domain) {
-                case FSDomain.ConfigFolder: path = persistentDataPath+"/config"; break;
-                case FSDomain.SaveGames: path = persistentDataPath + "/savegame"; break;
-                case FSDomain.Scripting: path = persistentDataPath + "/scripting"; break;
-                case FSDomain.DevUIViews: path = persistentDataPath + "/dev-ui/views"; break;
+                case FSDomain.ConfigFolder: path = configPath; break;
+                case FSDomain.SaveGames: path = savegamePath; break;
+                case FSDomain.Scripting: path = scriptingPath; break;
+                case FSDomain.DevUIViews: path = devUIViewsPath; break;
                 case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archives"; break;
                 case FSDomain.RuntimeAssets: path = streamingAssetsPath; break;
+                case FSDomain.Localizations: path = localizationPath; break;
 
-                
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
 
-            if (relativePart != "") {
+            if (!string.IsNullOrEmpty(relativePart)) {
                 // remove leading slashes
                 while (relativePart.StartsWith("/")) {
                     relativePart = relativePart.Substring(1);
                 }
             }
 
-            return EnsureDirectoryExistsAndReturn(path) + (relativePart!=""?"/"+relativePart:"");
+            return EnsureDirectoryExistsAndReturn(path) + (!string.IsNullOrEmpty(relativePart) ? "/"+relativePart:"");
         }
 
         public override bool WriteStringToFile(string pathToFile, string data) {

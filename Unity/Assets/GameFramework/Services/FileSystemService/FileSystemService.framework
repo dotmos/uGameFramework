@@ -44,7 +44,8 @@ public enum FSDomain {
 	DevUIViews,
 	DevUIViewsArchieve,
 	ConfigFolder,
-	SaveGames
+	SaveGames,
+	Localizations
 }  
 
 ## events 
