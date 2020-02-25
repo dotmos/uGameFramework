@@ -690,8 +690,15 @@ namespace UserInterface {
         /// <param name="target"></param>
         public void SnapToVertical(RectTransform target) {
             Canvas.ForceUpdateCanvases();
-            Vector2 targetPosition = new Vector2(target.position.x, target.position.y);
-            content.anchoredPosition = (Vector2)transform.InverseTransformPoint(content.position) - (Vector2)transform.InverseTransformPoint(targetPosition);
+            Vector2 targetPosition = Vector2.zero;
+
+            if (target != null) {
+                targetPosition = new Vector2(target.position.x, target.position.y);
+                content.anchoredPosition = (Vector2)transform.InverseTransformPoint(content.position) - (Vector2)transform.InverseTransformPoint(targetPosition);
+            } else {
+                content.anchoredPosition = targetPosition;
+            }
+
             Canvas.ForceUpdateCanvases();
         }
 

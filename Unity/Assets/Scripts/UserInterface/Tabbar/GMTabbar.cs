@@ -31,7 +31,7 @@ namespace UserInterface {
                 RegisterTab(tab);
             }
 
-            if (!allowSwitchOff) ActivateCustomDefaultTab();
+            if (!allowSwitchOff && !deactivateDefaultOnEnableBehaviour) ActivateCustomDefaultTab();
         }
 
         protected override void OnEnable()
