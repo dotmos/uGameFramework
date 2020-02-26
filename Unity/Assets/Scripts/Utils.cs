@@ -417,7 +417,7 @@ public class DebugUtils {
 
 public class PoolList<T> where T : new()
 {
-    public List<T> innerList;
+    private List<T> innerList;
 
     // insane pooling of gridconnections. (sry)
     private bool inConnectionMode = false;
@@ -432,7 +432,7 @@ public class PoolList<T> where T : new()
     /// <summary>
     /// Start adding and overwriting new elements in list
     /// </summary>
-    public void StartConnectionMode() {
+    public void BeginListAssignment() {
         inConnectionMode = true;
         connectionModeIdx = 0;
     }
@@ -452,6 +452,10 @@ public class PoolList<T> where T : new()
         innerList.Clear();
     }
 
+    public List<T> InnerList {
+        get => innerList;
+    }
+
     /// <summary>
     /// Set max size for inner pool(default 10)
     /// </summary>
@@ -463,7 +467,7 @@ public class PoolList<T> where T : new()
     /// <summary>
     /// Finished writing to list => elements that are extra go to the pool
     /// </summary>
-    public void EndConnectionMode() {
+    public void FinishListAssignment() {
         int amount = innerList.Count;
         // release the rest
         for (int i = amount - 1; i >= connectionModeIdx; i--) {
@@ -475,10 +479,17 @@ public class PoolList<T> where T : new()
     }
 
     /// <summary>
+    /// Amount of elements in this pooled list
+    /// </summary>
+    public int Count {
+        get => innerList.Count;
+    }
+
+    /// <summary>
     /// Get one element. CAUTION: This data needs to be overwritten completely!!!!
     /// </summary>
     /// <returns></returns>
-    public T RetrieveFreeGridConnection() {
+    public T RetrieveElement() {
         if (!inConnectionMode) {
             Debug.LogError("You need to start connection mode");
             return default(T);
