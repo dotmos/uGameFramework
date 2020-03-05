@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Service.Serializer {
     public class FlatBufferSerializer {
-
+        
         public enum Mode {
             serializing, deserializing
         }
@@ -1061,6 +1061,7 @@ namespace Service.Serializer {
         /// 
 
         private static readonly Type IFBSerializableType = typeof(IFBSerializable);
+        private static readonly Type ScriptableObjectType = typeof(UnityEngine.ScriptableObject);
 
         public static object GetOrCreateDeserialize(IFlatbufferObject incoming, Type type, IFBSerializable newObject = null, bool forceSet = false) {
             if (incoming == null || incoming.BufferPosition == 0) {
@@ -1080,7 +1081,16 @@ namespace Service.Serializer {
                         newObject = newObject ?? (IFBSerializable)result;
                     }
 
-                    newObject = newObject == null ? (IFBSerializable)Activator.CreateInstance(type) : newObject;
+                    if (newObject == null) {
+                        if (type.IsSubclassOf(ScriptableObjectType)) {
+                            //Create scriptable object instance
+                            newObject = (IFBSerializable)UnityEngine.ScriptableObject.CreateInstance(type);
+                        } else {
+                            //Generic class instancing
+                            newObject = (IFBSerializable)Activator.CreateInstance(type);
+                        }    
+                    }
+                    
                     PutIntoDeserializeCache(incoming.BufferPosition, newObject, !forceSet);
                 }
 
@@ -1201,7 +1211,16 @@ namespace Service.Serializer {
                 if(type == null) {
                     dataRoot = new T();
                 } else {
-                    dataRoot = (T)Activator.CreateInstance(type);
+                    if (type.IsSubclassOf(ScriptableObjectType)) {
+                        //Create scriptable object instance
+                        object _obj = UnityEngine.ScriptableObject.CreateInstance(type);
+                        dataRoot = (T)_obj;// (T)UnityEngine.ScriptableObject.CreateInstance(type);
+                    }
+                    else {
+                        //Generic class instancing
+                        dataRoot = (T)Activator.CreateInstance(type);
+                    }
+                    //dataRoot = (T)Activator.CreateInstance(type);
                 }
                 
             }
