@@ -55,7 +55,7 @@ namespace ECS {
         }
 
         public virtual int Serialize(FlatBufferBuilder builder) {
-            return Serial.FBComponent.CreateFBComponent(builder, ID.Serialize(builder), Entity.Serialize(builder), wasConstructed).Value;
+            return Serial.FBComponent.CreateFBComponent(builder, new Offset<Serial.FBUID>(ID.Serialize(builder)), new Offset<Serial.FBUID>(Entity.Serialize(builder)), wasConstructed).Value;
         }
 
         public virtual void Deserialize(object incoming) {
