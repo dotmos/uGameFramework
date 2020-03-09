@@ -98,9 +98,9 @@ namespace ECS {
 
 
 
-        public Offset<Serial.FBUID> Serialize(FlatBufferBuilder builder) {
-            return Serial.FBUID.CreateFBUID(builder, ID);
-        }
+        //public Offset<Serial.FBUID> Serialize(FlatBufferBuilder builder) {
+        //    return Serial.FBUID.CreateFBUID(builder, ID, revision);
+        //}
 
         public void Deserialize(object incoming) {
             FBUID data = (Serial.FBUID)incoming;
@@ -108,8 +108,8 @@ namespace ECS {
             revision = data.Revision;
         }
 
-        int IFBSerializable.Serialize(FlatBufferBuilder builder) {
-            return Serial.FBUID.CreateFBUID(builder,ID).Value;
+        public int Serialize(FlatBufferBuilder builder) {
+            return Serial.FBUID.CreateFBUID(builder,ID,revision).Value;
         }
 
         public void Deserialize(ByteBuffer buf) {

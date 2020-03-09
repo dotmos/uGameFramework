@@ -22,15 +22,23 @@ namespace Service.Scripting {
                 return null;
                 // TODO discard
             }
-            DynValue result = co.Coroutine.Resume(objs);
-            if (result.Type == DataType.Tuple) {
-                DynValue[] yieldValues = result.Tuple;
-                if (yieldValues.Length >= 1) waitForType = yieldValues[0].String;
-                value1 = yieldValues.Length >= 2 ? yieldValues[1].ToObject() : null;
-                value2 = yieldValues.Length >= 3 ? yieldValues[2] : null;
+            try {
+                DynValue result = co.Coroutine.Resume(objs);
+                if (result.Type == DataType.Tuple) {
+                    DynValue[] yieldValues = result.Tuple;
+                    if (yieldValues.Length >= 1) waitForType = yieldValues[0].String;
+                    value1 = yieldValues.Length >= 2 ? yieldValues[1].ToObject() : null;
+                    value2 = yieldValues.Length >= 3 ? yieldValues[2] : null;
+                }
+                return result;
+
+            }
+            catch (ScriptRuntimeException ex) {
+                Debug.LogError($"Lua-Exception(caught): {ex.DecoratedMessage}");
+                Debug.LogException(ex);
             }
 
-            return result;
+            return null;
         }
     }
     partial class ScriptingServiceImpl : ScriptingServiceBase {
@@ -549,6 +557,8 @@ namespace Service.Scripting {
         }
 
         public override void RegisterEntityToLua(int persistedId,UID uid) {
+            if (persistedId == -1) return; 
+
             if (uid.IsNull()) {
                 devUIService.WriteToScriptingConsole("Tried to register null-value");
                 return;
