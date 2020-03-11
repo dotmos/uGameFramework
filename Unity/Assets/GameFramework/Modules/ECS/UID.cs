@@ -117,7 +117,7 @@ namespace ECS {
         }
 
         public override string ToString() {
-            return "UID:"+ID.ToString()+" REV:"+revision;
+            return $"UID:{ID} Rev:{revision}";
         }
         
     }

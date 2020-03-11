@@ -983,6 +983,66 @@ namespace FlatBuffers
         {
             Finish(rootTable, fileIdentifier, true);
         }
+
+        /// <summary>
+        /// Inline vec2
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public static int PutVec2(FlatBufferBuilder builder, float x, float y) {
+            builder.Prep(4, 8);
+            builder.PutFloat(y);
+            builder.PutFloat(x);
+            return builder.Offset;
+        }
+
+        public static int PutVec2(FlatBufferBuilder builder,ref UnityEngine.Vector2 vec2) {
+            return PutVec2(builder,vec2.x, vec2.y);
+        }
+
+        /// <summary>
+        /// Inline vec3
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public static int PutVec3(FlatBufferBuilder builder, float x, float y, float z) {
+            builder.Prep(4, 12);
+            builder.PutFloat(z);
+            builder.PutFloat(y);
+            builder.PutFloat(x);
+            return builder.Offset;
+        }
+
+        public static int PutVec3(FlatBufferBuilder builder, ref UnityEngine.Vector3 vec3) {
+            return PutVec3(builder, vec3.x, vec3.y, vec3.z);
+        }
+
+        /// <summary>
+        /// Inline vec4
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        public static int PutVec4(FlatBufferBuilder builder, float x, float y, float z, float w) {
+            builder.Prep(4, 16);
+            builder.PutFloat(w);
+            builder.PutFloat(z);
+            builder.PutFloat(y);
+            builder.PutFloat(x);
+            return builder.Offset;
+        }
+
+        public static int PutVec4(FlatBufferBuilder builder, ref UnityEngine.Vector4 vec4) {
+            return PutVec4(builder, vec4.x, vec4.y, vec4.z, vec4.w);
+        }
     }
 }
 

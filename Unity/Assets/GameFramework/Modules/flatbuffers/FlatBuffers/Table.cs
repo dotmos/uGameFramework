@@ -158,6 +158,19 @@ namespace FlatBuffers
             return t;
         }
 
+        public UnityEngine.Vector2 GetVec2(int o) {
+            int vec_pos = bb_pos + __offset(o*2+4);
+            return new UnityEngine.Vector2(bb.GetFloat(vec_pos + 0), bb.GetFloat(vec_pos + 4));
+        }
+        public UnityEngine.Vector3 GetVec3(int o) {
+            int vec_pos = bb_pos + __offset(o * 2 + 4);
+            return new UnityEngine.Vector3(bb.GetFloat(vec_pos + 0), bb.GetFloat(vec_pos + 4), bb.GetFloat(vec_pos + 8));
+        }
+        public UnityEngine.Vector4 GetVec4(int o) {
+            int vec_pos = bb_pos + __offset(o * 2 + 4);
+            return new UnityEngine.Vector4(bb.GetFloat(vec_pos + 0), bb.GetFloat(vec_pos + 4), bb.GetFloat(vec_pos + 8), bb.GetFloat(vec_pos + 12));
+        }
+
         public static bool __has_identifier(ByteBuffer bb, string ident)
         {
             if (ident.Length != FlatBufferConstants.FileIdentifierLength)
