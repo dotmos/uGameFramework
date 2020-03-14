@@ -769,7 +769,12 @@ public class SimplePool<T>  where T : class {
     public void Release(T obj) {
         if (onRelease != null) {
             onRelease(obj);
+        } else {
+            if (obj is IList) {
+                ((IList)obj).Clear();
+            }
         }
+
 
         if (keepTrackOfAcquired) {
             // remove the current and all weak pointers which got invalid
