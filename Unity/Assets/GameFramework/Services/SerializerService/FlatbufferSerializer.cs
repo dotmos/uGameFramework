@@ -1029,8 +1029,7 @@ namespace Service.Serializer {
         }
 
         private static void UpgradeObjectIfNeeded(object deserializedObject,object incomingData) {
-            if (FlatBufferSerializer.DeserializationVersionMismatch
-                && deserializedObject is IFBUpgradeable) {
+            if (deserializedObject is IFBUpgradeable) {
                 // the data we just deserialized has another version. Try to convert it to have valid data
                 ((IFBUpgradeable)deserializedObject).Upgrade(CurrentDeserializingDataFormatVersion, CurrentDataFormatVersion, incomingData);
             }
