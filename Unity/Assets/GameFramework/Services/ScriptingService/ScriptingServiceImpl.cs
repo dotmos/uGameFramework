@@ -11,6 +11,7 @@ using System.Text;
 using ECS;
 using FlatBuffers;
 using Service.Serializer;
+using System.Collections.Concurrent;
 
 namespace Service.Scripting {
 
@@ -363,11 +364,19 @@ namespace Service.Scripting {
         /// <param name="o3"></param>
         private void LuaCallback(string cbType, object o2 = null, object o3 = null) {
             // give it to the lua side (callback-lua func in definied 
+            if (!Kernel.IsMainThread()) {
+                // ignore lua-callbacks that come from threads (for now)
+                return;
+            }
             mainScript.Call(mainScript.Globals["__callback"], cbType, o2, o3);
         }
 
         
         private void LuaCoroutineCallback(string cbType, object o2 = null, object o3 = null) {
+            if (!Kernel.IsMainThread()) {
+                // ignore lua-callbacks that come from threads (for now)
+                return;
+            }
             removeCoRoutine.Clear();
             // give it to the lua side (callback-lua func in definied
             foreach (LuaCoroutine lCo in coRoutines) {
