@@ -19,6 +19,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 /// @file
 /// @addtogroup flatbuffers_csharp_api
@@ -87,7 +88,7 @@ namespace FlatBuffers
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public int AddToCyclicResolver(Object obj) {
+        public int AddToCyclicResolver(System.Object obj) {
             int id = --cyclicID;
             cyclicObjMapping[id] = obj;
             return id;
@@ -479,11 +480,11 @@ namespace FlatBuffers
             }
         }
 
-        public VectorOffset CreateOffsetVector(IList<int> list) {
+        public int CreateOffsetVector(IList<int> list) {
             NotNested();
             StartVector(sizeof(int), list.Count, sizeof(int));
             for (int i = list.Count - 1; i >= 0; i--) AddOffset(list[i]);
-            return EndVector();
+            return EndVector().Value;
         }
 
         /// <summary>
@@ -991,58 +992,61 @@ namespace FlatBuffers
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public static int PutVec2(FlatBufferBuilder builder, float x, float y) {
-            builder.Prep(4, 8);
-            builder.PutFloat(y);
-            builder.PutFloat(x);
-            return builder.Offset;
+        public int PutVec2(float x, float y) {
+            Prep(4, 8);
+            PutFloat(y);
+            PutFloat(x);
+            return Offset;
         }
 
-        public static int PutVec2(FlatBufferBuilder builder,ref UnityEngine.Vector2 vec2) {
-            return PutVec2(builder,vec2.x, vec2.y);
+        public int PutVec2(ref UnityEngine.Vector2 vec2) {
+            return PutVec2(vec2.x, vec2.y);
         }
 
         /// <summary>
         /// Inline vec3
         /// </summary>
-        /// <param name="builder"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public static int PutVec3(FlatBufferBuilder builder, float x, float y, float z) {
-            builder.Prep(4, 12);
-            builder.PutFloat(z);
-            builder.PutFloat(y);
-            builder.PutFloat(x);
-            return builder.Offset;
+        public int PutVec3(float x, float y, float z) {
+            Prep(4, 12);
+            PutFloat(z);
+            PutFloat(y);
+            PutFloat(x);
+            return Offset;
         }
 
-        public static int PutVec3(FlatBufferBuilder builder, ref UnityEngine.Vector3 vec3) {
-            return PutVec3(builder, vec3.x, vec3.y, vec3.z);
+        public int PutVec3(ref UnityEngine.Vector3 vec3) {
+            return PutVec3(vec3.x, vec3.y, vec3.z);
         }
 
         /// <summary>
         /// Inline vec4
         /// </summary>
-        /// <param name="builder"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <param name="w"></param>
         /// <returns></returns>
-        public static int PutVec4(FlatBufferBuilder builder, float x, float y, float z, float w) {
-            builder.Prep(4, 16);
-            builder.PutFloat(w);
-            builder.PutFloat(z);
-            builder.PutFloat(y);
-            builder.PutFloat(x);
-            return builder.Offset;
+        public int PutVec4(float x, float y, float z, float w) {
+            Prep(4, 16);
+            PutFloat(w);
+            PutFloat(z);
+            PutFloat(y);
+            PutFloat(x);
+            return Offset;
         }
 
-        public static int PutVec4(FlatBufferBuilder builder, ref UnityEngine.Vector4 vec4) {
-            return PutVec4(builder, vec4.x, vec4.y, vec4.z, vec4.w);
+        public int PutVec4(ref UnityEngine.Vector4 vec4) {
+            return PutVec4(vec4.x, vec4.y, vec4.z, vec4.w);
         }
+
+        public int PutQuaternion(ref Quaternion q) {
+            return PutVec4(q.x, q.y, q.z, q.w);
+        }
+
     }
 }
 

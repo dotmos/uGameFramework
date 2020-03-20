@@ -15,6 +15,18 @@ public interface IFBSerializable {
     void Deserialize(FlatBuffers.ByteBuffer buf);
 }
 
+public interface IFBSerializable2
+{
+    int Serialize2(FlatBuffers.FlatBufferBuilder builder);
+    void Deserialize2(object incoming);
+    void Deserialize2(FlatBuffers.ByteBuffer buf);
+
+    void CreateTable(FlatBuffers.FlatBufferBuilder builder);
+    void Update(FlatBuffers.FlatBufferBuilder builder);
+
+    bool IsDirty { get; set; }
+}
+
 public interface IFBSerializeOnMainThread { }
 
 public interface IFBPostDeserialization {

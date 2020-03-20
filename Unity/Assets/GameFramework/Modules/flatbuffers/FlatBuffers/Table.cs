@@ -24,7 +24,7 @@ namespace FlatBuffers
     /// </summary>
     public struct Table
     {
-        public int bb_pos { get; private set; }
+        public int bb_pos { get; set; }
         public ByteBuffer bb { get; private set; }
 
         public ByteBuffer ByteBuffer { get { return bb; } }

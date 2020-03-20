@@ -251,7 +251,7 @@ namespace Service.Serializer {
                     //var result = fbCreateList != null
                     //                ? fbCreateList(builder, tempArray)
                     //                : SerializeTempOffsetArray(builder, tempArray);
-                    VectorOffset result = builder.CreateOffsetVector(offsetList);
+                    VectorOffset result =new VectorOffset(builder.CreateOffsetVector(offsetList));
 
                     if (!ignoreCache) PutInSerializeCache(dict, result.Value);
                     ClearSerializingFlag(dict);
@@ -282,7 +282,7 @@ namespace Service.Serializer {
                     //var result = fbCreateList != null
                     //                ? fbCreateList(builder, tempArray)
                     //                : SerializeTempOffsetArray(builder, tempArray);
-                    VectorOffset result = builder.CreateOffsetVector(offsetList);
+                    VectorOffset result = new VectorOffset(builder.CreateOffsetVector(offsetList));
 
                     if (!ignoreCache) PutInSerializeCache(dict, result.Value);
                     ClearSerializingFlag(dict);
@@ -306,7 +306,7 @@ namespace Service.Serializer {
                     //var result = fbCreateList != null
                     //                ? fbCreateList(builder, tempArray)
                     //                : SerializeTempOffsetArray(builder, tempArray);
-                    VectorOffset result = builder.CreateOffsetVector(offsetList);
+                    VectorOffset result = new VectorOffset(builder.CreateOffsetVector(offsetList));
 
                     if (!ignoreCache) PutInSerializeCache(dict, result.Value);
                     ClearSerializingFlag(dict);
@@ -338,7 +338,7 @@ namespace Service.Serializer {
                     //var result = fbCreateList != null
                     //                ? fbCreateList(builder, tempArray)
                     //                : SerializeTempOffsetArray(builder, tempArray);
-                    VectorOffset result = builder.CreateOffsetVector(offsetList);
+                    VectorOffset result = new VectorOffset(builder.CreateOffsetVector(offsetList));
 
                     if (!ignoreCache) PutInSerializeCache(dict, result.Value);
                     ClearSerializingFlag(dict);
@@ -391,7 +391,7 @@ namespace Service.Serializer {
                         offsetList.Add(listElemOffset.Value);
                     }
                 }
-                VectorOffset result = builder.CreateOffsetVector(offsetList);
+                VectorOffset result = new VectorOffset(builder.CreateOffsetVector(offsetList));
                 //var result = fbCreateList(builder, tempArray);
                 if (!ignoreCache) PutInSerializeCache(list, result.Value);
                 ClearSerializingFlag(list);
