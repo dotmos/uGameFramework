@@ -18,7 +18,7 @@ namespace Service.Serializer
         public int offset;
 
         public ExtendedTable(int offset, ByteBuffer _bb) {
-            __tbl = new Table(0, _bb);
+            __tbl = new Table(offset, _bb);
             this.offset = offset;
             UpdateTable();
         }
@@ -44,18 +44,40 @@ namespace Service.Serializer
             return offset == -1;
         }
 
-        public float GetFloat(int fbPos) {
+ 
+        public int GetInt(int fbPos) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.bb.GetFloat(o + __tbl.bb_pos) : (float)0.0f;
+            return o != 0 ? __tbl.bb.GetInt(o + __tbl.bb_pos) : 0;
         }
         public void MutateInt(int fbPos, int value) {
             int o = __tbl.__offset(4 + fbPos * 2);
             if (o == 0) return;
             __tbl.bb.PutInt(o + __tbl.bb_pos, value);
         }
-        public int GetInt(int fbPos) {
+
+        public byte GetByte(int fbPos) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.bb.GetInt(o + __tbl.bb_pos) : 0;
+            return o != 0 ? __tbl.bb.Get(o + __tbl.bb_pos) :(byte) 0;
+        }
+        public void MutateByte(int fbPos, byte value) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+            if (o == 0) return;
+            __tbl.bb.PutByte(o + __tbl.bb_pos, value);
+        }
+
+        public short GetShort(int fbPos) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+            return o != 0 ? __tbl.bb.GetShort(o + __tbl.bb_pos) : (short)0;
+        }
+        public void MutateShort(int fbPos, short value) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+            if (o == 0) return;
+            __tbl.bb.PutShort(o + __tbl.bb_pos, value);
+        }
+
+        public float GetFloat(int fbPos) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+            return o != 0 ? __tbl.bb.GetFloat(o + __tbl.bb_pos) : (float)0.0f;
         }
         public void MutateFloat(int fbPos, float value) {
             int o = __tbl.__offset(4 + fbPos * 2);
@@ -91,8 +113,14 @@ namespace Service.Serializer
 
 
         public UnityEngine.Vector2 GetVec2(int o) {
+            Vector2 vec2 = new UnityEngine.Vector2();
+            GetVec2(0, ref vec2);
+            return vec2;
+        }
+        public void GetVec2(int o,ref Vector2 vec2) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
-            return new UnityEngine.Vector2(__tbl.bb.GetFloat(vec_pos + 0), __tbl.bb.GetFloat(vec_pos + 4));
+            vec2.x = __tbl.bb.GetFloat(vec_pos + 0);
+            vec2.y = __tbl.bb.GetFloat(vec_pos + 4);
         }
 
         public void MutateVec2(int o, float x, float y) {
@@ -110,9 +138,17 @@ namespace Service.Serializer
         }
 
 
-        public UnityEngine.Vector3 GetVec3(int o) {
+        public UnityEngine.Vector4 GetVec3(int o) {
+            Vector3 vec3 = new Vector3();
+            GetVec3(o, ref vec3);
+            return vec3;
+        }
+
+        public void GetVec3(int o, ref Vector3 vec) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
-            return new UnityEngine.Vector3(__tbl.bb.GetFloat(vec_pos + 0), __tbl.bb.GetFloat(vec_pos + 4), __tbl.bb.GetFloat(vec_pos + 8));
+            vec.x = __tbl.bb.GetFloat(vec_pos + 0);
+            vec.y = __tbl.bb.GetFloat(vec_pos + 4);
+            vec.z = __tbl.bb.GetFloat(vec_pos + 8);
         }
         public void MutateVec3(int o, float x, float y, float z) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
@@ -130,8 +166,17 @@ namespace Service.Serializer
 
 
         public UnityEngine.Vector4 GetVec4(int o) {
+            Vector4 vec4=new Vector4();
+            GetVec4(o, ref vec4);
+            return vec4;
+        }
+
+        public void GetVec4(int o,ref Vector4 vec) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
-            return new UnityEngine.Vector4(__tbl.bb.GetFloat(vec_pos + 0), __tbl.bb.GetFloat(vec_pos + 4), __tbl.bb.GetFloat(vec_pos + 8), __tbl.bb.GetFloat(vec_pos + 12));
+            vec.x = __tbl.bb.GetFloat(vec_pos + 0);
+            vec.y = __tbl.bb.GetFloat(vec_pos + 4);
+            vec.z = __tbl.bb.GetFloat(vec_pos + 8);
+            vec.w = __tbl.bb.GetFloat(vec_pos + 12);
         }
 
         public void MutateVec4(int o, float x, float y, float z, float w) {
@@ -150,8 +195,17 @@ namespace Service.Serializer
         }
 
         public Quaternion GetQuaternion(int o) {
-            int quat_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
-            return new Quaternion(__tbl.bb.GetFloat(quat_pos + 0), __tbl.bb.GetFloat(quat_pos + 4), __tbl.bb.GetFloat(quat_pos + 8), __tbl.bb.GetFloat(quat_pos + 12));
+            Quaternion quat = new Quaternion();
+            GetQuaternion(o, ref quat);
+            return quat;
+        }
+
+        public void GetQuaternion(int o, ref Quaternion quat) {
+            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+            quat.x = __tbl.bb.GetFloat(vec_pos + 0);
+            quat.y = __tbl.bb.GetFloat(vec_pos + 4);
+            quat.z = __tbl.bb.GetFloat(vec_pos + 8);
+            quat.w = __tbl.bb.GetFloat(vec_pos + 12);
         }
 
         public void MutateQuaternion(int o, ref Quaternion q) {
@@ -161,6 +215,24 @@ namespace Service.Serializer
         public void MutateQuaternion(int o, Quaternion q) {
             // quaternions have same structure as vec4. so reuse this logic
             MutateVec4(o, q.x, q.y, q.z, q.w);
+        }
+
+        public ECS.UID GetUID(int o) {
+            ECS.UID uid = new ECS.UID();
+            GetUID(o, ref uid);
+            return uid;
+        }
+
+        public void GetUID(int o,ref ECS.UID uid) {
+            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+            uid.ID = __tbl.bb.GetInt(vec_pos + 0);
+            uid.__SetRevision(__tbl.bb.GetInt(vec_pos + 4));
+        }
+
+        public void MutateUID(int o, ref ECS.UID uid) {
+            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+            __tbl.bb.PutInt(vec_pos + 0, uid.ID);
+            __tbl.bb.PutInt(vec_pos + 4, uid.Revision);
         }
     }
 

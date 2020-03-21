@@ -8,7 +8,9 @@ using System.Threading;
 
 namespace Service.Serializer {
     public class FlatBufferSerializer2 {
-        
+
+        public static ListPool<int> poolListInt = new ListPool<int>(10, 10);
+
         public enum Mode {
             serializing, deserializing
         }

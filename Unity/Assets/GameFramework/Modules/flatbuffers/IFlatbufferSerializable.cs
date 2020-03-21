@@ -18,7 +18,7 @@ public interface IFBSerializable {
 public interface IFBSerializable2
 {
     int Serialize2(FlatBuffers.FlatBufferBuilder builder);
-    void Deserialize2(object incoming);
+    void Deserialize2(int tblOffset, FlatBuffers.ByteBuffer builder);
     void Deserialize2(FlatBuffers.ByteBuffer buf);
 
     void CreateTable(FlatBuffers.FlatBufferBuilder builder);

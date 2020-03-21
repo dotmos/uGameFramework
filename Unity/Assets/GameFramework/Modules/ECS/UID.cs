@@ -47,6 +47,14 @@ namespace ECS {
             revision = -1;
         }
 
+        /// <summary>
+        /// INTERNALUSE ONLY (serialization) 
+        /// </summary>
+        /// <param name="revision"></param>
+        public void __SetRevision(int revision) {
+            this.revision = revision;
+        }
+
         public override bool Equals(object obj) {
             //Generic equal. Creates garbage due to boxing
             if (obj is UID) {

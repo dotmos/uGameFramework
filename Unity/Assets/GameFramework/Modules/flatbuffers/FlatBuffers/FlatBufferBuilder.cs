@@ -49,6 +49,8 @@ namespace FlatBuffers
         private int _numVtables = 0;
         // For the current vector being built.
         private int _vectorNumElems = 0;
+        // For the amount of elements to be created.
+        private int _vectorCapacity = 0;
 
         // For CreateSharedString
         private Dictionary<string, StringOffset> _sharedStringMap = null;
@@ -433,6 +435,30 @@ namespace FlatBuffers
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Same as StartVector, just that it reserves capacity amount of data (e.g. for later mutation)
+        /// </summary>
+        /// <param name="elemSize"></param>
+        /// <param name="count"></param>
+        /// <param name="alignment"></param>
+        /// <param name="capacity"></param>
+        public void StartCapacityVector(int elemSize, int count, int alignment, int capacity) {
+            NotNested();
+            _vectorNumElems = count;
+            _vectorCapacity = capacity;
+            Prep(sizeof(int), elemSize * count);
+            Prep(alignment, elemSize * count); // Just in case alignment > int.
+        }
+
+        /// <summary>
+        /// Writes data necessary to finish a capcity vector construction.
+        /// </summary>
+        public VectorOffset EndCapactiyVector() {
+            PutInt(_vectorCapacity);
+            PutInt(_vectorNumElems);
+            return new VectorOffset(Offset);
         }
 
         /// @cond FLATBUFFERS_INTERNAL
@@ -1045,6 +1071,13 @@ namespace FlatBuffers
 
         public int PutQuaternion(ref Quaternion q) {
             return PutVec4(q.x, q.y, q.z, q.w);
+        }
+
+        public int PutUID(ref ECS.UID uid) {
+            Prep(4, 8);
+            PutInt(uid.Revision);
+            PutInt(uid.ID);
+            return Offset;
         }
 
     }
