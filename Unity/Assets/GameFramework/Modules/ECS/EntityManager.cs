@@ -110,7 +110,7 @@ namespace ECS {
                 watchOverall.Restart();
 #endif
                 for (int i = 0; i < _systems.Count; ++i) {
-                    try { _systems[i].ProcessSystem(deltaTime); } catch (Exception e) { UnityEngine.Debug.LogError(e); }
+                    try { _systems[i].ProcessSystem(deltaTime); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
                 }
 #if ECS_PROFILING && UNITY_EDITOR
                 watchOverall.Stop();
