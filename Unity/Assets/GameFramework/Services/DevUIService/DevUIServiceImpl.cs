@@ -240,27 +240,32 @@ namespace Service.DevUIService {
                     string viewDataAsString = fileSystem.LoadFileAsString(viewFile);
                     return viewDataAsString;
                 }).ObserveOnMainThread().Select(fileData => {
-                    if (fileData != null) {
-                        DevUIView viewData = serializer.DeserializeToObject<DevUIView>(fileData);
+                    try {
+                        if (fileData != null) {
+                            DevUIView viewData = serializer.DeserializeToObject<DevUIView>(fileData);
 
-                        if (usedViewNames.Contains(viewData.Name)) {
-                            logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
+                            if (usedViewNames.Contains(viewData.Name)) {
+                                logging.Warn("There is already already a view with the name " + viewData.Name + "! This results in merged views");
+                            }
+
+                            DevUIView view = GetView(viewData.Name);
+                            if (view == null) {
+                                // a new view
+                                view = CreateView(viewData.Name, viewData.createdDynamically);
+                                view.extensionAllowed = viewData.extensionAllowed;
+                            }
+                            usedViewNames.Add(viewData.Name);
+                            view.currentFilename = viewFile;
+
+                            foreach (DevUIElement uiElem in viewData.uiElements) {
+                                view.AddElement(uiElem, false);
+                            }
+
+                            viewPathsLoaded.Add(viewFile);
                         }
-
-                        DevUIView view = GetView(viewData.Name);
-                        if (view == null) {
-                            // a new view
-                            view = CreateView(viewData.Name, viewData.createdDynamically);
-                            view.extensionAllowed = viewData.extensionAllowed;
-                        }
-                        usedViewNames.Add(viewData.Name);
-                        view.currentFilename = viewFile;
-
-                        foreach (DevUIElement uiElem in viewData.uiElements) {
-                            view.AddElement(uiElem, false);
-                        }
-
-                        viewPathsLoaded.Add(viewFile);
+                    }
+                    catch (Exception e) {
+                        Debug.LogWarning("Could not load viewElement! Ignoring!");
                     }
                     return "";
                 }).Select(_ => { progress += progressFactor; return progress; }));
