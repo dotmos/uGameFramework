@@ -27,6 +27,8 @@ namespace Service.Serializer
             
         }
 
+        public ByteBuffer bb => __tbl.bb;
+
         /// <summary>
         /// Update pointer to table. (Needed everytime the underlying buffer grows)
         /// </summary>
@@ -109,6 +111,25 @@ namespace Service.Serializer
         public string GetString(int fbPos) {
             int o = __tbl.__offset(4 + fbPos * 2);
             return o != 0 ? __tbl.__string(o + __tbl.bb_pos) : null;
+        }
+
+        public void MutateString(int fbPos,string newValue) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+            if (o == 0) return;
+
+            int stringOffset = o + __tbl.bb_pos;
+            stringOffset += __tbl.bb.GetInt(stringOffset);
+            int maxChars = __tbl.bb.GetInt(stringOffset);
+
+            if (newValue.Length > maxChars) {
+                Debug.LogError("Growing String not supported! Using only substring");
+                newValue = newValue.Substring(0, maxChars);
+            }
+
+            // the string can be created inline reusing the current buffer-segment
+            __tbl.bb.PutInt(stringOffset, newValue.Length);
+            __tbl.bb.PutStringUTF8(stringOffset + 4, newValue);
+            __tbl.bb.PutByte(stringOffset + 4 + (newValue.Length), 0);
         }
 
 
@@ -234,7 +255,15 @@ namespace Service.Serializer
             __tbl.bb.PutInt(vec_pos + 0, uid.ID);
             __tbl.bb.PutInt(vec_pos + 4, uid.Revision);
         }
+
+        public int GetVTableOffset(int fbPos) { return __tbl.__offset(4 + fbPos * 2); }
+        public int GetListLength(int fbPos) { int o = __tbl.__offset(4 + fbPos * 2); return o != 0 ? __tbl.__vector_len(o) : 0; }
+        public int GetIntElementAt(int fbPos, int j) { int o = __tbl.__offset(4 + fbPos * 2); return o != 0 ? __tbl.bb.GetInt(__tbl.__vector(o) + j * 4) : (int)0; }
+
+        public int GetOffset(int fbPos) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+
+            return o != 0 ? __tbl.bb.Length - __tbl.__indirect(o + __tbl.bb_pos) : 0;
+        }
     }
-
-
 }

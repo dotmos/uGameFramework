@@ -33,7 +33,7 @@ namespace FlatBuffers
     /// </summary>
     public class FlatBufferBuilder
     {
-        private int _space;
+        public int _space;
         private ByteBuffer _bb;
         private int _minAlign = 1;
 
@@ -86,6 +86,7 @@ namespace FlatBuffers
         }
 
         /// <summary>
+        /// DEPRECATED. DO NOT USE
         /// mark this reference to be cyclic and postpone writting the actual value till after serialization
         /// </summary>
         /// <param name="obj"></param>
@@ -97,6 +98,7 @@ namespace FlatBuffers
         }
 
         /// <summary>
+        /// DEPRECATED. DO NOT USE
         ///Write out the right addresses to the cyclic references
         /// </summary>
         public void FlushCyclicResolver() {
@@ -404,6 +406,9 @@ namespace FlatBuffers
             //return new int[4] { offBefore, addressWrittenTo,beforeBBLen,beforeBBspace };
         }
 
+
+
+
         public void AddOffset(int offset) {
             if (offset >= 0) {
                 // default behaviour
@@ -690,6 +695,65 @@ namespace FlatBuffers
         /// 
         public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); }  }
         //public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
+
+        private Dictionary<object, List<int>> interconnectionOffsets = new Dictionary<object, List<int>>();
+        private Dictionary<object, int> objectReferences = new Dictionary<object, int>();
+
+        public void AddReferenceOffset(int o, object obj) {
+            if (obj == null) {
+                return;
+            }
+            AddInt(0);
+            Slot(o);
+            if (interconnectionOffsets.TryGetValue(obj, out List<int> offsetDummies)) {
+                offsetDummies.Add(Offset);
+            } else {
+                interconnectionOffsets[obj] = new List<int>() { Offset };
+            }
+        }
+
+        public void AddObjectReference(object obj, int offset) { objectReferences[obj] = offset; }
+
+
+        public void MergeBuffer(FlatBufferBuilder mergeFB) {
+            // strip buffer to be merged
+            byte[] buf = mergeFB._bb.ToArray<byte>(mergeFB._space, mergeFB._bb.Length - mergeFB._space);
+
+            int newBufEnd = Offset;
+            Add<byte>(buf);
+
+            foreach (var kv in mergeFB.interconnectionOffsets) {
+                if (objectReferences.TryGetValue(kv.Key, out int offset)) {
+                    foreach (int offsetDummy in kv.Value) {
+                        int newOffsetDummy = offsetDummy + newBufEnd; // adjust the offset of the merged buffer
+                        int relativeOffset = newOffsetDummy - offset;
+                        _bb.PutInt(newOffsetDummy, relativeOffset);
+                    }
+                } else {
+                    foreach (int offsetDummy in kv.Value) {
+                        AddReferenceOffset(offsetDummy + newBufEnd, kv.Key);
+                    }
+                }
+            }
+
+
+            // merge object-references and solve newly added object-references
+            foreach (var kv in mergeFB.objectReferences) {
+                // adjust the offsets. (offsets are relative to the end of the buffer. the end of the merged buffer is somewhere in the destination-buffer
+                int newOffset = newBufEnd + kv.Value;
+                objectReferences[kv.Key] = newOffset;
+
+                // check if this specific object needs to be resolved 
+                if (interconnectionOffsets.TryGetValue(kv.Key,out List<int> offsetDummies)) {
+                    foreach (int offsetDummy in offsetDummies) {
+                        int relativeOffset = offsetDummy - newOffset;
+                        _bb.PutInt(offsetDummy, relativeOffset);
+                    }
+                    interconnectionOffsets.Remove(kv.Key);
+                }
+            }
+
+        }
 
         public static int DUMMYREF = 2;
          
@@ -1079,6 +1143,8 @@ namespace FlatBuffers
             PutInt(uid.ID);
             return Offset;
         }
+
+
 
     }
 }
