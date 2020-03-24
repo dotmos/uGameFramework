@@ -49,8 +49,8 @@ namespace Service.Serializer {
         /// <summary>
         /// mappings to objects that are not serialized,yet
         /// </summary>
-        public readonly Dictionary<DefaultSerializable, List<int>> lateReferences = new Dictionary<DefaultSerializable, List<int>>();
-        public readonly List<DefaultSerializable> lateReferenceList = new List<DefaultSerializable>();
+        public readonly Dictionary<DefaultSerializable2, List<int>> lateReferences = new Dictionary<DefaultSerializable2, List<int>>();
+        public readonly List<DefaultSerializable2> lateReferenceList = new List<DefaultSerializable2>();
 
         public readonly FlatBufferBuilder builder;
 
@@ -70,7 +70,7 @@ namespace Service.Serializer {
             builder = new FlatBufferBuilder(bb);
         }
 
-        public int GetOrCreate(DefaultSerializable obj) {
+        public int GetOrCreate(DefaultSerializable2 obj) {
             if (obj.HasOffset) {
                 // this object was already serialized. just output 
                 return obj.Offset;
@@ -80,7 +80,7 @@ namespace Service.Serializer {
             return newOffset;
         }
 
-        public void AddReferenceOffset(int o, DefaultSerializable obj) {
+        public void AddReferenceOffset(int o, DefaultSerializable2 obj) {
             if (obj == null) {
                 return;
             }
@@ -200,7 +200,7 @@ namespace Service.Serializer {
             }
         }
 
-        public void ResolveLateReference(DefaultSerializable obj) {
+        public void ResolveLateReference(DefaultSerializable2 obj) {
             int offset = GetOrCreate(obj);
 
             if (lateReferences.TryGetValue(obj,out List<int> referenceLocations)) {
@@ -242,7 +242,7 @@ namespace Service.Serializer {
         int Offset { get; }
     }
 
-    public abstract class DefaultSerializable : IFBSerializable2
+    public abstract class DefaultSerializable2 : IFBSerializable2
     {
         public ExtendedTable table = ExtendedTable.NULL;
 

@@ -9,7 +9,7 @@ namespace ECS {
     public class NewInstance : Attribute {
     }
 
-    public abstract class Component : IComponent, IDisposable, IFBSerializable {
+    public abstract class Component : DefaultSerializable2, IComponent, IDisposable, IFBSerializable {
         /// <summary>
         /// The unique ID of this component. Will be set by EntityManager when component is first added to an entity or by manually calling EntityManager.SetComponentID
         /// </summary>

@@ -637,6 +637,8 @@ namespace ECS {
             }
         }
 
+
+
         public virtual int Serialize(FlatBufferBuilder builder) {
 
             VectorOffset _recycledUIDOffset = FlatBufferSerializer.CreateManualList<UID>(builder, _recycledEntityIds.ToList());

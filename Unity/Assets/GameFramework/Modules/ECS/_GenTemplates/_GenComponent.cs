@@ -108,6 +108,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public string testName = "f95";
     public UID? testUID = new UID(1895, 0);
     public float testNumber = 18.95f;
+    public State? nullState = null;
 
     public class FreeTypeTestObject : IPocoBase<FreeTypeTestObject> {
         private string data;
@@ -339,7 +340,210 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         Deserialize(fbSettlerDataComponent);
     }
     #endregion
-/*endblock:serialization*/
+    /*endblock:serialization*/
+
+
+    /*block:serialization2*/
+    #region serialization2
+    public /*name:override*/override/*endname*/ void _CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
+        builder.StartTable(/*name:fieldamount*/10/*endname*/);
+        /*block:s_enum*/builder.AddInt(/*name:fieldid*/0/*endname*/, (int)/*name:name*/state/*endname*/, 0); 
+        /*endblock:s_enum*/
+        /*block:s_enumnullable*/if (/*name:name*/nullState/*endname*/.HasValue) builder.AddInt(/*name:fieldid*/0/*endname*/, (int)/*name:name*/nullState/*endname*/.Value, 0); 
+        /*endblock:s_enumnullable*/
+
+        int tblPos = builder.EndTable();
+        table = new ExtendedTable(tblPos, builder);
+
+        int sState = 0;
+
+        /*block:inheritanceSer*/
+        var baseData = base.Serialize2(ctx);
+        /*endblock:inheritanceSer*/
+        /*block:s_string*/
+        var /*name|fu,pre#s:name*/sTestName/*endname*/ = FlatBufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testName/*endname*/);
+        /*endblock:s_string*/
+        /*block:s_nonprim*/
+        var /*name|fu,pre#s:name*/sTestUID/*endname*/ = new Offset<Serial./*name|pre#FB:type*/FBUID/*endname*/>((int)FlatBufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testUID/*endname*/));
+        /*endblock:s_nonprim*/
+        /*block:s_nonprim_typed*/
+        var /*name|fu,pre#s:name*/sTestTypedObject/*endname*/ = new Offset<Serial.FBRef>((int)FlatBufferSerializer.SerializeTypedObject(builder,/*name:name*/testUID/*endname*/));
+        /*endblock:s_nonprim_typed*/
+        /*block:s_list_primitive*/        //var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateList(builder,/*name:name*/testListPrimitive/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListPrimitiveVector/*endname*/) ;
+        var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatBufferSerializer.CreateManualList(builder,/*name:name*/testListPrimitive/*endname*/);
+        /*endblock:s_list_primitive*/
+        /*block:s_list_string*/
+        var /*name|fu,pre#s:name*/sTestListString/*endname*/ = FlatBufferSerializer.CreateStringList(builder,/*name:name*/testStringList/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestStringListVector/*endname*/);
+        /*endblock:s_list_string*/
+        /*block:s_list_nonprim*/        //var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
+        var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatBufferSerializer.CreateManualList(builder,/*name:name*/testListUID/*endname*/);
+        /*endblock:s_list_nonprim*/
+        /*block:s_list_nonprim_typed*/        //var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
+        var /*name|fu,pre#s:name*/sTestTypedListUID/*endname*/ = FlatBufferSerializer.CreateTypedList(builder,/*name:name*/testListUID/*endname*/);
+        /*endblock:s_list_nonprim_typed*/
+        /*block:s_list_enum*/
+        var /*name|fu,pre#s:name*/sEnumList/*endname*/ = FlatBufferSerializer.CreateManualList(builder,/*name:name*/enumList/*endname*/);
+        /*endblock:s_list_enum*/
+        /*block:s_dictold*/
+        var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatBufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
+        /*endblock:s_dictold*/
+        /*block:s_dict*/
+        var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatBufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:dictName*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/, true,/*name:keyTyped*/false/*endname*/,/*name:valueTyped*/false/*endname*/);
+        /*endblock:s_dict*/
+        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#StartFB:ComponentName*/StartFBGenTemplateComponent/*endname*/(builder);
+        /*block:s2_default*/        /*block:nullcheck*/
+        if (/*name|fu,pre#s:name*/sState/*endname*/!= null)/*endblock:nullcheck*/ Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name|fu,pre#s:name*/sState/*endname*/);
+        /*endblock:s2_default*/
+        /*block:s2_nullable*/
+        if (/*name|fu,pre#s:name*/nullableStringOffset/*endname*/.HasValue) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestName/*endname*/(builder,/*name|fu,pre#s:name*/nullableStringOffset/*endname*/.Value);
+        /*endblock:s2_nullable*/
+        /*block:s2_primitive*/
+        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name:name*/sState/*endname*/);
+        /*endblock:s2_primitive*/
+        /*block:s2_list*/
+        if (/*name:name*/testListPrimitive/*endname*/!= null) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestListPrimitive/*endname*/(builder, (VectorOffset)/*name|fu,pre#s:name*/sTestListPrimitive/*endname*/);
+        /*endblock:s2_list*/
+        /*block:inheritanceSer2*/
+        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/.AddBaseData(builder, new Offset<Serial./*name:basetype*/FBComponent/*endname*/>(baseData));
+        /*endblock:inheritanceSer2*/
+
+
+    }
+
+ 
+    public override void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+        // not implemented,yet
+    }
+    public /*name:override*/override/*endname*/ void Deserialize2(int tblOffset, DeserializationContext ctx) {
+        object data = null;
+        if (data is Serial.FBRef) {
+            data = FlatBufferSerializer.CastSerialObject<Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/>(data);
+        }
+        var input = (Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/)data;
+        /*block:inheritance_deser*/
+        base.Deserialize(input.BaseData);
+        /*endblock:inheritance_deser*/        /*name:useManual*/
+        var manual = FlatBufferSerializer.GetManualObject(data);/*endname*/
+
+        /*block:d_default*/        /*block:nullcheck*/
+        if (input./*name|fu,post#BufferPosition:name*/StateBufferPosition/*endname*/!= 0) /*endblock:nullcheck*//*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)input./*name|fu:name*/State/*endname*/; // string
+        /*endblock:d_default*/
+        /*block:d_nonprim*/
+        if (input./*name|fu:name*/TestUID/*endname*/!= null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.GetOrCreateDeserialize</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
+        /*endblock:d_nonprim*/
+        /*block:d_nonprim_typed*/
+        if (input./*name|fu:name*/TestUID/*endname*/!= null) /*name:name*/testUID/*endname*/ = FlatBufferSerializer.DeserializeTypedObject</*name:type*/UID/*endname*/>(input./*name|fu:name*/TestUID/*endname*/);
+        /*endblock:d_nonprim_typed*/
+        /*block:d_prim_list*/ //        /*name:name*/testListPrimitive/*endname*/ = FlatbufferSerializer.DeserializeList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListPrimitiveBufferPosition/*endname*/,input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/);
+        /*name:name*/
+        testListPrimitive/*endname*/ = (/*name:type*/System.Collections.Generic.List<int>/*endname*/)manual.GetPrimitiveList</*name:innertype:*/int/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListPrimitiveTableOffset/*endname*/,/*name:isObservable*/false/*endname*/);
+        /*endblock:d_prim_list*/
+        /*block:d_nonprim_list_typed*/
+        if (input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/!= 0) {
+            if (/*name:name*/testListUID/*endname*/== null) {
+                /*name:name*/
+                testListUID/*endname*/ = new /*name:type*/System.Collections.Generic.List<UID>/*endname*/();
+            } else {
+                /*name:name*/
+                testListUID/*endname*/.Clear();
+            }
+            /*name:name*/
+            testListUID/*endname*/ = (/*name:type*/System.Collections.Generic.List<UID>/*endname*/)manual.GetTypedList</*name:innertype*/UID/*endname*/>(input./*name|fu,post#TableOffset:name*/TestListUIDTableOffset/*endname*/,/*name:name*/testListUID/*endname*/);
+        }
+        /*endblock:d_nonprim_list_typed*/
+        /*block:d_nonprim_list*/
+        {
+            int size = input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/;
+            var tempList = FlatBufferSerializer.poolListObject.GetList(size); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
+            for (int i = 0; i < size; i++) tempList.Add(input./*name|fu:name*/TestListUID/*endname*/(i));
+            /*name:name*/
+            testListUID/*endname*/ = (/*name:type*/ System.Collections.Generic.List<UID>/*endname*/)FlatBufferSerializer.DeserializeList</*name:innertype*/UID/*endname*/, Serial./*name:fbType*/FBUID/*endname*/>(input./*name|fu,post#BufferPosition:name*/TestListUIDBufferPosition/*endname*/, input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/, tempList, null,/*name:isObservable*/false/*endname*/);
+            FlatBufferSerializer.poolListObject.Release(tempList);
+        }
+        /*endblock:d_nonprim_list*/
+        /*block:d_enum_list*/
+        {
+            var arrayData = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/();
+            if (arrayData != null) /*name:name*/enumList/*endname*/ = arrayData.Cast</*name:innertype*/State/*endname*/>().ToList();
+        }
+        /*endblock:d_enum_list*/
+        /*block:d_enum_obs_list*/
+        {
+            var arrayData = input./*name|fu,pre#Get,post#Array:name*/GetTestListPrimitiveArray/*endname*/();
+
+            if (arrayData != null) /*name:name*/enumObsList/*endname*/ = new ObservableList</*name:innertype*/State/*endname*/>(arrayData.Cast</*name:innertype*/State/*endname*/>().ToList());
+        }
+        /*endblock:d_enum_obs_list*/
+        /*block:d_string_list*/
+        {
+            /*name:name*/
+            testStringList/*endname*/ = new System.Collections.Generic.List<string>(); // first create List<object> of all results and then pass this to the Create-method. Didn't find a better way,yet Generics with T? do not work for interfaces
+            for (int i = 0; i < input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) /*name:name*/testStringList/*endname*/.Add(input./*name|fu:name*/TestStringList/*endname*/(i));
+        }
+        /*endblock:d_string_list*/
+        /*block:d_dict*/
+        {
+            //            object result = FlatBufferSerializer.FindInDeserializeCache</*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>>(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
+            object result = null;
+            if (result != null) {
+                /*name:name*/
+                testDict/*endname*/ = (/*name:dictType*/System.Collections.Generic.Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>)result;
+            } else {
+                /*name:name*/
+                testDict/*endname*/ = new /*name:dictType*/System.Collections.Generic.Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
+                var innerManual = FlatBufferSerializer.GetManualObject(data);
+                for (int i = 0; i < input./*name|fu,post#Length:name*/TestDictLength/*endname*/; i++) {
+                    var e = input./*name|fu:name*/TestDictNonPrim/*endname*/(i);
+                    if (e.HasValue) {
+                        var elem = e.Value;
+                        innerManual.__initFromRef(elem);
+                        /*block:nonprim_key*/
+                        var key = FlatBufferSerializer.GetOrCreateDeserialize</*name:keyType*/SerializableHelper/*endname*/>((Serial./*name:fbKeyType*/FBComponent/*endname*/)elem.Key);
+                        /*endblock:nonprim_key*/
+                        /*block:nonprim_value*/
+                        var value = FlatBufferSerializer.GetOrCreateDeserialize</*name:valueType*/SerializableHelper/*endname*/>((Serial./*name:fbValueType*/FBComponent/*endname*/)elem.Value);
+                        /*endblock:nonprim_value*/
+                        /*block:rip*/
+                        var elem2 = new Serial.DTEST_intlinst_intlist();/*endblock:rip*/
+                        /*block:list_key*/
+                        var /*name:valueName*/key2/*endname*/ = innerManual.GetPrimitiveList</*name:listType*/int/*endname*/>(0);
+                        /*endblock:list_key*/
+                        /*block:list_value*/
+                        var /*name:valueName*/value2/*endname*/ = innerManual.GetPrimitiveList</*name:listType*/int/*endname*/>(1);
+                        /*endblock:list_value*/
+                        /*block:nonprim_list_key*/
+                        var /*name:keyName*/key3/*endname*/ = innerManual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0);
+                        /*endblock:nonprim_list_key*/
+                        /*block:nonprim_list_value*/
+                        var /*name:valueName*/value3/*endname*/ = innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1);
+                        /*endblock:nonprim_list_value*/
+                        /*block:nonprim_obs_list_key*/
+                        var /*name:keyName*/key4/*endname*/ = new ObservableList</*name:keyType*/SerializableHelper/*endname*/>((System.Collections.Generic.List</*name:keyType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0));
+                        /*endblock:nonprim_obs_list_key*/
+                        /*block:nonprim_obs_list_value*/
+                        var /*name:valueName*/value4/*endname*/ = new ObservableList</*name:valueType*/SerializableHelper/*endname*/>((System.Collections.Generic.List</*name:valueType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1));
+                        /*endblock:nonprim_obs_list_value*/
+                        /*block:nonprim_key_typed_object*/
+                        var /*name:keyName*/key5/*endname*/ = innerManual.GetTypedObject</*name:keyType*/SerializableHelper/*endname*/>(0);
+                        /*endblock:nonprim_key_typed_object*/
+                        /*block:nonprim_value_typed_object*/
+                        var /*name:valueName*/value5/*endname*/ = innerManual.GetTypedObject</*name:valueType*/SerializableHelper/*endname*/>(1);
+                        /*endblock:nonprim_value_typed_object*/
+                        /*name:name*/
+                        testDict2/*endname*/[(/*name:keyType*/SerializableHelper/*endname*/)/*name:thekey*/key/*endname*/] = (/*name:valueType*/SerializableHelper/*endname*/)/*name:thevalue*/value/*endname*/;
+                    }
+                }
+                //FlatBufferSerializer.PutIntoDeserializeCache(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/, /*name:name*/testDict/*endname*/);
+            }
+        }
+        /*endblock:d_dict*/
+    }
+
+
+
+    #endregion
+    /*endblock:serialization2*/
+
 }
 
 
@@ -354,6 +558,14 @@ public class GenTemplateComponent2 : ECS.Component
     }
 
     public override void CopyValues(IComponent target, bool initFromPrefab = false) {
+        throw new System.NotImplementedException();
+    }
+
+    public override void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+        throw new System.NotImplementedException();
+    }
+
+    public override void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 }
