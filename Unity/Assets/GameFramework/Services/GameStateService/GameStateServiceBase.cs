@@ -56,7 +56,11 @@ namespace Service.GameStateService
             _dManager.Add(this);
 
             try {
+                System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+                watch.Start();
                 AfterInitialize();
+                watch.Stop();
+                UnityEngine.Debug.LogWarning($"Service GameStateServiceBase afterinitialize() took {watch.Elapsed.TotalSeconds}s");
                 Observable.NextFrame().Subscribe(_ => {
                     InitAPI();
                 });

@@ -54,7 +54,11 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
             _dManager.Add(this);
 
             try {
+                System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+                watch.Start();
                 AfterInitialize();
+                watch.Stop();
+                UnityEngine.Debug.LogWarning($"Service /*name:serviceName*/PrototypeService/*endname*/ afterinitialize() took {watch.Elapsed.TotalSeconds}s");
                 Observable.NextFrame().Subscribe(_ => {
                     InitAPI();
                 });
