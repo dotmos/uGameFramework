@@ -21,18 +21,28 @@ namespace Service.Serializer {
             this.bb = new ByteBuffer(buf);
         }
 
-        public T GetOrCreate<T>(int offset) where T:IFBSerializable2,new() {
-            if (offset == 0) return default(T);
+        public T GetOrCreate<T>(int bufferOffset) where T:IFBSerializable2,new() {
+            if (bufferOffset == 0) return default(T);
 
-            if (pos2obj.TryGetValue(offset,out IFBSerializable2 result)) {
+            if (pos2obj.TryGetValue(bufferOffset,out IFBSerializable2 result)) {
                 return (T)result;
             } else {
                 var newObject = new T();
-                pos2obj[offset] = newObject;
-                newObject.Deserialize2(offset,this);
+                pos2obj[bufferOffset] = newObject;
+                newObject.Deserialize2(bufferOffset,this);
                 return newObject;
             }
         }
+
+        public T GetReference<T>(int bufferOffset) where T : IFBSerializable2, new() {
+            if (bufferOffset == 0) {
+                return default(T);
+            }
+
+            var result = GetOrCreate<T>(bufferOffset);
+            return result;
+        }
+
 
         public T GetRoot<T>() where T : IFBSerializable2, new() {
             int offset = bb.Length - bb.GetInt(0);
@@ -100,6 +110,8 @@ namespace Service.Serializer {
                 }
             }
         }
+
+
 
         /// <summary>
         /// Merge multiple contexts together into this one. 

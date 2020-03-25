@@ -594,7 +594,7 @@ namespace FlatBuffers
         /// and <see cref="ForceDefaults"/> is false, the value will be skipped.</param>
         /// <param name="d">The default value to compare the value against</param>
         public void AddBool(int o, bool x, bool d) { if (ForceDefaults || x != d) { AddBool(x); Slot(o); } }
-
+        public void AddBool(int o, bool x, int d) { AddBool(o, x, d == 0 ? false : true);  }
         /// <summary>
         /// Adds a SByte to the Table at index `o` in its vtable using the value `x` and default `d`
         /// </summary>
@@ -695,65 +695,6 @@ namespace FlatBuffers
         /// 
         public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); }  }
         //public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
-
-        private Dictionary<object, List<int>> interconnectionOffsets = new Dictionary<object, List<int>>();
-        private Dictionary<object, int> objectReferences = new Dictionary<object, int>();
-
-        public void AddReferenceOffset(int o, object obj) {
-            if (obj == null) {
-                return;
-            }
-            AddInt(0);
-            Slot(o);
-            if (interconnectionOffsets.TryGetValue(obj, out List<int> offsetDummies)) {
-                offsetDummies.Add(Offset);
-            } else {
-                interconnectionOffsets[obj] = new List<int>() { Offset };
-            }
-        }
-
-        public void AddObjectReference(object obj, int offset) { objectReferences[obj] = offset; }
-
-
-        public void MergeBuffer(FlatBufferBuilder mergeFB) {
-            // strip buffer to be merged
-            byte[] buf = mergeFB._bb.ToArray<byte>(mergeFB._space, mergeFB._bb.Length - mergeFB._space);
-
-            int newBufEnd = Offset;
-            Add<byte>(buf);
-
-            foreach (var kv in mergeFB.interconnectionOffsets) {
-                if (objectReferences.TryGetValue(kv.Key, out int offset)) {
-                    foreach (int offsetDummy in kv.Value) {
-                        int newOffsetDummy = offsetDummy + newBufEnd; // adjust the offset of the merged buffer
-                        int relativeOffset = newOffsetDummy - offset;
-                        _bb.PutInt(newOffsetDummy, relativeOffset);
-                    }
-                } else {
-                    foreach (int offsetDummy in kv.Value) {
-                        AddReferenceOffset(offsetDummy + newBufEnd, kv.Key);
-                    }
-                }
-            }
-
-
-            // merge object-references and solve newly added object-references
-            foreach (var kv in mergeFB.objectReferences) {
-                // adjust the offsets. (offsets are relative to the end of the buffer. the end of the merged buffer is somewhere in the destination-buffer
-                int newOffset = newBufEnd + kv.Value;
-                objectReferences[kv.Key] = newOffset;
-
-                // check if this specific object needs to be resolved 
-                if (interconnectionOffsets.TryGetValue(kv.Key,out List<int> offsetDummies)) {
-                    foreach (int offsetDummy in offsetDummies) {
-                        int relativeOffset = offsetDummy - newOffset;
-                        _bb.PutInt(offsetDummy, relativeOffset);
-                    }
-                    interconnectionOffsets.Remove(kv.Key);
-                }
-            }
-
-        }
 
         public static int DUMMYREF = 2;
          
@@ -1135,6 +1076,13 @@ namespace FlatBuffers
 
         public int PutQuaternion(ref Quaternion q) {
             return PutVec4(q.x, q.y, q.z, q.w);
+        }
+
+        public int PutUID(ECS.UID uid) {
+            Prep(4, 8);
+            PutInt(uid.Revision);
+            PutInt(uid.ID);
+            return Offset;
         }
 
         public int PutUID(ref ECS.UID uid) {

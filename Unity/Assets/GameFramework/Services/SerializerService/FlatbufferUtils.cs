@@ -51,6 +51,12 @@ namespace Service.Serializer
             int o = __tbl.__offset(4 + fbPos * 2);
             return o != 0 ? __tbl.bb.GetInt(o + __tbl.bb_pos) : 0;
         }
+        public int? GetNullableInt(int fbPos) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+            if (o == 0) return null;
+            return __tbl.bb.GetInt(o + __tbl.bb_pos);
+        }
+
         public void MutateInt(int fbPos, int value) {
             int o = __tbl.__offset(4 + fbPos * 2);
             if (o == 0) return;

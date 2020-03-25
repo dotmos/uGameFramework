@@ -109,6 +109,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public UID? testUID = new UID(1895, 0);
     public float testNumber = 18.95f;
     public State? nullState = null;
+    public int intValue = 95;
 
     public class FreeTypeTestObject : IPocoBase<FreeTypeTestObject> {
         private string data;
@@ -347,10 +348,16 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     #region serialization2
     public /*name:override*/override/*endname*/ void _CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
+        /*block:s_component_header*/int offsetCompID = builder.PutUID(Entity);
+        builder.AddStruct(0, offsetCompID, 0);
+        /*endblock:s_component_header*/
+        
         /*block:s_enum*/builder.AddInt(/*name:fieldid*/0/*endname*/, (int)/*name:name*/state/*endname*/, 0); 
         /*endblock:s_enum*/
-        /*block:s_enumnullable*/if (/*name:name*/nullState/*endname*/.HasValue) builder.AddInt(/*name:fieldid*/0/*endname*/, (int)/*name:name*/nullState/*endname*/.Value, 0); 
+        /*block:s_enumnullable*/if (/*name:name*/nullState/*endname*/.HasValue) builder.AddInt(/*name:fieldid*/0/*endname*/, (int)/*name:name*/nullState/*endname*/.Value, 0);
         /*endblock:s_enumnullable*/
+        /*block:s2_primitive*/builder./*name:addPrimitive*/AddInt/*endname*/(/*name:fieldid*/0/*endname*/,/*name:name*/intValue/*endname*/, 0);
+        /*endblock:s2_primitive*/
 
         int tblPos = builder.EndTable();
         table = new ExtendedTable(tblPos, builder);
@@ -397,9 +404,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*block:s2_nullable*/
         if (/*name|fu,pre#s:name*/nullableStringOffset/*endname*/.HasValue) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestName/*endname*/(builder,/*name|fu,pre#s:name*/nullableStringOffset/*endname*/.Value);
         /*endblock:s2_nullable*/
-        /*block:s2_primitive*/
-        Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name:name*/sState/*endname*/);
-        /*endblock:s2_primitive*/
+
         /*block:s2_list*/
         if (/*name:name*/testListPrimitive/*endname*/!= null) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestListPrimitive/*endname*/(builder, (VectorOffset)/*name|fu,pre#s:name*/sTestListPrimitive/*endname*/);
         /*endblock:s2_list*/
@@ -415,6 +420,16 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         // not implemented,yet
     }
     public /*name:override*/override/*endname*/ void Deserialize2(int tblOffset, DeserializationContext ctx) {
+        base.Deserialize2(tblOffset, ctx); // init extendend table;
+        /*block:d_component_header*/ID = table.GetUID(0);
+        /*endblock:d_component_header*/
+        /*block:d_enum*//*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)table.GetInt(/*name:fieldid*/0/*endname*/);
+        /*endblock:d_enum*/
+        /*block:d_enum_nullable*//*name:name*/nullState/*endname*/ = (/*name:type*/State/*endname*/?)table.GetNullableInt(/*name:fieldid*/0/*endname*/);
+        /*endblock:d_enum_nullable*/
+        /*block:d_primitive*//*name:name*/intValue/*endname*/ = table./*name:getPrimitive*/GetInt/*endname*/(/*name:fieldid*/0/*endname*/);
+        /*endblock:d_primitive*/
+
         object data = null;
         if (data is Serial.FBRef) {
             data = FlatBufferSerializer.CastSerialObject<Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/>(data);
