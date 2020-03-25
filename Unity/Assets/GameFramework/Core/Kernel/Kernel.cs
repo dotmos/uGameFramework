@@ -136,7 +136,7 @@ public partial class Kernel : SceneContext {
             .Take(1)
             .Subscribe(_ => {
                 KernelReady = true;
-                Debug.Log("Startup done!");
+                Debug.LogWarning("Startup done!");
                 OnKernelReady();
             });
     }
