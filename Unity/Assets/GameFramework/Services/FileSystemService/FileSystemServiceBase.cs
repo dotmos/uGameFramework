@@ -60,13 +60,15 @@ namespace Service.FileSystem
                 watch.Start();
                 AfterInitialize();
                 watch.Stop();
-                UnityEngine.Debug.LogWarning($"Service FileSystemServiceBase afterinitialize() took {watch.Elapsed.TotalSeconds}s");
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                UnityEngine.Debug.LogWarning($"Service FileSystemServiceBase AfterInitialize() took {watch.Elapsed.TotalSeconds}s");
+#endif
                 Observable.NextFrame().Subscribe(_ => {
                     InitAPI();
                 });
             }
             catch (Exception e) {
-                UnityEngine.Debug.LogError("Catched exception in Service-AfterInitialize() from service:" + GetType());
+                UnityEngine.Debug.LogError("Catched exception in AfterInitialize() from service:" + GetType());
                 UnityEngine.Debug.LogException(e);
             }
         }
