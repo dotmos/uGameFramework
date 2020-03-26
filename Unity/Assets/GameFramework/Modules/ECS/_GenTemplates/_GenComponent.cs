@@ -110,6 +110,72 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public float testNumber = 18.95f;
     public State? nullState = null;
     public int intValue = 95;
+    public ISomeBase typedObj1 = new SomeClazz1();
+    public ISomeBase typedObj2 = new SomeClazz2();
+
+    public interface ISomeBase : IFBSerializable2 { }
+
+    public class SomeClazz1 : ISomeBase
+    {
+        #region nonimportant_default_implementation
+        public bool IsDirty { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        public bool HasOffset => throw new System.NotImplementedException();
+
+        public int Offset => throw new System.NotImplementedException();
+
+        public void Deserialize2(int tblOffset, DeserializationContext ctx) {
+            throw new System.NotImplementedException();
+        }
+
+        public void Deserialize2(DeserializationContext ctx) {
+            throw new System.NotImplementedException();
+        }
+
+        public int Serialize2(SerializationContext ctx) {
+            throw new System.NotImplementedException();
+        }
+
+        public void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            throw new System.NotImplementedException();
+        }
+
+        public void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            throw new System.NotImplementedException();
+        }
+        #endregion
+    }
+    public class SomeClazz2 : ISomeBase
+    {
+        #region nonimportant_default_implementation
+        public bool IsDirty { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        public bool HasOffset => throw new System.NotImplementedException();
+
+        public int Offset => throw new System.NotImplementedException();
+
+        public void Deserialize2(int tblOffset, DeserializationContext ctx) {
+            throw new System.NotImplementedException();
+        }
+
+        public void Deserialize2(DeserializationContext ctx) {
+            throw new System.NotImplementedException();
+        }
+
+        public int Serialize2(SerializationContext ctx) {
+            throw new System.NotImplementedException();
+        }
+
+        public void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            throw new System.NotImplementedException();
+        }
+
+        public void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            throw new System.NotImplementedException();
+        }
+        #endregion
+    }
+
 
     public class FreeTypeTestObject : IPocoBase<FreeTypeTestObject> {
         private string data;
@@ -347,18 +413,24 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*block:serialization2*/
     #region serialization2
     public /*name:override*/override/*endname*/ void _CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
+        /*block:s_create_string*/int /*name|fu,pre#offset:name*/offsetString/*endname*/ = builder.CreateString(/*name:name*/testName/*endname*/).Value;
+        /*endblock:s_create_string*/
+        /*block:s_typed_object_type*/int /*name|fu,pre#offsetType:name*/offsetTypeName/*endname*/ = builder.CreateSharedString(builder.GetTypeName(/*name:name*/typedObj1/*endname*/)).Value;
+        /*endblock:s_type_object_type*/
+
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
         /*block:s_component_header*/int offsetCompID = builder.PutUID(Entity);
         builder.AddStruct(0, offsetCompID, 0);
         /*endblock:s_component_header*/
-        
+        /*block:s_add_offset*/builder.AddOffset(/*name:fieldid*/0/*endname*/,/*name|fu,pre#offset:name*/offsetString/*endname*/,0);
+        /*endblock:s_add_offset*/
         /*block:s_enum*/builder.AddInt(/*name:fieldid*/0/*endname*/, (int)/*name:name*/state/*endname*/, 0); 
         /*endblock:s_enum*/
         /*block:s_enumnullable*/if (/*name:name*/nullState/*endname*/.HasValue) builder.AddInt(/*name:fieldid*/0/*endname*/, (int)/*name:name*/nullState/*endname*/.Value, 0);
         /*endblock:s_enumnullable*/
         /*block:s2_primitive*/builder./*name:addPrimitive*/AddInt/*endname*/(/*name:fieldid*/0/*endname*/,/*name:name*/intValue/*endname*/, 0);
         /*endblock:s2_primitive*/
-
+        
         int tblPos = builder.EndTable();
         table = new ExtendedTable(tblPos, builder);
 
@@ -429,6 +501,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*endblock:d_enum_nullable*/
         /*block:d_primitive*//*name:name*/intValue/*endname*/ = table./*name:getPrimitive*/GetInt/*endname*/(/*name:fieldid*/0/*endname*/);
         /*endblock:d_primitive*/
+        /*block:d_string*//*name:name*/testName/*endname*/ = table.GetString(/*name:fieldid*/0/*endname*/);
+        /*endblock:d_string*/
 
         object data = null;
         if (data is Serial.FBRef) {

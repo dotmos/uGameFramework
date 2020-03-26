@@ -15,6 +15,7 @@
  */
 
 
+using Service.Serializer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -1092,7 +1093,46 @@ namespace FlatBuffers
             return Offset;
         }
 
+        /// <summary>
+        /// Creates a struct 0:offset to typename(as shared string) 1:offset to serialized obj
+        /// </summary>
+        /// <param name="offsetTypeName"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public int PutTypedObject(int offsetTypeName,IFBSerializable2 obj) {
+            Prep(4, 8);
+            AddOffset(offsetTypeName);
+            return 0;
+        }
 
+
+        /// <summary>
+        /// Get typename including Assembly-Name
+        /// </summary>
+        /// <param name="elem"></param>
+        /// <returns></returns>
+        public String GetTypeName(object elem) {
+            Type type = elem.GetType();
+            return GetTypeName(type);
+        }
+
+        static Dictionary<Type, String> typeNameLookupTable = new Dictionary<Type, string>();
+
+        static StringBuilder stb = new StringBuilder();
+
+        private static String GetTypeName(Type type) {
+            if (typeNameLookupTable.TryGetValue(type, out string value)) {
+                return value;
+            } else {
+                stb.Clear();
+                string assemblyName = type.Assembly.FullName;
+
+                stb.Append(type.FullName).Append(", ").Append(assemblyName.Substring(0, assemblyName.IndexOf(',')));
+                string typeName = stb.ToString();
+                typeNameLookupTable[type] = typeName;
+                return typeName;
+            }
+        }
 
     }
 }
