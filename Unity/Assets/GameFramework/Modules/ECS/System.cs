@@ -430,7 +430,9 @@ namespace ECS {
             componentsToProcess.Clear();
             componentsToProcessLUT.Clear();
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             UnityEngine.Debug.Log("System("+this.GetType().Name+") disposed");
+#endif
         }
     }
 }
