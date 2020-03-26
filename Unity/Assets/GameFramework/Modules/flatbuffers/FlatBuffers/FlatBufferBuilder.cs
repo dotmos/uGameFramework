@@ -730,9 +730,9 @@ namespace FlatBuffers
         /// <returns>
         /// The offset in the buffer where the encoded string starts.
         /// </returns>
-        public StringOffset CreateString(string s)
+        public StringOffset CreateString(string s,bool nested=false)
         {
-            NotNested();
+            if (!nested) NotNested();
             AddByte(0);
             int utf8StringLen = Encoding.UTF8.GetByteCount(s);
             StartVector(1, utf8StringLen, 1);
@@ -770,7 +770,7 @@ namespace FlatBuffers
         /// <returns>
         /// The offset in the buffer where the encoded string starts.
         /// </returns>
-        public StringOffset CreateSharedString(string s)
+        public StringOffset CreateSharedString(string s,bool nested=false)
         {
             if (_sharedStringMap == null)
             {
@@ -782,7 +782,7 @@ namespace FlatBuffers
                 return _sharedStringMap[s];
             }
 
-            StringOffset stringOffset = CreateString(s);
+            StringOffset stringOffset = CreateString(s,nested);
             _sharedStringMap.Add(s, stringOffset);
             return stringOffset;
         }

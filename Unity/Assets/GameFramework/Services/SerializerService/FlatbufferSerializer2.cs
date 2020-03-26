@@ -22,6 +22,41 @@ namespace Service.Serializer {
         int Offset { get; }
     }
 
+    public class DefaultSerializable2 : IFBSerializable2
+    {
+        public ExtendedTable table = ExtendedTable.NULL;
+
+        public bool IsDirty { get; set; }
+
+        public bool HasOffset => !table.IsNULL();
+
+        public int Offset => table.offset;
+
+        private object lock_state = new object();
+
+        public void Deserialize2(DeserializationContext ctx) {
+            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
+            Deserialize2(offset, ctx);
+        }
+
+
+
+        public virtual int Serialize2(SerializationContext ctx) {
+            if (!HasOffset) {
+                _CreateTable(ctx, ctx.builder);
+            } else {
+                _UpdateTable(ctx, ctx.builder);
+            }
+            return table.offset;
+        }
+
+        public virtual void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) { }
+        public virtual void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) { }
+        public virtual void Deserialize2(int tblOffset, DeserializationContext ctx) {
+            table = new ExtendedTable(tblOffset, ctx.bb);
+        }
+    }
+
     public class DeserializationContext
     {
         private readonly Dictionary<int, IFBSerializable2> pos2obj = new Dictionary<int, IFBSerializable2>();
@@ -107,11 +142,29 @@ namespace Service.Serializer {
         }
 
 
+        /// <summary>
+        /// Serialize an object and keep the c#-type 
+        /// </summary>
+        /// <param name="o"></param>
+        /// <param name="offsetTypeName"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public int AddTypedObject(int o, int offsetTypeName, DefaultSerializable2 obj) {
             AddReferenceOffset(-1, obj);
             builder.AddOffset(offsetTypeName);
             int offset = builder.Offset;
             builder.AddStruct(o,offset, 0);
+            return offset;
+        }
+
+
+        public int AddTypedObject(int o,DefaultSerializable2 obj) {
+            int offsetTypeName = builder.CreateSharedString(builder.GetTypeName(obj),true).Value;
+
+            AddReferenceOffset(-1, obj);
+            builder.AddOffset(offsetTypeName);
+            int offset = builder.Offset;
+            builder.AddStruct(o, offset, 0);
             return offset;
         }
         public void AddReferenceOffset(int o, DefaultSerializable2 obj) {
@@ -264,40 +317,7 @@ namespace Service.Serializer {
 
     }
 
-    public abstract class DefaultSerializable2 : IFBSerializable2
-    {
-        public ExtendedTable table = ExtendedTable.NULL;
-
-        public bool IsDirty { get; set; }
-
-        public bool HasOffset => !table.IsNULL();
-
-        public int Offset => table.offset;
-
-        private object lock_state = new object();
-
-        public void Deserialize2(DeserializationContext ctx) {
-            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
-            Deserialize2(offset, ctx);
-        }
-
-
-
-        public virtual int Serialize2(SerializationContext ctx) {
-            if (!HasOffset) {
-                _CreateTable(ctx, ctx.builder);
-            } else {
-                _UpdateTable(ctx, ctx.builder);
-            }
-            return table.offset;
-        }
-
-        public abstract void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder);
-        public abstract void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder);
-        public virtual void Deserialize2(int tblOffset, DeserializationContext ctx) {
-            table = new ExtendedTable(tblOffset,ctx.bb);
-        }
-    }
+    
 
     public class FlatBufferSerializer2 {
 

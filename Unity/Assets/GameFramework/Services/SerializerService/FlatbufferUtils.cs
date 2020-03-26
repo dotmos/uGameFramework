@@ -256,6 +256,8 @@ namespace Service.Serializer
             uid.__SetRevision(__tbl.bb.GetInt(vec_pos + 4));
         }
 
+        
+
         public void MutateUID(int o, ref ECS.UID uid) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             __tbl.bb.PutInt(vec_pos + 0, uid.ID);
@@ -290,6 +292,12 @@ namespace Service.Serializer
             T obj = (T)Activator.CreateInstance(Type.GetType(typeName));
             T dObj = dctx.GetOrCreate<T>(objOff, obj);
             return dObj;
+        }
+
+        public T GetReference<T>(int fbPos,DeserializationContext dctx) where T : IFBSerializable2, new() {
+            int offset = GetOffset(fbPos);
+            T result = dctx._GetReference<T>(offset);
+            return result;
         }
     }
 }
