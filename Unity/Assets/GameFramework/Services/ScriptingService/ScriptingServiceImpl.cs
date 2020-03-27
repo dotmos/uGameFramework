@@ -599,8 +599,12 @@ namespace Service.Scripting {
         }
 
         public override void ReplayWrite_SetCurrentEntity(UID uid) {
-            int bid = data.uid2persistedId[uid];
-            data.replayScript.Append($"entity=uID[{bid}]\n");
+            if (data.uid2persistedId.TryGetValue(uid,out int value)) {
+                int bid = data.uid2persistedId[uid];
+                data.replayScript.Append($"entity=uID[{bid}]\n");
+            } else {
+                data.replayScript.Append($"-- could not add uid2pid mapping for uid:{uid} (maybe worldtask building...?)");
+            }
         }
 
         public override void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime) {
