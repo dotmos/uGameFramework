@@ -32,21 +32,48 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
     /*block:modelClass*/
     [System.Serializable]
-    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
+    {
+
+        private ExtendedTable ser2table = ExtendedTable.NULL;
+
+        public new ExtendedTable Ser2Table => ser2table;
+
+        public new bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+
+        public new bool Ser2HasOffset => !ser2table.IsNULL();
+
+        public new int Ser2Offset => ser2table.offset;
+
+        public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
+            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
+            Ser2Deserialize(offset, ctx);
+        }
+
+        public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
+            if (!Ser2HasOffset) {
+                Ser2CreateTable(ctx, ctx.builder);
+            } else {
+                Ser2UpdateTable(ctx, ctx.builder);
+            }
+            return ser2table.offset;
+        }
+
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /// <summary>
         /// /*name:documentation*//*endname*/
         /// </summary>
         /*name:attributes*//*endname*/
-                           /*name:scope*/
+        /*name:scope*/
         public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
         /*endblock:field*/
         /*block:property*/
-            /// <summary>
-            /// /*name:documentation*//*endname*/
-            /// </summary>
-        /*name:scope*/public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+        /*name:scope*/
+        public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
         /*endblock:property*/
         /*block:constructor*/
         /// <summary>
@@ -55,9 +82,11 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:docParam*/        /// <param name="/*name:name*//*endname*/">/*name:documentation*//*endname*/</param>
 /*endblock:docParam*/
         public /*name:className*/SomeModel/*endname*/(/*block:rip*/int maxChannels/*endblock:rip*//*block:parameter*//*name:comma*/,/*endname*//*name:type*/string/*endname*/ /*name:paramName*/name/*endname*//*endblock:parameter*/) {
-/*block:constructorSet*/            this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
-/*endblock:constructorSet*/
-/*block:rip*/            this.MaxSoundChannels = maxChannels;/*endblock:rip*/
+            /*block:constructorSet*/
+            this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
+            /*endblock:constructorSet*/
+            /*block:rip*/
+            this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
 
         /*endblock:constructor*/
@@ -65,7 +94,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /// Default constructor
         /// </summary>
         /*name:classSerialization*/
-        public void Deserialize(int dataFormatNr,object incoming) {
+        public void Deserialize(int dataFormatNr, object incoming) {
             throw new System.NotImplementedException();
         }
 
@@ -84,9 +113,10 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*block:field*/
     /// <summary>
     /*name:comment*//*endname*/
-                    /// </summary>
+    /// </summary>
     /*name:attributes*//*endname*/
-    /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
+    /*name:accessor*/
+    public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
 
     public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value,bool addToLuaReplay=false, string luaValue=null) {
         if (addToLuaReplay && this./*name:name*/state/*endname*/ != value) {
@@ -118,17 +148,29 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public int intValue = 95;
     public DefaultSerializable2 typedObj1 = new SomeClazz1();
     public SomeClazz2 serObj = new SomeClazz2();
+    public SomeStruct serStruct = new SomeStruct();
 
-    
+    public class SomeStruct : IFBSerializable2Struct
+    {
+        #region nonimportant_default_implementation
+        public void Get(ExtendedTable table, int fbPos) {
+            throw new System.NotImplementedException();
+        }
 
-public class SomeClazz1 : DefaultSerializable2
+        public int Put(SerializationContext ctx, FlatBufferBuilder builder) {
+            throw new System.NotImplementedException();
+        }
+        #endregion
+    }
+
+    public class SomeClazz1 : DefaultSerializable2
 {
     #region nonimportant_default_implementation
-    public override void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+    public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 
-    public override void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+    public override void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 
@@ -138,11 +180,11 @@ public class SomeClazz1 : DefaultSerializable2
 public class SomeClazz2 : DefaultSerializable2
 {
     #region nonimportant_default_implementation
-    public override void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+    public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 
-    public override void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+    public override void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 
@@ -387,13 +429,11 @@ public class SomeClazz2 : DefaultSerializable2
 
     /*block:serialization2*/
     #region serialization2
-    public /*name:override*/override/*endname*/ void _CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
+    public  new void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
         /*block:s_create_string*/int /*name|fu,pre#offset:name*/offsetString/*endname*/ = builder.CreateString(/*name:name*/testName/*endname*/).Value;
         /*endblock:s_create_string*/
-
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
-        /*block:s_component_header*/int offsetCompID = builder.PutUID(Entity);
-        builder.AddStruct(0, offsetCompID, 0);
+        /*block:s_component_header*/builder.AddStruct(0, builder.PutUID(Entity), 0);
         /*endblock:s_component_header*/
         /*block:s_add_offset*/builder.AddOffset(/*name:fieldid*/1/*endname*/,/*name|fu,pre#offset:name*/offsetString/*endname*/,0);
         /*endblock:s_add_offset*/
@@ -407,17 +447,18 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_typed_object*/
         /*block:s_object*/ctx.AddReferenceOffset(/*name:fieldid*/6/*endname*/,/*name:name*/serObj/*endname*/);
         /*endblock:s_object*/
-        /*block:s_uid*/builder.AddStruct(/*name:fieldid*/7/*endname*/,builder.PutUID(ref /*name:name*/testUID/*endname*/),0);
-        /*endblock:s_uid*/
-
+        /*block:s_special_object*/builder.AddStruct(/*name:fieldid*/8/*endname*/,builder./*name|pre#Put:type*/PutUID/*endname*/(ref /*name:name*/testUID/*endname*/),0);
+        /*endblock:s_special_object*/
+        /*block:s_struct*/builder.AddStruct(/*name:fieldid*/9/*endname*/, /*name:name*/serStruct/*endname*/.Put(ctx,builder),0);
+        /*endblock:s_struct*/
 
         int tblPos = builder.EndTable();
-        table = new ExtendedTable(tblPos, builder);
+        ser2table = new ExtendedTable(tblPos, builder);
 
         int sState = 0;
 
         /*block:inheritanceSer*/
-        var baseData = base.Serialize2(ctx);
+        var baseData = base.Ser2Serialize(ctx);
         /*endblock:inheritanceSer*/
         /*block:s_string*/
         var /*name|fu,pre#s:name*/sTestName/*endname*/ = FlatBufferSerializer.GetOrCreateSerialize(builder,/*name:name*/testName/*endname*/);
@@ -467,28 +508,34 @@ public class SomeClazz2 : DefaultSerializable2
 
     }
 
- 
-    public override void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+
+    public new void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         // not implemented,yet
     }
-    public /*name:override*/override/*endname*/ void Deserialize2(int tblOffset, DeserializationContext ctx) {
-        base.Deserialize2(tblOffset, ctx); // init extendend table;
-        /*block:d_component_header*/ID = table.GetUID(0);
+    public /*name:override*/override/*endname*/ void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
+        /*block:d_component_header*/base.Ser2Deserialize(tblOffset, ctx); // init extendend table;
+        ID = ser2table.GetUID(0);
         /*endblock:d_component_header*/
-        /*block:d_enum*//*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)table.GetInt(/*name:fieldid*/0/*endname*/);
+        /*block:d_deserialize_base*/
+        base.Ser2Deserialize(ser2table.GetOffset(0), ctx);
+        /*endblock:d_deserialize_base*/
+
+        /*block:d_enum*//*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)ser2table.GetInt(/*name:fieldid*/0/*endname*/);
         /*endblock:d_enum*/
-        /*block:d_enum_nullable*//*name:name*/nullState/*endname*/ = (/*name:type*/State/*endname*/?)table.GetNullableInt(/*name:fieldid*/0/*endname*/);
+        /*block:d_enum_nullable*//*name:name*/nullState/*endname*/ = (/*name:type*/State/*endname*/?)ser2table.GetNullableInt(/*name:fieldid*/0/*endname*/);
         /*endblock:d_enum_nullable*/
-        /*block:d_primitive*//*name:name*/intValue/*endname*/ = table./*name:getPrimitive*/GetInt/*endname*/(/*name:fieldid*/0/*endname*/);
+        /*block:d_primitive*//*name:name*/intValue/*endname*/ = ser2table./*name:getPrimitive*/GetInt/*endname*/(/*name:fieldid*/0/*endname*/);
         /*endblock:d_primitive*/
-        /*block:d_string*//*name:name*/testName/*endname*/ = table.GetString(/*name:fieldid*/0/*endname*/);
+        /*block:d_string*//*name:name*/testName/*endname*/ = ser2table.GetString(/*name:fieldid*/0/*endname*/);
         /*endblock:d_string*/
-        /*block:d_typed_object*//*name:name*/typedObj1/*endname*/ = table.GetOrCreateTypedObject</*name:type*/DefaultSerializable2/*endname*/>(/*name:fieldid*/0/*endname*/,ctx);
+        /*block:d_typed_object*//*name:name*/typedObj1/*endname*/ = ser2table.GetOrCreateTypedObject</*name:type*/DefaultSerializable2/*endname*/>(/*name:fieldid*/0/*endname*/,ctx);
         /*endblock:d_typed_object*/
-        /*block:d_object*//*name:name*/serObj/*endname*/ = table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,ctx);
+        /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,ctx);
         /*endblock:d_object*/
-        /*block:d_uid*/table.GetUID(/*name:fieldid*/7/*endname*/,ref /*name:name*/testUID/*endname*/);
-        /*endblock:d_uid*/
+        /*block:d_special_object*/ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/7/*endname*/,ref /*name:name*/testUID/*endname*/);
+        /*endblock:d_special_object*/
+        /*block:d_struct*//*name:name*/serStruct/*endname*/.Get(ser2table,/*name:fieldid*/8/*endname*/);
+        /*endblock:d_struct*/
         
         object data = null;
         if (data is Serial.FBRef) {
@@ -636,11 +683,11 @@ public class GenTemplateComponent2 : ECS.Component
         throw new System.NotImplementedException();
     }
 
-    public override void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+    public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 
-    public override void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+    public override void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
 }

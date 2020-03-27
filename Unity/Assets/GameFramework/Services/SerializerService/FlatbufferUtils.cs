@@ -139,66 +139,66 @@ namespace Service.Serializer
         }
 
 
-        public UnityEngine.Vector2 GetVec2(int o) {
+        public UnityEngine.Vector2 GetVector2(int o) {
             Vector2 vec2 = new UnityEngine.Vector2();
-            GetVec2(0, ref vec2);
+            GetVector2(0, ref vec2);
             return vec2;
         }
-        public void GetVec2(int o,ref Vector2 vec2) {
+        public void GetVector2(int o,ref Vector2 vec2) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             vec2.x = __tbl.bb.GetFloat(vec_pos + 0);
             vec2.y = __tbl.bb.GetFloat(vec_pos + 4);
         }
 
-        public void MutateVec2(int o, float x, float y) {
+        public void MutateVector2(int o, float x, float y) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             __tbl.bb.PutFloat(vec_pos + 0, x);
             __tbl.bb.PutFloat(vec_pos + 4, y);
         }
 
-        public void MutateVec2(int o, ref Vector2 vec2) {
-            MutateVec2(o, vec2.x, vec2.y);
+        public void MutateVector2(int o, ref Vector2 vec2) {
+            MutateVector2(o, vec2.x, vec2.y);
         }
 
-        public void MutateVec2(int o, Vector2 vec2) {
-            MutateVec2(o, vec2.x, vec2.y);
+        public void MutateVector2(int o, Vector2 vec2) {
+            MutateVector2(o, vec2.x, vec2.y);
         }
 
 
-        public UnityEngine.Vector4 GetVec3(int o) {
+        public UnityEngine.Vector4 GetVector3(int o) {
             Vector3 vec3 = new Vector3();
-            GetVec3(o, ref vec3);
+            GetVector3(o, ref vec3);
             return vec3;
         }
 
-        public void GetVec3(int o, ref Vector3 vec) {
+        public void GetVector3(int o, ref Vector3 vec) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             vec.x = __tbl.bb.GetFloat(vec_pos + 0);
             vec.y = __tbl.bb.GetFloat(vec_pos + 4);
             vec.z = __tbl.bb.GetFloat(vec_pos + 8);
         }
-        public void MutateVec3(int o, float x, float y, float z) {
+        public void MutateVector3(int o, float x, float y, float z) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             __tbl.bb.PutFloat(vec_pos + 0, x);
             __tbl.bb.PutFloat(vec_pos + 4, y);
             __tbl.bb.PutFloat(vec_pos + 8, z);
         }
 
-        public void MutateVec3(int o, ref Vector3 vec3) {
-            MutateVec3(o, vec3.x, vec3.y, vec3.z);
+        public void MutateVector3(int o, ref Vector3 vec3) {
+            MutateVector3(o, vec3.x, vec3.y, vec3.z);
         }
-        public void MutateVec3(int o, Vector3 vec3) {
-            MutateVec3(o, vec3.x, vec3.y, vec3.z);
+        public void MutateVector3(int o, Vector3 vec3) {
+            MutateVector3(o, vec3.x, vec3.y, vec3.z);
         }
 
 
-        public UnityEngine.Vector4 GetVec4(int o) {
+        public UnityEngine.Vector4 GetVector4(int o) {
             Vector4 vec4=new Vector4();
-            GetVec4(o, ref vec4);
+            GetVector4(o, ref vec4);
             return vec4;
         }
 
-        public void GetVec4(int o,ref Vector4 vec) {
+        public void GetVector4(int o,ref Vector4 vec) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             vec.x = __tbl.bb.GetFloat(vec_pos + 0);
             vec.y = __tbl.bb.GetFloat(vec_pos + 4);
@@ -206,7 +206,7 @@ namespace Service.Serializer
             vec.w = __tbl.bb.GetFloat(vec_pos + 12);
         }
 
-        public void MutateVec4(int o, float x, float y, float z, float w) {
+        public void MutateVector4(int o, float x, float y, float z, float w) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             __tbl.bb.PutFloat(vec_pos + 0, x);
             __tbl.bb.PutFloat(vec_pos + 4, y);
@@ -214,11 +214,11 @@ namespace Service.Serializer
             __tbl.bb.PutFloat(vec_pos + 12, w);
         }
 
-        public void MutateVec4(int o, ref Vector4 vec4) {
-            MutateVec4(o, vec4.x, vec4.y, vec4.z, vec4.w);
+        public void MutateVector4(int o, ref Vector4 vec4) {
+            MutateVector4(o, vec4.x, vec4.y, vec4.z, vec4.w);
         }
-        public void MutateVec4(int o, Vector4 vec4) {
-            MutateVec4(o, vec4.x, vec4.y, vec4.z, vec4.w);
+        public void MutateVector4(int o, Vector4 vec4) {
+            MutateVector4(o, vec4.x, vec4.y, vec4.z, vec4.w);
         }
 
         public Quaternion GetQuaternion(int o) {
@@ -237,11 +237,11 @@ namespace Service.Serializer
 
         public void MutateQuaternion(int o, ref Quaternion q) {
             // quaternions have same structure as vec4. so reuse this logic
-            MutateVec4(o, q.x, q.y, q.z, q.w);
+            MutateVector4(o, q.x, q.y, q.z, q.w);
         }
         public void MutateQuaternion(int o, Quaternion q) {
             // quaternions have same structure as vec4. so reuse this logic
-            MutateVec4(o, q.x, q.y, q.z, q.w);
+            MutateVector4(o, q.x, q.y, q.z, q.w);
         }
 
         public ECS.UID GetUID(int o) {
@@ -265,6 +265,8 @@ namespace Service.Serializer
         }
 
         public int GetVTableOffset(int fbPos) { return __tbl.__offset(4 + fbPos * 2); }
+        
+        public int GetStructBegin(int fbPos) { return __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4); }
         public int GetListLength(int fbPos) { int o = __tbl.__offset(4 + fbPos * 2); return o != 0 ? __tbl.__vector_len(o) : 0; }
         public int GetIntElementAt(int fbPos, int j) { int o = __tbl.__offset(4 + fbPos * 2); return o != 0 ? __tbl.bb.GetInt(__tbl.__vector(o) + j * 4) : (int)0; }
 

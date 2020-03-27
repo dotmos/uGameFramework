@@ -15,7 +15,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.PerformanceTest {
-    public interface IPerformanceTestService : IFBSerializable,IService {
+    public interface IPerformanceTestService : IFBSerializable, IService {
 
 
 

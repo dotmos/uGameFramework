@@ -32,7 +32,7 @@ namespace FlatBuffers
     /// Responsible for building up and accessing a FlatBuffer formatted byte
     /// array (via ByteBuffer).
     /// </summary>
-    public class FlatBufferBuilder
+    public partial class FlatBufferBuilder
     {
         public int _space;
         private ByteBuffer _bb;
@@ -1024,15 +1024,15 @@ namespace FlatBuffers
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public int PutVec2(float x, float y) {
+        public int PutVector2(float x, float y) {
             Prep(4, 8);
             PutFloat(y);
             PutFloat(x);
             return Offset;
         }
 
-        public int PutVec2(ref UnityEngine.Vector2 vec2) {
-            return PutVec2(vec2.x, vec2.y);
+        public int PutVector2(ref UnityEngine.Vector2 vec2) {
+            return PutVector2(vec2.x, vec2.y);
         }
 
         /// <summary>
@@ -1042,7 +1042,7 @@ namespace FlatBuffers
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public int PutVec3(float x, float y, float z) {
+        public int PutVector3(float x, float y, float z) {
             Prep(4, 12);
             PutFloat(z);
             PutFloat(y);
@@ -1050,8 +1050,8 @@ namespace FlatBuffers
             return Offset;
         }
 
-        public int PutVec3(ref UnityEngine.Vector3 vec3) {
-            return PutVec3(vec3.x, vec3.y, vec3.z);
+        public int PutVector3(ref UnityEngine.Vector3 vec3) {
+            return PutVector3(vec3.x, vec3.y, vec3.z);
         }
 
         /// <summary>
@@ -1062,7 +1062,7 @@ namespace FlatBuffers
         /// <param name="z"></param>
         /// <param name="w"></param>
         /// <returns></returns>
-        public int PutVec4(float x, float y, float z, float w) {
+        public int PutVector4(float x, float y, float z, float w) {
             Prep(4, 16);
             PutFloat(w);
             PutFloat(z);
@@ -1071,12 +1071,12 @@ namespace FlatBuffers
             return Offset;
         }
 
-        public int PutVec4(ref UnityEngine.Vector4 vec4) {
-            return PutVec4(vec4.x, vec4.y, vec4.z, vec4.w);
+        public int PutVector4(ref UnityEngine.Vector4 vec4) {
+            return PutVector4(vec4.x, vec4.y, vec4.z, vec4.w);
         }
 
         public int PutQuaternion(ref Quaternion q) {
-            return PutVec4(q.x, q.y, q.z, q.w);
+            return PutVector4(q.x, q.y, q.z, q.w);
         }
 
         public int PutUID(ECS.UID uid) {

@@ -6,54 +6,62 @@ using System.Collections;
 using System.Text;
 using System.Threading;
 
-namespace Service.Serializer {
-    public interface IFBSerializable2
+namespace Service.Serializer
+{
+    public interface IFBSerializable2 {
+        int Ser2Serialize(SerializationContext ctx);
+        void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
+        void Ser2UpdateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
+        void Ser2Deserialize(int tblOffset, DeserializationContext ctx);
+        void Ser2Deserialize(DeserializationContext ctx);
+
+
+        bool Ser2IsDirty { get; set; }
+        ExtendedTable Ser2Table { get; }
+        bool Ser2HasOffset { get; }
+        int Ser2Offset { get; }
+    }
+
+    public interface IFBSerializable2Struct
     {
-        int Serialize2(SerializationContext ctx);
-        void _CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
-        void _UpdateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
-        void Deserialize2(int tblOffset, DeserializationContext ctx);
-        void Deserialize2(DeserializationContext ctx);
-
-
-        bool IsDirty { get; set; }
-
-        bool HasOffset { get; }
-        int Offset { get; }
+        int Put(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
+        void Get(ExtendedTable table, int fbPos);
     }
 
     public class DefaultSerializable2 : IFBSerializable2
     {
-        public ExtendedTable table = ExtendedTable.NULL;
+        public ExtendedTable ser2table = ExtendedTable.NULL;
 
-        public bool IsDirty { get; set; }
+        public ExtendedTable Ser2Table => ser2table;
 
-        public bool HasOffset => !table.IsNULL();
+        public bool Ser2IsDirty { get; set; }
 
-        public int Offset => table.offset;
+        public bool Ser2HasOffset => !ser2table.IsNULL();
+
+        public int Ser2Offset => ser2table.offset;
 
         private object lock_state = new object();
 
-        public void Deserialize2(DeserializationContext ctx) {
+        public void Ser2Deserialize(DeserializationContext ctx) {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
-            Deserialize2(offset, ctx);
+            Ser2Deserialize(offset, ctx);
         }
 
 
 
-        public virtual int Serialize2(SerializationContext ctx) {
-            if (!HasOffset) {
-                _CreateTable(ctx, ctx.builder);
+        public virtual int Ser2Serialize(SerializationContext ctx) {
+            if (!Ser2HasOffset) {
+                Ser2CreateTable(ctx, ctx.builder);
             } else {
-                _UpdateTable(ctx, ctx.builder);
+                Ser2UpdateTable(ctx, ctx.builder);
             }
-            return table.offset;
+            return ser2table.offset;
         }
 
-        public virtual void _CreateTable(SerializationContext ctx, FlatBufferBuilder builder) { }
-        public virtual void _UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) { }
-        public virtual void Deserialize2(int tblOffset, DeserializationContext ctx) {
-            table = new ExtendedTable(tblOffset, ctx.bb);
+        public virtual void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) { }
+        public virtual void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) { }
+        public virtual void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
+            ser2table = new ExtendedTable(tblOffset, ctx.bb);
         }
     }
 
@@ -70,7 +78,7 @@ namespace Service.Serializer {
             this.bb = new ByteBuffer(buf);
         }
 
-        public T GetOrCreate<T>(int bufferOffset,T obj=default(T)) where T : IFBSerializable2, new() {
+        public T GetOrCreate<T>(int bufferOffset, T obj = default(T)) where T : IFBSerializable2, new() {
             if (bufferOffset == 0) return default(T);
 
             if (pos2obj.TryGetValue(bufferOffset, out IFBSerializable2 result)) {
@@ -79,12 +87,12 @@ namespace Service.Serializer {
                 var newObject = obj == null ? new T() : obj;
                 // todo: security-checks? 
                 pos2obj[bufferOffset] = newObject;
-                newObject.Deserialize2(bufferOffset, this);
+                newObject.Ser2Deserialize(bufferOffset, this);
                 return newObject;
             }
         }
 
-        public T GetReference<T>(int bufferOffset) where T : IFBSerializable2, new() {
+        public T _GetReference<T>(int bufferOffset) where T : IFBSerializable2, new() {
             // TODO: white/black-listing...
             if (bufferOffset == 0) {
                 return default(T);
@@ -99,19 +107,26 @@ namespace Service.Serializer {
             int offset = bb.Length - bb.GetInt(0);
             return GetOrCreate<T>(offset);
         }
+
+        public ExtendedTable GetRootTable() {
+            int offset = bb.Length - bb.GetInt(bb.Position) + bb.Position;
+            ExtendedTable tbl = new ExtendedTable(offset, bb);
+            return tbl;
+        }
     }
 
-    public class SerializationContext {
+    public class SerializationContext
+    {
         ///// <summary>
         ///// A mapping object 2 offset in FlatBuffer
         ///// </summary>
         //public readonly Dictionary<IFBSerializable2, int> obj2offset = new Dictionary<IFBSerializable2, int>();
-        
+
         /// <summary>
         /// mappings to objects that are not serialized,yet
         /// </summary>
-        public readonly Dictionary<DefaultSerializable2, List<int>> lateReferences = new Dictionary<DefaultSerializable2, List<int>>();
-        public readonly List<DefaultSerializable2> lateReferenceList = new List<DefaultSerializable2>();
+        public readonly Dictionary<IFBSerializable2, List<int>> lateReferences = new Dictionary<IFBSerializable2, List<int>>();
+        public readonly List<IFBSerializable2> lateReferenceList = new List<IFBSerializable2>();
 
         public readonly FlatBufferBuilder builder;
 
@@ -131,13 +146,13 @@ namespace Service.Serializer {
             builder = new FlatBufferBuilder(bb);
         }
 
-        public int GetOrCreate(DefaultSerializable2 obj) {
-            if (obj.HasOffset) {
+        public int GetOrCreate(IFBSerializable2 obj) {
+            if (obj.Ser2HasOffset) {
                 // this object was already serialized. just output 
-                return obj.Offset;
+                return obj.Ser2Offset;
             }
-            int newOffset = obj.Serialize2(this);
-//            obj2offset[obj] = newOffset;
+            int newOffset = obj.Ser2Serialize(this);
+            //            obj2offset[obj] = newOffset;
             return newOffset;
         }
 
@@ -149,17 +164,17 @@ namespace Service.Serializer {
         /// <param name="offsetTypeName"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public int AddTypedObject(int o, int offsetTypeName, DefaultSerializable2 obj) {
+        public int AddTypedObject(int o, int offsetTypeName, IFBSerializable2 obj) {
             AddReferenceOffset(-1, obj);
             builder.AddOffset(offsetTypeName);
             int offset = builder.Offset;
-            builder.AddStruct(o,offset, 0);
+            builder.AddStruct(o, offset, 0);
             return offset;
         }
 
 
-        public int AddTypedObject(int o,DefaultSerializable2 obj) {
-            int offsetTypeName = builder.CreateSharedString(builder.GetTypeName(obj),true).Value;
+        public int AddTypedObject(int o, IFBSerializable2 obj) {
+            int offsetTypeName = builder.CreateSharedString(builder.GetTypeName(obj), true).Value;
 
             AddReferenceOffset(-1, obj);
             builder.AddOffset(offsetTypeName);
@@ -167,18 +182,18 @@ namespace Service.Serializer {
             builder.AddStruct(o, offset, 0);
             return offset;
         }
-        public void AddReferenceOffset(int o, DefaultSerializable2 obj) {
+        public void AddReferenceOffset(int o, IFBSerializable2 obj) {
             if (obj == null) {
                 return;
             }
 
-            if (obj.HasOffset && obj.table.bb==builder.DataBuffer) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
+            if (obj.Ser2HasOffset && obj.Ser2Table.bb == builder.DataBuffer) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
                 // the object is already serialized
-                builder.AddOffset(o, obj.Offset, 0);
+                builder.AddOffset(o, obj.Ser2Offset, 0);
             } else {
                 // the object is not referenced,yet. Write a dummy int,that will be replaced later with the real offset
                 builder.AddInt(255);
-                if (o!=-1) builder.Slot(o);
+                if (o != -1) builder.Slot(o);
                 if (lateReferences.TryGetValue(obj, out List<int> offsetDummies)) {
                     offsetDummies.Add(builder.Offset);
                 } else {
@@ -195,7 +210,7 @@ namespace Service.Serializer {
         /// </summary>
         /// <param name="mergeCtx"></param>
         public void Merge(params SerializationContext[] mergeCtxs) {
-            
+
             // first resolve our local late references (TODO: multithreading)
             ResolveLateReferences();
 
@@ -210,7 +225,7 @@ namespace Service.Serializer {
                 // second, write mergeCtx's buffer to the current one
                 var mergeBuilder = mergeCtx.builder;
                 var mergeBB = mergeCtx.builder.DataBuffer;
-                byte[] buf =  mergeBB.ToArray<byte>(mergeBuilder._space, mergeBB.Length - mergeBuilder._space);
+                byte[] buf = mergeBB.ToArray<byte>(mergeBuilder._space, mergeBB.Length - mergeBuilder._space);
 
                 // the ending for merged buffer:
                 int newBufEnd = builder.Offset;
@@ -265,10 +280,10 @@ namespace Service.Serializer {
             int checkIdx = 0;
 
             while (lateReferenceList.Count > checkIdx) {
-                var refObj = lateReferenceList[checkIdx]; 
+                var refObj = lateReferenceList[checkIdx];
 
-                if (   (whiteList!=null && !whiteList.Contains(refObj.GetType()))
-                     ||(blackList!=null && blackList.Contains(refObj.GetType()))
+                if ((whiteList != null && !whiteList.Contains(refObj.GetType()))
+                     || (blackList != null && blackList.Contains(refObj.GetType()))
                 ) {
                     // ignore all types that are not on whitelist (if using whitelist at all)
                     // ignore all types that are on the blacklist (if using blacklist)
@@ -277,7 +292,7 @@ namespace Service.Serializer {
                 }
 
 
-                if (refObj.HasOffset && refObj.table.bb!=myBB && (offsetMapping==null || !offsetMapping.ContainsKey(refObj.table.bb))){
+                if (refObj.Ser2HasOffset && refObj.Ser2Table.bb != myBB && (offsetMapping == null || !offsetMapping.ContainsKey(refObj.Ser2Table.bb))) {
                     // ignore objects that are create within another builder and that is not merged in,yet
                     checkIdx++;
                     continue;
@@ -289,17 +304,17 @@ namespace Service.Serializer {
             }
         }
 
-        public void ResolveLateReference(DefaultSerializable2 obj) {
+        public void ResolveLateReference(IFBSerializable2 obj) {
             int offset = GetOrCreate(obj);
 
-            if (lateReferences.TryGetValue(obj,out List<int> referenceLocations)) {
+            if (lateReferences.TryGetValue(obj, out List<int> referenceLocations)) {
                 foreach (int referenceLoc in referenceLocations) {
                     int offsetAdjustment = 0;
                     if (offsetMapping != null) {
-                        offsetMapping.TryGetValue(obj.table.bb, out offsetAdjustment);
+                        offsetMapping.TryGetValue(obj.Ser2Table.bb, out offsetAdjustment);
                     }
-                    
-                    int relativeOffset = referenceLoc - (offset + offsetAdjustment); 
+
+                    int relativeOffset = referenceLoc - (offset + offsetAdjustment);
                     builder.DataBuffer.PutInt(builder.DataBuffer.Length - referenceLoc, relativeOffset);
                 }
             }
@@ -317,36 +332,38 @@ namespace Service.Serializer {
 
     }
 
-    
 
-    public class FlatBufferSerializer2 {
+
+    public class FlatBufferSerializer2
+    {
 
         public static ListPool<int> poolListInt = new ListPool<int>(10, 10);
 
-        public enum Mode {
+        public enum Mode
+        {
             serializing, deserializing
         }
 
 
-        public static byte[] SerializeToBytes(IFBSerializable root,int initialBufferSize=5000000)  {
+        public static byte[] SerializeToBytes(IFBSerializable root, int initialBufferSize = 5000000) {
             byte[] buf = null;
 
             return buf;
         }
 
-        public static T DeepCopy<T>(T original) where T : IFBSerializable,new() {
+        public static T DeepCopy<T>(T original) where T : IFBSerializable, new() {
             byte[] buf = SerializeToBytes(original, 2048);
             T result = DeserializeFromBytes<T>(buf, default(T), original.GetType());
             return result;
         }
 
-        public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root)  {
+        public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root) {
             byte[] buf = SerializeToBytes(root);
             FileSystem.IFileSystemService fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
             fs.WriteBytesToFileAtDomain(domain, filename, buf);
         }
 
-        public static T DeserializeFromBytes<T>(byte[] buf,T dataRoot=default(T), Type type = null) where T : IFBSerializable,new() {
+        public static T DeserializeFromBytes<T>(byte[] buf, T dataRoot = default(T), Type type = null) where T : IFBSerializable, new() {
             return dataRoot;
         }
 

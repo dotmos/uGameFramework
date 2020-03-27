@@ -15,7 +15,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.FileSystem {
-    public interface IFileSystemService : IFBSerializable,IService {
+    public interface IFileSystemService : IFBSerializable, IService {
 
 
 

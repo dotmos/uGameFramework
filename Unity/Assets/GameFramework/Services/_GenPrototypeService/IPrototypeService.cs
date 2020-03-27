@@ -13,7 +13,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
-    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable,IService {
+    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable, IService {
 /*block:property*/
     /// <summary>
     /// /*name:documentation*//*endname*/
@@ -43,7 +43,33 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     /*endblock:modelEnum*/
     /*block:modelClass*/
     [System.Serializable]
-    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
+    {
+
+        private ExtendedTable ser2table = ExtendedTable.NULL;
+
+        public new ExtendedTable Ser2Table => ser2table;
+
+        public new bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+
+        public new bool Ser2HasOffset => !ser2table.IsNULL();
+
+        public new int Ser2Offset => ser2table.offset;
+
+        public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
+            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
+            Ser2Deserialize(offset, ctx);
+        }
+
+        public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
+            if (!Ser2HasOffset) {
+                Ser2CreateTable(ctx, ctx.builder);
+            } else {
+                Ser2UpdateTable(ctx, ctx.builder);
+            }
+            return base.ser2table.offset;
+        }
+
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /// <summary>
@@ -75,17 +101,19 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         }
 
         /*endblock:constructor*/
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         /*name:classSerialization*/
-        public virtual void Deserialize(object incoming) {
+        public void Deserialize(int dataFormatNr, object incoming) {
             throw new System.NotImplementedException();
         }
 
-        public virtual void Deserialize(ByteBuffer buf) {
+        public void Deserialize(ByteBuffer buf) {
             throw new System.NotImplementedException();
         }
 
-        public virtual int Serialize(FlatBufferBuilder builder) {
+        public int Serialize(FlatBufferBuilder builder) {
             throw new System.NotImplementedException();
         }
         /*endname*/

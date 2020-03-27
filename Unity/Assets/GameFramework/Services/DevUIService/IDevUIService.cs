@@ -17,7 +17,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.DevUIService {
-    public interface IDevUIService : IFBSerializable,IService {
+    public interface IDevUIService : IFBSerializable, IService {
 
 
 
@@ -202,7 +202,33 @@ namespace Service.DevUIService {
 
     
     [System.Serializable]
-    public  class DataBrowserTopLevel {
+    public  class DataBrowserTopLevel: DefaultSerializable2
+    {
+
+        private ExtendedTable ser2table = ExtendedTable.NULL;
+
+        public new ExtendedTable Ser2Table => ser2table;
+
+        public new bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+
+        public new bool Ser2HasOffset => !ser2table.IsNULL();
+
+        public new int Ser2Offset => ser2table.offset;
+
+        public virtual void Ser2Deserialize(DeserializationContext ctx) {
+            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
+            Ser2Deserialize(offset, ctx);
+        }
+
+        public virtual int Ser2Serialize(SerializationContext ctx) {
+            if (!Ser2HasOffset) {
+                Ser2CreateTable(ctx, ctx.builder);
+            } else {
+                Ser2UpdateTable(ctx, ctx.builder);
+            }
+            return base.ser2table.offset;
+        }
+
         public DataBrowserTopLevel() { }
         
         /// <summary>
@@ -219,13 +245,41 @@ namespace Service.DevUIService {
         
         
         
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         
     }
 
     
     [System.Serializable]
-    public  class HistoryElement {
+    public  class HistoryElement: DefaultSerializable2
+    {
+
+        private ExtendedTable ser2table = ExtendedTable.NULL;
+
+        public new ExtendedTable Ser2Table => ser2table;
+
+        public new bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+
+        public new bool Ser2HasOffset => !ser2table.IsNULL();
+
+        public new int Ser2Offset => ser2table.offset;
+
+        public virtual void Ser2Deserialize(DeserializationContext ctx) {
+            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
+            Ser2Deserialize(offset, ctx);
+        }
+
+        public virtual int Ser2Serialize(SerializationContext ctx) {
+            if (!Ser2HasOffset) {
+                Ser2CreateTable(ctx, ctx.builder);
+            } else {
+                Ser2UpdateTable(ctx, ctx.builder);
+            }
+            return base.ser2table.offset;
+        }
+
         public HistoryElement() { }
         
         /// <summary>
@@ -242,7 +296,9 @@ namespace Service.DevUIService {
         
         
         
-
+        /// <summary>
+        /// Default constructor
+        /// </summary>
         
     }
 
