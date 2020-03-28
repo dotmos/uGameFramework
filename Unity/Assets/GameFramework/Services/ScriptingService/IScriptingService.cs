@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////////// 
 
 using System.Collections.Generic;
+using System.Collections;
 using MoonSharp.Interpreter;
 using System.Text;
 using ECS;
@@ -78,11 +79,15 @@ namespace Service.Scripting {
     
 
 
-					void Callback(string cbtype,object o2=null,object o3=null);
+					void Callback(string cbtype,object o2=null,object o3=null,object o4=null,object o5=null);
     
 
 
-					void RegisterCallback(Action<string,object,object> cbCallbackFunc);
+					void RegisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
+    
+
+
+					void UnregisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
     
 
 

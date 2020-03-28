@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Collections;
 using MoonSharp.Interpreter;
 using System.Text;
 using ECS;
@@ -39,6 +40,8 @@ namespace Service.Scripting{
             this.OnEvent<CallbackCommand>().Subscribe(e => CallbackCommandHandler(e)).AddTo(this);
 
             this.OnEvent<RegisterCallbackCommand>().Subscribe(e => RegisterCallbackCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<UnregisterCallbackCommand>().Subscribe(e => UnregisterCallbackCommandHandler(e)).AddTo(this);
 
             this.OnEvent<RegisterCustomYieldCheckCommand>().Subscribe(e => RegisterCustomYieldCheckCommandHandler(e)).AddTo(this);
 
@@ -249,6 +252,8 @@ namespace Service.Scripting{
             public string cbtype;
                         public object o2=null;
                         public object o3=null;
+                        public object o4=null;
+                        public object o5=null;
             
             
         }
@@ -258,7 +263,7 @@ namespace Service.Scripting{
             var ptest=Service.Performance.PerformanceTest.Get();
             ptest.Start("CallbackCommand");
 #endif
-        _service.Callback(cmd.cbtype,cmd.o2,cmd.o3);
+        _service.Callback(cmd.cbtype,cmd.o2,cmd.o3,cmd.o4,cmd.o5);
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("CallbackCommand");
@@ -272,7 +277,7 @@ namespace Service.Scripting{
         /// </summary>
         
         public class RegisterCallbackCommand  {
-            public Action<string,object,object> cbCallbackFunc;
+            public Action<string,object,object,object,object> cbCallbackFunc;
             
             
         }
@@ -286,6 +291,30 @@ namespace Service.Scripting{
 #if PERFORMANCE_TEST
             // now stop the watches
             ptest.Stop("RegisterCallbackCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class UnregisterCallbackCommand  {
+            public Action<string,object,object,object,object> cbCallbackFunc;
+            
+            
+        }
+
+		protected void UnregisterCallbackCommandHandler  (UnregisterCallbackCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("UnregisterCallbackCommand");
+#endif
+        _service.UnregisterCallback(cmd.cbCallbackFunc);
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("UnregisterCallbackCommand");
 #endif
         }
         

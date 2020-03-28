@@ -43,7 +43,7 @@ namespace Service.Scripting {
         }
     }
     partial class ScriptingServiceImpl : ScriptingServiceBase {
-
+  
 
         [Inject]
         private Service.LoggingService.ILoggingService logging;
@@ -76,7 +76,7 @@ namespace Service.Scripting {
         //private UserInterface.DevelopmentConsoleComponent devConsoleComponent;
         private static readonly HashSet<char> delimiters = new HashSet<char>() { '(', ')', ',', '=', ';', ' ', '+' };
 
-        private List<Action<string, object, object>> callbacks = new List<Action<string, object, object>>();
+        private List<Action<string, object, object, object, object>> callbacks = new List<Action<string, object, object, object, object>>();
         private List<Func<LuaCoroutine,bool>> customYieldsChecks = new List<Func<LuaCoroutine,bool>>();
         private ScriptingServiceData data = new ScriptingServiceData();
         /// <summary>
@@ -352,8 +352,12 @@ namespace Service.Scripting {
             }
         }
 
-        public override void RegisterCallback(Action<string, object, object> cbCallbackAction) {
+        
+        public override void RegisterCallback(Action<string, object, object, object, object> cbCallbackAction) {
             callbacks.Add(cbCallbackAction);
+        }
+        public override void UnregisterCallback(Action<string, object, object, object, object> cbCallbackAction) {
+            callbacks.Remove(cbCallbackAction);
         }
 
         /// <summary>
@@ -362,17 +366,17 @@ namespace Service.Scripting {
         /// <param name="cbType"></param>
         /// <param name="o2"></param>
         /// <param name="o3"></param>
-        private void LuaCallback(string cbType, object o2 = null, object o3 = null) {
+        private void LuaCallback(string cbType, object o2 = null, object o3 = null, object o4 = null, object o5 = null) {
             // give it to the lua side (callback-lua func in definied 
             if (!Kernel.IsMainThread()) {
                 // ignore lua-callbacks that come from threads (for now)
                 return;
             }
-            mainScript.Call(mainScript.Globals["__callback"], cbType, o2, o3);
+            mainScript.Call(mainScript.Globals["__callback"], cbType, o2, o3,o4,o5);
         }
 
         
-        private void LuaCoroutineCallback(string cbType, object o2 = null, object o3 = null) {
+        private void LuaCoroutineCallback(string cbType, object o2 = null, object o3 = null, object o4 = null, object o5 = null) {
             if (!Kernel.IsMainThread()) {
                 // ignore lua-callbacks that come from threads (for now)
                 return;
@@ -381,7 +385,7 @@ namespace Service.Scripting {
             // give it to the lua side (callback-lua func in definied
             foreach (LuaCoroutine lCo in coRoutines) {
                 if (lCo.waitForType == "callback" && (string)lCo.value1 == cbType) {
-                    DynValue result = lCo.Resume(cbType, o2,o3);
+                    DynValue result = lCo.Resume(cbType, o2,o3,o4,o5);
                     if (result == null) {
                         removeCoRoutine.Add(lCo);
                     }
@@ -395,9 +399,9 @@ namespace Service.Scripting {
             }
         }
 
-        public override void Callback(string cbType, object o2 = null, object o3 = null) {
-            foreach (Action<string, object, object> cb in callbacks) {
-                cb(cbType, o2, o3);
+        public override void Callback(string cbType, object o2 = null, object o3 = null, object o4 = null, object o5 = null) {
+            foreach (Action<string, object, object, object, object> cb in callbacks) {
+                cb(cbType, o2, o3,o4,o5);
             }
         }
 

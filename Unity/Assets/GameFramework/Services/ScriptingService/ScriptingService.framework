@@ -1,5 +1,6 @@
 ## service start
 using System.Collections.Generic;
+using System.Collections;
 using MoonSharp.Interpreter;
 using System.Text;
 using ECS;
@@ -20,8 +21,9 @@ namespace Service.Scripting {
  
  		## "Creates a lua coroutine"
  		LuaCoroutine CreateCoroutine(("DynValue") funcName);
-		void Callback(string cbtype,object o2=("null"),object o3=("null"));
-		void RegisterCallback(("Action<string,object,object>") cbCallbackFunc);
+		void Callback(string cbtype,object o2=("null"),object o3=("null"),object o4=("null"),object o5=("null"));
+		void RegisterCallback(("Action<string,object,object,object,object>") cbCallbackFunc);
+		void UnregisterCallback(("Action<string,object,object,object,object>") cbCallbackFunc);
 		## "custom coroutine-yield functions. return false if the coRoutine should be removed from the system"
 		void RegisterCustomYieldCheck(("Func<LuaCoroutine,bool>") coRoutines);
 		## "Gives this uid a unique id which makes accessing this entity entity-id independed"

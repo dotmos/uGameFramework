@@ -4,6 +4,7 @@
 //
 ////////////////////////////////////////////////////////////////////// 
 using System.Collections.Generic;
+using System.Collections;
 using MoonSharp.Interpreter;
 using System.Text;
 using ECS;
@@ -155,10 +156,13 @@ namespace Service.Scripting
         public abstract LuaCoroutine CreateCoroutine(DynValue funcName);
 
         
-        public abstract void Callback(string cbtype,object o2=null,object o3=null);
+        public abstract void Callback(string cbtype,object o2=null,object o3=null,object o4=null,object o5=null);
 
         
-        public abstract void RegisterCallback(Action<string,object,object> cbCallbackFunc);
+        public abstract void RegisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
+
+        
+        public abstract void UnregisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
 
         
         public abstract void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
