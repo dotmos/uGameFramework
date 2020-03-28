@@ -7,6 +7,16 @@ using UniRx;
 using ParallelProcessing;
 
 namespace ECS {
+#if TESTING
+    public class TestingCallback_System
+    {
+        public enum CallbackState { start, end };
+        public ISystem system;
+        public CallbackState state;
+        public object componentsToProcess; // rethink this
+    }
+#endif
+
     public abstract class System<TComponents> : ISystem where TComponents : ISystemComponents, new(){
 
         public IEntityManager entityManager { get; private set; }
@@ -26,6 +36,28 @@ namespace ECS {
         StringBuilder logTxtBuilder = new StringBuilder();
         private string systemType = "";
 #endif
+
+#if TESTING
+        private TestingCallback_System tempStart = new TestingCallback_System() { 
+            state = TestingCallback_System.CallbackState.start
+        };
+
+        private TestingCallback_System tempEnd = new TestingCallback_System() { 
+            state = TestingCallback_System.CallbackState.end
+        };
+
+        private Service.Scripting.IScriptingService scriptingService;
+
+        protected Service.Scripting.IScriptingService ScriptingService { 
+            get { 
+                if (scriptingService == null) {
+                    scriptingService = Kernel.Instance.Resolve<Service.Scripting.IScriptingService>();
+                }
+                return scriptingService;
+            }
+        }
+#endif
+
         //protected List<UID> validEntities;
         protected HashSet<UID> validEntities;
         protected List<TComponents> componentsToProcess; //Was hashset in the past, but hashsets were super slow when multithreading systems. Testcase showed 28ms (hashset) vs 14ms (list)!
@@ -216,7 +248,14 @@ namespace ECS {
 
         protected abstract void ProcessAtIndex(int componentIndex, float deltaTime);
 
+
+
         public void ProcessSystem(float deltaTime) {
+#if TESTING
+            //tempStart.system = this;
+            //tempStart.componentsToProcess = componentsToProcess;
+            //ScriptingService.Callback("system", GetType(), tempStart);
+#endif
             //Tell system there are new components
             if (newComponents.Count > 0) {
                 OnRegistered(newComponents);
@@ -283,6 +322,13 @@ namespace ECS {
                 UnityEngine.Debug.Log("There was a problem in process-all in system:" + GetType());
                 UnityEngine.Debug.LogException(e);
             }
+
+#if TESTING
+            //tempEnd.system = this;
+            //tempEnd.componentsToProcess = componentsToProcess;
+            //ScriptingService.Callback("system", GetType(), tempEnd);
+#endif
+
         }
 
 
