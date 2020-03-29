@@ -770,6 +770,11 @@ namespace FlatBuffers
             return (int)ReadLittleEndian(index, sizeof(int));
         }
 
+        public bool GetBool(int index) {
+            AssertOffsetAndLength(index, sizeof(byte));
+            return _buffer.Buffer[index]==0 ? false : true;
+        }
+
         public uint GetUint(int index)
         {
             return (uint)ReadLittleEndian(index, sizeof(uint));

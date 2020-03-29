@@ -2,6 +2,7 @@
 using ECS;
 using FlatBuffers;
 using Service.Serializer;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 /*name:using*/ /*endname*/
@@ -441,6 +442,13 @@ public class SomeClazz2 : DefaultSerializable2
     public  new void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
         /*block:s_create_string*/int /*name|fu,pre#offset:name*/offsetString/*endname*/ = builder.CreateString(/*name:name*/testName/*endname*/).Value;
         /*endblock:s_create_string*/
+        /*block:s_list_primitive*/
+        int /*name|fu,pre#offset:name*/offsetTestListPrimitive/*endname*/= 0;
+        if (/*name:name*/testListPrimitive/*endname*/ != null) {
+            int count =/*name:name*/testListPrimitive/*endname*/.Count; builder.StartVector(/*name:size*/4/*endname*/, count, /*name:size*/4/*endname*/); for (int i = count - 1; i >= 0; i--) builder./*name:addPrimitive*/AddInt/*endname*/(/*name:enumprefix*//*endname*//*name:name*/testListPrimitive/*endname*/[i]);
+            /*name|fu,pre#offset:name*/offsetTestListPrimitive/*endname*/=builder.EndVector().Value;
+        }
+        /*endblock:s_list_primitive*/
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
         /*block:s_component_header*/builder.AddStruct(0, builder.PutUID(Entity), 0);
         /*endblock:s_component_header*/
@@ -480,9 +488,6 @@ public class SomeClazz2 : DefaultSerializable2
         /*block:s_nonprim_typed*/
         var /*name|fu,pre#s:name*/sTestTypedObject/*endname*/ = new Offset<Serial.FBRef>((int)FlatBufferSerializer.SerializeTypedObject(builder,/*name:name*/testUID/*endname*/));
         /*endblock:s_nonprim_typed*/
-        /*block:s_list_primitive*/        //var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatbufferSerializer.CreateList(builder,/*name:name*/testListPrimitive/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListPrimitiveVector/*endname*/) ;
-        var /*name|fu,pre#s:name*/sTestListPrimitive/*endname*/ = FlatBufferSerializer.CreateManualList(builder,/*name:name*/testListPrimitive/*endname*/);
-        /*endblock:s_list_primitive*/
         /*block:s_list_string*/
         var /*name|fu,pre#s:name*/sTestListString/*endname*/ = FlatBufferSerializer.CreateStringList(builder,/*name:name*/testStringList/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestStringListVector/*endname*/);
         /*endblock:s_list_string*/
@@ -549,7 +554,26 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_special_object_nullable*/
         /*block:d_struct*//*name:name*/serStruct/*endname*/.Get(ser2table,/*name:fieldid*/8/*endname*/);
         /*endblock:d_struct*/
-        
+        /*block:d_list_primitive*/{
+            int o = ser2table.GetVTableOffset(/*name:fieldid*/8/*endname*/);
+            if (o == 0) {
+                /*name:name*/testListPrimitive/*endname*/ = null;
+            } else {
+                if (/*name:name*/testListPrimitive/*endname*/ == null) {
+                    /*name:name*/testListPrimitive/*endname*/ = new /*name:type*/List/*endname*/();
+                } else {
+                    /*name:name*/testListPrimitive/*endname*/.Clear();
+                }
+                int count = ser2table.GetListLength(/*name:fieldid*/8/*endname*/);
+                int vecBase = ser2table.__tbl.__vector(o);
+                for (int i = 0; i < count; i++) {
+                    /*name:innertype*/int/*endname*/ value = /*name:enumprefix*//*endname*/ser2table.__tbl.bb./*name:getPrimitiveMethod*/GetInt/*endname*/(vecBase + i * /*name:size*/4/*endname*/);
+                    /*name:name*/testListPrimitive/*endname*/.Add(value);
+                }
+            }
+        }
+        /*endblock:d_list_primitive*/
+
         object data = null;
         if (data is Serial.FBRef) {
             data = FlatBufferSerializer.CastSerialObject<Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/>(data);
