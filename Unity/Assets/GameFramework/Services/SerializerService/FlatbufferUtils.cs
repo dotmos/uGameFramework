@@ -283,7 +283,7 @@ namespace Service.Serializer
         /// <param name="fbPos"></param>
         /// <param name="dctx"></param>
         /// <returns></returns>
-        public T GetOrCreateTypedObject<T>(int fbPos,DeserializationContext dctx) where T:DefaultSerializable2,new() {
+        public T GetOrCreateTypedObject<T>(int fbPos,DeserializationContext dctx) where T:IFBSerializable2 {
             // pos of the struct ( with string(c# typename) and offset to object)
             int structOffset = __tbl.bb_pos + __tbl.__offset(4 + fbPos * 2);
             int objOff = __tbl.bb.Length - __tbl.__indirect(structOffset+4);
@@ -291,12 +291,11 @@ namespace Service.Serializer
             // get the typename
             string typeName = __tbl.__string(structOffset);
             // get the object
-            T obj = (T)Activator.CreateInstance(Type.GetType(typeName));
-            T dObj = dctx.GetOrCreate<T>(objOff, obj);
+            T dObj = dctx.GetOrCreate<T>(objOff, Type.GetType(typeName));
             return dObj;
         }
 
-        public T GetReference<T>(int fbPos,DeserializationContext dctx) where T : IFBSerializable2, new() {
+        public T GetReference<T>(int fbPos,DeserializationContext dctx, T obj = default(T)) where T : IFBSerializable2, new() {
             int offset = GetOffset(fbPos);
             T result = dctx._GetReference<T>(offset);
             return result;

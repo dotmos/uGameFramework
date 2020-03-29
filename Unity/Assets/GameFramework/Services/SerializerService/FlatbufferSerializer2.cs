@@ -92,13 +92,27 @@ namespace Service.Serializer
             }
         }
 
-        public T _GetReference<T>(int bufferOffset) where T : IFBSerializable2, new() {
+        public T GetOrCreate<T>(int bufferOffset,Type type) where T : IFBSerializable2 {
+            if (bufferOffset == 0) return default(T);
+
+            if (pos2obj.TryGetValue(bufferOffset, out IFBSerializable2 result)) {
+                return (T)result;
+            } else {
+                var newObject = (T)Activator.CreateInstance(type);
+                // todo: security-checks? 
+                pos2obj[bufferOffset] = newObject;
+                newObject.Ser2Deserialize(bufferOffset, this);
+                return newObject;
+            }
+        }
+
+        public T _GetReference<T>(int bufferOffset, T obj = default(T)) where T : IFBSerializable2, new() {
             // TODO: white/black-listing...
             if (bufferOffset == 0) {
                 return default(T);
             }
 
-            var result = GetOrCreate<T>(bufferOffset);
+            var result = GetOrCreate<T>(bufferOffset,obj);
             return result;
         }
 

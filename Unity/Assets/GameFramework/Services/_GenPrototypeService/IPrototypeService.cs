@@ -45,16 +45,16 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     [System.Serializable]
     public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
     {
+    /*block:ser2_header*/
+        private /*name:newkeyword*/new/*endname*/ ExtendedTable ser2table = ExtendedTable.NULL;
 
-        private ExtendedTable ser2table = ExtendedTable.NULL;
+        public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
-        public new ExtendedTable Ser2Table => ser2table;
+        public /*name:newkeyword*/new/*endname*/ bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
 
-        public new bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
 
-        public new bool Ser2HasOffset => !ser2table.IsNULL();
-
-        public new int Ser2Offset => ser2table.offset;
+        public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
 
         public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
@@ -67,8 +67,9 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }
-            return base.ser2table.offset;
+            return Ser2Offset;
         }
+        /*endblock:ser2_header*/
 
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/

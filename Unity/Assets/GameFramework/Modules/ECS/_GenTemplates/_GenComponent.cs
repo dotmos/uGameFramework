@@ -30,20 +30,28 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     }
     /*endblock:enum*/
 
+    /*block:modelEnum*/
+    public enum /*name:enumName*/TheEnum/*endname*/
+    {
+        /*block:rip*/
+        A/*endblock:rip*//*block:elem*//*block:comma*/,/*endblock:comma*//*name:name*/B/*endname*//*endblock:elem*/
+        /*block:rip*/, C, D/*endblock:rip*/
+    }
+    /*endblock:modelEnum*/
     /*block:modelClass*/
     [System.Serializable]
     public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
     {
+        /*block:ser2_header*/
+        private /*name:newkeyword*/new/*endname*/ ExtendedTable ser2table = ExtendedTable.NULL;
 
-        private ExtendedTable ser2table = ExtendedTable.NULL;
+        public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
-        public new ExtendedTable Ser2Table => ser2table;
+        public /*name:newkeyword*/new/*endname*/ bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
 
-        public new bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
 
-        public new bool Ser2HasOffset => !ser2table.IsNULL();
-
-        public new int Ser2Offset => ser2table.offset;
+        public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
 
         public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
@@ -56,8 +64,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }
-            return ser2table.offset;
+            return Ser2Offset;
         }
+        /*endblock:ser2_header*/
 
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
@@ -449,7 +458,9 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_object*/
         /*block:s_special_object*/builder.AddStruct(/*name:fieldid*/8/*endname*/,builder./*name|pre#Put:type*/PutUID/*endname*/(ref /*name:name*/testUID/*endname*/),0);
         /*endblock:s_special_object*/
-        /*block:s_struct*/builder.AddStruct(/*name:fieldid*/9/*endname*/, /*name:name*/serStruct/*endname*/.Put(ctx,builder),0);
+        /*block:s_special_object_nullable*/if (/*name:name*/testUIDnullable/*endname*/.HasValue) builder.AddStruct(/*name:fieldid*/9/*endname*/,builder./*name|pre#Put:type*/PutUID/*endname*/(/*name:name*/testUIDnullable/*endname*/.Value),0);
+        /*endblock:s_special_object_nullable*/
+        /*block:s_struct*/builder.AddStruct(/*name:fieldid*/10/*endname*/, /*name:name*/serStruct/*endname*/.Put(ctx,builder),0);
         /*endblock:s_struct*/
 
         int tblPos = builder.EndTable();
@@ -532,8 +543,10 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_typed_object*/
         /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,ctx);
         /*endblock:d_object*/
-        /*block:d_special_object*/ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/7/*endname*/,ref /*name:name*/testUID/*endname*/);
+        /*block:d_special_object*/ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/8/*endname*/,ref /*name:name*/testUID/*endname*/);
         /*endblock:d_special_object*/
+        /*block:d_special_object_nullable*//*name:name*/testUIDnullable/*endname*/ = ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/9/*endname*/);
+        /*endblock:d_special_object_nullable*/
         /*block:d_struct*//*name:name*/serStruct/*endname*/.Get(ser2table,/*name:fieldid*/8/*endname*/);
         /*endblock:d_struct*/
         

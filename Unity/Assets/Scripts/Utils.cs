@@ -49,7 +49,7 @@ public class DirtyFlag : IDirtyFlagable
 {
     private bool _isDirty = false;
 
-    public bool Ser2IsDirty => _isDirty;
+    public bool IsDirty => _isDirty;
     public void SetDirtyFlag() {
         _isDirty = true;
     }
@@ -171,7 +171,7 @@ public class DefaultReactiveExecutionWrapper : IReactiveExecutionWrapper
 }
 
 public interface IDirtyFlagable {
-    bool Ser2IsDirty { get; }
+    bool IsDirty { get; }
     void SetDirtyFlag();
     void ClearDirtyFlag();
 }
@@ -208,7 +208,7 @@ public class ObservableList<T> : IObservableList, IList<T>, IDirtyFlagable {
         get { return innerList; }
     }
 
-    public bool Ser2IsDirty {
+    public bool IsDirty {
         get { return isDirty; }
     }
 
@@ -325,7 +325,7 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDi
         get { return innerDictionary; }
     }
 
-    public bool Ser2IsDirty {
+    public bool IsDirty {
         get { return isDirty; }
     }
 
