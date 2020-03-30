@@ -89,7 +89,7 @@ namespace FlatBuffers
 
         public override void GrowFront(int newSize)
         {
-            UnityEngine.Debug.Log("GrowFront:" + newSize);
+            //UnityEngine.Debug.Log("GrowFront:" + newSize);
             if ((Length & 0xC0000000) != 0)
                 throw new Exception(
                     "ByteBuffer: cannot grow buffer beyond 2 gigabytes.");
@@ -817,7 +817,7 @@ namespace FlatBuffers
         /// <param name="offset">The offset into this buffer where the copy will end</param>
         /// <param name="x">The array to copy data from</param>
         /// <returns>The 'start' location of this buffer now, after the copy completed</returns>
-        public int Put<T>(int offset, T[] x)
+        public int Put<T>(int offset, T[] x, int length=-1)
             where T : struct
         {
             if (x == null)
@@ -838,7 +838,7 @@ namespace FlatBuffers
 
             if (BitConverter.IsLittleEndian)
             {
-                int numBytes = ByteBuffer.ArraySize(x);
+                int numBytes = length == -1 ? (SizeOf<T>() * x.Length) : (SizeOf<T>()*length);
                 offset -= numBytes;
                 AssertOffsetAndLength(offset, numBytes);
                 // if we are LE, just do a block copy

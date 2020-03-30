@@ -19,6 +19,8 @@ using Service.Serializer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using UnityEngine;
 
@@ -52,6 +54,14 @@ namespace FlatBuffers
         private int _vectorNumElems = 0;
         // For the amount of elements to be created.
         private int _vectorCapacity = 0;
+
+        static readonly Type typeBool = typeof(int);
+        static readonly Type typeInt = typeof(int);
+        static readonly Type typeFloat = typeof(int);
+        static readonly Type typeLong = typeof(int);
+        static readonly Type typeByte = typeof(int);
+        static readonly Type typeString = typeof(string);
+        static readonly Type typeShort = typeof(short);
 
         // For CreateSharedString
         private Dictionary<string, StringOffset> _sharedStringMap = null;
@@ -246,10 +256,10 @@ namespace FlatBuffers
         /// </summary>
         /// <typeparam name="T">The type of the input data </typeparam>
         /// <param name="x">The array to copy data from</param>
-        public void Put<T>(T[] x)
+        public void Put<T>(T[] x,int length=-1)
             where T : struct
         {
-            _space = _bb.Put(_space, x);
+            _space = _bb.Put(_space, x,length);
         }
 
 #if ENABLE_SPAN_T
@@ -337,7 +347,7 @@ namespace FlatBuffers
         /// </summary>
         /// <typeparam name="T">The type of the input data</typeparam>
         /// <param name="x">The array to copy data from</param>
-        public void Add<T>(T[] x)
+        public void Add<T>(T[] x,int length=-1)
             where T : struct
         {
             if (x == null)
@@ -345,22 +355,24 @@ namespace FlatBuffers
                 throw new ArgumentNullException("Cannot add a null array");
             }
 
-            if( x.Length == 0)
+            length = length == -1 ? x.Length : length;
+
+            if( length == 0)
             {
                 // don't do anything if the array is empty
                 return;
             }
 
-            if(!ByteBuffer.IsSupportedType<T>())
+            if( !ByteBuffer.IsSupportedType<T>())
             {
                 throw new ArgumentException("Cannot add this Type array to the builder ("+typeof(T)+")");
             }
 
-            int size = ByteBuffer.SizeOf<T>();
+            int size =  ByteBuffer.SizeOf<T>();
             // Need to prep on size (for data alignment) and then we pass the
             // rest of the length (minus 1) as additional bytes
-            Prep(size, size * (x.Length - 1));
-            Put(x);
+            Prep(size, size * (length - 1));
+            Put(x,length);
         }
 
 #if ENABLE_SPAN_T
@@ -1106,6 +1118,56 @@ namespace FlatBuffers
         }
 
 
+
+        public int CreatePrimitiveList<T>(IList<T> list) where T : struct { 
+            if (list == null) return 0;
+
+            int count = list.Count;
+
+            Type innerType = typeof(T);
+
+            if (innerType.IsEnum) {
+                StartVector(4, count, 4);
+                for (int i = count - 1; i >= 0; i--) AddInt((int)(object)list[i]);
+                return EndVector().Value;
+            } else if (innerType == typeString) {
+                return 0;
+            } else {
+                // primitive-list (int)
+
+                StartVector(4, count, 4);
+                T[] buf = GetUnderlyingArray(list);
+
+                Add(buf, count);
+                return EndVector().Value;
+            }
+        }   
+
+        public int CreateNonPrimitiveList<T>(IList<T> list,SerializationContext ctx=null) {
+            int count = list.Count;
+            Type innerType = typeof(T);
+
+            // TODO: List
+            if (ctx == null) {
+                Debug.LogError("you need to specfiy serialization context if using CreateNonPrimitiveList with objects");
+                return 0;
+            }
+            StartVector(4, count, 4);
+            for (int i = count - 1; i >= 0; i--) {
+                object obj = list[i];
+                if (obj == null) {
+                    PutInt(0);
+                }
+                if (!(obj is IFBSerializable2)) {
+                    Debug.LogError($"Tried to serialize unsupported object in CreateNonPrimitiveList:{obj.GetType()}! Ignoreing it. writing as null");
+                    PutInt(0);
+                    continue;
+                }
+                ctx.AddReferenceOffset(-1,(IFBSerializable2)obj);
+            }
+            return EndVector().Value;
+        }
+
         /// <summary>
         /// Get typename including Assembly-Name
         /// </summary>
@@ -1132,6 +1194,13 @@ namespace FlatBuffers
                 typeNameLookupTable[type] = typeName;
                 return typeName;
             }
+        }
+
+        public static T[] GetUnderlyingArray<T>(IList<T> list) {
+            var field = list.GetType().GetField("_items",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic);
+            return (T[])field.GetValue(list);
         }
 
     }

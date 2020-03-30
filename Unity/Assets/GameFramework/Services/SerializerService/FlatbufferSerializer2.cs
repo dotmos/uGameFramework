@@ -118,12 +118,17 @@ namespace Service.Serializer
 
 
         public T GetRoot<T>() where T : IFBSerializable2, new() {
-            int offset = bb.Length - bb.GetInt(0);
+            int offset = GetRootOffset();
             return GetOrCreate<T>(offset);
         }
 
-        public ExtendedTable GetRootTable() {
+        public int GetRootOffset() {
             int offset = bb.Length - bb.GetInt(bb.Position) + bb.Position;
+            return offset;
+        }
+
+        public ExtendedTable GetRootTable() {
+            int offset = GetRootOffset();
             ExtendedTable tbl = new ExtendedTable(offset, bb);
             return tbl;
         }
@@ -196,6 +201,10 @@ namespace Service.Serializer
             builder.AddStruct(o, offset, 0);
             return offset;
         }
+
+        public void AddReferenceOffset(IFBSerializable2 obj) {
+            AddReferenceOffset(-1, obj);
+        }
         public void AddReferenceOffset(int o, IFBSerializable2 obj) {
             if (obj == null) {
                 return;
@@ -216,6 +225,8 @@ namespace Service.Serializer
                 }
             }
         }
+
+
 
 
 

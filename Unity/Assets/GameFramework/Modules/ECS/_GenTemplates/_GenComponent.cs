@@ -216,8 +216,10 @@ public class SomeClazz2 : DefaultSerializable2
 
     public FreeTypeTestObject freeTypeTest = null;
 
+    public List<SomeClazz2> objectList = new List<SomeClazz2>();
     public System.Collections.Generic.List<UID> testListUID = new System.Collections.Generic.List<UID>();
     public System.Collections.Generic.List<int> testListPrimitive = new System.Collections.Generic.List<int>();
+    public ObservableList<int> testObsListPrimitive = new ObservableList<int>();
     public System.Collections.Generic.Dictionary<int, int> testDict = new System.Collections.Generic.Dictionary<int, int>();
     public System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper> testDict2 = new System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper>();
     public System.Collections.Generic.List<string> testStringList = new System.Collections.Generic.List<string>();
@@ -439,16 +441,20 @@ public class SomeClazz2 : DefaultSerializable2
 
     /*block:serialization2*/
     #region serialization2
-    public  new void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
-        /*block:s_create_string*/int /*name|fu,pre#offset:name*/offsetString/*endname*/ = builder.CreateString(/*name:name*/testName/*endname*/).Value;
+    public  /*name:override*/override/*endname*/ void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
+        /*block:s_inheritance_offset*/int offsetBase = base.Ser2Serialize(ctx);
+        /*endblock:s_inheritance_offset*/
+        /*block:s_create_string*/
+        int /*name|fu,pre#offset:name*/offsetString/*endname*/ = /*name:name*/testName/*endname*/==null ? 0 : builder.CreateString(/*name:name*/testName/*endname*/).Value;
         /*endblock:s_create_string*/
-        /*block:s_list_primitive*/
-        int /*name|fu,pre#offset:name*/offsetTestListPrimitive/*endname*/= 0;
-        if (/*name:name*/testListPrimitive/*endname*/ != null) {
-            int count =/*name:name*/testListPrimitive/*endname*/.Count; builder.StartVector(/*name:size*/4/*endname*/, count, /*name:size*/4/*endname*/); for (int i = count - 1; i >= 0; i--) builder./*name:addPrimitive*/AddInt/*endname*/(/*name:enumprefix*//*endname*//*name:name*/testListPrimitive/*endname*/[i]);
-            /*name|fu,pre#offset:name*/offsetTestListPrimitive/*endname*/=builder.EndVector().Value;
-        }
+        /*block:s_list_primitive*/int /*name|fu,pre#offset:name*/offsetTestListPrimitive/*endname*/ = /*name:name*/testListPrimitive/*endname*/==null ? 0 : ctx.builder.CreatePrimitiveList(/*name:name*/testListPrimitive/*endname*/);
         /*endblock:s_list_primitive*/
+        /*block:s_obs_list_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListPrimitive/*endname*/ = /*name:name*/testObsListPrimitive/*endname*/==null ? 0 : ctx.builder.CreatePrimitiveList(/*name:name*/testObsListPrimitive/*endname*/.__innerList);
+        /*endblock:s_list_primitive*/
+        /*block:s_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestListNonPrimitive/*endname*/ =/*name:name*/enumList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumList/*endname*/);
+        /*endblock:s_list_non_primitive*/
+        /*block:s_obs_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListNonPrimitive/*endname*/ = /*name:name*/enumObsList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumObsList/*endname*/.__innerList);
+        /*endblock:s_list_non_primitive*/
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
         /*block:s_component_header*/builder.AddStruct(0, builder.PutUID(Entity), 0);
         /*endblock:s_component_header*/
@@ -515,7 +521,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s2_nullable*/
 
         /*block:s2_list*/
-        if (/*name:name*/testListPrimitive/*endname*/!= null) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestListPrimitive/*endname*/(builder, (VectorOffset)/*name|fu,pre#s:name*/sTestListPrimitive/*endname*/);
+        //if (/*name:name*/testListPrimitive/*endname*/!= null) Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddTestListPrimitive/*endname*/(builder, (VectorOffset)/*name|fu,pre#s:name*/sTestListPrimitive/*endname*/);
         /*endblock:s2_list*/
         /*block:inheritanceSer2*/
         Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/.AddBaseData(builder, new Offset<Serial./*name:basetype*/FBComponent/*endname*/>(baseData));
@@ -554,25 +560,10 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_special_object_nullable*/
         /*block:d_struct*//*name:name*/serStruct/*endname*/.Get(ser2table,/*name:fieldid*/8/*endname*/);
         /*endblock:d_struct*/
-        /*block:d_list_primitive*/{
-            int o = ser2table.GetVTableOffset(/*name:fieldid*/8/*endname*/);
-            if (o == 0) {
-                /*name:name*/testListPrimitive/*endname*/ = null;
-            } else {
-                if (/*name:name*/testListPrimitive/*endname*/ == null) {
-                    /*name:name*/testListPrimitive/*endname*/ = new /*name:type*/List/*endname*/();
-                } else {
-                    /*name:name*/testListPrimitive/*endname*/.Clear();
-                }
-                int count = ser2table.GetListLength(/*name:fieldid*/8/*endname*/);
-                int vecBase = ser2table.__tbl.__vector(o);
-                for (int i = 0; i < count; i++) {
-                    /*name:innertype*/int/*endname*/ value = /*name:enumprefix*//*endname*/ser2table.__tbl.bb./*name:getPrimitiveMethod*/GetInt/*endname*/(vecBase + i * /*name:size*/4/*endname*/);
-                    /*name:name*/testListPrimitive/*endname*/.Add(value);
-                }
-            }
-        }
+        /*block:d_list_primitive*/ser2table.GetPrimitiveList</*name:innertype*/int/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testListPrimitive/*endname*/);
         /*endblock:d_list_primitive*/
+        /*block:d_list_object*/ser2table.GetObjectList(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/);
+        /*endblock:d_list_object*/
 
         object data = null;
         if (data is Serial.FBRef) {

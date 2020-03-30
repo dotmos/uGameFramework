@@ -183,29 +183,28 @@ public interface IObservableList {
     }
 }
 
-public class ObservableList<T> : IObservableList, IList<T>, IDirtyFlagable {
+public class ObservableList<T> : IList<T>,IObservableList, IDirtyFlagable {
 
-    private List<T> innerList;
+    public List<T> __innerList;
     private bool isDirty = true;
 
-    public ObservableList() { innerList = new List<T>(); }
-    public ObservableList(int capacity) { innerList = new List<T>(capacity); }
+    public ObservableList() { __innerList = new List<T>(); }
+    public ObservableList(int capacity) { __innerList = new List<T>(capacity); }
     public ObservableList(ObservableList<T> list) {
-        innerList = new List<T>(list.Count);
-        innerList.AddRange(list.innerList);
+        __innerList = new List<T>(list.Count);
+        __innerList.AddRange(list.__innerList);
     }
     public ObservableList(List<T> list) {
-        innerList = new List<T>();
-        innerList.AddRange(list);
+        __innerList = new List<T>();
+        __innerList.AddRange(list);
     }
 
     public ObservableList(T[] t) {
-        innerList = new List<T>();
-        innerList.AddRange(t);
+        __innerList = new List<T>(t);
     }
 
     public List<T> InnerList {
-        get { return innerList; }
+        get { return __innerList; }
     }
 
     public bool IsDirty {
@@ -220,68 +219,73 @@ public class ObservableList<T> : IObservableList, IList<T>, IDirtyFlagable {
         isDirty = false;
     }
 
-    public int Count => ((IList<T>)innerList).Count;
+    public int Count => ((IList<T>)__innerList).Count;
 
-    public bool IsReadOnly => ((IList<T>)innerList).IsReadOnly;
+    public bool IsReadOnly => ((IList<T>)__innerList).IsReadOnly;
 
-    public IList InnerIList => (IList)innerList;
+    public IList InnerIList => (IList)__innerList;
 
-    public T this[int index] { get => ((IList<T>)innerList)[index]; set  { ((IList<T>)innerList)[index] = value; SetDirtyFlag(); } }
+    public T this[int index] { get => ((IList<T>)__innerList)[index]; set  { ((IList<T>)__innerList)[index] = value; SetDirtyFlag(); } }
 
     public int IndexOf(T item) {
-        return ((IList<T>)innerList).IndexOf(item);
+        return ((IList<T>)__innerList).IndexOf(item);
     }
 
     public void Insert(int index, T item) {
-        ((IList<T>)innerList).Insert(index, item);
+        ((IList<T>)__innerList).Insert(index, item);
         SetDirtyFlag();
     }
 
     public void RemoveAt(int index) {
-        ((IList<T>)innerList).RemoveAt(index);
+        ((IList<T>)__innerList).RemoveAt(index);
         SetDirtyFlag();
     }
 
     public void Add(T item) {
-        ((IList<T>)innerList).Add(item);
+        ((IList<T>)__innerList).Add(item);
         SetDirtyFlag();
     }
 
     public void AddRange(ObservableList<T> rangeList) {
-        innerList.AddRange(rangeList.innerList);
+        __innerList.AddRange(rangeList.__innerList);
+        SetDirtyFlag();
+    }
+
+    public void AddRange(T[] rangeArray) {
+        __innerList.AddRange(rangeArray);
         SetDirtyFlag();
     }
 
     public void AddRange(List<T> list) {
-        innerList.AddRange(list);
+        __innerList.AddRange(list);
         SetDirtyFlag();
     }
 
     public void Clear() {
-        ((IList<T>)innerList).Clear();
+        ((IList<T>)__innerList).Clear();
         SetDirtyFlag();
     }
 
     public bool Contains(T item) {
-        return ((IList<T>)innerList).Contains(item);
+        return ((IList<T>)__innerList).Contains(item);
     }
 
     public void CopyTo(T[] array, int arrayIndex) {
         SetDirtyFlag();
-        ((IList<T>)innerList).CopyTo(array, arrayIndex);
+        ((IList<T>)__innerList).CopyTo(array, arrayIndex);
     }
 
     public bool Remove(T item) {
         SetDirtyFlag();
-        return ((IList<T>)innerList).Remove(item);
+        return ((IList<T>)__innerList).Remove(item);
     }
 
     public IEnumerator<T> GetEnumerator() {
-        return ((IList<T>)innerList).GetEnumerator();
+        return ((IList<T>)__innerList).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator() {
-        return ((IList<T>)innerList).GetEnumerator();
+        return ((IList<T>)__innerList).GetEnumerator();
     }
 
     public Type GetListType() {
