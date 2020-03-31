@@ -24,8 +24,10 @@ namespace Service.Serializer
 
     public interface IFBSerializable2Struct
     {
-        int Put(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
+        int Put(FlatBuffers.FlatBufferBuilder builder);
         void Get(ExtendedTable table, int fbPos);
+
+        int ByteSize { get; }
     }
 
     public class DefaultSerializable2 : IFBSerializable2

@@ -62,6 +62,7 @@ namespace FlatBuffers
         static readonly Type typeByte = typeof(int);
         static readonly Type typeString = typeof(string);
         static readonly Type typeShort = typeof(short);
+        static readonly Type IFBSERIALIZABLE_STRUCT = typeof(IFBSerializable2Struct);
 
         // For CreateSharedString
         private Dictionary<string, StringOffset> _sharedStringMap = null;
@@ -1117,30 +1118,45 @@ namespace FlatBuffers
             return 0;
         }
 
+ 
 
-
-        public int CreatePrimitiveList<T>(IList<T> list) where T : struct { 
+        public int CreatePrimitiveList<T>(IList<T> list,int sizeperelement=-1) where T : struct { 
             if (list == null) return 0;
 
             int count = list.Count;
 
             Type innerType = typeof(T);
 
-            if (innerType.IsEnum) {
-                StartVector(4, count, 4);
-                for (int i = count - 1; i >= 0; i--) AddInt((int)(object)list[i]);
-                return EndVector().Value;
-            } else if (innerType == typeString) {
-                return 0;
-            } else {
-                // primitive-list (int)
 
+            if (innerType.IsPrimitive) {
+                // primitive-list (int)
                 StartVector(4, count, 4);
                 T[] buf = GetUnderlyingArray(list);
 
                 Add(buf, count);
                 return EndVector().Value;
             }
+            if (innerType.IsEnum) {
+                StartVector(4, count, 4);
+                for (int i = count - 1; i >= 0; i--) AddInt((int)(object)list[i]);
+                return EndVector().Value;
+            } else if (innerType == typeString) {
+                return 0;
+            }
+            else {
+                // struct list
+                if (IFBSERIALIZABLE_STRUCT.IsAssignableFrom(innerType)) {
+                    for (int i = count - 1; i >= 0; i--) {
+                        IFBSerializable2Struct ifbStruct = (IFBSerializable2Struct)list[i];
+                        ifbStruct.Put(this);
+                    }
+                    PutInt(count);
+                    return Offset;
+                } else {
+                    // default types
+                }
+                return 0;
+            } 
         }   
 
         public int CreateNonPrimitiveList<T>(IList<T> list,SerializationContext ctx=null) {
@@ -1152,6 +1168,8 @@ namespace FlatBuffers
                 Debug.LogError("you need to specfiy serialization context if using CreateNonPrimitiveList with objects");
                 return 0;
             }
+
+
             StartVector(4, count, 4);
             for (int i = count - 1; i >= 0; i--) {
                 object obj = list[i];
@@ -1167,6 +1185,8 @@ namespace FlatBuffers
             }
             return EndVector().Value;
         }
+
+       
 
         /// <summary>
         /// Get typename including Assembly-Name

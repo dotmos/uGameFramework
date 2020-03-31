@@ -24,6 +24,7 @@ namespace Service.Serializer
         static readonly Type typeByte = typeof(int);
         static readonly Type typeString = typeof(string);
         static readonly Type typeShort = typeof(short);
+        static readonly Type IFBSERIALIZABLE_STRUCT = typeof(IFBSerializable2Struct);
 
         public ExtendedTable(int offset, ByteBuffer _bb) {
             __tbl = new Table(offset, _bb);
@@ -394,7 +395,7 @@ namespace Service.Serializer
             return tlist;
         }
 
-        public ObservableList<T> GetNonPrimitiveList<T>(int fbPos, ref ObservableList<T> tlist) where T : IFBSerializable2, new() {
+        public ObservableList<T> GetObjectList<T>(int fbPos, ref ObservableList<T> tlist) where T : IFBSerializable2, new() {
 
             if (GetVTableOffset(fbPos) == 0) {
                 tlist = null;
@@ -410,6 +411,49 @@ namespace Service.Serializer
             return tlist;
         }
 
+        public List<T> GetStructList<T>(int fbPos, ref List<T> tlist) where T : struct {
+            if (GetVTableOffset(fbPos) == 0) {
+                tlist = null;
+                return null;
+            }
+
+            if (tlist == null) {
+                tlist = new List<T>();
+            } else {
+                tlist.Clear();
+            }
+
+            Type innerType = typeof(T);
+
+            if (IFBSERIALIZABLE_STRUCT.IsAssignableFrom(innerType)) {
+                int vector_start = __tbl.__vector(__tbl.__offset(4 + fbPos * 2));
+                int vector_len = __tbl.__vector_len(__tbl.__offset(4 + fbPos * 2));
+                int buflength = __tbl.bb.Length;
+                IFBSerializable2Struct elem = (IFBSerializable2Struct)new T();
+                int bytesize = elem.ByteSize;
+                for (int i = 0; i < vector_len; i++) {
+                    elem.Get(this, vector_start + i * bytesize);
+                    tlist.Add((T)elem);
+                }
+                return tlist;
+            }
+            return null;
+        }
+        public ObservableList<T> GetStructList<T>(int fbPos, ref ObservableList<T> tlist) where T : struct {
+
+            if (GetVTableOffset(fbPos) == 0) {
+                tlist = null;
+                return null;
+            }
+
+            if (tlist == null) {
+                tlist = new ObservableList<T>();
+            } else {
+                tlist.Clear();
+            }
+            GetStructList<T>(fbPos, ref tlist.__innerList);
+            return tlist;
+        }
 
         //    public List<T> GetList<T>(int fbPos, ref List<T> intList) {
         //    int o = GetVTableOffset(fbPos);
