@@ -53,9 +53,9 @@ namespace ECS {
             parallelQueue.Process(parallelQueueActions.Count, dt);
         }
 
-        public void AddFuture(Future f) {
+        public void AddFuture(Future f,bool forceEnqueue=false) {
             if (f.ExecutionMode == FutureExecutionMode.onMainThread) {
-                if (Kernel.IsMainThread()) {
+                if (!forceEnqueue && Kernel.IsMainThread()) {
                     f.execute();
                 } else {
                     mainThreadActions.Enqueue(f);
@@ -94,11 +94,11 @@ namespace ECS {
         private FutureExecutionMode executionMode;
         public FutureExecutionMode ExecutionMode { get => executionMode; }
 
-        public Future(FutureExecutionMode executionMode, Func<object> logic, bool addToFutureProcessor = true) {
+        public Future(FutureExecutionMode executionMode, Func<object> logic, bool addToFutureProcessor = true, bool forceEnqueue=false) {
             this.logic = logic;
             this.executionMode = executionMode;
 
-            if (addToFutureProcessor) FutureProcessor.Instance.AddFuture(this);
+            if (addToFutureProcessor) FutureProcessor.Instance.AddFuture(this,forceEnqueue);
         }
 
         public bool IsFinished() {
