@@ -455,6 +455,12 @@ namespace Service.Serializer
             return tlist;
         }
 
+        public T GetStruct<T>(int fbPos, ref T structElem) where T:IFBSerializable2Struct {
+            int structOffset = GetStructBegin(fbPos);
+            structElem.Get(this,structOffset);
+            return structElem;
+        }
+
         //    public List<T> GetList<T>(int fbPos, ref List<T> intList) {
         //    int o = GetVTableOffset(fbPos);
         //    return GetListFromOffset(o, ref intList);
