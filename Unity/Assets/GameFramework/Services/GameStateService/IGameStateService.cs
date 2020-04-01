@@ -102,6 +102,10 @@ namespace Service.GameStateService {
         
         
 
+        public void MergeDataFrom(GSContext incoming, bool onlyCopyPersistedData=false) {
+            
+        }
+
         
     }
 

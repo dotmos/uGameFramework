@@ -220,6 +220,12 @@ namespace Service.DevUIService {
         
         
 
+        public void MergeDataFrom(DataBrowserTopLevel incoming, bool onlyCopyPersistedData=false) {
+            if (!onlyCopyPersistedData) this.topLevelName = incoming.topLevelName;
+            if (!onlyCopyPersistedData) this.objectList = incoming.objectList;
+            
+        }
+
         
     }
 
@@ -242,6 +248,12 @@ namespace Service.DevUIService {
         
         
         
+
+        public void MergeDataFrom(HistoryElement incoming, bool onlyCopyPersistedData=false) {
+            if (!onlyCopyPersistedData) this.objectList = incoming.objectList;
+            if (!onlyCopyPersistedData) this.historyTitle = incoming.historyTitle;
+            
+        }
 
         
     }

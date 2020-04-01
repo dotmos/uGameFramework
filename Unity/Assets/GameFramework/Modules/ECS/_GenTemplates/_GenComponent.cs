@@ -31,21 +31,23 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
     /*block:modelClass*/
     [System.Serializable]
-    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/
+    {
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /// <summary>
         /// /*name:documentation*//*endname*/
         /// </summary>
         /*name:attributes*//*endname*/
-                           /*name:scope*/
+        /*name:scope*/
         public/*endname*/ /*name:type*/string/*endname*//*name:nullable*//*endname*/ /*name:name*/name/*endname*/ /*block:valueBlock*/= /*name:value*/"value"/*endname*//*endblock:valueBlock*/;
         /*endblock:field*/
         /*block:property*/
-            /// <summary>
-            /// /*name:documentation*//*endname*/
-            /// </summary>
-        /*name:scope*/public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+        /*name:scope*/
+        public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
         /*endblock:property*/
         /*block:constructor*/
         /// <summary>
@@ -54,25 +56,31 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 /*block:docParam*/        /// <param name="/*name:name*//*endname*/">/*name:documentation*//*endname*/</param>
 /*endblock:docParam*/
         public /*name:className*/SomeModel/*endname*/(/*block:rip*/int maxChannels/*endblock:rip*//*block:parameter*//*name:comma*/,/*endname*//*name:type*/string/*endname*/ /*name:paramName*/name/*endname*//*endblock:parameter*/) {
-/*block:constructorSet*/            this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
-/*endblock:constructorSet*/
-/*block:rip*/            this.MaxSoundChannels = maxChannels;/*endblock:rip*/
+            /*block:constructorSet*/
+            this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
+            /*endblock:constructorSet*/
+            /*block:rip*/
+            this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
 
         /*endblock:constructor*/
-        /// <summary>
-        /// Default constructor
-        /// </summary>
+
+        public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData = false) {
+            /*block:MergeField*//*name:copyNonPersisted*/
+            if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
+            /*endblock:MergeField*/
+        }
+
         /*name:classSerialization*/
-        public void Deserialize(int dataFormatNr,object incoming) {
+        public virtual void Deserialize(object incoming) {
             throw new System.NotImplementedException();
         }
 
-        public void Deserialize(ByteBuffer buf) {
+        public virtual void Deserialize(ByteBuffer buf) {
             throw new System.NotImplementedException();
         }
 
-        public int Serialize(FlatBufferBuilder builder) {
+        public virtual int Serialize(FlatBufferBuilder builder) {
             throw new System.NotImplementedException();
         }
         /*endname*/
@@ -80,12 +88,14 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
     /*endblock:modelClass*/
 
+
     /*block:field*/
     /// <summary>
     /*name:comment*//*endname*/
-                    /// </summary>
+    /// </summary>
     /*name:attributes*//*endname*/
-    /*name:accessor*/public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
+    /*name:accessor*/
+    public/*endname*/ /*name:type*/State/*endname*//*name:nullable*//*endname*/ /*name:name*/state/*endname*/ /*name:value*/= State.state1/*endname*/;
 
     public void /*name|fu,pre#Set:name*/SetState/*endname*/(/*name:type*/State/*endname*/ value,bool addToLuaReplay=false, string luaValue=null) {
         if (addToLuaReplay && this./*name:name*/state/*endname*/ != value) {

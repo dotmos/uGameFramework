@@ -79,6 +79,15 @@ namespace Service.TimeService {
         
         
 
+        public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData=false) {
+            if (!onlyCopyPersistedData) this.info = incoming.info;
+            if (!onlyCopyPersistedData) this.timeLeft = incoming.timeLeft;
+            if (!onlyCopyPersistedData) this.interval = incoming.interval;
+            if (!onlyCopyPersistedData) this.repeatTimes = incoming.repeatTimes;
+            if (!onlyCopyPersistedData) this.timerCallback = incoming.timerCallback;
+            
+        }
+
         
     }
 

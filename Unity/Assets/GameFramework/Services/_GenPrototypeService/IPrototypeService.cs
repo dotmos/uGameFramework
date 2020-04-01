@@ -76,6 +76,11 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 
         /*endblock:constructor*/
 
+        public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData=false) {
+            /*block:MergeField*//*name:copyNonPersisted*/if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
+            /*endblock:MergeField*/
+        }
+
         /*name:classSerialization*/
         public virtual void Deserialize(object incoming) {
             throw new System.NotImplementedException();
