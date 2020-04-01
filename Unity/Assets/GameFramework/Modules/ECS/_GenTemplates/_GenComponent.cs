@@ -130,7 +130,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         }
         /*endname*/
     }
-
     /*endblock:modelClass*/
 
     /*block:field*/
@@ -238,12 +237,14 @@ public class SomeClazz2 : DefaultSerializable2
 
     public List<UID> structList = new List<UID>();
     public List<SomeClazz2> objectList = new List<SomeClazz2>();
+    public ObservableList<SomeClazz2> obsObjectList = new ObservableList<SomeClazz2>();
     public System.Collections.Generic.List<UID> testListUID = new System.Collections.Generic.List<UID>();
     public System.Collections.Generic.List<int> testListPrimitive = new System.Collections.Generic.List<int>();
     public ObservableList<int> testObsListPrimitive = new ObservableList<int>();
     public System.Collections.Generic.Dictionary<int, int> testDict = new System.Collections.Generic.Dictionary<int, int>();
     public System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper> testDict2 = new System.Collections.Generic.Dictionary<SerializableHelper, SerializableHelper>();
     public System.Collections.Generic.List<string> testStringList = new System.Collections.Generic.List<string>();
+    public ObservableList<string> obsTestStringList = new ObservableList<string>();
     public System.Collections.Generic.List<State> enumList = new System.Collections.Generic.List<State>();
     public ObservableList<State> enumObsList = new ObservableList<State>();
     public StringOffset? nullableStringOffset = null;
@@ -472,10 +473,15 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_list_primitive*/
         /*block:s_obs_list_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListPrimitive/*endname*/ = /*name:name*/testObsListPrimitive/*endname*/==null ? 0 : ctx.builder.CreatePrimitiveList(/*name:name*/testObsListPrimitive/*endname*/.__innerList);
         /*endblock:s_list_primitive*/
-        /*block:s_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestListNonPrimitive/*endname*/ =/*name:name*/enumList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumList/*endname*/,ctx);
+        /*block:s_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestListNonPrimitive/*endname*/ =/*name:name*/objectList/*endname*/== null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/objectList/*endname*/, ctx);
         /*endblock:s_list_non_primitive*/
-        /*block:s_obs_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListNonPrimitive/*endname*/ = /*name:name*/enumObsList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumObsList/*endname*/.__innerList,ctx);
+        /*block:s_obs_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListNonPrimitive/*endname*/ = /*name:name*/obsObjectList/*endname*/== null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/obsObjectList/*endname*/.__innerList,ctx);
         /*endblock:s_list_non_primitive*/
+        /*block:s_list_string*/int /*name|fu,pre#offset:name*/offsetStringList/*endname*/ =/*name:name*/testStringList/*endname*/== null ? 0 : ctx.builder.CreateStringList(/*name:name*/testStringList/*endname*/);
+        /*endblock:s_list_string*/
+        /*block:s_obs_list_string*/int /*name|fu,pre#offset:name*/offsetObsStringList/*endname*/ = /*name:name*/obsTestStringList/*endname*/== null ? 0 : ctx.builder.CreateStringList(/*name:name*/obsTestStringList/*endname*/.__innerList);
+        /*endblock:s_obs_list_string*/
+
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
         /*block:s_component_header*/builder.AddStruct(0, builder.PutUID(Entity), 0);
         /*endblock:s_component_header*/
@@ -515,9 +521,6 @@ public class SomeClazz2 : DefaultSerializable2
         ///*block:s_nonprim_typed*/
         //var /*name|fu,pre#s:name*/sTestTypedObject/*endname*/ = new Offset<Serial.FBRef>((int)FlatBufferSerializer.SerializeTypedObject(builder,/*name:name*/testUID/*endname*/));
         ///*endblock:s_nonprim_typed*/
-        ///*block:s_list_string*/
-        //var /*name|fu,pre#s:name*/sTestListString/*endname*/ = FlatBufferSerializer.CreateStringList(builder,/*name:name*/testStringList/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestStringListVector/*endname*/);
-        ///*endblock:s_list_string*/
         ///*block:s_list_nonprim*/        //var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatbufferSerializer.CreateList</*name:innertype*/UID/*endname*/,Serial./*name:fbType*/FBUID/*endname*/>(builder,/*name:name*/testListUID/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestListUIDVector/*endname*/) ;
         //var /*name|fu,pre#s:name*/sTestListUID/*endname*/ = FlatBufferSerializer.CreateManualList(builder,/*name:name*/testListUID/*endname*/);
         ///*endblock:s_list_nonprim*/
@@ -583,7 +586,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_special_object*/
         /*block:d_special_object_nullable*//*name:name*/testUIDnullable/*endname*/ = ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/9/*endname*/);
         /*endblock:d_special_object_nullable*/
-        /*block:d_struct*//*name:name*/serStruct/*endname*/.Get(ser2table,/*name:fieldid*/8/*endname*/);
+        /*block:d_struct*/ser2table.GetStruct(/*name:fieldid*/8/*endname*/, ref /*name:name*/serStruct/*endname*/);
         /*endblock:d_struct*/
         /*block:d_list_primitive*/ser2table.GetPrimitiveList</*name:innertype*/int/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testListPrimitive/*endname*/);
         /*endblock:d_list_primitive*/
@@ -591,6 +594,8 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_list_object*/
         /*block:d_list_struct*/ser2table.GetStructList(/*name:fieldid*/9/*endname*/, ref /*name:name*/structList/*endname*/);
         /*endblock:d_list_struct*/
+        /*block:d_list_string*/ser2table.GetStringList(/*name:fieldid*/9/*endname*/, ref /*name:name*/testStringList/*endname*/);
+        /*endblock:d_list_string*/
 
         //object data = null;
         //if (data is Serial.FBRef) {

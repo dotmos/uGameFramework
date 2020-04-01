@@ -62,6 +62,12 @@ namespace FlatBuffers
         static readonly Type typeByte = typeof(int);
         static readonly Type typeString = typeof(string);
         static readonly Type typeShort = typeof(short);
+        static readonly Type typeUID = typeof(ECS.UID);
+        static readonly Type typeVector2 = typeof(Vector2);
+        static readonly Type typeVector3 = typeof(Vector3);
+        static readonly Type typeVector4 = typeof(Vector4);
+        static readonly Type typeQuaternion = typeof(Quaternion);
+
         static readonly Type IFBSERIALIZABLE_STRUCT = typeof(IFBSerializable2Struct);
 
         // For CreateSharedString
@@ -1047,6 +1053,9 @@ namespace FlatBuffers
         public int PutVector2(ref UnityEngine.Vector2 vec2) {
             return PutVector2(vec2.x, vec2.y);
         }
+        public int PutVector2(UnityEngine.Vector2 vec2) {
+            return PutVector2(vec2.x, vec2.y);
+        }
 
         /// <summary>
         /// Inline vec3
@@ -1064,6 +1073,9 @@ namespace FlatBuffers
         }
 
         public int PutVector3(ref UnityEngine.Vector3 vec3) {
+            return PutVector3(vec3.x, vec3.y, vec3.z);
+        }
+        public int PutVector3(UnityEngine.Vector3 vec3) {
             return PutVector3(vec3.x, vec3.y, vec3.z);
         }
 
@@ -1087,8 +1099,14 @@ namespace FlatBuffers
         public int PutVector4(ref UnityEngine.Vector4 vec4) {
             return PutVector4(vec4.x, vec4.y, vec4.z, vec4.w);
         }
+        public int PutVector4(UnityEngine.Vector4 vec4) {
+            return PutVector4(vec4.x, vec4.y, vec4.z, vec4.w);
+        }
 
         public int PutQuaternion(ref Quaternion q) {
+            return PutVector4(q.x, q.y, q.z, q.w);
+        }
+        public int PutQuaternion(Quaternion q) {
             return PutVector4(q.x, q.y, q.z, q.w);
         }
 
@@ -1120,7 +1138,7 @@ namespace FlatBuffers
 
  
 
-        public int CreatePrimitiveList<T>(IList<T> list,int sizeperelement=-1) where T : struct { 
+        public int CreatePrimitiveList<T>(IList<T> list) where T : struct { 
             if (list == null) return 0;
 
             int count = list.Count;
@@ -1128,7 +1146,14 @@ namespace FlatBuffers
             Type innerType = typeof(T);
 
 
-            if (innerType.IsPrimitive) {
+            if (innerType == typeUID) {
+                for (int i = count - 1; i >= 0; i--) {
+                    PutUID((ECS.UID)(object)list[i]);
+                }
+                PutInt(count);
+                return Offset;
+            }
+            else if (innerType.IsPrimitive) {
                 // primitive-list (int)
                 StartVector(4, count, 4);
                 T[] buf = GetUnderlyingArray(list);
@@ -1140,26 +1165,75 @@ namespace FlatBuffers
                 StartVector(4, count, 4);
                 for (int i = count - 1; i >= 0; i--) AddInt((int)(object)list[i]);
                 return EndVector().Value;
-            } else if (innerType == typeString) {
-                return 0;
-            }
-            else {
-                // struct list
-                if (IFBSERIALIZABLE_STRUCT.IsAssignableFrom(innerType)) {
-                    for (int i = count - 1; i >= 0; i--) {
-                        IFBSerializable2Struct ifbStruct = (IFBSerializable2Struct)list[i];
-                        ifbStruct.Put(this);
-                    }
-                    PutInt(count);
-                    return Offset;
-                } else {
-                    // default types
-                }
-                return 0;
             } 
-        }   
 
-        public int CreateNonPrimitiveList<T>(IList<T> list,SerializationContext ctx=null) {
+            // struct list
+            // I know here comes lots of repetition. Need to find an efficient way 
+            // to abstract this without too much overhead. Until then, every type
+            // gets its dedicated loop of its own. Too tired for fancy generic magic ;)
+            // ...and this casting-madness if used here... :|
+            else if (IFBSERIALIZABLE_STRUCT.IsAssignableFrom(innerType)) {
+                for (int i = count - 1; i >= 0; i--) {
+                    IFBSerializable2Struct ifbStruct = (IFBSerializable2Struct)list[i];
+                    ifbStruct.Put(this);
+                }
+                PutInt(count);
+                return Offset;
+            } 
+            else if (innerType == typeVector2) {
+                for (int i = count - 1; i >= 0; i--) {
+                    PutVector2((Vector2)(object)list[i]);
+                }
+                PutInt(count);
+                return Offset;
+            } else if (innerType == typeVector3) {
+                for (int i = count - 1; i >= 0; i--) {
+                    PutVector3((Vector3)(object)list[i]);
+                }
+                PutInt(count);
+                return Offset;
+
+            } else if (innerType == typeVector4) {
+                for (int i = count - 1; i >= 0; i--) {
+                    PutVector4((Vector4)(object)(list[i]));
+                }
+                PutInt(count);
+                return Offset;
+
+            } else if (innerType == typeQuaternion) {
+                for (int i = count - 1; i >= 0; i--) {
+                    PutQuaternion((Quaternion)(object)list[i]);
+                }
+                PutInt(count);
+                return Offset;
+            }
+                
+
+            Debug.LogError($"PrimitveList: Do not know how to serialize type:{innerType}");
+
+            return 0;
+            
+        }
+
+        private List<int> tempOffsets = new List<int>();
+
+        public int CreateStringList(IList<String> stringList) {
+            if (stringList == null) return 0;
+
+            tempOffsets.Clear();
+
+            int count = stringList.Count;
+            foreach (string st in stringList) {
+                tempOffsets.Add(CreateString(st).Value);
+            }
+            StartVector(4, count, 4);
+            for (int i = count - 1; i >= 0; i--) {
+                AddOffset(tempOffsets[i]);
+            }
+            return EndVector().Value;
+        }
+
+        public int CreateNonPrimitiveList<T>(IList<T> list,SerializationContext ctx=null) where T:IFBSerializable2 {
             int count = list.Count;
             Type innerType = typeof(T);
 

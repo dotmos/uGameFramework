@@ -25,6 +25,11 @@ namespace Service.Serializer
         static readonly Type typeString = typeof(string);
         static readonly Type typeShort = typeof(short);
         static readonly Type IFBSERIALIZABLE_STRUCT = typeof(IFBSerializable2Struct);
+        static readonly Type typeUID = typeof(ECS.UID);
+        static readonly Type typeVector2 = typeof(Vector2);
+        static readonly Type typeVector3 = typeof(Vector3);
+        static readonly Type typeVector4 = typeof(Vector4);
+        static readonly Type typeQuaternion = typeof(Quaternion); 
 
         public ExtendedTable(int offset, ByteBuffer _bb) {
             __tbl = new Table(offset, _bb);
@@ -150,14 +155,19 @@ namespace Service.Serializer
 
         public UnityEngine.Vector2 GetVector2(int o) {
             Vector2 vec2 = new UnityEngine.Vector2();
-            GetVector2(0, ref vec2);
+            GetVector2(o, ref vec2);
             return vec2;
         }
-        public void GetVector2(int o, ref Vector2 vec2) {
-            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+        public void GetVector2(int fbPos, ref Vector2 vec2) {
+            int vec_pos = __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4);
             vec2.x = __tbl.bb.GetFloat(vec_pos + 0);
             vec2.y = __tbl.bb.GetFloat(vec_pos + 4);
         }
+        public void GetVector2FromOffset(int vec_pos, ref Vector2 vec2) {
+            vec2.x = __tbl.bb.GetFloat(vec_pos + 0);
+            vec2.y = __tbl.bb.GetFloat(vec_pos + 4);
+        }
+
 
         public void MutateVector2(int o, float x, float y) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
@@ -186,6 +196,12 @@ namespace Service.Serializer
             vec.y = __tbl.bb.GetFloat(vec_pos + 4);
             vec.z = __tbl.bb.GetFloat(vec_pos + 8);
         }
+        public void GetVector3FromOffset(int vec_pos, ref Vector3 vec) {
+            vec.x = __tbl.bb.GetFloat(vec_pos + 0);
+            vec.y = __tbl.bb.GetFloat(vec_pos + 4);
+            vec.z = __tbl.bb.GetFloat(vec_pos + 8);
+        }
+
         public void MutateVector3(int o, float x, float y, float z) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
             __tbl.bb.PutFloat(vec_pos + 0, x);
@@ -209,6 +225,12 @@ namespace Service.Serializer
 
         public void GetVector4(int o, ref Vector4 vec) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+            vec.x = __tbl.bb.GetFloat(vec_pos + 0);
+            vec.y = __tbl.bb.GetFloat(vec_pos + 4);
+            vec.z = __tbl.bb.GetFloat(vec_pos + 8);
+            vec.w = __tbl.bb.GetFloat(vec_pos + 12);
+        }
+        public void GetVector4FromOffset(int vec_pos, ref Vector4 vec) {
             vec.x = __tbl.bb.GetFloat(vec_pos + 0);
             vec.y = __tbl.bb.GetFloat(vec_pos + 4);
             vec.z = __tbl.bb.GetFloat(vec_pos + 8);
@@ -244,6 +266,13 @@ namespace Service.Serializer
             quat.w = __tbl.bb.GetFloat(vec_pos + 12);
         }
 
+        public void GetQuaternionFromOffset(int quat_pos, ref Quaternion quat) {
+            quat.x = __tbl.bb.GetFloat(quat_pos + 0);
+            quat.y = __tbl.bb.GetFloat(quat_pos + 4);
+            quat.z = __tbl.bb.GetFloat(quat_pos + 8);
+            quat.w = __tbl.bb.GetFloat(quat_pos + 12);
+        }
+
         public void MutateQuaternion(int o, ref Quaternion q) {
             // quaternions have same structure as vec4. so reuse this logic
             MutateVector4(o, q.x, q.y, q.z, q.w);
@@ -259,12 +288,16 @@ namespace Service.Serializer
             return uid;
         }
 
-        public void GetUID(int o, ref ECS.UID uid) {
-            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+        public void GetUID(int fbPos, ref ECS.UID uid) {
+            int vec_pos = __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4);
             uid.ID = __tbl.bb.GetInt(vec_pos + 0);
             uid.__SetRevision(__tbl.bb.GetInt(vec_pos + 4));
         }
 
+        public void GetUIDFromOffset(int uid_pos, ref ECS.UID uid) {
+            uid.ID = __tbl.bb.GetInt(uid_pos + 0);
+            uid.__SetRevision(__tbl.bb.GetInt(uid_pos + 4));
+        }
 
 
         public void MutateUID(int o, ref ECS.UID uid) {
@@ -312,6 +345,52 @@ namespace Service.Serializer
         }
 
 
+        public List<string> GetStringList(int fbPos, ref List<string> tlist) {
+            int vtableOffset = GetVTableOffset(fbPos);
+            if (vtableOffset == 0) {
+                tlist = null;
+                return null;
+            }
+
+            if (tlist == null) {
+                tlist = new List<string>();
+            } else {
+                tlist.Clear();
+            }
+
+            int vector_start = __tbl.__vector(vtableOffset);
+            int vector_len = __tbl.__vector_len(vtableOffset);
+            for (int i = 0; i < vector_len; i++) {
+                int offset = __tbl.__indirect(vector_start);
+                if (offset == 0) {
+                    tlist.Add(null);
+                    continue;
+                }
+
+                int strlen = bb.GetInt(offset);
+                int strstartPos = offset + 4;
+                tlist.Add(bb.GetStringUTF8(strstartPos, strlen));
+                vector_start += 4;
+            }
+
+            return tlist;
+        }
+
+        public ObservableList<string> GetStringList(int fbPos, ref ObservableList<string> tlist)  {
+            if (GetVTableOffset(fbPos) == 0) {
+                tlist = null;
+                return null;
+            }
+
+            if (tlist == null) {
+                tlist = new ObservableList<string>();
+            } else {
+                tlist.Clear();
+            }
+            GetStringList(fbPos, ref tlist.__innerList);
+            return tlist;
+        }
+
         /// <summary>
         /// Fastest was to read a primitve list 
         /// </summary>
@@ -321,7 +400,8 @@ namespace Service.Serializer
         /// <param name="tlist"></param>
         /// <returns></returns>
         public List<T> GetPrimitiveList<T>(int fbPos, ref List<T> tlist) where T : struct {
-            if (GetVTableOffset(fbPos) == 0) {
+            int vtableOffset = GetVTableOffset(fbPos);
+            if (vtableOffset  == 0) {
                 tlist = null;
                 return null;
             }
@@ -341,8 +421,6 @@ namespace Service.Serializer
                     tlist.Add((T)(object)tA[i]); // i hate this casting madness. isn't there a cleaner way?
                 }
                 return tlist;
-            } else if (listType == typeString) {
-                return null;
             } else {
                 T[] tA = __tbl.__vector_as_array<T>(4 + fbPos * 2);
                 if (tA == null) {
@@ -423,7 +501,8 @@ namespace Service.Serializer
         }
 
         public List<T> GetStructList<T>(int fbPos, ref List<T> tlist) where T : struct {
-            if (GetVTableOffset(fbPos) == 0) {
+            int vecOffset = GetVTableOffset(fbPos);
+            if (vecOffset == 0) {
                 tlist = null;
                 return null;
             }
@@ -436,20 +515,69 @@ namespace Service.Serializer
 
             Type innerType = typeof(T);
 
-            if (IFBSERIALIZABLE_STRUCT.IsAssignableFrom(innerType)) {
-                int vector_start = __tbl.__vector(__tbl.__offset(4 + fbPos * 2));
-                int vector_len = __tbl.__vector_len(__tbl.__offset(4 + fbPos * 2));
-                int buflength = __tbl.bb.Length;
+            int vector_start = __tbl.__vector(vecOffset);
+            int vector_len = __tbl.__vector_len(vecOffset);
+            int buflength = __tbl.bb.Length;
+
+            if (innerType == typeUID) {
+                int bytesize = 8;
+                ECS.UID uid = new ECS.UID();
+                for (int i = 0; i < vector_len; i++) {
+                    GetUIDFromOffset(vector_start, ref uid);
+                    tlist.Add((T)(object)uid);
+                    vector_start += bytesize;
+                }
+                return tlist;
+            } else if (IFBSERIALIZABLE_STRUCT.IsAssignableFrom(innerType)) {
                 IFBSerializable2Struct elem = (IFBSerializable2Struct)new T();
                 int bytesize = elem.ByteSize;
                 for (int i = 0; i < vector_len; i++) {
-                    elem.Get(this, vector_start + i * bytesize);
+                    elem.Get(this, vector_start);
                     tlist.Add((T)elem);
+                    vector_start += bytesize;
+                }
+                return tlist;
+            } else if (innerType == typeVector2) {
+                int bytesize = 8;
+                Vector2 vec2 = new Vector2();
+                for (int i = 0; i < vector_len; i++) {
+                    GetVector2FromOffset(vector_start, ref vec2);
+                    tlist.Add((T)(object)vec2);
+                    vector_start += bytesize;
+                }
+                return tlist;
+            } else if (innerType == typeVector3) {
+                int bytesize = 12;
+                Vector3 vec3 = new Vector3();
+                for (int i = 0; i < vector_len; i++) {
+                    GetVector3FromOffset(vector_start, ref vec3);
+                    tlist.Add((T)(object)vec3);
+                    vector_start += bytesize;
+                }
+                return tlist;
+            } else if (innerType == typeVector4) {
+                int bytesize = 16;
+                Vector4 vec4 = new Vector4();
+                for (int i = 0; i < vector_len; i++) {
+                    GetVector4FromOffset(vector_start, ref vec4);
+                    tlist.Add((T)(object)vec4);
+                    vector_start += bytesize;
+                }
+                return tlist;
+            } else if (innerType == typeVector4) {
+                int bytesize = 16;
+                Quaternion quaternion = new Quaternion();
+                for (int i = 0; i < vector_len; i++) {
+                    GetQuaternionFromOffset(vector_start, ref quaternion);
+                    tlist.Add((T)(object)quaternion);
+                    vector_start += bytesize;
                 }
                 return tlist;
             }
+            Debug.LogError($"GetStructList<{typeof(T)}>: Do not know how to serialize type:{innerType}");
             return null;
         }
+        
         public ObservableList<T> GetStructList<T>(int fbPos, ref ObservableList<T> tlist) where T : struct {
 
             if (GetVTableOffset(fbPos) == 0) {
