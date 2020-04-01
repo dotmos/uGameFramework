@@ -395,7 +395,7 @@ namespace Service.Serializer
             return tlist;
         }
 
-        public ObservableList<T> GetObjectList<T>(int fbPos, ref ObservableList<T> tlist) where T : IFBSerializable2, new() {
+        public ObservableList<T> GetObjectList<T>(int fbPos, ref ObservableList<T> tlist, DeserializationContext dctx = null) where T : IFBSerializable2, new() {
 
             if (GetVTableOffset(fbPos) == 0) {
                 tlist = null;
@@ -407,7 +407,7 @@ namespace Service.Serializer
             } else {
                 tlist.Clear();
             }
-            GetObjectList<T>(fbPos, ref tlist.__innerList);
+            GetObjectList<T>(fbPos, ref tlist.__innerList,dctx);
             return tlist;
         }
 
