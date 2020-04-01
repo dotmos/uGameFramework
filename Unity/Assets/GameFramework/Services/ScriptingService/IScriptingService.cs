@@ -230,7 +230,14 @@ namespace Service.Scripting {
         
         
 
+        /// <summary>
+        /// Merges data into your object. (no deep copy)
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(ScriptingServiceData incoming, bool onlyCopyPersistedData=false) {
+            // base.MergeDataFrom(incoming, onlyCopyPersistedData);
+
             if (!onlyCopyPersistedData) this.replayScript = incoming.replayScript;
             if (!onlyCopyPersistedData) this.saveReplayScript = incoming.saveReplayScript;
             if (!onlyCopyPersistedData) this.uid2persistedId = incoming.uid2persistedId;
@@ -278,7 +285,14 @@ namespace Service.Scripting {
         
         
 
+        /// <summary>
+        /// Merges data into your object. (no deep copy)
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(LuaCoroutine incoming, bool onlyCopyPersistedData=false) {
+            // base.MergeDataFrom(incoming, onlyCopyPersistedData);
+
             if (!onlyCopyPersistedData) this.co = incoming.co;
             if (!onlyCopyPersistedData) this.waitForType = incoming.waitForType;
             if (!onlyCopyPersistedData) this.value1 = incoming.value1;

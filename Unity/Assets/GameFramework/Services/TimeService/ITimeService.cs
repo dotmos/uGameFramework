@@ -79,7 +79,14 @@ namespace Service.TimeService {
         
         
 
+        /// <summary>
+        /// Merges data into your object. (no deep copy)
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData=false) {
+            // base.MergeDataFrom(incoming, onlyCopyPersistedData);
+
             if (!onlyCopyPersistedData) this.info = incoming.info;
             if (!onlyCopyPersistedData) this.timeLeft = incoming.timeLeft;
             if (!onlyCopyPersistedData) this.interval = incoming.interval;

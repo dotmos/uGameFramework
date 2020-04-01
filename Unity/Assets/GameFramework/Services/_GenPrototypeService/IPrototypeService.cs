@@ -76,8 +76,16 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 
         /*endblock:constructor*/
 
+        /// <summary>
+        /// Merges data into your object. (no deep copy)
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData=false) {
-            /*block:MergeField*//*name:copyNonPersisted*/if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
+            /*name:mergeDataInheritance*/ // /*endname*/ base.MergeDataFrom(incoming, onlyCopyPersistedData);
+
+            /*block:MergeField*//*name:copyNonPersisted*/
+            if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
             /*endblock:MergeField*/
         }
 

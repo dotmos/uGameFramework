@@ -102,7 +102,14 @@ namespace Service.GameStateService {
         
         
 
+        /// <summary>
+        /// Merges data into your object. (no deep copy)
+        /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(GSContext incoming, bool onlyCopyPersistedData=false) {
+            // base.MergeDataFrom(incoming, onlyCopyPersistedData);
+
             
         }
 
