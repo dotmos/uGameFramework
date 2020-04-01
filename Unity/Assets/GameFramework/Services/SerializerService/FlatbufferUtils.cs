@@ -321,6 +321,17 @@ namespace Service.Serializer
         /// <param name="tlist"></param>
         /// <returns></returns>
         public List<T> GetPrimitiveList<T>(int fbPos, ref List<T> tlist) where T : struct {
+            if (GetVTableOffset(fbPos) == 0) {
+                tlist = null;
+                return null;
+            }
+
+            if (tlist == null) {
+                tlist = new List<T>();
+            } else {
+                tlist.Clear();
+            }
+
             Type listType = typeof(T);
             if (listType.IsEnum) {
                 // enum. enums are serialized as int

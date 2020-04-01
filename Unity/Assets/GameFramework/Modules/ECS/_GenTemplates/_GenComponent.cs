@@ -48,7 +48,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
         public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
-        public /*name:newkeyword*/new/*endname*/ bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+        [System.NonSerialized]
+        private bool isDirty;
+        public /*name:newkeyword*/new/*endname*/ bool Ser2IsDirty { get => isDirty; set => isDirty = value; } // TODO. Is dirty should be some kind of virtual
 
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
 
@@ -459,9 +461,9 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_list_primitive*/
         /*block:s_obs_list_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListPrimitive/*endname*/ = /*name:name*/testObsListPrimitive/*endname*/==null ? 0 : ctx.builder.CreatePrimitiveList(/*name:name*/testObsListPrimitive/*endname*/.__innerList);
         /*endblock:s_list_primitive*/
-        /*block:s_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestListNonPrimitive/*endname*/ =/*name:name*/enumList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumList/*endname*/);
+        /*block:s_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestListNonPrimitive/*endname*/ =/*name:name*/enumList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumList/*endname*/,ctx);
         /*endblock:s_list_non_primitive*/
-        /*block:s_obs_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListNonPrimitive/*endname*/ = /*name:name*/enumObsList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumObsList/*endname*/.__innerList);
+        /*block:s_obs_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListNonPrimitive/*endname*/ = /*name:name*/enumObsList/*endname*/==null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/enumObsList/*endname*/.__innerList,ctx);
         /*endblock:s_list_non_primitive*/
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
         /*block:s_component_header*/builder.AddStruct(0, builder.PutUID(Entity), 0);
@@ -543,9 +545,13 @@ public class SomeClazz2 : DefaultSerializable2
         // not implemented,yet
     }
     public /*name:override*/override/*endname*/ void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
-        /*block:d_component_header*/base.Ser2Deserialize(tblOffset, ctx); // init extendend table;
+        /*block:d_deserialize_clazz_header*/ser2table = new ExtendedTable(tblOffset, ctx.bb);
+        /*endblock:d_deserialize_clazz_header*/
+        /*block:d_component_header*/
+        base.Ser2Deserialize(tblOffset, ctx); // init extendend table;
         ID = ser2table.GetUID(0);
         /*endblock:d_component_header*/
+
         /*block:d_deserialize_base*/
         base.Ser2Deserialize(ser2table.GetOffset(0), ctx);
         /*endblock:d_deserialize_base*/
