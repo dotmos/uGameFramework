@@ -222,9 +222,20 @@ namespace Service.DevUIService {
         
         
         
+
         /// <summary>
-        /// Default constructor
+        /// Merges data into your object. (no deep copy)
         /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="onlyCopyPersistedData"></param>
+        public void MergeDataFrom(DataBrowserTopLevel incoming, bool onlyCopyPersistedData=false) {
+            // base.MergeDataFrom(incoming, onlyCopyPersistedData);
+
+            if (!onlyCopyPersistedData) this.topLevelName = incoming.topLevelName;
+            if (!onlyCopyPersistedData) this.objectList = incoming.objectList;
+            
+        }
+
         
     }
 
@@ -250,9 +261,20 @@ namespace Service.DevUIService {
         
         
         
+
         /// <summary>
-        /// Default constructor
+        /// Merges data into your object. (no deep copy)
         /// </summary>
+        /// <param name="incoming"></param>
+        /// <param name="onlyCopyPersistedData"></param>
+        public void MergeDataFrom(HistoryElement incoming, bool onlyCopyPersistedData=false) {
+            // base.MergeDataFrom(incoming, onlyCopyPersistedData);
+
+            if (!onlyCopyPersistedData) this.objectList = incoming.objectList;
+            if (!onlyCopyPersistedData) this.historyTitle = incoming.historyTitle;
+            
+        }
+
         
     }
 
