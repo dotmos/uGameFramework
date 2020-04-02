@@ -146,13 +146,14 @@ namespace Service.Serializer
         /// <summary>
         /// mappings to objects that are not serialized,yet
         /// </summary>
-        public readonly Dictionary<IFBSerializable2, List<int>> lateReferences = new Dictionary<IFBSerializable2, List<int>>();
-        public readonly List<IFBSerializable2> lateReferenceList = new List<IFBSerializable2>();
+        public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
+        public readonly List<object> lateReferenceList = new List<object>();
 
         public readonly FlatBufferBuilder builder;
 
         private HashSet<Type> whiteList = null;
         private HashSet<Type> blackList = null;
+        private Dictionary<object, int> obj2offsetMapping = new Dictionary<object, int>(); // mapping to offset of objects != ifbserializable2
 
         /// <summary>
         /// The amount of bytes to add to the offset of those bytebuffers
@@ -167,14 +168,21 @@ namespace Service.Serializer
             builder = new FlatBufferBuilder(bb);
         }
 
-        public int GetOrCreate(IFBSerializable2 obj) {
-            if (obj.Ser2HasOffset) {
-                // this object was already serialized. just output 
-                return obj.Ser2Offset;
+        public int GetOrCreate(object obj) {
+            if (obj is IFBSerializable2) {
+                var iFBSer2Obj = (IFBSerializable2)obj;
+
+                if (iFBSer2Obj.Ser2HasOffset) {
+                    // this object was already serialized. just output 
+                    return iFBSer2Obj.Ser2Offset;
+                }
+                int newOffset = iFBSer2Obj.Ser2Serialize(this);
+                return newOffset;
             }
-            int newOffset = obj.Ser2Serialize(this);
-            //            obj2offset[obj] = newOffset;
-            return newOffset;
+            else if (obj is IList) {
+                
+            }
+            return 0;
         }
 
 
@@ -204,19 +212,36 @@ namespace Service.Serializer
             return offset;
         }
 
-        public void AddReferenceOffset(IFBSerializable2 obj) {
+        private int GetCachedOffset(object obj) {
+            if (obj is IFBSerializable2) {
+                return ((IFBSerializable2)obj).Ser2Offset;
+            }
+            else {
+                if (obj2offsetMapping.TryGetValue(obj,out int offset)) {
+                    return offset;
+                }
+                return -1;
+            }
+        }
+
+        public void AddReferenceOffset(object obj) {
             AddReferenceOffset(-1, obj);
         }
-        public void AddReferenceOffset(int o, IFBSerializable2 obj) {
+        public void AddReferenceOffset(int o, object obj) {
             if (obj == null) {
                 return;
             }
 
-            if (obj.Ser2HasOffset && obj.Ser2Table.bb == builder.DataBuffer) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
+            int cacheOffset = GetCachedOffset(obj);
+
+            if (cacheOffset != -1) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
                 // the object is already serialized
-                builder.AddOffset(o, obj.Ser2Offset, 0);
+                builder.AddOffset(o, cacheOffset, 0);
             } else {
                 // the object is not referenced,yet. Write a dummy int,that will be replaced later with the real offset
+                if (obj is IFBSerializable2) {
+
+                }
                 builder.AddInt(255);
                 if (o != -1) builder.Slot(o);
                 if (lateReferences.TryGetValue(obj, out List<int> offsetDummies)) {

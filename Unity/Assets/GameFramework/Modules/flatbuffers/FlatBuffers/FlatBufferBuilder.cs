@@ -68,7 +68,8 @@ namespace FlatBuffers
         static readonly Type typeVector4 = typeof(Vector4);
         static readonly Type typeQuaternion = typeof(Quaternion);
 
-        static readonly Type IFBSERIALIZABLE_STRUCT = typeof(IFBSerializable2Struct);
+        static readonly Type typeIFBserializabel2Struct = typeof(IFBSerializable2Struct);
+        static readonly Type typeIList = typeof(IList);
 
         // For CreateSharedString
         private Dictionary<string, StringOffset> _sharedStringMap = null;
@@ -975,19 +976,19 @@ namespace FlatBuffers
             return _bb.ToSizedArray();
         }
 
-        /// <summary>
-        /// Finalize a buffer, pointing to the given `rootTable`.
-        /// </summary>
-        /// <param name="rootTable">
-        /// An offset to be added to the buffer.
-        /// </param>
-        /// <param name="fileIdentifier">
-        /// A FlatBuffer file identifier to be added to the buffer before
-        /// `root_table`.
-        /// </param>
-        /// <param name="sizePrefix">
-        /// Whether to prefix the size to the buffer.
-        /// </param>
+            /// <summary>
+            /// Finalize a buffer, pointing to the given `rootTable`.
+            /// </summary>
+            /// <param name="rootTable">
+            /// An offset to be added to the buffer.
+            /// </param>
+            /// <param name="fileIdentifier">
+            /// A FlatBuffer file identifier to be added to the buffer before
+            /// `root_table`.
+            /// </param>
+            /// <param name="sizePrefix">
+            /// Whether to prefix the size to the buffer.
+            /// </param>
         protected void Finish(int rootTable, string fileIdentifier, bool sizePrefix)
         {
             Prep(_minAlign, sizeof(int) + (sizePrefix ? sizeof(int) : 0) +
@@ -1172,7 +1173,7 @@ namespace FlatBuffers
             // to abstract this without too much overhead. Until then, every type
             // gets its dedicated loop of its own. Too tired for fancy generic magic ;)
             // ...and this casting-madness if used here... :|
-            else if (IFBSERIALIZABLE_STRUCT.IsAssignableFrom(innerType)) {
+            else if (typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
                 for (int i = count - 1; i >= 0; i--) {
                     IFBSerializable2Struct ifbStruct = (IFBSerializable2Struct)list[i];
                     ifbStruct.Put(this);
@@ -1232,17 +1233,19 @@ namespace FlatBuffers
             }
             return EndVector().Value;
         }
+        
+        //public int CreateNonPrimitiveList<T>(IList<T> list, SerializationContext ctx = null) {
+        //    return CreateNonPrimitiveList(list, ctx);
+        //}
 
-        public int CreateNonPrimitiveList<T>(IList<T> list,SerializationContext ctx=null) {
+        public int CreateNonPrimitiveList(IList list,SerializationContext ctx=null) {
             int count = list.Count;
-            Type innerType = typeof(T);
 
             // TODO: List
             if (ctx == null) {
                 Debug.LogError("you need to specfiy serialization context if using CreateNonPrimitiveList with objects");
                 return 0;
             }
-
 
             StartVector(4, count, 4);
             for (int i = count - 1; i >= 0; i--) {
@@ -1255,7 +1258,7 @@ namespace FlatBuffers
                     PutInt(0);
                     continue;
                 }
-                ctx.AddReferenceOffset(-1,(IFBSerializable2)obj);
+                ctx.AddReferenceOffset(-1, (IFBSerializable2)obj);
             }
             return EndVector().Value;
         }
