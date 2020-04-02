@@ -98,7 +98,7 @@ namespace Service.TimeService {
         
     }
 
-    public partial class TimerElement : IGeneratedDataObject<TimerElement> {
+    public partial class TimerElement : IMergeableData<TimerElement> {
     }
         
 }

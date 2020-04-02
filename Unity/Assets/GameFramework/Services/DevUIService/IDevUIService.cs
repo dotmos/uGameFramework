@@ -236,7 +236,7 @@ namespace Service.DevUIService {
         
     }
 
-    public partial class DataBrowserTopLevel : IGeneratedDataObject<DataBrowserTopLevel> {
+    public partial class DataBrowserTopLevel : IMergeableData<DataBrowserTopLevel> {
     }
         
     [System.Serializable]
@@ -274,7 +274,7 @@ namespace Service.DevUIService {
         
     }
 
-    public partial class HistoryElement : IGeneratedDataObject<HistoryElement> {
+    public partial class HistoryElement : IMergeableData<HistoryElement> {
     }
         
 }

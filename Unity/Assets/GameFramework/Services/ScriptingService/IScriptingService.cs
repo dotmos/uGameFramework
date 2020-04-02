@@ -247,7 +247,7 @@ namespace Service.Scripting {
         
     }
 
-    public partial class ScriptingServiceData : IGeneratedDataObject<ScriptingServiceData> {
+    public partial class ScriptingServiceData : IMergeableData<ScriptingServiceData> {
     }
         
     [System.Serializable]
@@ -306,7 +306,7 @@ namespace Service.Scripting {
         
     }
 
-    public partial class LuaCoroutine : IGeneratedDataObject<LuaCoroutine> {
+    public partial class LuaCoroutine : IMergeableData<LuaCoroutine> {
     }
         
 }

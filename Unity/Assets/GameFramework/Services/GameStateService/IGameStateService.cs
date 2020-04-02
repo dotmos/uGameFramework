@@ -116,7 +116,7 @@ namespace Service.GameStateService {
         
     }
 
-    public partial class GSContext : IGeneratedDataObject<GSContext> {
+    public partial class GSContext : IMergeableData<GSContext> {
     }
         
 }
