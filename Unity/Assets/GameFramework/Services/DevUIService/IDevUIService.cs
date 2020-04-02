@@ -228,7 +228,7 @@ namespace Service.DevUIService {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(DataBrowserTopLevel incoming, bool onlyCopyPersistedData=false) {
+        public void MergeDataFrom(DataBrowserTopLevel incoming, bool onlyCopyPersistedData=false){
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.topLevelName = incoming.topLevelName;
@@ -267,7 +267,7 @@ namespace Service.DevUIService {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(HistoryElement incoming, bool onlyCopyPersistedData=false) {
+        public void MergeDataFrom(HistoryElement incoming, bool onlyCopyPersistedData=false){
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.objectList = incoming.objectList;

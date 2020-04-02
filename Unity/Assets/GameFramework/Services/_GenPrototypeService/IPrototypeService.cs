@@ -108,7 +108,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData=false) {
+        public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData=false){
             /*name:mergeDataInheritance*/ // /*endname*/ base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             /*block:MergeField*//*name:copyNonPersisted*/if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;

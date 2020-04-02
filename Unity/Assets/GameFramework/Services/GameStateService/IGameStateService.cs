@@ -110,7 +110,7 @@ namespace Service.GameStateService {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(GSContext incoming, bool onlyCopyPersistedData=false) {
+        public void MergeDataFrom(GSContext incoming, bool onlyCopyPersistedData=false){
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             

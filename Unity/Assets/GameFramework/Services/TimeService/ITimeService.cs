@@ -87,7 +87,7 @@ namespace Service.TimeService {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData=false) {
+        public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData=false){
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.info = incoming.info;
