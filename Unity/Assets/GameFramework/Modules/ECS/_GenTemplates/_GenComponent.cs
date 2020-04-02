@@ -31,8 +31,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
     /*block:modelClass*/
     [System.Serializable]
-    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/
-    {
+    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /// <summary>

@@ -235,7 +235,7 @@ namespace Service.Scripting {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(ScriptingServiceData incoming, bool onlyCopyPersistedData=false) {
+        public void MergeDataFrom(ScriptingServiceData incoming, bool onlyCopyPersistedData=false){
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.replayScript = incoming.replayScript;
@@ -290,7 +290,7 @@ namespace Service.Scripting {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(LuaCoroutine incoming, bool onlyCopyPersistedData=false) {
+        public void MergeDataFrom(LuaCoroutine incoming, bool onlyCopyPersistedData=false){
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.co = incoming.co;
