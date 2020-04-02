@@ -1233,7 +1233,7 @@ namespace FlatBuffers
             return EndVector().Value;
         }
 
-        public int CreateNonPrimitiveList<T>(IList<T> list,SerializationContext ctx=null) where T:IFBSerializable2 {
+        public int CreateNonPrimitiveList<T>(IList<T> list,SerializationContext ctx=null) {
             int count = list.Count;
             Type innerType = typeof(T);
 
