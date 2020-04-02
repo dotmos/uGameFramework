@@ -16,34 +16,34 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.TimeService {
-    public interface ITimeService : IFBSerializable,IService {
-
-
-
-
-		/// <summary>
-        /// Adds a timer in the global update-method and calls the callback n-times (or infinite till application end) 
-        /// <param name="interval"></param>
-        /// <param name="callback"></param>
-        /// <param name="repeatTimes"></param>
-        /// <param name="info"></param>
- /// </summary>
+    public interface ITimeService : IFBSerializable, IService {
         
 
-					TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
+        
+        
+        /// <summary>
+        /// Adds a timer in the global update-method and calls the callback n-times (or infinite till application end) 
+                /// <param name="interval"></param>
+                /// <param name="callback"></param>
+                /// <param name="repeatTimes"></param>
+                /// <param name="info"></param>
+         /// </summary>
+        
+        
+                    TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
+        
+                           
+        
+                    void RemoveGlobalTimer(TimerElement timer);
+        
+                           
+
+    }
+
     
-
-
-					void RemoveGlobalTimer(TimerElement timer);
-    
-
-
-	}
-
-
     
     [System.Serializable]
-    public  class TimerElement {
+    public partial class TimerElement {
         public TimerElement() { }
         
         /// <summary>
@@ -84,7 +84,7 @@ namespace Service.TimeService {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData=false){
+        public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData = false) {
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.info = incoming.info;
@@ -98,7 +98,9 @@ namespace Service.TimeService {
         
     }
 
-    
+    public partial class TimerElement : IGeneratedDataObject<TimerElement> {
+    }
+        
 }
 ///////////////////////////////////////////////////////////////////////
 //

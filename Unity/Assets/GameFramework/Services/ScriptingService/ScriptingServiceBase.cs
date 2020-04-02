@@ -138,91 +138,91 @@ namespace Service.Scripting
 
         
                                                           
-        public abstract Script GetMainScript();
+        public abstract             Script GetMainScript();
 
         
-        public abstract string ExecuteStringOnMainScript(string luaCode);
+        public abstract             string ExecuteStringOnMainScript(string luaCode);
 
         
-        public abstract string ExecuteFileToMainScript(string fileName,bool useScriptDomain=false);
+        public abstract             string ExecuteFileToMainScript(string fileName,bool useScriptDomain=false);
 
         
-        public abstract DynValue ExecuteStringOnMainScriptRaw(string fileName);
+        public abstract             DynValue ExecuteStringOnMainScriptRaw(string fileName);
 
         
-        public abstract Proposal AutocompleteProposals(string currentInput,int cursorPos);
+        public abstract             Proposal AutocompleteProposals(string currentInput,int cursorPos);
 
         
-        public abstract LuaCoroutine CreateCoroutine(DynValue funcName);
+        public abstract             LuaCoroutine CreateCoroutine(DynValue funcName);
 
         
-        public abstract void Callback(string cbtype,object o2=null,object o3=null,object o4=null,object o5=null);
+        public abstract             void Callback(string cbtype,object o2=null,object o3=null,object o4=null,object o5=null);
 
         
-        public abstract void RegisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
+        public abstract             void RegisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
 
         
-        public abstract void UnregisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
+        public abstract             void UnregisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
 
         
-        public abstract void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
+        public abstract             void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
 
         
-        public abstract void RegisterEntityToLua(int persistedId,UID entity);
+        public abstract             void RegisterEntityToLua(int persistedId,UID entity);
 
         
-        public abstract bool IsEntityRegistered(UID entity);
+        public abstract             bool IsEntityRegistered(UID entity);
 
         
-        public abstract int GetLUAEntityID(UID entity);
+        public abstract             int GetLUAEntityID(UID entity);
 
         
-        public abstract IComponent GetComponent(UID entity,string componentName);
+        public abstract             IComponent GetComponent(UID entity,string componentName);
 
         
-        public abstract void Setup(bool isNewGame);
+        public abstract             void Setup(bool isNewGame);
 
         
-        public abstract void Cleanup();
+        public abstract             void Cleanup();
 
         
-        public abstract void Tick(float dt);
+        public abstract             void Tick(float dt);
 
         
-        public abstract void StartLog(string filename);
+        public abstract             void StartLog(string filename);
 
         
-        public abstract void WriteLog(string outputString,bool alsoToConsole=true);
+        public abstract             void WriteLog(string outputString,bool alsoToConsole=true);
 
         
-        public abstract void ActivateLuaReplayScript(bool activate);
+        public abstract             void ActivateLuaReplayScript(bool activate);
 
         
-        public abstract bool LuaScriptActivated();
+        public abstract             bool LuaScriptActivated();
 
         
-        public abstract void SaveCurrentLuaReplay(string fileName);
+        public abstract             void SaveCurrentLuaReplay(string fileName);
 
         
-        public abstract string GetCurrentLuaReplay();
+        public abstract             string GetCurrentLuaReplay();
 
         
-        public abstract System.Text.StringBuilder GetLuaReplayStringBuilder();
+        public abstract             System.Text.StringBuilder GetLuaReplayStringBuilder();
 
         
-        public abstract void SetLuaReplayStringBuilder(StringBuilder replayScript);
+        public abstract             void SetLuaReplayStringBuilder(StringBuilder replayScript);
 
         
-        public abstract void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime);
+        public abstract             void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime);
 
         
-        public abstract void ReplayWrite_RegisterEntity(string entityVarName="entity");
+        public abstract             void ReplayWrite_RegisterEntity(string entityVarName="entity");
 
         
-        public abstract void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=true);
+        public abstract             void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=true);
 
         
-        public abstract void ReplayWrite_SetCurrentEntity(ECS.UID uid);
+        public abstract             void ReplayWrite_SetCurrentEntity(ECS.UID uid);
 
         
 

@@ -136,16 +136,16 @@ namespace Service.MemoryBrowserService
 
         
                                                           
-        public abstract bool IsSimpleType(object obj);
+        public abstract             bool IsSimpleType(object obj);
 
         
-        public abstract MemoryBrowser CreateMemoryBrowser(string id,object root);
+        public abstract             MemoryBrowser CreateMemoryBrowser(string id,object root);
 
         
-        public abstract MemoryBrowser GetBrowser(string id);
+        public abstract             MemoryBrowser GetBrowser(string id);
 
         
-        public abstract ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
+        public abstract             ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
 
         
 

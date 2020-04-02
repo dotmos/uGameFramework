@@ -31,7 +31,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
     /*block:modelClass*/
     [System.Serializable]
-    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+    public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /// <summary>
@@ -91,6 +91,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         }
         /*endname*/
     }
+
+    public partial class /*name:className*/SomeModel/*endname*/ : IGeneratedDataObject</*name:className*/SomeModel/*endname*/> { }
 
     /*endblock:modelClass*/
 

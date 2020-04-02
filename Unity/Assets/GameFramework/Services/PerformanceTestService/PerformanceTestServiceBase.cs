@@ -135,16 +135,16 @@ namespace Service.PerformanceTest
 
         
                                                           
-        public abstract void StartWatch(string t);
+        public abstract             void StartWatch(string t);
 
         
-        public abstract void StopWatch(string t);
+        public abstract             void StopWatch(string t);
 
         
-        public abstract void PrintPerfTests();
+        public abstract             void PrintPerfTests();
 
         
-        public abstract void Clear();
+        public abstract             void Clear();
 
         
 
