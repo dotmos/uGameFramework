@@ -17,11 +17,11 @@ namespace Service.Serializer
         public Table __tbl;
         public int offset;
 
-        static readonly Type typeBool = typeof(int);
+        static readonly Type typeBool = typeof(bool);
         static readonly Type typeInt = typeof(int);
-        static readonly Type typeFloat = typeof(int);
-        static readonly Type typeLong = typeof(int);
-        static readonly Type typeByte = typeof(int);
+        static readonly Type typeFloat = typeof(float);
+        static readonly Type typeLong = typeof(long);
+        static readonly Type typeByte = typeof(byte);
         static readonly Type typeString = typeof(string);
         static readonly Type typeShort = typeof(short);
         static readonly Type IFBSERIALIZABLE_STRUCT = typeof(IFBSerializable2Struct);
@@ -399,9 +399,13 @@ namespace Service.Serializer
         /// <param name="fbPos"></param>
         /// <param name="tlist"></param>
         /// <returns></returns>
-        public List<T> GetPrimitiveList<T>(int fbPos, ref List<T> tlist) where T : struct {
+        public List<T> GetPrimitiveList<T>(int fbPos, ref List<T> tlist)  {
             int vtableOffset = GetVTableOffset(fbPos);
-            if (vtableOffset  == 0) {
+
+            return GetPrimitiveListFromOffset<T>(vtableOffset, ref tlist);
+        }
+        public List<T> GetPrimitiveListFromOffset<T>(int offset, ref List<T> tlist,bool directBufferAccess=false)  {
+            if (offset == 0) {
                 tlist = null;
                 return null;
             }
@@ -415,14 +419,14 @@ namespace Service.Serializer
             Type listType = typeof(T);
             if (listType.IsEnum) {
                 // enum. enums are serialized as int
-                int[] tA = __tbl.__vector_as_array<int>(4 + fbPos * 2);
+                int[] tA = directBufferAccess ? __tbl.__vector_as_array<int>(offset,false) : __tbl.__vector_as_array_from_bufferpos<int>(offset);
                 int length = tA.Length;
                 for (int i = 0; i < length; i++) {
                     tlist.Add((T)(object)tA[i]); // i hate this casting madness. isn't there a cleaner way?
                 }
                 return tlist;
             } else {
-                T[] tA = __tbl.__vector_as_array<T>(4 + fbPos * 2);
+                T[] tA = directBufferAccess ? __tbl.__vector_as_array<T>(offset, false) : __tbl.__vector_as_array_from_bufferpos<T>(offset);
                 if (tA == null) {
                     tlist = null;
                     return null;
@@ -454,6 +458,93 @@ namespace Service.Serializer
             GetPrimitiveList<T>(fbPos, ref tlist.__innerList);
             return tlist;
         }
+
+        public static bool IsGenericList(Type oType) {
+            return (oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeof(List<>)));
+        }
+
+        public List<T> TraverseList<T>(int fbPos,System.Func<int,T> offset2obj,ref List<T> list) {
+            var vOffset = GetVTableOffset(fbPos);
+            if (vOffset == 0) {
+                return null;
+            }
+
+            if (list == null) {
+                list = new List<T>();
+            } else {
+                list.Clear();
+            }
+
+            int vector_start = __tbl.__vector(vOffset);
+            int vector_len = __tbl.__vector_len(vOffset);
+            int buflength = __tbl.bb.Length;
+            for (int i = 0; i < vector_len; i++) {
+                int offset = __tbl.__indirect(vector_start + i * 4);
+                
+                if (offset == 0) {
+                    list.Add(default(T));
+                    continue;
+                }
+                var result = offset2obj(offset);
+                list.Add(result);
+            }
+
+            return list;
+        }
+
+        /*
+        public List<T> GetListOfLists<T,S>(int fbPos, ref List<S> list) where T : new() where S:List<T>,new() {
+            IList<S> root = null;
+
+            var vOffset = GetVTableOffset(fbPos);
+            if (vOffset == 0) {
+                return null;
+            }
+
+            if (list == null) {
+                root = new List<S>();
+            } else {
+                root = (IList<S>)list;
+                root.Clear();
+            }
+
+            Type innerListType = root.GetType().GetGenericArguments()[0];
+            
+            int vector_start = __tbl.__vector(vOffset);
+            int vector_len = __tbl.__vector_len(vOffset);
+            int buflength = __tbl.bb.Length;
+            for (int i = 0; i < vector_len; i++) {
+                int offset = __tbl.__indirect(vector_start + i * 4);
+                
+                if (offset == 0) {
+                    root.Add(null);
+                    continue;
+                }
+                List<T> innerList = new S();
+                Type innerListgenericType = typeof(T);
+
+                if (innerListgenericType.IsPrimitive || innerListgenericType.IsEnum || innerListgenericType.IsValueType) {
+                    var result = GetPrimitiveListFromOffset<T>(offset, ref innerList);
+                    root.Add((S)result);
+                } 
+                else if ( IsGenericList(innerListgenericType)) {
+                    List<T> genList = new S();
+                    var result = GetListOfLists<T>(0, ref genList);
+                }
+
+                
+
+                IFBSerializable2 deserializedObject = dctx._GetReference<T>(buflength - offset);
+                tlist.Add((T)deserializedObject); // i hate this casting madness. isn't there a cleaner way?
+            }
+            return tlist;
+
+
+            // the innerList
+            
+            
+            return null;
+        }*/
 
         public List<T> GetObjectList<T>(int fbPos, ref List<T> tlist, DeserializationContext dctx = null) where T : IFBSerializable2, new() {
             if (GetVTableOffset(fbPos) == 0) {

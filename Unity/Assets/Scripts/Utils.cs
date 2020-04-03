@@ -224,6 +224,7 @@ public class ObservableList<T> : IList<T>,IObservableList, IDirtyFlagable {
     public bool IsReadOnly => ((IList<T>)__innerList).IsReadOnly;
 
     public IList InnerIList => (IList)__innerList;
+    public IList<T> InnerIListGeneric => (IList<T>)__innerList;
 
     public T this[int index] { get => ((IList<T>)__innerList)[index]; set  { ((IList<T>)__innerList)[index] = value; SetDirtyFlag(); } }
 

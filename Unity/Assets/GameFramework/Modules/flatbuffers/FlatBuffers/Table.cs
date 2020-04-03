@@ -122,8 +122,7 @@ namespace FlatBuffers
         // Get the data of a vector whoses offset is stored at "offset" in this object as an
         // T[]. If the vector is not present in the ByteBuffer, then a null value will be
         // returned.
-        public T[] __vector_as_array<T>(int offset)
-            where T : struct
+        public T[] __vector_as_array<T>(int offset,bool lookupVtable=true)
         {
             if(!BitConverter.IsLittleEndian)
             {
@@ -131,16 +130,34 @@ namespace FlatBuffers
                     "system is not support");
             }
 
-            int o = this.__offset(offset);
-            if (0 == o)
+            if (lookupVtable) offset = this.__offset(offset);
+
+            if (0 == offset)
             {
                 return null;
             }
 
-            int pos = this.__vector(o);
-            int len = this.__vector_len(o);
+            int pos = lookupVtable ? this.__vector(offset) : offset + sizeof(int);
+            int len = lookupVtable ? this.__vector_len(offset) : bb.GetInt(offset);
             return bb.ToArray<T>(pos, len);
         }
+
+        public T[] __vector_as_array_from_bufferpos<T>(int bufpos) {
+            if (!BitConverter.IsLittleEndian) {
+                throw new NotSupportedException("Getting typed arrays on a Big Endian " +
+                    "system is not support");
+            }
+
+
+            if (0 == bufpos) {
+                return null;
+            }
+
+            int pos = bufpos + sizeof(int);
+            int len = bb.GetInt(bufpos);
+            return bb.ToArray<T>(pos, len);
+        }
+
 
         // Initialize any Table-derived type to point to the union at the given offset.
         public T __union<T>(int offset) where T : struct, IFlatbufferObject {

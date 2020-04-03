@@ -55,11 +55,11 @@ namespace FlatBuffers
         // For the amount of elements to be created.
         private int _vectorCapacity = 0;
 
-        static readonly Type typeBool = typeof(int);
+        static readonly Type typeBool = typeof(bool);
         static readonly Type typeInt = typeof(int);
-        static readonly Type typeFloat = typeof(int);
-        static readonly Type typeLong = typeof(int);
-        static readonly Type typeByte = typeof(int);
+        static readonly Type typeFloat = typeof(float);
+        static readonly Type typeLong = typeof(long);
+        static readonly Type typeByte = typeof(byte);
         static readonly Type typeString = typeof(string);
         static readonly Type typeShort = typeof(short);
         static readonly Type typeUID = typeof(ECS.UID);
@@ -1137,15 +1137,22 @@ namespace FlatBuffers
             return 0;
         }
 
- 
+        public int CreateList(IList list,SerializationContext sctx) {
+            Type innerType = list.GetType().GetGenericArguments()[0];
+            if (innerType.IsPrimitive || innerType.IsEnum || innerType.IsValueType) {
+                return CreatePrimitiveList(list);
+            }
+            return CreateNonPrimitiveList(list,sctx);
+        }
 
-        public int CreatePrimitiveList<T>(IList<T> list) where T : struct { 
+        public int CreatePrimitiveList(IList list) {  
+            // I need to use IList here without generic due to usage from within the ReferenceResolving
+            // TODO: Rethink how to reinvent this workflow with generics?!
             if (list == null) return 0;
 
             int count = list.Count;
 
-            Type innerType = typeof(T);
-
+            Type innerType = list.GetType().GetGenericArguments()[0];
 
             if (innerType == typeUID) {
                 for (int i = count - 1; i >= 0; i--) {
@@ -1155,19 +1162,52 @@ namespace FlatBuffers
                 return Offset;
             }
             else if (innerType.IsPrimitive) {
+                if (innerType == typeInt) {
+                    IList<int> primList = (IList<int>)list;
+                    StartVector(4, count, 4);
+                    int[] buf = GetUnderlyingArray(primList);
+                    Add(buf, count);
+                    return EndVector().Value;
+                } else if (innerType == typeFloat) {
+                    IList<float> primList = (IList<float>)list;
+                    StartVector(4, count, 4);
+                    float[] buf = GetUnderlyingArray(primList);
+                    Add(buf, count);
+                    return EndVector().Value;
+                } else if (innerType == typeBool) {
+                    IList<bool> primList = (IList<bool>)list;
+                    StartVector(1, count, 1);
+                    bool[] buf = GetUnderlyingArray(primList);
+                    Add(buf, count);
+                    return EndVector().Value;
+                } else if (innerType == typeLong) {
+                    IList<long> primList = (IList<long>)list;
+                    StartVector(8, count, 8);
+                    long[] buf = GetUnderlyingArray(primList);
+                    Add(buf, count);
+                    return EndVector().Value;
+                } else if (innerType == typeShort) {
+                    IList<short> primList = (IList<short>)list;
+                    StartVector(2, count, 2);
+                    short[] buf = GetUnderlyingArray(primList);
+                    Add(buf, count);
+                    return EndVector().Value;
+                } else if (innerType == typeByte) {
+                    IList<byte> primList = (IList<byte>)list;
+                    StartVector(1, count, 1);
+                    byte[] buf = GetUnderlyingArray(primList);
+                    Add(buf, count);
+                    return EndVector().Value;
+                } else {
+                    Debug.LogError($"Unsupported primitive-list-type: {innerType}");
+                } 
                 // primitive-list (int)
-                StartVector(4, count, 4);
-                T[] buf = GetUnderlyingArray(list);
-
-                Add(buf, count);
-                return EndVector().Value;
             }
-            if (innerType.IsEnum) {
+            else if (innerType.IsEnum) {
                 StartVector(4, count, 4);
                 for (int i = count - 1; i >= 0; i--) AddInt((int)(object)list[i]);
                 return EndVector().Value;
             } 
-
             // struct list
             // I know here comes lots of repetition. Need to find an efficient way 
             // to abstract this without too much overhead. Until then, every type
@@ -1233,12 +1273,14 @@ namespace FlatBuffers
             }
             return EndVector().Value;
         }
-        
+
         //public int CreateNonPrimitiveList<T>(IList<T> list, SerializationContext ctx = null) {
         //    return CreateNonPrimitiveList(list, ctx);
         //}
 
-        public int CreateNonPrimitiveList(IList list,SerializationContext ctx=null) {
+            
+
+        public int CreateNonPrimitiveList(IList list,SerializationContext ctx) {
             int count = list.Count;
 
             // TODO: List
@@ -1253,12 +1295,13 @@ namespace FlatBuffers
                 if (obj == null) {
                     PutInt(0);
                 }
-                if (!(obj is IFBSerializable2)) {
-                    Debug.LogError($"Tried to serialize unsupported object in CreateNonPrimitiveList:{obj.GetType()}! Ignoreing it. writing as null");
-                    PutInt(0);
-                    continue;
-                }
-                ctx.AddReferenceOffset(-1, (IFBSerializable2)obj);
+                //else if (!(obj is IFBSerializable2)) {
+                //    Debug.LogError($"Tried to serialize unsupported object in CreateNonPrimitiveList:{obj.GetType()}! Ignoreing it. writing as null");
+                //    PutInt(0);
+                //    continue;
+                //}
+
+                ctx.AddReferenceOffset(-1, obj);
             }
             return EndVector().Value;
         }

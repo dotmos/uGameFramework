@@ -246,7 +246,7 @@ namespace FlatBuffers
         }
 #else
         public T[] ToArray<T>(int pos, int len)
-            where T : struct
+            
         {
             AssertOffsetAndLength(pos, len);
             T[] arr = new T[len];
