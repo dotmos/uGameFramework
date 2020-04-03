@@ -49,11 +49,11 @@ namespace ECS {
 
         public override bool Equals(object obj) {
             //Generic equal. Creates garbage due to boxing
-            if (obj is UID) {
-                UID otherUID = (UID)obj;
+            if (obj is UID otherUID) {
                 return Equals(otherUID);
             } else {
-                return base.Equals(obj);
+                return false;
+                //return base.Equals(obj);
             }
         }
 
