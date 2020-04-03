@@ -136,22 +136,22 @@ namespace Service.LoggingService
 
         
                                                           
-        public abstract void AddLog(DebugType debugType,string message,string domain="");
+        public abstract             void AddLog(DebugType debugType,string message,string domain="");
 
         
-        public abstract void Info(string message,string domain="");
+        public abstract             void Info(string message,string domain="");
 
         
-        public abstract void Warn(string message,string domain="");
+        public abstract             void Warn(string message,string domain="");
 
         
-        public abstract void Error(string message,string domain="");
+        public abstract             void Error(string message,string domain="");
 
         
-        public abstract void Severe(string message,string domain="");
+        public abstract             void Severe(string message,string domain="");
 
         
-        public abstract ReactiveCollection<LogData> GetRxOutputData();
+        public abstract             ReactiveCollection<LogData> GetRxOutputData();
 
         
 

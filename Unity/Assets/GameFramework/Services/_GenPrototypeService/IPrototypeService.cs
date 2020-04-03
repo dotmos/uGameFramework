@@ -13,37 +13,40 @@ using Service.Serializer;
 using System.Linq;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
-    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable,IService {
-/*block:property*/
-    /// <summary>
-    /// /*name:documentation*//*endname*/
-    /// </summary>
-/*name:type*/int/*endname*/ /*name:propName*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
-/*endblock:property*/
+    public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable, IService {
+        /*block:property*/
+        /// <summary>
+        /// /*name:documentation*//*endname*/
+        /// </summary>
+        /*name:type*/
+        int/*endname*/ /*name:propName*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
+        /*endblock:property*/
 
-/*block:method*/
-/*block:documentation*/
-		/// <summary>
+        /*block:method*/
+        /*block:documentation*/
+        /// <summary>
         /// /*name:summary*/This method is about blabla/*endname*/ 
-/*block:param*/        /// <param name="/*name:name*/settings/*endname*/"></param>
-/*endblock:param*/ /// </summary>
+        /*block:param*/        /// <param name="/*name:name*/settings/*endname*/"></param>
+        /*endblock:param*/ /// </summary>
         /*block:return*//// <returns>/*name:return*//*endname*/</returns>/*endblock:return*/
-/*endblock:documentation*/
-		/*block:methodBody*/			/*name:returnType*/string/*endname*/ /*name:methodName*/DoPrototype/*endname*//*block:genericDefinition*//*name:genInput*//*endname*//*endblock:genericDefinition*/(/*block:parameter*//*name:comma*//*endname*//*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*/= ""/*endname*//*endblock:parameter*/)/*block:genericRestriction*//*name:genericRestrictionInput*//*endname*//*endblock:genericRestriction*//*endblock:methodBody*/;
-    /*name:usermethod*//*endname*/
-/*endblock:method*/
+        /*endblock:documentation*/
+        /*block:methodBody*/            /*name:returnType*/
+        string/*endname*/ /*name:methodName*/DoPrototype/*endname*//*block:genericDefinition*//*name:genInput*//*endname*//*endblock:genericDefinition*/(/*block:parameter*//*name:comma*//*endname*//*name:type*/string/*endname*/ /*name:name*/settings/*endname*//*name:defaultValue*/= ""/*endname*//*endblock:parameter*/)/*block:genericRestriction*//*name:genericRestrictionInput*//*endname*//*endblock:genericRestriction*//*endblock:methodBody*/;
+        /*name:usermethod*//*endname*/
+                           /*endblock:method*/
 
-	}
+    }
 
-/*block:modelEnum*/
+    /*block:modelEnum*/
     public enum /*name:enumName*/TheEnum/*endname*/ {
-        /*block:rip*/A/*endblock:rip*//*block:elem*//*block:comma*/,/*endblock:comma*//*name:name*/B/*endname*//*endblock:elem*/
-        /*block:rip*/,C,D/*endblock:rip*/
+        /*block:rip*/
+        A/*endblock:rip*//*block:elem*//*block:comma*/,/*endblock:comma*//*name:name*/B/*endname*//*endblock:elem*/
+        /*block:rip*/, C, D/*endblock:rip*/
     }
     /*endblock:modelEnum*/
     /*block:modelClass*/
     [System.Serializable]
-    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
+    public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*//*endname*/ {
         public /*name:className*/SomeModel/*endname*/() { }
         /*block:field*/
         /// <summary>
@@ -81,7 +84,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData=false){
+        public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData = false) {
             /*name:mergeDataInheritance*/ // /*endname*/ base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             /*block:MergeField*//*name:copyNonPersisted*/
@@ -104,7 +107,9 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /*endname*/
     }
 
-    /*endblock:modelClass*/
+    public partial class /*name:className*/SomeModel/*endname*/ : IMergeableData</*name:className*/SomeModel/*endname*/> {
+    }
+        /*endblock:modelClass*/
 }
 ///////////////////////////////////////////////////////////////////////
 //

@@ -133,16 +133,16 @@ namespace Service.AsyncManager
 
         
                                                           
-        public abstract AsyncFuture AddToMainThread(Action act,bool global=false);
+        public abstract             AsyncFuture AddToMainThread(Action act,bool global=false);
 
         
-        public abstract AsyncFuture AddToWorkerThread(Action act,Action onFinished,bool global=false);
+        public abstract             AsyncFuture AddToWorkerThread(Action act,Action onFinished,bool global=false);
 
         
-        public abstract AsyncFuture Call(Action act,bool usingCoroutine,bool global=false);
+        public abstract             AsyncFuture Call(Action act,bool usingCoroutine,bool global=false);
 
         
-        public abstract void DisposeThreads(bool onlyNonGlobals=false);
+        public abstract             void DisposeThreads(bool onlyNonGlobals=false);
 
         
 

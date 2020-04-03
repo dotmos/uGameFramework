@@ -16,47 +16,47 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.MemoryBrowserService {
-    public interface IMemoryBrowserService : IFBSerializable,IService {
+    public interface IMemoryBrowserService : IFBSerializable, IService {
+        
 
-
-
-
-		/// <summary>
+        
+        
+        /// <summary>
         /// Is this obj a simple type? (int,float,bool,string).  
-        /// <param name="obj"></param>
- /// </summary>
+                /// <param name="obj"></param>
+         /// </summary>
         
-
-					bool IsSimpleType(object obj);
-    
-
-
-					MemoryBrowser CreateMemoryBrowser(string id,object root);
-    
-
-
-		/// <summary>
+        
+                    bool IsSimpleType(object obj);
+        
+                           
+        
+                    MemoryBrowser CreateMemoryBrowser(string id,object root);
+        
+                           
+        
+        /// <summary>
         /// Get Browser by name 
-        /// <param name="id"></param>
- /// </summary>
+                /// <param name="id"></param>
+         /// </summary>
         
-
-					MemoryBrowser GetBrowser(string id);
-    
-
-
-		/// <summary>
+        
+                    MemoryBrowser GetBrowser(string id);
+        
+                           
+        
+        /// <summary>
         /// Get Reactive Dictionary with a memory-browsers(key=name value=MemoryBrowser) 
- /// </summary>
+         /// </summary>
         
+        
+                    ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
+        
+                           
 
-					ReactiveDictionary<string, MemoryBrowser> rxGetAllBrowsers();
+    }
+
     
-
-
-	}
-
-
     
 }
 ///////////////////////////////////////////////////////////////////////

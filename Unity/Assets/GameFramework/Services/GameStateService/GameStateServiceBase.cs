@@ -135,25 +135,25 @@ namespace Service.GameStateService
 
         
                                                           
-        public abstract GameState RegisterGameState(string name,GameState gamestate=null);
+        public abstract             GameState RegisterGameState(string name,GameState gamestate=null);
 
         
-        public abstract GameState GetCurrentGameState();
+        public abstract             GameState GetCurrentGameState();
 
         
-        public abstract bool IsInState(GameState gs);
+        public abstract             bool IsInState(GameState gs);
 
         
-        public abstract IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
+        public abstract             IObservable<bool> StartGameState(GameState gamestate,GSContext ctx=null);
 
         
-        public abstract IObservable<bool> StopGameState(GameState gamestate);
+        public abstract             IObservable<bool> StopGameState(GameState gamestate);
 
         
-        public abstract GameState GetGameState(string name);
+        public abstract             GameState GetGameState(string name);
 
         
-        public abstract void Tick(float deltaTime,float unscaledDeltaTime);
+        public abstract             void Tick(float deltaTime,float unscaledDeltaTime);
 
         
 
