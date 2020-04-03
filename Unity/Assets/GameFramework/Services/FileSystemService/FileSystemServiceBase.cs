@@ -135,49 +135,49 @@ namespace Service.FileSystem
 
         
                                                           
-        public abstract string GetPath(FSDomain domain,string realtivePart="");
+        public abstract             string GetPath(FSDomain domain,string realtivePart="");
 
         
-        public abstract bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false);
+        public abstract             bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false);
 
         
-        public abstract bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
+        public abstract             bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
 
         
-        public abstract bool WriteStringToFile(string pathToFile,string thedata);
+        public abstract             bool WriteStringToFile(string pathToFile,string thedata);
 
         
-        public abstract bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
+        public abstract             bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
 
         
-        public abstract string LoadFileAsString(string pathToFile,bool compressed=false);
+        public abstract             string LoadFileAsString(string pathToFile,bool compressed=false);
 
         
-        public abstract string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
+        public abstract             string LoadFileAsStringAtDomain(FSDomain domain,string relativePathToFile);
 
         
-        public abstract byte[] LoadFileAsBytes(string pathToFile,bool compressed=false,int estimatedUncompressedSize=0);
+        public abstract             byte[] LoadFileAsBytes(string pathToFile,bool compressed=false,int estimatedUncompressedSize=0);
 
         
-        public abstract byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false,int estimatedUncompressedSize=0);
+        public abstract             byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false,int estimatedUncompressedSize=0);
 
         
-        public abstract List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
+        public abstract             List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
 
         
-        public abstract List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*");
+        public abstract             List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*");
 
         
-        public abstract void RemoveFile(string filePath);
+        public abstract             void RemoveFile(string filePath);
 
         
-        public abstract void RemoveFileInDomain(FSDomain domain,string relativePath);
+        public abstract             void RemoveFileInDomain(FSDomain domain,string relativePath);
 
         
-        public abstract bool FileExists(string pathToFile);
+        public abstract             bool FileExists(string pathToFile);
 
         
-        public abstract bool FileExistsInDomain(FSDomain domain,string relativePath);
+        public abstract             bool FileExistsInDomain(FSDomain domain,string relativePath);
 
         
 

@@ -41,7 +41,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     /*endblock:modelEnum*/
     /*block:modelClass*/
     [System.Serializable]
-    public /*name:partial*//*endname*/ class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
+    public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
     {
         /*block:ser2_header*/
         private /*name:newkeyword*/new/*endname*/ ExtendedTable ser2table = ExtendedTable.NULL;
@@ -130,6 +130,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         }
         /*endname*/
     }
+
+    public partial class /*name:className*/SomeModel/*endname*/ : IMergeableData</*name:className*/SomeModel/*endname*/> { }
+
     /*endblock:modelClass*/
 
     /*block:field*/

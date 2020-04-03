@@ -136,10 +136,10 @@ namespace Service.TimeService
 
         
                                                           
-        public abstract TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
+        public abstract             TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
 
         
-        public abstract void RemoveGlobalTimer(TimerElement timer);
+        public abstract             void RemoveGlobalTimer(TimerElement timer);
 
         
 

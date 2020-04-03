@@ -19,31 +19,31 @@ namespace Service.TimeService {
     public interface ITimeService : IFBSerializable, IService {
 
 
-
-
-		/// <summary>
-        /// Adds a timer in the global update-method and calls the callback n-times (or infinite till application end) 
-        /// <param name="interval"></param>
-        /// <param name="callback"></param>
-        /// <param name="repeatTimes"></param>
-        /// <param name="info"></param>
- /// </summary>
         
+        
+        /// <summary>
+        /// Adds a timer in the global update-method and calls the callback n-times (or infinite till application end) 
+                /// <param name="interval"></param>
+                /// <param name="callback"></param>
+                /// <param name="repeatTimes"></param>
+                /// <param name="info"></param>
+         /// </summary>
+        
+        
+                    TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
+        
+                           
+        
+                    void RemoveGlobalTimer(TimerElement timer);
+        
+                           
 
-					TimerElement CreateGlobalTimer(float interval,Action callback,int repeatTimes,string info="");
+    }
+
     
-
-
-					void RemoveGlobalTimer(TimerElement timer);
-    
-
-
-	}
-
-
     
     [System.Serializable]
-    public  class TimerElement: DefaultSerializable2
+    public partial class TimerElement: DefaultSerializable2
     {
     
 
@@ -87,7 +87,7 @@ namespace Service.TimeService {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData=false){
+        public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData = false) {
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.info = incoming.info;
@@ -101,7 +101,9 @@ namespace Service.TimeService {
         
     }
 
-    
+    public partial class TimerElement : IMergeableData<TimerElement> {
+    }
+        
 }
 ///////////////////////////////////////////////////////////////////////
 //

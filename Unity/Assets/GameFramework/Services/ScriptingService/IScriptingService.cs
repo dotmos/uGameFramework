@@ -21,192 +21,192 @@ namespace Service.Scripting {
     public interface IScriptingService : IFBSerializable, IService {
 
 
-
-
-					Script GetMainScript();
-    
-
-
-		/// <summary>
+        
+        
+                    Script GetMainScript();
+        
+                           
+        
+        /// <summary>
         /// Execute a string into the default-lua-context 
-        /// <param name="luaCode"></param>
- /// </summary>
+                /// <param name="luaCode"></param>
+         /// </summary>
         
-
-					string ExecuteStringOnMainScript(string luaCode);
-    
-
-
-		/// <summary>
+        
+                    string ExecuteStringOnMainScript(string luaCode);
+        
+                           
+        
+        /// <summary>
         /// Load a script into the default lua-context 
-        /// <param name="fileName"></param>
-        /// <param name="useScriptDomain"></param>
- /// </summary>
+                /// <param name="fileName"></param>
+                /// <param name="useScriptDomain"></param>
+         /// </summary>
         
-
-					string ExecuteFileToMainScript(string fileName,bool useScriptDomain=false);
-    
-
-
-		/// <summary>
+        
+                    string ExecuteFileToMainScript(string fileName,bool useScriptDomain=false);
+        
+                           
+        
+        /// <summary>
         /// Load a script into the default lua-context 
-        /// <param name="fileName"></param>
- /// </summary>
+                /// <param name="fileName"></param>
+         /// </summary>
         
-
-					DynValue ExecuteStringOnMainScriptRaw(string fileName);
-    
-
-
-		/// <summary>
+        
+                    DynValue ExecuteStringOnMainScriptRaw(string fileName);
+        
+                           
+        
+        /// <summary>
         /// Generates a list of possible proposals 
-        /// <param name="currentInput"></param>
-        /// <param name="cursorPos"></param>
- /// </summary>
+                /// <param name="currentInput"></param>
+                /// <param name="cursorPos"></param>
+         /// </summary>
         
-
-					Proposal AutocompleteProposals(string currentInput,int cursorPos);
-    
-
-
-		/// <summary>
+        
+                    Proposal AutocompleteProposals(string currentInput,int cursorPos);
+        
+                           
+        
+        /// <summary>
         /// Creates a lua coroutine 
-        /// <param name="funcName"></param>
- /// </summary>
+                /// <param name="funcName"></param>
+         /// </summary>
         
-
-					LuaCoroutine CreateCoroutine(DynValue funcName);
-    
-
-
-					void Callback(string cbtype,object o2=null,object o3=null,object o4=null,object o5=null);
-    
-
-
-					void RegisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
-    
-
-
-					void UnregisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
-    
-
-
-		/// <summary>
+        
+                    LuaCoroutine CreateCoroutine(DynValue funcName);
+        
+                           
+        
+                    void Callback(string cbtype,object o2=null,object o3=null,object o4=null,object o5=null);
+        
+                           
+        
+                    void RegisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
+        
+                           
+        
+                    void UnregisterCallback(Action<string,object,object,object,object> cbCallbackFunc);
+        
+                           
+        
+        /// <summary>
         /// custom coroutine-yield functions. return false if the coRoutine should be removed from the system 
-        /// <param name="coRoutines"></param>
- /// </summary>
+                /// <param name="coRoutines"></param>
+         /// </summary>
         
-
-					void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
-    
-
-
-		/// <summary>
+        
+                    void RegisterCustomYieldCheck(Func<LuaCoroutine,bool> coRoutines);
+        
+                           
+        
+        /// <summary>
         /// Gives this uid a unique id which makes accessing this entity entity-id independed 
-        /// <param name="persistedId"></param>
-        /// <param name="entity"></param>
- /// </summary>
+                /// <param name="persistedId"></param>
+                /// <param name="entity"></param>
+         /// </summary>
         
-
-					void RegisterEntityToLua(int persistedId,UID entity);
-    
-
-
-					bool IsEntityRegistered(UID entity);
-    
-
-
-					int GetLUAEntityID(UID entity);
-    
-
-
-					IComponent GetComponent(UID entity,string componentName);
-    
-
-
-					void Setup(bool isNewGame);
-    
-
-
-					void Cleanup();
-    
-
-
-					void Tick(float dt);
-    
-
-
-					void StartLog(string filename);
-    
-
-
-					void WriteLog(string outputString,bool alsoToConsole=true);
-    
-
-
-					void ActivateLuaReplayScript(bool activate);
-    
-
-
-					bool LuaScriptActivated();
-    
-
-
-		/// <summary>
+        
+                    void RegisterEntityToLua(int persistedId,UID entity);
+        
+                           
+        
+                    bool IsEntityRegistered(UID entity);
+        
+                           
+        
+                    int GetLUAEntityID(UID entity);
+        
+                           
+        
+                    IComponent GetComponent(UID entity,string componentName);
+        
+                           
+        
+                    void Setup(bool isNewGame);
+        
+                           
+        
+                    void Cleanup();
+        
+                           
+        
+                    void Tick(float dt);
+        
+                           
+        
+                    void StartLog(string filename);
+        
+                           
+        
+                    void WriteLog(string outputString,bool alsoToConsole=true);
+        
+                           
+        
+                    void ActivateLuaReplayScript(bool activate);
+        
+                           
+        
+                    bool LuaScriptActivated();
+        
+                           
+        
+        /// <summary>
         /// Save to this filename in the scripting-folder 
-        /// <param name="fileName"></param>
- /// </summary>
+                /// <param name="fileName"></param>
+         /// </summary>
         
-
-					void SaveCurrentLuaReplay(string fileName);
-    
-
-
-		/// <summary>
+        
+                    void SaveCurrentLuaReplay(string fileName);
+        
+                           
+        
+        /// <summary>
         /// Get the current lua-replay as script 
- /// </summary>
+         /// </summary>
         
-
-					string GetCurrentLuaReplay();
-    
-
-
-					System.Text.StringBuilder GetLuaReplayStringBuilder();
-    
-
-
-					void SetLuaReplayStringBuilder(StringBuilder replayScript);
-    
-
-
-		/// <summary>
+        
+                    string GetCurrentLuaReplay();
+        
+                           
+        
+                    System.Text.StringBuilder GetLuaReplayStringBuilder();
+        
+                           
+        
+                    void SetLuaReplayStringBuilder(StringBuilder replayScript);
+        
+                           
+        
+        /// <summary>
         /// Sets a func to get the current gametime that is used for ReplayWrite 
-        /// <param name="getCurrentGameTime"></param>
- /// </summary>
+                /// <param name="getCurrentGameTime"></param>
+         /// </summary>
         
+        
+                    void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime);
+        
+                           
+        
+                    void ReplayWrite_RegisterEntity(string entityVarName="entity");
+        
+                           
+        
+                    void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=true);
+        
+                           
+        
+                    void ReplayWrite_SetCurrentEntity(ECS.UID uid);
+        
+                           
 
-					void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime);
+    }
+
     
-
-
-					void ReplayWrite_RegisterEntity(string entityVarName="entity");
-    
-
-
-					void ReplayWrite_CustomLua(string luaScript,bool waitForGameTime=true);
-    
-
-
-					void ReplayWrite_SetCurrentEntity(ECS.UID uid);
-    
-
-
-	}
-
-
     
     [System.Serializable]
-    public  class ScriptingServiceData: DefaultSerializable2
+    public partial class ScriptingServiceData: DefaultSerializable2
     {
     
 
@@ -238,7 +238,7 @@ namespace Service.Scripting {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(ScriptingServiceData incoming, bool onlyCopyPersistedData=false){
+        public void MergeDataFrom(ScriptingServiceData incoming, bool onlyCopyPersistedData = false) {
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.replayScript = incoming.replayScript;
@@ -250,7 +250,9 @@ namespace Service.Scripting {
         
     }
 
-    
+    public partial class ScriptingServiceData : IMergeableData<ScriptingServiceData> {
+    }
+        
     [System.Serializable]
     public partial class LuaCoroutine: DefaultSerializable2
     {
@@ -296,7 +298,7 @@ namespace Service.Scripting {
         /// </summary>
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
-        public void MergeDataFrom(LuaCoroutine incoming, bool onlyCopyPersistedData=false){
+        public void MergeDataFrom(LuaCoroutine incoming, bool onlyCopyPersistedData = false) {
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.co = incoming.co;
@@ -310,7 +312,9 @@ namespace Service.Scripting {
         
     }
 
-    
+    public partial class LuaCoroutine : IMergeableData<LuaCoroutine> {
+    }
+        
 }
 ///////////////////////////////////////////////////////////////////////
 //

@@ -18,27 +18,27 @@ namespace Service.PerformanceTest {
     public interface IPerformanceTestService : IFBSerializable, IService {
 
 
+        
+        
+                    void StartWatch(string t);
+        
+                           
+        
+                    void StopWatch(string t);
+        
+                           
+        
+                    void PrintPerfTests();
+        
+                           
+        
+                    void Clear();
+        
+                           
 
+    }
 
-					void StartWatch(string t);
     
-
-
-					void StopWatch(string t);
-    
-
-
-					void PrintPerfTests();
-    
-
-
-					void Clear();
-    
-
-
-	}
-
-
     
 }
 ///////////////////////////////////////////////////////////////////////
