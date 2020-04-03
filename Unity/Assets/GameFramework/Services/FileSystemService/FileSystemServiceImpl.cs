@@ -41,11 +41,11 @@ namespace Service.FileSystem {
             }
         }
 
-        public static byte[] Compress(byte[] data) {
+        public static byte[] Compress(byte[] data, System.IO.Compression.CompressionLevel compressionLevel = System.IO.Compression.CompressionLevel.Optimal) {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("Compress");
                 MemoryStream output = new MemoryStream();
-                using (DeflateStream dstream = new DeflateStream(output, System.IO.Compression.CompressionLevel.Optimal)) {
+                using (DeflateStream dstream = new DeflateStream(output, compressionLevel)) {
                     dstream.Write(data, 0, data.Length);
                 }
                 return output.ToArray();
@@ -109,7 +109,17 @@ namespace Service.FileSystem {
             // TODO: Ensure Directory?
             // TODO: Use the PC3-bulletproof writing version
             try {
-                File.WriteAllText(pathToFile, data);
+                string tempPath = pathToFile + ".tmp";
+
+                if (File.Exists(tempPath)) {
+                    File.Delete(tempPath);
+                }
+                if (File.Exists(pathToFile)) {
+                    File.Delete(pathToFile);
+                }
+                File.WriteAllText(tempPath, data);
+
+                File.Move(tempPath, pathToFile);
                 return true;
             }
             catch (Exception e) {
@@ -130,11 +140,21 @@ namespace Service.FileSystem {
                 // TODO: Ensure Directory?
                 // TODO: Use the PC3-bulletproof writing version
                 try {
-                    if (compress) {
-                        File.WriteAllBytes(pathToFile, Compress(bytes));
-                    } else {
-                        File.WriteAllBytes(pathToFile, bytes);
+                    string tempName = pathToFile + ".tmp";
+
+                    if (File.Exists(tempName)) {
+                        File.Delete(tempName);
                     }
+                    if (File.Exists(pathToFile)) {
+                        File.Delete(pathToFile);
+                    }
+
+                    if (compress) {
+                        File.WriteAllBytes(tempName, Compress(bytes));
+                    } else {
+                        File.WriteAllBytes(tempName, bytes);
+                    }
+                    File.Move(tempName, pathToFile);
                     return true;
                 }
                 catch (Exception e) {
