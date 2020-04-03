@@ -463,11 +463,23 @@ namespace Service.Serializer
             return (oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeof(List<>)));
         }
 
-        public List<T> TraverseList<T>(int fbPos,System.Func<int,T> offset2obj,ref List<T> list) {
-            var vOffset = GetVTableOffset(fbPos);
-            if (vOffset == 0) {
-                return null;
+        /// <summary>
+        /// If usingBufferPos=true => fbPos is the bufferPosition
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="fbPos"></param>
+        /// <param name="offset2obj"></param>
+        /// <param name="list"></param>
+        /// <param name="usingBufferPos"></param>
+        /// <returns></returns>
+        public List<T> TraverseList<T>(int fbPos,System.Func<int,T> offset2obj,ref List<T> list, bool usingBufferPos=false) {
+            if (!usingBufferPos) {
+                fbPos = GetVTableOffset(fbPos);
+                if (fbPos == 0) {
+                    return null;
+                }
             }
+
 
             if (list == null) {
                 list = new List<T>();
@@ -475,8 +487,8 @@ namespace Service.Serializer
                 list.Clear();
             }
 
-            int vector_start = __tbl.__vector(vOffset);
-            int vector_len = __tbl.__vector_len(vOffset);
+            int vector_start = usingBufferPos ? fbPos + sizeof(int) : __tbl.__vector(fbPos);
+            int vector_len = usingBufferPos ? __tbl.bb.GetInt(fbPos) : __tbl.__vector_len(fbPos);
             int buflength = __tbl.bb.Length;
             for (int i = 0; i < vector_len; i++) {
                 int offset = __tbl.__indirect(vector_start + i * 4);
