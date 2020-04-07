@@ -363,6 +363,23 @@ namespace ECS {
             return component;
         }
 
+        public IComponent SetComponent<T>(UID entity, T component) where T : IComponent  {
+            if (EntityExists(entity) && HasComponent(entity, typeof(T))) {
+                RemoveComponent(entity, (IComponent)GetComponent(entity, typeof(T)));
+            }
+
+            if (component != null) {
+                component.Entity = entity;
+                SetupComponentID(component);
+                _entities[entity].Add(component);
+            }
+            //component.Entity.SetID(entity.ID);
+            _EntityModified(entity);
+            //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
+            return component;
+        }
+
+
         public IComponent ThreadSafeSetComponent(UID entity, IComponent component) {
             lock (_entities) {
                 if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
