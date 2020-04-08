@@ -25,6 +25,7 @@ namespace ECS {
         void RemoveComponent(UID entity, IComponent component);
 
         T GetComponent<T>(UID entity) where T : IComponent;
+        IComponent GetComponent(UID entity,Type componentType);
 
         List<IComponent> GetAllComponents(UID entity);
 

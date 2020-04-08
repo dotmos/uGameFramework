@@ -486,24 +486,20 @@ namespace ECS {
             return default;
         }
 
+
         /// <summary>
         /// Get component for this entity by type
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="componentType"></param>
         /// <returns></returns>
-        public object GetComponent(UID entity,Type componentType) {
+        public IComponent GetComponent(UID entity,Type componentType) {
             if (EntityExists(entity)) {
-                IComponent c = null;// 
                 HashSet<IComponent> components = _entities[entity];
                 foreach (IComponent comp in components) {
                     if (comp.GetType()==componentType) {
-                        c = comp;
-                        break;
+                        return comp;
                     }
-                }
-                if (c != null) {
-                    return c;
                 }
             }
             return null;

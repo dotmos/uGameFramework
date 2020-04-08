@@ -50,6 +50,7 @@ namespace ECS {
         public abstract void CopyValues(IComponent target, bool initFromPrefab=false);
 
         public abstract IComponent Clone(bool cloneFromPrefab=false);
+        public abstract T Clone<T>(bool cloneFromPrefab = false) where T : IComponent;
 
         public virtual void Dispose() {
         }

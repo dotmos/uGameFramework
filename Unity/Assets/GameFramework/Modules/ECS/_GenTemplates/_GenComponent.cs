@@ -199,6 +199,10 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         clone.CopyValues(this,cloneFromPrefab);
         return clone;
     }
+
+    public override T Clone<T>(bool cloneFromPrefab = false) {
+        return (T)Clone(cloneFromPrefab);
+    }
 /*block:serialization*/
     #region serialization
     public /*name:override*/override/*endname*/ int Serialize(FlatBuffers.FlatBufferBuilder builder) {
@@ -367,6 +371,10 @@ public class GenTemplateComponent2 : ECS.Component
     public float time;
 
     public override IComponent Clone(bool cloneFromPrefab=false) {
+        throw new System.NotImplementedException();
+    }
+
+    public override T Clone<T>(bool cloneFromPrefab = false) {
         throw new System.NotImplementedException();
     }
 
