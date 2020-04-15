@@ -111,6 +111,16 @@ namespace ParallelProcessing {
         }
 
         /// <summary>
+        /// Add all items of all lists to the given list
+        /// </summary>
+        /// <param name="output"></param>
+        public void MergeToList(List<T> list) {
+            for(int i=0; i<threadLists.Count; ++i) {
+                list.AddRange(threadLists[i]);
+            }
+        }
+
+        /// <summary>
         /// Clears all lists
         /// </summary>
         public void ClearAllLists() {
