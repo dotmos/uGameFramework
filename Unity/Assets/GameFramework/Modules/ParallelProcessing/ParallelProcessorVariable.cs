@@ -20,22 +20,22 @@ namespace ParallelProcessing {
         /// If otherThreads is supplied, otherThreads will also get values in addition to the ParallelProcessorWorker threads
         /// </summary>
         /// <param name="mainThread"></param>
-        public ParallelProcessorVariable(Thread[] otherThreads = null) : this(default, otherThreads) { }
+        public ParallelProcessorVariable(Thread[] otherThreads = null) : this(() => { return default; }, otherThreads) { }
 
-        public ParallelProcessorVariable(T initialValue, Thread[] otherThreads = null) {
+        public ParallelProcessorVariable(Func<T> initialValue, Thread[] otherThreads = null) {
             ParallelProcessorWorkers.Setup();
 
             threadVariableLUT = new Dictionary<int, T>(ParallelProcessorWorkers.WorkerCount);
             
             //Create worker thread lists
             foreach (Thread t in ParallelProcessorWorkers.Workers) {
-                threadVariableLUT[t.ManagedThreadId] = initialValue;
+                threadVariableLUT[t.ManagedThreadId] = initialValue();
                 cachedThreadIDs.Add(t.ManagedThreadId);
             }
             //Also create lists for other threads?
             if (otherThreads != null) {
                 foreach (Thread t in otherThreads) {
-                    threadVariableLUT[t.ManagedThreadId] = initialValue;
+                    threadVariableLUT[t.ManagedThreadId] = initialValue();
                     cachedThreadIDs.Add(t.ManagedThreadId);
                 }
             }
@@ -65,6 +65,18 @@ namespace ParallelProcessing {
         /// <returns></returns>
         public T GetValueForCurrentThread() {
             return threadVariableLUT[Thread.CurrentThread.ManagedThreadId];
+        }
+
+        /// <summary>
+        /// The value that is being used by the current thread
+        /// </summary>
+        public T Value {
+            get {
+                return GetValueForCurrentThread();
+            }
+            set {
+                SetValueForCurrentThread(value);
+            }
         }
 
         /// <summary>
