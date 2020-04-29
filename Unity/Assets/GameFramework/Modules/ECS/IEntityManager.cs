@@ -16,13 +16,16 @@ namespace ECS {
         T AddComponent<T>(UID entity) where T : IComponent, new();
         IComponent AddComponent(UID entity, IComponent component);
         IComponent AddComponent(UID entity, Type componentType);
-
+        
+        IComponent SetComponent(UID entity, IComponent component);
+        IComponent SetComponent<T>(UID entity, T component) where T : IComponent;
         IComponent CloneComponent(IComponent componentToClone);
 
         void RemoveComponent<T>(UID entity) where T : IComponent;
         void RemoveComponent(UID entity, IComponent component);
 
         T GetComponent<T>(UID entity) where T : IComponent;
+        IComponent GetComponent(UID entity,Type componentType);
 
         List<IComponent> GetAllComponents(UID entity);
 

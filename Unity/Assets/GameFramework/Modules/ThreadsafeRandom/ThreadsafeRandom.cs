@@ -15,6 +15,12 @@ public static class ThreadsafeRandom {
         return inst.Next();
     }
 
+    /// <summary>
+    /// Random number between minValue (inclusive) and maxValue (exclusive)
+    /// </summary>
+    /// <param name="minValue"></param>
+    /// <param name="maxValue"></param>
+    /// <returns></returns>
     public static int Range(int minValue, int maxValue) {
         Random inst = _local;
         if (inst == null) {

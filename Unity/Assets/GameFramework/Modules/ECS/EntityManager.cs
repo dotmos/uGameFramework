@@ -363,6 +363,23 @@ namespace ECS {
             return component;
         }
 
+        public IComponent SetComponent<T>(UID entity, T component) where T : IComponent  {
+            if (EntityExists(entity) && HasComponent(entity, typeof(T))) {
+                RemoveComponent(entity, (IComponent)GetComponent(entity, typeof(T)));
+            }
+
+            if (component != null) {
+                component.Entity = entity;
+                SetupComponentID(component);
+                _entities[entity].Add(component);
+            }
+            //component.Entity.SetID(entity.ID);
+            _EntityModified(entity);
+            //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
+            return component;
+        }
+
+
         public IComponent ThreadSafeSetComponent(UID entity, IComponent component) {
             lock (_entities) {
                 if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
@@ -469,24 +486,20 @@ namespace ECS {
             return default;
         }
 
+
         /// <summary>
         /// Get component for this entity by type
         /// </summary>
         /// <param name="entity"></param>
         /// <param name="componentType"></param>
         /// <returns></returns>
-        public object GetComponent(UID entity,Type componentType) {
+        public IComponent GetComponent(UID entity,Type componentType) {
             if (EntityExists(entity)) {
-                IComponent c = null;// 
                 HashSet<IComponent> components = _entities[entity];
                 foreach (IComponent comp in components) {
                     if (comp.GetType()==componentType) {
-                        c = comp;
-                        break;
+                        return comp;
                     }
-                }
-                if (c != null) {
-                    return c;
                 }
             }
             return null;

@@ -322,12 +322,13 @@ namespace UserInterface {
             }
 
             if (m_ViewBounds != m_PrevViewBounds || m_ContentBounds != m_PrevContentBounds || m_Content.anchoredPosition != m_PrevPosition) {
-                UpdateScrollbars(offset);
                 UISystemProfilerApi.AddMarker("ScrollRect.value", this);
                 m_OnValueChanged.Invoke(normalizedPosition);
                 UpdatePrevData();
             }
 
+            //Moved "UpdateScrollbars" out of the if condition above to fix broken toolbar update
+            UpdateScrollbars(offset);
             UpdateScrollbarVisibility();
         }
 
@@ -415,6 +416,8 @@ namespace UserInterface {
                 m_Velocity[axis] = 0;
                 UpdateBounds();
             }
+
+            rectTransform.ForceUpdateRectTransforms();
         }
 
         protected override void OnRectTransformDimensionsChange() {

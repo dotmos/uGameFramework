@@ -6,11 +6,8 @@ using System;
 
 //Simple, non-invasive Kernel class based on Zenject.SceneCompositionRoot
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
-using ModestTree.Util;
-using System.Collections.Concurrent;
-using Service.Serializer;
 using ECS;
+using System.Threading;
 
 public partial class Kernel : SceneContext {
 
@@ -60,9 +57,14 @@ public partial class Kernel : SceneContext {
     }
 
     private static int MAINTHREAD_ID;
+    private static Thread mainThread;
 
     public static bool IsMainThread() {
         return System.Threading.Thread.CurrentThread.ManagedThreadId == MAINTHREAD_ID;
+    }
+
+    public static Thread MainThread {
+        get { return mainThread; }
     }
 
     /// <summary>
@@ -82,7 +84,8 @@ public partial class Kernel : SceneContext {
         if(System.Threading.Thread.CurrentThread.Name != "MainThread") {
             System.Threading.Thread.CurrentThread.Name = "MainThread";
         }
-        MAINTHREAD_ID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+        mainThread = System.Threading.Thread.CurrentThread;
+        MAINTHREAD_ID = mainThread.ManagedThreadId;
 
         Instance = this;
  
