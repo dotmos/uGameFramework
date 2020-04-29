@@ -369,8 +369,9 @@ namespace Service.Serializer
             var myBB = builder.DataBuffer;
 
             int checkIdx = 0;
-
+            int calls = 0;
             while (lateReferenceList.Count > checkIdx) {
+                calls++;
                 var refObj = lateReferenceList[checkIdx];
 
                 if ((whiteList != null && !whiteList.Contains(refObj.GetType()))
@@ -395,6 +396,7 @@ namespace Service.Serializer
                 lateReferences.Remove(refObj);
                 lateReferenceList.RemoveAt(checkIdx);
             }
+            UnityEngine.Debug.Log($"ResolveLateReference-Calls: {calls}");
         }
 
         public void ResolveLateReference(object obj) {

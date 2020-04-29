@@ -1294,6 +1294,7 @@ namespace FlatBuffers
                 object obj = list[i];
                 if (obj == null) {
                     PutInt(0);
+                    continue;
                 }
                 //else if (!(obj is IFBSerializable2)) {
                 //    Debug.LogError($"Tried to serialize unsupported object in CreateNonPrimitiveList:{obj.GetType()}! Ignoreing it. writing as null");

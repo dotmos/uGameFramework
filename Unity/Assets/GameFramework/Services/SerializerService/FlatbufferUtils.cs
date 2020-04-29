@@ -468,7 +468,7 @@ namespace Service.Serializer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="fbPos"></param>
-        /// <param name="offset2obj"></param>
+        /// <param name="offset2obj">CAUTION: func that gets a DIRECT-buffer-pos</param>
         /// <param name="list"></param>
         /// <param name="usingBufferPos"></param>
         /// <returns></returns>
@@ -559,7 +559,12 @@ namespace Service.Serializer
         }*/
 
         public List<T> GetObjectList<T>(int fbPos, ref List<T> tlist, DeserializationContext dctx = null) where T : IFBSerializable2, new() {
-            if (GetVTableOffset(fbPos) == 0) {
+            int vtableOffset = GetVTableOffset(fbPos);
+            return GetObjectListFromOffset<T>(vtableOffset, ref tlist, dctx,false);
+        }
+
+        public List<T> GetObjectListFromOffset<T>(int offset, ref List<T> tlist, DeserializationContext dctx = null,bool directMemoryAccess=false) where T : IFBSerializable2, new() {
+            if (offset == 0) {
                 tlist = null;
                 return null;
             }
@@ -571,17 +576,17 @@ namespace Service.Serializer
             }
 
            // int[] offsets = __tbl.__vector_as_array<int>(4 + fbPos * 2);
-            int vector_start = __tbl.__vector(__tbl.__offset(4 + fbPos * 2)); 
-            int vector_len = __tbl.__vector_len(__tbl.__offset(4 + fbPos * 2));
+            int vector_start = directMemoryAccess ? offset + sizeof(int) : __tbl.__vector(offset); 
+            int vector_len = directMemoryAccess ? __tbl.bb.GetInt(offset) : __tbl.__vector_len(offset);
             int buflength = __tbl.bb.Length;
             for (int i = 0; i < vector_len; i++) {
-                int offset = __tbl.__indirect(vector_start + i*4);
-                if (offset == 0) {
+                int elemoffset = __tbl.__indirect(vector_start + i*4);
+                if (elemoffset == 0) {
                     tlist.Add(default(T));
                     continue;
                 }
                 
-                IFBSerializable2 deserializedObject = dctx._GetReference<T>(buflength-offset);
+                IFBSerializable2 deserializedObject = dctx._GetReference<T>(buflength-elemoffset);
                 tlist.Add((T)deserializedObject); // i hate this casting madness. isn't there a cleaner way?
             }
             return tlist;

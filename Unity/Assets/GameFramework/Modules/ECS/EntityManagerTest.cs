@@ -53,6 +53,7 @@ namespace ECS {
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
         /// </summary>
         public bool AutoCallEntityModified { get; set; } = true;
+        bool IEntityManager.AutoCallEntityModified { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         [Inject] DisposableManager dManager;
 
@@ -664,6 +665,134 @@ namespace ECS {
             _lastEntityId = _startEntityID;
             _recycledEntityIds.Clear();
             _recycledComponentIds.Clear();
+        }
+
+        void IEntityManager.Initialize() {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.Tick(float deltaTime) {
+            throw new NotImplementedException();
+        }
+
+        UID IEntityManager.CreateEntity() {
+            throw new NotImplementedException();
+        }
+
+        bool IEntityManager.EntityExists(UID entity) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.DestroyEntity(ref UID entity) {
+            throw new NotImplementedException();
+        }
+
+        T IEntityManager.AddComponent<T>(UID entity) {
+            throw new NotImplementedException();
+        }
+
+        IComponent IEntityManager.AddComponent(UID entity, IComponent component) {
+            throw new NotImplementedException();
+        }
+
+        IComponent IEntityManager.AddComponent(UID entity, Type componentType) {
+            throw new NotImplementedException();
+        }
+
+        IComponent IEntityManager.SetComponent(UID entity, IComponent component) {
+            throw new NotImplementedException();
+        }
+
+        IComponent IEntityManager.SetComponent<T>(UID entity, T component) {
+            throw new NotImplementedException();
+        }
+
+        IComponent IEntityManager.CloneComponent(IComponent componentToClone) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.RemoveComponent<T>(UID entity) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.RemoveComponent(UID entity, IComponent component) {
+            throw new NotImplementedException();
+        }
+
+        T IEntityManager.GetComponent<T>(UID entity) {
+            throw new NotImplementedException();
+        }
+
+        IComponent IEntityManager.GetComponent(UID entity, Type componentType) {
+            throw new NotImplementedException();
+        }
+
+        List<IComponent> IEntityManager.GetAllComponents(UID entity) {
+            throw new NotImplementedException();
+        }
+
+        bool IEntityManager.HasComponent<T>(UID entity) {
+            throw new NotImplementedException();
+        }
+
+        bool IEntityManager.HasComponent(UID entity, IComponent component) {
+            throw new NotImplementedException();
+        }
+
+        bool IEntityManager.HasComponent(UID entity, Type componentType) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.SetupComponentID(IComponent component) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.DisposeComponent(IComponent component) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.RegisterSystem(ISystem system) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.UnregisterSystem(ISystem system) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.EntityModified(UID entity) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.EntitiesModified(List<UID> entity) {
+            throw new NotImplementedException();
+        }
+
+        int IEntityManager.EntityCount() {
+            throw new NotImplementedException();
+        }
+
+        UID? IEntityManager.GetEntityForID_SLOW(int id) {
+            throw new NotImplementedException();
+        }
+
+        void IEntityManager.Clear() {
+            throw new NotImplementedException();
+        }
+
+        int IFBSerializable.Serialize(FlatBufferBuilder builder) {
+            throw new NotImplementedException();
+        }
+
+        void IFBSerializable.Deserialize(object incoming) {
+            throw new NotImplementedException();
+        }
+
+        void IFBSerializable.Deserialize(ByteBuffer buf) {
+            throw new NotImplementedException();
+        }
+
+        void IDisposable.Dispose() {
+            throw new NotImplementedException();
         }
     }
 }
