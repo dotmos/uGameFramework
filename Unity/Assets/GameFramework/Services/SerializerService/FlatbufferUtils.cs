@@ -29,7 +29,11 @@ namespace Service.Serializer
         static readonly Type typeVector2 = typeof(Vector2);
         static readonly Type typeVector3 = typeof(Vector3);
         static readonly Type typeVector4 = typeof(Vector4);
-        static readonly Type typeQuaternion = typeof(Quaternion); 
+        static readonly Type typeQuaternion = typeof(Quaternion);
+        static readonly Type typeIList = typeof(IList);
+        static readonly Type typeGenericList = typeof(IList<>);
+
+        static readonly Type typeExtendedTable = typeof(ExtendedTable);
 
         public ExtendedTable(int offset, ByteBuffer _bb) {
             __tbl = new Table(offset, _bb);
@@ -404,7 +408,7 @@ namespace Service.Serializer
 
             return GetPrimitiveListFromOffset<T>(vtableOffset, ref tlist);
         }
-        public List<T> GetPrimitiveListFromOffset<T>(int offset, ref List<T> tlist,bool directBufferAccess=false)  {
+        public List<T> GetPrimitiveListFromOffset<T>(int offset, ref List<T> tlist, bool directBufferAccess = false) {
             if (offset == 0) {
                 tlist = null;
                 return null;
@@ -416,31 +420,54 @@ namespace Service.Serializer
                 tlist.Clear();
             }
 
-            Type listType = typeof(T);
-            if (listType.IsEnum) {
+            tlist = (List<T>)GetPrimitiveListFromOffset(offset, tlist, typeof(T), directBufferAccess);
+            return tlist;
+        }
+
+        private List<T> _CreatePrimList<T>(int offset, List<T> resultList = null,bool directBufferAccess=false) {
+            T[] tA = directBufferAccess ? __tbl.__vector_as_array_from_bufferpos<T>(offset) : __tbl.__vector_as_array<T>(offset, false);
+            if (tA == null) {
+                return null;
+            }
+            if (resultList == null) {
+                resultList = new List<T>(tA); // fast!
+                return resultList;
+            } 
+                
+            resultList.Clear();
+            resultList.AddRange(tA);
+            return resultList;
+        }
+
+        public IList GetPrimitiveListFromOffset(int offset, IList tlist,Type innerType,bool directBufferAccess=false)  {
+            if (innerType.IsEnum) {
                 // enum. enums are serialized as int
                 int[] tA = directBufferAccess ? __tbl.__vector_as_array_from_bufferpos<int>(offset) : __tbl.__vector_as_array<int>(offset,false);
                 int length = tA.Length;
+                if (tlist == null) {
+                    tlist = new List<int>();
+                }
                 for (int i = 0; i < length; i++) {
-                    tlist.Add((T)(object)tA[i]); // i hate this casting madness. isn't there a cleaner way?
+                    tlist.Add(tA[i]); 
                 }
                 return tlist;
             } else {
-                T[] tA = directBufferAccess ? __tbl.__vector_as_array_from_bufferpos<T>(offset) : __tbl.__vector_as_array<T>(offset, false);
-                if (tA == null) {
-                    tlist = null;
-                    return null;
+                if (innerType==typeInt) {
+                    return _CreatePrimList<int>(offset, (List<int>)tlist, directBufferAccess);
                 }
-
-                if (tlist == null) {
-                    tlist = new List<T>(tA);
-                    return tlist;
+                else if (innerType == typeFloat) {
+                    return _CreatePrimList<float>(offset, (List<float>)tlist, directBufferAccess);
+                } else if (innerType == typeByte) {
+                    return _CreatePrimList<byte>(offset, (List<byte>)tlist, directBufferAccess);
+                } else if (innerType == typeShort) {
+                    return _CreatePrimList<short>(offset, (List<short>)tlist, directBufferAccess);
+                } else if (innerType == typeLong) {
+                    return _CreatePrimList<long>(offset, (List<long>)tlist, directBufferAccess);
+                } else if (innerType == typeBool) {
+                    return _CreatePrimList<bool>(offset, (List<bool>)tlist, directBufferAccess);
                 }
+                throw new ArgumentException("unsupported type:" + innerType);
 
-                tlist.Clear();
-                tlist.AddRange(tA);
-
-                return tlist;
             }
         }
 
@@ -460,8 +487,103 @@ namespace Service.Serializer
         }
 
         public static bool IsGenericList(Type oType) {
-            return (oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeof(List<>)));
+            return (oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeGenericList));
         }
+
+        private static bool UseGetPrimitiveList(Type type) {
+            return type.IsPrimitive || type.IsEnum;
+        }
+
+
+        public ObservableList<T> GetList<T>(int fbPos, ref ObservableList<T> tlist, DeserializationContext dctx) {
+            if (GetVTableOffset(fbPos) == 0) {
+                tlist = null;
+                return null;
+            }
+
+            if (tlist == null) {
+                tlist = new ObservableList<T>();
+            } else {
+                tlist.Clear();
+            }
+            GetList<T>(fbPos, ref tlist.__innerList,dctx);
+            return tlist;
+        }
+
+        public List<T> GetList<T>(int fbPos, ref List<T> tlist, DeserializationContext dctx){
+            //int offset = GetVTableOffset(fbPos);
+
+            tlist = (List<T>)GetListFromOffset(fbPos, typeof(List<T>), dctx,false);
+            return tlist;
+        }
+
+        public IList GetListFromOffset(int offset,Type listType,DeserializationContext dctx, bool useDirectBuffer=false) {
+            
+            if (!listType.IsGenericType) {
+                throw new ArgumentException($"GetListFromOffset: Invalid parameters offset:{offset} type:{listType}");
+            }
+            if (offset == 0) {
+                return null;
+            }
+
+
+            Type innerType = listType.GetGenericArguments()[0];
+            var thiz = this;
+            if (innerType.IsGenericType) {
+                IList resultList = (IList)Activator.CreateInstance(listType);
+                TraverseIList(offset, (_offset) => {
+                    Debug.Log($"outer-offset:{offset}  inneroffset:{_offset}");
+                    return thiz.GetListFromOffset(_offset, innerType,dctx,true);
+                }, resultList, useDirectBuffer);
+                return resultList;
+            }
+            else if (innerType.IsPrimitive || innerType.IsEnum) {
+                // TODO: If observableList create othewise null....(faster)
+                IList resultList = (IList)Activator.CreateInstance(listType);
+                var result = GetPrimitiveListFromOffset(offset, resultList,innerType, useDirectBuffer);
+                return result;
+            }
+            else {
+                IList resultList = (IList)Activator.CreateInstance(listType);
+                var result = GetObjectListFromOffset(offset, resultList, innerType, dctx, useDirectBuffer);
+                return result;
+            }
+            throw new ArgumentException($"GetListFromOffset: Could not create list for type {listType} innerType:{innerType}");
+        }
+
+        public IList TraverseIList(int fbPos, System.Func<int, object> offset2obj, IList list, bool usingBufferOffset = false) {
+            if (list == null) return null;
+            
+            if (!usingBufferOffset) {
+                fbPos = GetVTableOffset(fbPos);
+            }
+
+            if (fbPos == 0) {
+                return null;
+            }
+
+
+            Debug.Log($"Travers on offset:{fbPos}");
+
+            list.Clear();
+
+            int vector_start = usingBufferOffset ? fbPos + sizeof(int) : __tbl.__vector(fbPos);
+            int vector_len = usingBufferOffset ? __tbl.bb.GetInt(fbPos) : __tbl.__vector_len(fbPos);
+            int buflength = __tbl.bb.Length;
+            for (int i = 0; i < vector_len; i++) {
+                int offset = __tbl.__indirect(vector_start + i * 4);
+
+                if (offset == 0) {
+                    list.Add(null);
+                    continue;
+                }
+                var result = offset2obj(offset);
+                list.Add(result);
+            }
+
+            return list;
+        }
+
 
         public List<T> TraverseList<T>(int fbPos, System.Func<int, T> offset2obj, ref ObservableList<T> obsList, bool usingBufferPos = false) {
             if (GetVTableOffset(fbPos) == 0) {
@@ -494,6 +616,7 @@ namespace Service.Serializer
                 }
             }
 
+            Debug.Log($"Travers on offset:{fbPos}");
 
             if (list == null) {
                 list = new List<T>();
@@ -577,7 +700,7 @@ namespace Service.Serializer
             return GetObjectListFromOffset<T>(vtableOffset, ref tlist, dctx,false);
         }
 
-        public List<T> GetObjectListFromOffset<T>(int offset, ref List<T> tlist, DeserializationContext dctx = null,bool directMemoryAccess=false) where T : IFBSerializable2, new() {
+        public List<T> GetObjectListFromOffset<T>(int offset, ref List<T> tlist, DeserializationContext dctx = null, bool directMemoryAccess = false) where T : IFBSerializable2, new() {
             if (offset == 0) {
                 tlist = null;
                 return null;
@@ -589,6 +712,11 @@ namespace Service.Serializer
                 tlist.Clear();
             }
 
+            tlist = (List<T>)GetObjectListFromOffset(offset, tlist, typeof(T), dctx, directMemoryAccess);
+            return tlist;
+        }
+
+        public IList GetObjectListFromOffset(int offset, IList tlist, Type innerType,DeserializationContext dctx = null,bool directMemoryAccess=false) {
            // int[] offsets = __tbl.__vector_as_array<int>(4 + fbPos * 2);
             int vector_start = directMemoryAccess ? offset + sizeof(int) : __tbl.__vector(offset); 
             int vector_len = directMemoryAccess ? __tbl.bb.GetInt(offset) : __tbl.__vector_len(offset);
@@ -597,12 +725,12 @@ namespace Service.Serializer
                 int idxOffset = __tbl.__indirect(vector_start + i*4);
                 int elemOffset = __tbl.bb.GetInt(idxOffset);
                 if (idxOffset == 0 || elemOffset == 0) {
-                    tlist.Add(default(T));
+                    tlist.Add(null);
                     continue;
                 }
-                
-                IFBSerializable2 deserializedObject = dctx._GetReference<T>(buflength-idxOffset);
-                tlist.Add((T)deserializedObject); // i hate this casting madness. isn't there a cleaner way?
+
+                IFBSerializable2 deserializedObject = (IFBSerializable2)dctx._GetReferenceByType(buflength-idxOffset,null,innerType);
+                tlist.Add(deserializedObject); // i hate this casting madness. isn't there a cleaner way?
             }
             return tlist;
         }

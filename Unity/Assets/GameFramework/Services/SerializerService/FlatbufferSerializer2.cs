@@ -145,6 +145,14 @@ namespace Service.Serializer
         //    }
         //}
 
+        public object _GetReferenceByType(int bufferOffset, object obj, Type objType) {
+            var dctxType = typeof(DeserializationContext);
+            var method = dctxType.GetMethod("_GetReference");
+            var genMethod = method.MakeGenericMethod(objType);
+            var result = genMethod.Invoke(this, new object[] { bufferOffset,obj });
+            return result;
+        }
+
         public T _GetReference<T>(int bufferOffset, T obj = default(T)) where T :  new() {
             // TODO: white/black-listing...
             if (bufferOffset == 0) {

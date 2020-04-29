@@ -250,6 +250,7 @@ public class SomeClazz2 : DefaultSerializable2
     public ObservableList<string> obsTestStringList = new ObservableList<string>();
     public System.Collections.Generic.List<State> enumList = new System.Collections.Generic.List<State>();
     public ObservableList<State> enumObsList = new ObservableList<State>();
+    public List<List<int>> testNestedList = new List<List<int>>();
     public StringOffset? nullableStringOffset = null;
 
     /*endblock:rip*/
@@ -565,16 +566,16 @@ public class SomeClazz2 : DefaultSerializable2
     public new void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         // not implemented,yet
     }
-    public /*name:override*/override/*endname*/ void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
-        /*block:d_deserialize_clazz_header*/ser2table = new ExtendedTable(tblOffset, ctx.bb);
+    public /*name:override*/override/*endname*/ void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
+        /*block:d_deserialize_clazz_header*/ser2table = new ExtendedTable(tblOffset, dctx.bb);
         /*endblock:d_deserialize_clazz_header*/
         /*block:d_component_header*/
-        base.Ser2Deserialize(tblOffset, ctx); // init extendend table;
+        base.Ser2Deserialize(tblOffset, dctx); // init extendend table;
         ID = ser2table.GetUID(0);
         /*endblock:d_component_header*/
 
         /*block:d_deserialize_base*/
-        base.Ser2Deserialize(ser2table.GetOffset(0), ctx);
+        base.Ser2Deserialize(ser2table.GetOffset(0), dctx);
         /*endblock:d_deserialize_base*/
 
         /*block:d_enum*//*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)ser2table.GetInt(/*name:fieldid*/0/*endname*/);
@@ -585,9 +586,9 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_primitive*/
         /*block:d_string*//*name:name*/testName/*endname*/ = ser2table.GetString(/*name:fieldid*/0/*endname*/);
         /*endblock:d_string*/
-        /*block:d_typed_object*//*name:name*/typedObj1/*endname*/ = ser2table.GetOrCreateTypedObject</*name:type*/DefaultSerializable2/*endname*/>(/*name:fieldid*/0/*endname*/,ctx);
+        /*block:d_typed_object*//*name:name*/typedObj1/*endname*/ = ser2table.GetOrCreateTypedObject</*name:type*/DefaultSerializable2/*endname*/>(/*name:fieldid*/0/*endname*/,dctx);
         /*endblock:d_typed_object*/
-        /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,ctx);
+        /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,dctx);
         /*endblock:d_object*/
         /*block:d_special_object*/ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/8/*endname*/,ref /*name:name*/testUID/*endname*/);
         /*endblock:d_special_object*/
@@ -597,12 +598,14 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_struct*/
         /*block:d_list_primitive*/ser2table.GetPrimitiveList</*name:innertype*/int/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testListPrimitive/*endname*/);
         /*endblock:d_list_primitive*/
-        /*block:d_list_object*/ser2table.GetObjectList(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,ctx);
+        /*block:d_list_object*/ser2table.GetObjectList(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
         /*endblock:d_list_object*/
         /*block:d_list_struct*/ser2table.GetStructList(/*name:fieldid*/9/*endname*/, ref /*name:name*/structList/*endname*/);
         /*endblock:d_list_struct*/
         /*block:d_list_string*/ser2table.GetStringList(/*name:fieldid*/9/*endname*/, ref /*name:name*/testStringList/*endname*/);
         /*endblock:d_list_string*/
+        /*block:d_list_nested*/ser2table.GetList</*name:innertype*/List<int>/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testNestedList/*endname*/, dctx);
+        /*endblock:d_list_nested*/
 
         //object data = null;
         //if (data is Serial.FBRef) {
