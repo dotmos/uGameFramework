@@ -1278,7 +1278,10 @@ namespace FlatBuffers
         //    return CreateNonPrimitiveList(list, ctx);
         //}
 
-            
+
+        public int CreateNonPrimitiveList(IObservableList obsList, SerializationContext ctx) {
+            return CreateNonPrimitiveList(obsList.InnerIList, ctx);
+        }
 
         public int CreateNonPrimitiveList(IList list,SerializationContext ctx) {
             int count = list.Count;

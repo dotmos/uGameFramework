@@ -463,6 +463,20 @@ namespace Service.Serializer
             return (oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeof(List<>)));
         }
 
+        public List<T> TraverseList<T>(int fbPos, System.Func<int, T> offset2obj, ref ObservableList<T> obsList, bool usingBufferPos = false) {
+            if (GetVTableOffset(fbPos) == 0) {
+                obsList = null;
+                return null;
+            }
+
+            if (obsList == null) {
+                obsList = new ObservableList<T>();
+            } else {
+                obsList.Clear();
+            }
+            return TraverseList<T>(fbPos, offset2obj, ref obsList.__innerList, usingBufferPos);
+        }
+
         /// <summary>
         /// If usingBufferPos=true => fbPos is the bufferPosition
         /// </summary>
@@ -580,13 +594,14 @@ namespace Service.Serializer
             int vector_len = directMemoryAccess ? __tbl.bb.GetInt(offset) : __tbl.__vector_len(offset);
             int buflength = __tbl.bb.Length;
             for (int i = 0; i < vector_len; i++) {
-                int elemoffset = __tbl.__indirect(vector_start + i*4);
-                if (elemoffset == 0) {
+                int idxOffset = __tbl.__indirect(vector_start + i*4);
+                int elemOffset = __tbl.bb.GetInt(idxOffset);
+                if (idxOffset == 0 || elemOffset == 0) {
                     tlist.Add(default(T));
                     continue;
                 }
                 
-                IFBSerializable2 deserializedObject = dctx._GetReference<T>(buflength-elemoffset);
+                IFBSerializable2 deserializedObject = dctx._GetReference<T>(buflength-idxOffset);
                 tlist.Add((T)deserializedObject); // i hate this casting madness. isn't there a cleaner way?
             }
             return tlist;
