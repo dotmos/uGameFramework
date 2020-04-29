@@ -419,14 +419,14 @@ namespace Service.Serializer
             Type listType = typeof(T);
             if (listType.IsEnum) {
                 // enum. enums are serialized as int
-                int[] tA = directBufferAccess ? __tbl.__vector_as_array<int>(offset,false) : __tbl.__vector_as_array_from_bufferpos<int>(offset);
+                int[] tA = directBufferAccess ? __tbl.__vector_as_array_from_bufferpos<int>(offset) : __tbl.__vector_as_array<int>(offset,false);
                 int length = tA.Length;
                 for (int i = 0; i < length; i++) {
                     tlist.Add((T)(object)tA[i]); // i hate this casting madness. isn't there a cleaner way?
                 }
                 return tlist;
             } else {
-                T[] tA = directBufferAccess ? __tbl.__vector_as_array<T>(offset, false) : __tbl.__vector_as_array_from_bufferpos<T>(offset);
+                T[] tA = directBufferAccess ? __tbl.__vector_as_array_from_bufferpos<T>(offset) : __tbl.__vector_as_array<T>(offset, false);
                 if (tA == null) {
                     tlist = null;
                     return null;

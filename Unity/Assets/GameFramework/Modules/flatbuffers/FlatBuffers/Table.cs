@@ -130,15 +130,15 @@ namespace FlatBuffers
                     "system is not support");
             }
 
-            if (lookupVtable) offset = this.__offset(offset);
+            if (lookupVtable) offset = this.__offset(4 + offset * 2);
 
             if (0 == offset)
             {
                 return null;
             }
 
-            int pos = lookupVtable ? this.__vector(offset) : offset + sizeof(int);
-            int len = lookupVtable ? this.__vector_len(offset) : bb.GetInt(offset);
+            int pos = this.__vector(offset);
+            int len = this.__vector_len(offset);
             return bb.ToArray<T>(pos, len);
         }
 
