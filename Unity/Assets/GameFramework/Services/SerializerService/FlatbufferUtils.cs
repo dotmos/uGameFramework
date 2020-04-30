@@ -530,8 +530,10 @@ namespace Service.Serializer
             Type innerType = listType.GetGenericArguments()[0];
             var thiz = this;
             if (innerType.IsGenericType) {
-                IList resultList = (IList)Activator.CreateInstance(listType);
-                TraverseIList(offset, (_offset) => {
+                object newObject = Activator.CreateInstance(listType);
+                IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
+
+                resultList = TraverseIList(offset, (_offset) => {
                     Debug.Log($"outer-offset:{offset}  inneroffset:{_offset}");
                     return thiz.GetListFromOffset(_offset, innerType,dctx,true);
                 }, resultList, useDirectBuffer);
@@ -539,12 +541,16 @@ namespace Service.Serializer
             }
             else if (innerType.IsPrimitive || innerType.IsEnum) {
                 // TODO: If observableList create othewise null....(faster)
-                IList resultList = (IList)Activator.CreateInstance(listType);
+                object newObject = Activator.CreateInstance(listType);
+                IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
+
                 var result = GetPrimitiveListFromOffset(offset, resultList,innerType, useDirectBuffer);
                 return result;
             }
             else {
-                IList resultList = (IList)Activator.CreateInstance(listType);
+                object newObject = Activator.CreateInstance(listType);
+                IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
+
                 var result = GetObjectListFromOffset(offset, resultList, innerType, dctx, useDirectBuffer);
                 return result;
             }
@@ -567,17 +573,17 @@ namespace Service.Serializer
 
             list.Clear();
 
-            int vector_start = usingBufferOffset ? fbPos + sizeof(int) : __tbl.__vector(fbPos);
+            int elempos = usingBufferOffset ? fbPos /*+ sizeof(int)*/ : __tbl.__vector(fbPos)-4; // this is pointing to vector_start-4 (4 is added in first loop to make it to the start)
             int vector_len = usingBufferOffset ? __tbl.bb.GetInt(fbPos) : __tbl.__vector_len(fbPos);
             int buflength = __tbl.bb.Length;
             for (int i = 0; i < vector_len; i++) {
-                int offset = __tbl.__indirect(vector_start + i * 4);
-
-                if (offset == 0) {
+                elempos += 4;
+                if (__tbl.bb.GetInt(elempos) == 0) {
                     list.Add(null);
                     continue;
                 }
-                var result = offset2obj(offset);
+                int idxOffset = __tbl.__indirect(elempos);
+                var result = offset2obj(idxOffset);
                 list.Add(result);
             }
 
@@ -585,7 +591,7 @@ namespace Service.Serializer
         }
 
 
-        public List<T> TraverseList<T>(int fbPos, System.Func<int, T> offset2obj, ref ObservableList<T> obsList, bool usingBufferPos = false) {
+        public ObservableList<T> TraverseList<T>(int fbPos, System.Func<int, object> offset2obj, ref ObservableList<T> obsList, bool usingBufferPos = false) {
             if (GetVTableOffset(fbPos) == 0) {
                 obsList = null;
                 return null;
@@ -596,7 +602,8 @@ namespace Service.Serializer
             } else {
                 obsList.Clear();
             }
-            return TraverseList<T>(fbPos, offset2obj, ref obsList.__innerList, usingBufferPos);
+            TraverseList<T>(fbPos, offset2obj, ref obsList.__innerList, usingBufferPos);
+            return obsList;
         }
 
         /// <summary>
@@ -608,14 +615,7 @@ namespace Service.Serializer
         /// <param name="list"></param>
         /// <param name="usingBufferPos"></param>
         /// <returns></returns>
-        public List<T> TraverseList<T>(int fbPos,System.Func<int,T> offset2obj,ref List<T> list, bool usingBufferPos=false) {
-            if (!usingBufferPos) {
-                fbPos = GetVTableOffset(fbPos);
-                if (fbPos == 0) {
-                    return null;
-                }
-            }
-
+        public List<T> TraverseList<T>(int fbPos,System.Func<int,object> offset2obj,ref List<T> list, bool usingBufferPos=false) {
             Debug.Log($"Travers on offset:{fbPos}");
 
             if (list == null) {
@@ -624,7 +624,9 @@ namespace Service.Serializer
                 list.Clear();
             }
 
-            int vector_start = usingBufferPos ? fbPos + sizeof(int) : __tbl.__vector(fbPos);
+            var result = TraverseIList(fbPos, offset2obj, list, usingBufferPos);
+            return (List<T>)result;
+            /*int vector_start = usingBufferPos ? fbPos + sizeof(int) : __tbl.__vector(fbPos);
             int vector_len = usingBufferPos ? __tbl.bb.GetInt(fbPos) : __tbl.__vector_len(fbPos);
             int buflength = __tbl.bb.Length;
             for (int i = 0; i < vector_len; i++) {
@@ -638,7 +640,7 @@ namespace Service.Serializer
                 list.Add(result);
             }
 
-            return list;
+            return list;*/
         }
 
         /*
@@ -718,16 +720,17 @@ namespace Service.Serializer
 
         public IList GetObjectListFromOffset(int offset, IList tlist, Type innerType,DeserializationContext dctx = null,bool directMemoryAccess=false) {
            // int[] offsets = __tbl.__vector_as_array<int>(4 + fbPos * 2);
-            int vector_start = directMemoryAccess ? offset + sizeof(int) : __tbl.__vector(offset); 
+            int elempos = directMemoryAccess ? offset/* + sizeof(int)*/ : __tbl.__vector(offset)-4; 
             int vector_len = directMemoryAccess ? __tbl.bb.GetInt(offset) : __tbl.__vector_len(offset);
             int buflength = __tbl.bb.Length;
             for (int i = 0; i < vector_len; i++) {
-                int idxOffset = __tbl.__indirect(vector_start + i*4);
-                int elemOffset = __tbl.bb.GetInt(idxOffset);
-                if (idxOffset == 0 || elemOffset == 0) {
+                elempos += 4;
+                if (__tbl.bb.GetInt(elempos)==0) {
                     tlist.Add(null);
                     continue;
                 }
+
+                int idxOffset = __tbl.__indirect(elempos);
 
                 IFBSerializable2 deserializedObject = (IFBSerializable2)dctx._GetReferenceByType(buflength-idxOffset,null,innerType);
                 tlist.Add(deserializedObject); // i hate this casting madness. isn't there a cleaner way?
