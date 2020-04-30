@@ -286,17 +286,23 @@ namespace Service.Serializer
 
             if (cacheOffset != -1) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
                 // the object is already serialized
-                builder.AddOffset(o, cacheOffset, 0);
+                builder._AddOffset(cacheOffset);
+                if (o!=-1) builder.Slot(o);
             } else {
                 // the object is not referenced,yet. Write a dummy int,that will be replaced later with the real offset
                 builder.AddInt(255);
                 if (o != -1) builder.Slot(o);
-                if (lateReferences.TryGetValue(obj, out List<int> offsetDummies)) {
-                    offsetDummies.Add(builder.Offset);
-                } else {
-                    lateReferences[obj] = new List<int>() { builder.Offset };
-                    lateReferenceList.Add(obj);
-                }
+                AddLateReference(builder.Offset, obj);
+            }
+        }
+
+        public void AddLateReference(int offset,object obj) {
+            // TODO: check for cache and set immediately
+            if (lateReferences.TryGetValue(obj, out List<int> offsetDummies)) {
+                offsetDummies.Add(offset);
+            } else {
+                lateReferences[obj] = new List<int>() { offset };
+                lateReferenceList.Add(obj);
             }
         }
 

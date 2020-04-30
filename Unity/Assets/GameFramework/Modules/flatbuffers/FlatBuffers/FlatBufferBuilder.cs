@@ -34,8 +34,7 @@ namespace FlatBuffers
     /// Responsible for building up and accessing a FlatBuffer formatted byte
     /// array (via ByteBuffer).
     /// </summary>
-    public partial class FlatBufferBuilder
-    {
+    public partial class FlatBufferBuilder {
         public int _space;
         private ByteBuffer _bb;
         private int _minAlign = 1;
@@ -84,8 +83,7 @@ namespace FlatBuffers
         /// <param name="initialSize">
         /// The initial size to use for the internal buffer.
         /// </param>
-        public FlatBufferBuilder(int initialSize)
-        {
+        public FlatBufferBuilder(int initialSize) {
             if (initialSize <= 0)
                 throw new ArgumentOutOfRangeException("initialSize",
                     initialSize, "Must be greater than zero");
@@ -97,8 +95,7 @@ namespace FlatBuffers
         /// Create a FlatBufferBuilder backed by the pased in ByteBuffer
         /// </summary>
         /// <param name="buffer">The ByteBuffer to write to</param>
-        public FlatBufferBuilder(ByteBuffer buffer)
-        {
+        public FlatBufferBuilder(ByteBuffer buffer) {
             _bb = buffer;
             _space = buffer.Length;
             buffer.Reset();
@@ -137,8 +134,7 @@ namespace FlatBuffers
         /// <summary>
         /// Reset the FlatBufferBuilder by purging all data that it holds.
         /// </summary>
-        public void Clear()
-        {
+        public void Clear() {
             _space = _bb.Length;
             _bb.Reset();
             _minAlign = 1;
@@ -167,17 +163,15 @@ namespace FlatBuffers
 
         public int Offset { get { return _bb.Length - _space; } }
 
-        public int ___Space {  get { return _space; } set { _space = value;  } }
+        public int ___Space { get { return _space; } set { _space = value; } }
 
-        public void Pad(int size)
-        {
-             _bb.PutByte(_space -= size, 0, size);
+        public void Pad(int size) {
+            _bb.PutByte(_space -= size, 0, size);
         }
 
         // Doubles the size of the ByteBuffer, and copies the old data towards
         // the end of the new buffer (since we build the buffer backwards).
-        void GrowBuffer()
-        {
+        void GrowBuffer() {
             _bb.GrowFront(_bb.Length << 1);
         }
 
@@ -186,8 +180,7 @@ namespace FlatBuffers
         // such the int length field is aligned to SIZEOF_INT, and the string
         // data follows it directly.
         // If all you need to do is align, `additional_bytes` will be 0.
-        public void Prep(int size, int additionalBytes)
-        {
+        public void Prep(int size, int additionalBytes) {
             // Track the biggest thing we've ever aligned to.
             if (size > _minAlign)
                 _minAlign = size;
@@ -197,8 +190,7 @@ namespace FlatBuffers
                 ((~((int)_bb.Length - _space + additionalBytes)) + 1) &
                 (size - 1);
             // Reallocate the buffer if needed.
-            while (_space < alignSize + size + additionalBytes)
-            {
+            while (_space < alignSize + size + additionalBytes) {
                 int oldBufSize = (int)_bb.Length;
                 GrowBuffer();
                 _space += (int)_bb.Length - oldBufSize;
@@ -208,53 +200,53 @@ namespace FlatBuffers
                 Pad(alignSize);
         }
 
-        public void PutBool(bool x)
-        {
-          _bb.PutByte(_space -= sizeof(byte), (byte)(x ? 1 : 0));
+        public void PutBool(bool x) {
+            _bb.PutByte(_space -= sizeof(byte), (byte)(x ? 1 : 0));
         }
 
-        public void PutSbyte(sbyte x)
-        {
-          _bb.PutSbyte(_space -= sizeof(sbyte), x);
+        public void PutSbyte(sbyte x) {
+            _bb.PutSbyte(_space -= sizeof(sbyte), x);
         }
 
-        public void PutByte(byte x)
-        {
+        public void PutByte(byte x) {
             _bb.PutByte(_space -= sizeof(byte), x);
         }
 
-        public void PutShort(short x)
-        {
+        public void PutShort(short x) {
             _bb.PutShort(_space -= sizeof(short), x);
         }
 
-        public void PutUshort(ushort x)
-        {
-          _bb.PutUshort(_space -= sizeof(ushort), x);
+        public void PutUshort(ushort x) {
+            _bb.PutUshort(_space -= sizeof(ushort), x);
         }
 
-        public int PutInt(int x)
-        {
+        public int PutInt(int x) {
             return _bb.PutInt(_space -= sizeof(int), x);
         }
 
-        public void PutUint(uint x)
-        {
-          _bb.PutUint(_space -= sizeof(uint), x);
+        public int PutOffset(int address,int off) {
+            Prep(sizeof(int), 0);  // Ensure alignment is already done.
+            if (off > Offset)
+                throw new ArgumentException();
+            off = off != 0 ? Offset - off + sizeof(int) : 0;
+            int addressWrittenTo = PutInt(off);
+            return addressWrittenTo;
+            //return new int[4] { offBefore, addressWrittenTo,beforeBBLen,beforeBBspace };
         }
 
-        public void PutLong(long x)
-        {
+        public void PutUint(uint x) {
+            _bb.PutUint(_space -= sizeof(uint), x);
+        }
+
+        public void PutLong(long x) {
             _bb.PutLong(_space -= sizeof(long), x);
         }
 
-        public void PutUlong(ulong x)
-        {
-          _bb.PutUlong(_space -= sizeof(ulong), x);
+        public void PutUlong(ulong x) {
+            _bb.PutUlong(_space -= sizeof(ulong), x);
         }
 
-        public void PutFloat(float x)
-        {
+        public void PutFloat(float x) {
             _bb.PutFloat(_space -= sizeof(float), x);
         }
 
@@ -264,10 +256,9 @@ namespace FlatBuffers
         /// </summary>
         /// <typeparam name="T">The type of the input data </typeparam>
         /// <param name="x">The array to copy data from</param>
-        public void Put<T>(T[] x,int length=-1)
-            where T : struct
-        {
-            _space = _bb.Put(_space, x,length);
+        public void Put<T>(T[] x, int length = -1)
+            where T : struct {
+            _space = _bb.Put(_space, x, length);
         }
 
 #if ENABLE_SPAN_T
@@ -284,8 +275,7 @@ namespace FlatBuffers
         }
 #endif
 
-        public void PutDouble(double x)
-        {
+        public void PutDouble(double x) {
             _bb.PutDouble(_space -= sizeof(double), x);
         }
         /// @endcond
@@ -355,32 +345,28 @@ namespace FlatBuffers
         /// </summary>
         /// <typeparam name="T">The type of the input data</typeparam>
         /// <param name="x">The array to copy data from</param>
-        public void Add<T>(T[] x,int length=-1)
-            where T : struct
-        {
-            if (x == null)
-            {
+        public void Add<T>(T[] x, int length = -1)
+            where T : struct {
+            if (x == null) {
                 throw new ArgumentNullException("Cannot add a null array");
             }
 
             length = length == -1 ? x.Length : length;
 
-            if( length == 0)
-            {
+            if (length == 0) {
                 // don't do anything if the array is empty
                 return;
             }
 
-            if( !ByteBuffer.IsSupportedType<T>())
-            {
-                throw new ArgumentException("Cannot add this Type array to the builder ("+typeof(T)+")");
+            if (!ByteBuffer.IsSupportedType<T>()) {
+                throw new ArgumentException("Cannot add this Type array to the builder (" + typeof(T) + ")");
             }
 
-            int size =  ByteBuffer.SizeOf<T>();
+            int size = ByteBuffer.SizeOf<T>();
             // Need to prep on size (for data alignment) and then we pass the
             // rest of the length (minus 1) as additional bytes
             Prep(size, size * (length - 1));
-            Put(x,length);
+            Put(x, length);
         }
 
 #if ENABLE_SPAN_T
@@ -410,18 +396,17 @@ namespace FlatBuffers
         /// </summary>
         /// <param name="x">The `double` to add to the buffer.</param>
         public void AddDouble(double x) { Prep(sizeof(double), 0);
-                                          PutDouble(x); }
+            PutDouble(x); }
 
         /// <summary>
         /// Adds an offset, relative to where it will be written.
         /// </summary>
         /// <param name="off">The offset to add to the buffer.</param>
-        public int _AddOffset(int off)
-        {
+        public int _AddOffset(int off) {
             Prep(sizeof(int), 0);  // Ensure alignment is already done.
             if (off > Offset)
                 throw new ArgumentException();
-            off = off!=0?Offset - off + sizeof(int) : 0;
+            off = off != 0 ? Offset - off + sizeof(int) : 0;
             int addressWrittenTo = PutInt(off);
             return addressWrittenTo;
             //return new int[4] { offBefore, addressWrittenTo,beforeBBLen,beforeBBspace };
@@ -488,8 +473,7 @@ namespace FlatBuffers
         }
 
         /// @cond FLATBUFFERS_INTERNAL
-        public void StartVector(int elemSize, int count, int alignment)
-        {
+        public void StartVector(int elemSize, int count, int alignment) {
             NotNested();
             _vectorNumElems = count;
             Prep(sizeof(int), elemSize * count);
@@ -500,8 +484,7 @@ namespace FlatBuffers
         /// <summary>
         /// Writes data necessary to finish a vector construction.
         /// </summary>
-        public VectorOffset EndVector()
-        {
+        public VectorOffset EndVector() {
             PutInt(_vectorNumElems);
             return new VectorOffset(Offset);
         }
@@ -510,15 +493,14 @@ namespace FlatBuffers
         /// Creates a vector of tables.
         /// </summary>
         /// <param name="offsets">Offsets of the tables.</param>
-        public VectorOffset CreateVectorOfTables<T>(Offset<T>[] offsets) where T : struct
-        {
+        public VectorOffset CreateVectorOfTables<T>(Offset<T>[] offsets) where T : struct {
             NotNested();
             StartVector(sizeof(int), offsets.Length, sizeof(int));
             for (int i = offsets.Length - 1; i >= 0; i--) AddOffset(offsets[i].Value);
             return EndVector();
         }
 
-        public VectorOffset CreateIntVector(IList<int> list,bool convertToByte=false) {
+        public VectorOffset CreateIntVector(IList<int> list, bool convertToByte = false) {
             NotNested();
 
             if (convertToByte) {
@@ -563,8 +545,7 @@ namespace FlatBuffers
 
 
         /// @cond FLATBUFFERS_INTENRAL
-        public void Nested(int obj)
-        {
+        public void Nested(int obj) {
             // Structs are always stored inline, so need to be created right
             // where they are used. You'll get this assert if you created it
             // elsewhere.
@@ -573,8 +554,7 @@ namespace FlatBuffers
                     "FlatBuffers: struct must be serialized inline.");
         }
 
-        public void NotNested()
-        {
+        public void NotNested() {
             // You should not be creating any other objects or strings/vectors
             // while an object is being constructed
             if (_vtableSize >= 0)
@@ -582,8 +562,7 @@ namespace FlatBuffers
                     "FlatBuffers: object serialization must not be nested.");
         }
 
-        public void StartTable(int numfields)
-        {
+        public void StartTable(int numfields) {
             if (numfields < 0)
                 throw new ArgumentOutOfRangeException("Flatbuffers: invalid numfields");
 
@@ -599,8 +578,7 @@ namespace FlatBuffers
 
         // Set the current vtable at `voffset` to the current location in the
         // buffer.
-        public void Slot(int voffset)
-        {
+        public void Slot(int voffset) {
             if (voffset >= _vtableSize)
                 throw new IndexOutOfRangeException("Flatbuffers: invalid voffset");
 
@@ -615,7 +593,7 @@ namespace FlatBuffers
         /// and <see cref="ForceDefaults"/> is false, the value will be skipped.</param>
         /// <param name="d">The default value to compare the value against</param>
         public void AddBool(int o, bool x, bool d) { if (ForceDefaults || x != d) { AddBool(x); Slot(o); } }
-        public void AddBool(int o, bool x, int d) { AddBool(o, x, d == 0 ? false : true);  }
+        public void AddBool(int o, bool x, int d) { AddBool(o, x, d == 0 ? false : true); }
         /// <summary>
         /// Adds a SByte to the Table at index `o` in its vtable using the value `x` and default `d`
         /// </summary>
@@ -714,11 +692,11 @@ namespace FlatBuffers
         /// the value will be skipped.</param>
         /// <param name="d">The default value to compare the value against</param>
         /// 
-        public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); }  }
+        public void AddOffset(int o, int x, int d) { if (x != d) { AddOffset(x); Slot(o); } }
         //public int[] AddOffsetWithReturn(int o, int x, int d) { if (x != d) { int[] offsetData = AddOffset(x); Slot(o); return offsetData; } else return null; }
 
         public static int DUMMYREF = 2;
-         
+
         /*public void AddObjectReference(int o,int objRef, object obj) {
             if (objRef == -1) {
                 // the current object is already in serialization process, so set a dummy ref for now and replace it later
@@ -741,8 +719,8 @@ namespace FlatBuffers
                 // we already have a valid ref to the serilaized version of the obj 
                 AddOffset(11, objRef, 0);
             }
-        }  */     
-        
+        }  */
+
         /// <summary>
         /// Encode the string `s` in the buffer using UTF-8.
         /// </summary>
@@ -750,8 +728,7 @@ namespace FlatBuffers
         /// <returns>
         /// The offset in the buffer where the encoded string starts.
         /// </returns>
-        public StringOffset CreateString(string s,bool nested=false)
-        {
+        public StringOffset CreateString(string s, bool nested = false) {
             if (!nested) NotNested();
             AddByte(0);
             int utf8StringLen = Encoding.UTF8.GetByteCount(s);
@@ -790,19 +767,16 @@ namespace FlatBuffers
         /// <returns>
         /// The offset in the buffer where the encoded string starts.
         /// </returns>
-        public StringOffset CreateSharedString(string s,bool nested=false)
-        {
-            if (_sharedStringMap == null)
-            {
+        public StringOffset CreateSharedString(string s, bool nested = false) {
+            if (_sharedStringMap == null) {
                 _sharedStringMap = new Dictionary<string, StringOffset>();
             }
 
-            if (_sharedStringMap.ContainsKey(s))
-            {
+            if (_sharedStringMap.ContainsKey(s)) {
                 return _sharedStringMap[s];
             }
 
-            StringOffset stringOffset = CreateString(s,nested);
+            StringOffset stringOffset = CreateString(s, nested);
             _sharedStringMap.Add(s, stringOffset);
             return stringOffset;
         }
@@ -810,17 +784,14 @@ namespace FlatBuffers
         /// @cond FLATBUFFERS_INTERNAL
         // Structs are stored inline, so nothing additional is being added.
         // `d` is always 0.
-        public void AddStruct(int voffset, int x, int d)
-        {
-            if (x != d)
-            {
+        public void AddStruct(int voffset, int x, int d) {
+            if (x != d) {
                 Nested(x);
                 Slot(voffset);
             }
         }
 
-        public int EndTable()
-        {
+        public int EndTable() {
             if (_vtableSize < 0)
                 throw new InvalidOperationException(
                   "Flatbuffers: calling EndTable without a StartTable");
@@ -830,9 +801,9 @@ namespace FlatBuffers
             // Write out the current vtable.
             int i = _vtableSize - 1;
             // Trim trailing zeroes.
-            for (; i >= 0 && _vtable[i] == 0; i--) {}
+            for (; i >= 0 && _vtable[i] == 0; i--) { }
             int trimmedSize = i + 1;
-            for (; i >= 0 ; i--) {
+            for (; i >= 0; i--) {
                 // Offset relative to the start of the table.
                 short off = (short)(_vtable[i] != 0
                                         ? vtableloc - _vtable[i]
@@ -898,15 +869,14 @@ namespace FlatBuffers
 
         // This checks a required field has been set in a given table that has
         // just been constructed.
-        public void Required(int table, int field)
-        {
-          int table_start = _bb.Length - table;
-          int vtable_start = table_start - _bb.GetInt(table_start);
-          bool ok = _bb.GetShort(vtable_start + field) != 0;
-          // If this fails, the caller will show what field needs to be set.
-          if (!ok)
-            throw new InvalidOperationException("FlatBuffers: field " + field +
-                                                " must be set");
+        public void Required(int table, int field) {
+            int table_start = _bb.Length - table;
+            int vtable_start = table_start - _bb.GetInt(table_start);
+            bool ok = _bb.GetShort(vtable_start + field) != 0;
+            // If this fails, the caller will show what field needs to be set.
+            if (!ok)
+                throw new InvalidOperationException("FlatBuffers: field " + field +
+                                                    " must be set");
         }
         /// @endcond
 
@@ -919,8 +889,7 @@ namespace FlatBuffers
         /// <param name="sizePrefix">
         /// Whether to prefix the size to the buffer.
         /// </param>
-        protected void Finish(int rootTable, bool sizePrefix)
-        {
+        protected void Finish(int rootTable, bool sizePrefix) {
             Prep(_minAlign, sizeof(int) + (sizePrefix ? sizeof(int) : 0));
             AddOffset(rootTable);
             if (sizePrefix) {
@@ -935,8 +904,7 @@ namespace FlatBuffers
         /// <param name="rootTable">
         /// An offset to be added to the buffer.
         /// </param>
-        public void Finish(int rootTable)
-        {
+        public void Finish(int rootTable) {
             Finish(rootTable, false);
         }
 
@@ -946,8 +914,7 @@ namespace FlatBuffers
         /// <param name="rootTable">
         /// An offset to be added to the buffer.
         /// </param>
-        public void FinishSizePrefixed(int rootTable)
-        {
+        public void FinishSizePrefixed(int rootTable) {
             Finish(rootTable, true);
         }
 
@@ -971,26 +938,24 @@ namespace FlatBuffers
         /// <returns>
         /// A full copy of the FlatBuffer data.
         /// </returns>
-        public byte[] SizedByteArray()
-        {
+        public byte[] SizedByteArray() {
             return _bb.ToSizedArray();
         }
 
-            /// <summary>
-            /// Finalize a buffer, pointing to the given `rootTable`.
-            /// </summary>
-            /// <param name="rootTable">
-            /// An offset to be added to the buffer.
-            /// </param>
-            /// <param name="fileIdentifier">
-            /// A FlatBuffer file identifier to be added to the buffer before
-            /// `root_table`.
-            /// </param>
-            /// <param name="sizePrefix">
-            /// Whether to prefix the size to the buffer.
-            /// </param>
-        protected void Finish(int rootTable, string fileIdentifier, bool sizePrefix)
-        {
+        /// <summary>
+        /// Finalize a buffer, pointing to the given `rootTable`.
+        /// </summary>
+        /// <param name="rootTable">
+        /// An offset to be added to the buffer.
+        /// </param>
+        /// <param name="fileIdentifier">
+        /// A FlatBuffer file identifier to be added to the buffer before
+        /// `root_table`.
+        /// </param>
+        /// <param name="sizePrefix">
+        /// Whether to prefix the size to the buffer.
+        /// </param>
+        protected void Finish(int rootTable, string fileIdentifier, bool sizePrefix) {
             Prep(_minAlign, sizeof(int) + (sizePrefix ? sizeof(int) : 0) +
                             FlatBufferConstants.FileIdentifierLength);
             if (fileIdentifier.Length !=
@@ -1000,9 +965,8 @@ namespace FlatBuffers
                     FlatBufferConstants.FileIdentifierLength,
                     "fileIdentifier");
             for (int i = FlatBufferConstants.FileIdentifierLength - 1; i >= 0;
-                 i--)
-            {
-               AddByte((byte)fileIdentifier[i]);
+                 i--) {
+                AddByte((byte)fileIdentifier[i]);
             }
             Finish(rootTable, sizePrefix);
         }
@@ -1017,8 +981,7 @@ namespace FlatBuffers
         /// A FlatBuffer file identifier to be added to the buffer before
         /// `root_table`.
         /// </param>
-        public void Finish(int rootTable, string fileIdentifier)
-        {
+        public void Finish(int rootTable, string fileIdentifier) {
             Finish(rootTable, fileIdentifier, false);
         }
 
@@ -1032,8 +995,7 @@ namespace FlatBuffers
         /// A FlatBuffer file identifier to be added to the buffer before
         /// `root_table`.
         /// </param>
-        public void FinishSizePrefixed(int rootTable, string fileIdentifier)
-        {
+        public void FinishSizePrefixed(int rootTable, string fileIdentifier) {
             Finish(rootTable, fileIdentifier, true);
         }
 
@@ -1131,21 +1093,21 @@ namespace FlatBuffers
         /// <param name="offsetTypeName"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public int PutTypedObject(int offsetTypeName,IFBSerializable2 obj) {
+        public int PutTypedObject(int offsetTypeName, IFBSerializable2 obj) {
             Prep(4, 8);
             AddOffset(offsetTypeName);
             return 0;
         }
 
-        public int CreateList(IList list,SerializationContext sctx) {
+        public int CreateList(IList list, SerializationContext sctx) {
             Type innerType = list.GetType().GetGenericArguments()[0];
             if (innerType.IsPrimitive || innerType.IsEnum || innerType.IsValueType) {
                 return CreatePrimitiveList(list);
             }
-            return CreateNonPrimitiveList(list,sctx);
+            return CreateNonPrimitiveList(list, sctx);
         }
 
-        public int CreatePrimitiveList(IList list) {  
+        public int CreatePrimitiveList(IList list) {
             // I need to use IList here without generic due to usage from within the ReferenceResolving
             // TODO: Rethink how to reinvent this workflow with generics?!
             if (list == null) return 0;
@@ -1160,8 +1122,7 @@ namespace FlatBuffers
                 }
                 PutInt(count);
                 return Offset;
-            }
-            else if (innerType.IsPrimitive) {
+            } else if (innerType.IsPrimitive) {
                 if (innerType == typeInt) {
                     IList<int> primList = (IList<int>)list;
                     StartVector(4, count, 4);
@@ -1200,28 +1161,26 @@ namespace FlatBuffers
                     return EndVector().Value;
                 } else {
                     Debug.LogError($"Unsupported primitive-list-type: {innerType}");
-                } 
+                }
                 // primitive-list (int)
-            }
-            else if (innerType.IsEnum) {
+            } else if (innerType.IsEnum) {
                 StartVector(4, count, 4);
                 for (int i = count - 1; i >= 0; i--) AddInt((int)(object)list[i]);
                 return EndVector().Value;
-            } 
-            // struct list
-            // I know here comes lots of repetition. Need to find an efficient way 
-            // to abstract this without too much overhead. Until then, every type
-            // gets its dedicated loop of its own. Too tired for fancy generic magic ;)
-            // ...and this casting-madness if used here... :|
-            else if (typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
+            }
+              // struct list
+              // I know here comes lots of repetition. Need to find an efficient way 
+              // to abstract this without too much overhead. Until then, every type
+              // gets its dedicated loop of its own. Too tired for fancy generic magic ;)
+              // ...and this casting-madness if used here... :|
+              else if (typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
                 for (int i = count - 1; i >= 0; i--) {
                     IFBSerializable2Struct ifbStruct = (IFBSerializable2Struct)list[i];
                     ifbStruct.Put(this);
                 }
                 PutInt(count);
                 return Offset;
-            } 
-            else if (innerType == typeVector2) {
+            } else if (innerType == typeVector2) {
                 for (int i = count - 1; i >= 0; i--) {
                     PutVector2((Vector2)(object)list[i]);
                 }
@@ -1248,12 +1207,12 @@ namespace FlatBuffers
                 PutInt(count);
                 return Offset;
             }
-                
+
 
             Debug.LogError($"PrimitveList: Do not know how to serialize type:{innerType}");
 
             return 0;
-            
+
         }
 
         private List<int> tempOffsets = new List<int>();
@@ -1283,7 +1242,7 @@ namespace FlatBuffers
             return CreateNonPrimitiveList(obsList.InnerIList, ctx);
         }
 
-        public int CreateNonPrimitiveList(IList list,SerializationContext ctx) {
+        public int CreateNonPrimitiveList(IList list, SerializationContext ctx) {
             int count = list.Count;
 
             // TODO: List
@@ -1310,7 +1269,58 @@ namespace FlatBuffers
             return EndVector().Value;
         }
 
-       
+        public int CreateDictionary<TKey,TValue>(Dictionary<TKey,TValue> dict,SerializationContext sctx) {
+            Type typeKey = typeof(TKey);
+            Type typeValue = typeof(TValue);
+
+            bool keyPrimitive = typeKey.IsPrimitive || typeKey.IsEnum;
+            bool keyIsStruct = !keyPrimitive && typeKey.IsValueType;
+            bool valuePrimitive = typeValue.IsPrimitive || typeValue.IsEnum;
+            bool valueIsStruct = !keyPrimitive && typeKey.IsValueType;
+
+            int count = dict.Count;
+            int keySize = keyPrimitive ? ByteBuffer.SizeOf(typeKey) : ByteBuffer.SizeOf(typeInt);
+            int valueSize = valuePrimitive ? ByteBuffer.SizeOf(typeValue) : ByteBuffer.SizeOf(typeInt);
+            int elementSize = keySize + valueSize;
+            int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
+
+            // prepare space
+            Prep(overallSize, 0);
+
+            // set startposition
+            int dictionaryStartSpace = _space;
+            int dictionaryStart = Offset;
+
+            PutCollectionData(dict.Keys, sctx, typeKey, keyPrimitive, elementSize);
+            int dictHead = _space;
+            // set the pointer on the value 'after' the dict by adding the keySize.
+            // (before writing the first element, we subtract elementSize and are then on a valid position) 
+            _space = dictionaryStartSpace + keySize;
+            PutCollectionData(dict.Values, sctx, typeValue, valuePrimitive, elementSize);
+            
+            _space = dictHead;
+            PutInt(count);
+            return Offset;
+        }
+
+        private void PutCollectionData<T>(ICollection<T> data, SerializationContext sctx, Type type, bool keyPrimitive, int elementSize) {
+            if (type == typeInt) {
+                foreach (T elem in data) {
+                    _space -= elementSize;
+                    _bb.PutInt(_space, (int)(object)elem); // I don't want to, but I really don't know how to prevent it
+                }
+            } else if (type == typeFloat) {
+                foreach (T elem in data) {
+                    _space -= elementSize;
+                    _bb.PutFloat(_space, (float)(object)elem); // I don't want to, but I really don't know how to prevent it
+                }
+            } else if (!keyPrimitive) {
+                foreach (T elem in data) {
+                    _space -= elementSize;
+                    sctx.AddLateReference(Offset, (object)elem);
+                }
+            }
+        }
 
         /// <summary>
         /// Get typename including Assembly-Name
