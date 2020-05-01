@@ -1322,6 +1322,17 @@ namespace FlatBuffers
             }
         }
 
+       
+        /// <summary>
+        /// Returns the offset's (current) buffer-position
+        /// Caution: if the buffer grows those buffer-positions get
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public int Off2Buf(int offset) {
+            return _bb.Length - offset;
+        }
+
         /// <summary>
         /// Get typename including Assembly-Name
         /// </summary>

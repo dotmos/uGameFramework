@@ -310,6 +310,16 @@ namespace Service.Serializer
             __tbl.bb.PutInt(vec_pos + 4, uid.Revision);
         }
 
+        /// <summary>
+        /// Returns the offset's (current) buffer-position
+        /// Caution: if the buffer grows those buffer-positions get
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public int Off2Buf(int offset) {
+            return  __tbl.bb.Length - offset;
+        }
+
         public int GetVTableOffset(int fbPos) { return __tbl.__offset(4 + fbPos * 2); }
 
         public int GetStructBegin(int fbPos) { return __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4); }
@@ -321,6 +331,17 @@ namespace Service.Serializer
             int o = __tbl.__offset(4 + fbPos * 2);
 
             return o != 0 ? __tbl.bb.Length - __tbl.__indirect(o + __tbl.bb_pos) : 0;
+        }
+
+        /// <summary>
+        /// Caution. This value will be invalid as soon as the buffer grows. always write down offset-values (bufferlength - direct-memory-address )
+        /// </summary>
+        /// <param name="fbPos"></param>
+        /// <returns></returns>
+        public int GetDirectMemoryAddressOfOffset(int fbPos) {
+            int o = __tbl.__offset(4 + fbPos * 2);
+
+            return o != 0 ? __tbl.__indirect(o + __tbl.bb_pos) : 0;
         }
 
         /// <summary>
@@ -853,6 +874,65 @@ namespace Service.Serializer
             structElem.Get(this,structOffset);
             return structElem;
         }
+
+        public Dictionary<TKey,TValue> GetDictionary<TKey,TValue>(int fbPos, ref Dictionary<TKey,TValue> dict, DeserializationContext dctx, bool directMemoryAccess = false) {
+            int offset = GetDirectMemoryAddressOfOffset(fbPos);
+            if (offset == 0) {
+                dict = null;
+                return null;
+            }
+
+            if (dict == null) {
+                dict = new Dictionary<TKey,TValue>();
+            } else {
+                dict.Clear();
+            }
+
+            dict = (Dictionary<TKey,TValue>)GetDictionaryFromOffset(offset, dict, dctx, true);
+
+            return dict;
+        }
+
+        /// <summary>
+        /// Caution dict needs to be internally of IDictionary<,>
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="dict"></param>
+        /// <param name="dctx"></param>
+        /// <param name="directMemoryAccess"></param>
+        /// <returns></returns>
+        public IDictionary GetDictionaryFromOffset(int offset, IDictionary dict,DeserializationContext dctx,bool directMemoryAccess = false) {
+            int currentAddress = directMemoryAccess ? offset : __tbl.__indirect(offset);
+
+            int count = bb.GetInt(currentAddress);
+            currentAddress += 4;
+            var dictType = dict.GetType();
+            var genericTypes = dictType.GetGenericArguments();
+            var typeKey = genericTypes[0];
+            var typeValue = genericTypes[1];
+
+            bool keyPrimitive = typeKey.IsPrimitive || typeKey.IsEnum;
+            bool keyIsStruct = !keyPrimitive && typeKey.IsValueType;
+            bool valuePrimitive = typeValue.IsPrimitive || typeValue.IsEnum;
+            bool valueIsStruct = !keyPrimitive && typeKey.IsValueType;
+
+            int keySize = keyPrimitive ? ByteBuffer.SizeOf(typeKey) : ByteBuffer.SizeOf(typeInt);
+            int valueSize = valuePrimitive ? ByteBuffer.SizeOf(typeValue) : ByteBuffer.SizeOf(typeInt);
+            int elementSize = keySize + valueSize;
+            int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
+
+            int currentValueAddress = currentAddress + keySize;
+            if (keyPrimitive && valuePrimitive) {
+                for (int i = 0; i < count; i++) {
+                    dict[bb.Get(currentAddress, typeKey)] = bb.Get(currentValueAddress, typeValue);
+                    currentAddress += elementSize;
+                    currentValueAddress += elementSize;
+                }
+            }
+
+            return dict;
+        }
+
 
         //    public List<T> GetList<T>(int fbPos, ref List<T> intList) {
         //    int o = GetVTableOffset(fbPos);

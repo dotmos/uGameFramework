@@ -124,6 +124,15 @@ namespace FlatBuffers
     /// </summary>
     public class ByteBuffer
     {
+        static readonly Type typeBool = typeof(bool);
+        static readonly Type typeInt = typeof(int);
+        static readonly Type typeFloat = typeof(float);
+        static readonly Type typeDouble = typeof(double);
+        static readonly Type typeLong = typeof(long);
+        static readonly Type typeByte = typeof(byte);
+        static readonly Type typeString = typeof(string);
+        static readonly Type typeShort = typeof(short);
+
         private ByteBufferAllocator _buffer;
         private int _pos;  // Must track start of the buffer.
 
@@ -760,6 +769,43 @@ namespace FlatBuffers
             }
         }
 #else // !UNSAFE_BYTEBUFFER
+        
+        /// <summary>
+        /// Universal get. 
+        /// CAUTION: Always prefer the direct call as here is overhead to determine the right method to use
+        ///          Need to find a better way, but let's use it as a first start. Look at that boxing magic :[
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public T Get<T>(int index) {
+            return (T)Get(index, typeof(T));
+        }
+        /// <summary>
+        /// Get type at index. (caution boxing) better use the direct call
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public object Get(int index,Type type) {
+            if (type == typeInt) {
+                return GetInt(index);
+            } else if (type == typeFloat) {
+                return GetFloat(index);
+            } else if (type == typeBool) {
+                return GetBool(index);
+            } else if (type == typeShort) {
+                return GetShort(index);
+            } else if (type == typeByte) {
+                return Get(index);
+            } else if (type == typeLong) {
+                return GetLong(index);
+            } else if (type == typeDouble) {
+                return GetDouble(index);
+            }
+
+            throw new ArgumentException($"Get<T>(..) using unsupported type:{type}");
+        }
         // Slower versions of Get* for when unsafe code is not allowed.
         public short GetShort(int index)
         {
