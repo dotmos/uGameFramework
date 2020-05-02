@@ -1268,10 +1268,14 @@ namespace FlatBuffers
             }
             return EndVector().Value;
         }
+        public int CreateDictionary<TKey, TValue>(Dictionary<TKey, TValue> dict, SerializationContext sctx) {
+            return CreateIDictionary(dict, sctx);
+        }
 
-        public int CreateDictionary<TKey,TValue>(Dictionary<TKey,TValue> dict,SerializationContext sctx) {
-            Type typeKey = typeof(TKey);
-            Type typeValue = typeof(TValue);
+        public int CreateIDictionary(IDictionary dict,SerializationContext sctx) {
+            Type typeDict = dict.GetType();
+            Type typeKey = typeDict.GetGenericArguments()[0];
+            Type typeValue = typeDict.GetGenericArguments()[1];
 
             bool keyPrimitive = typeKey.IsPrimitive || typeKey.IsEnum;
             bool keyIsStruct = !keyPrimitive && typeKey.IsValueType;
@@ -1303,21 +1307,21 @@ namespace FlatBuffers
             return Offset;
         }
 
-        private void PutCollectionData<T>(ICollection<T> data, SerializationContext sctx, Type type, bool keyPrimitive, int elementSize) {
+        private void PutCollectionData(ICollection data, SerializationContext sctx, Type type, bool keyPrimitive, int elementSize) {
             if (type == typeInt) {
-                foreach (T elem in data) {
+                foreach (int elem in data) {
                     _space -= elementSize;
                     _bb.PutInt(_space, (int)(object)elem); // I don't want to, but I really don't know how to prevent it
                 }
             } else if (type == typeFloat) {
-                foreach (T elem in data) {
+                foreach (float elem in data) {
                     _space -= elementSize;
                     _bb.PutFloat(_space, (float)(object)elem); // I don't want to, but I really don't know how to prevent it
                 }
             } else if (!keyPrimitive) {
-                foreach (T elem in data) {
+                foreach (object elem in data) {
                     _space -= elementSize;
-                    sctx.AddLateReference(Offset, (object)elem);
+                    sctx.AddLateReference(Offset, elem);
                 }
             }
         }

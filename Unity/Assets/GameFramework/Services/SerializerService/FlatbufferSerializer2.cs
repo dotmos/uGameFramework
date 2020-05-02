@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#define FLATBUFFER_CHECK_TYPES
+
+using System.Collections.Generic;
 using System;
 using FlatBuffers;
 using System.Linq;
@@ -73,30 +75,42 @@ namespace Service.Serializer
 
         public ByteBuffer bb;
 
+        private ExtendedTable extTbl; // make helper calls available. (obviously only offset-based calls makes sense here)
+
         public DeserializationContext(ByteBuffer bb) {
             this.bb = bb;
+            extTbl = new ExtendedTable(0, bb);
         }
         public DeserializationContext(byte[] buf) {
             this.bb = new ByteBuffer(buf);
+            extTbl = new ExtendedTable(0, bb);
         }
 
-        public T GetOrCreate<T>(int bufferOffset, T obj = default(T)) where T: new() {
+        public T GetOrCreate<T>(int bufferOffset, ref T obj) where T: new() {
+            if (bufferOffset == 0) {
+                obj = default(T);
+                return obj;
+            }
+
             T cachedObject = _GetCachedObject<T>(bufferOffset);
             if (cachedObject != null) {
+                obj = cachedObject;
                 return cachedObject;
             }
-            obj = obj == null ? new T() : obj;
-            _GetOrCreate<T>(bufferOffset,obj);
+            obj = (T)_GetOrCreate(bufferOffset, typeof(T), obj);
             return obj;
         }
 
-        public T GetOrCreate<T>(int bufferOffset, Type type) where T : IFBSerializable2 {
-            T cachedObject = _GetCachedObject<T>(bufferOffset);
+        public T GetOrCreate<T>(int bufferOffset, object obj = null) where T : IFBSerializable2 {
+            return (T)GetOrCreate(bufferOffset, typeof(T), obj);
+        }
+        
+        public object GetOrCreate(int bufferOffset, Type objectType,object obj=null) {
+            object cachedObject = _GetCachedObject(bufferOffset,objectType);
             if (cachedObject != null) {
                 return cachedObject;
-            }
-            var newObject = (T)Activator.CreateInstance(type);
-            _GetOrCreate<T>(bufferOffset, newObject);
+            } 
+            object newObject = _GetOrCreate(bufferOffset,objectType);
             return newObject;
         }
 
@@ -108,24 +122,42 @@ namespace Service.Serializer
             }
             return default(T);
         }
+        private object _GetCachedObject(int bufferOffset, Type objType) {
+            if (bufferOffset == 0) return null;
 
-        private T _GetOrCreate<T>(int bufferOffset, T obj) {
-            if (obj == null) return default(T);
+            if (pos2obj.TryGetValue(bufferOffset, out object result)) {
+#if FLATBUFFER_CHECK_TYPES
+                if (result.GetType() != objType) {
+                    UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()}");
+                }                
+#endif
+                return result;
+            }
+            return null;
+        }
 
-            if (obj is IFBSerializable2) {
-                var newIFBSer2obj = (IFBSerializable2)obj;
+
+        private object _GetOrCreate(int bufferOffset, Type objType, object obj=null) {
+            if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
+                var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newIFBSer2obj;
                 newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
-                return (T)newIFBSer2obj;
+                return newIFBSer2obj;
             }
-            else if (obj is IList) {
-                var newList = (IList)obj;
+            else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
+                var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newList;
-                    
-                return (T)newList;
+                newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
+                return newList;
+            } 
+            else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
+                var newDict = (IDictionary)obj ?? (IDictionary)Activator.CreateInstance(objType);
+                pos2obj[bufferOffset] = newDict;
+                newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
+                return newDict;
             } else {
-                UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({typeof(T)}) not supported!");
-                return default(T);
+                UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
+                return null;
             }
         }
 
@@ -145,28 +177,33 @@ namespace Service.Serializer
         //    }
         //}
 
-        public object _GetReferenceByType(int bufferOffset, object obj, Type objType) {
-            var dctxType = typeof(DeserializationContext);
-            var method = dctxType.GetMethod("_GetReference");
-            var genMethod = method.MakeGenericMethod(objType);
-            var result = genMethod.Invoke(this, new object[] { bufferOffset,obj });
+        public object GetReferenceByType(int bufferOffset, Type objType, object obj=null) {
+            //var dctxType = typeof(DeserializationContext);
+            //var method = dctxType.GetMethod("GetReference");
+            //var genMethod = method.MakeGenericMethod(objType);
+            //var result = genMethod.Invoke(this, new object[] { bufferOffset,obj });
+            if (bufferOffset == 0) return null;
+
+            var result = GetOrCreate(bufferOffset, objType, obj);
+
             return result;
         }
 
-        public T _GetReference<T>(int bufferOffset, T obj = default(T)) where T :  new() {
+        public T GetReference<T>(int bufferOffset, T obj = default(T)) where T :  new() {
             // TODO: white/black-listing...
             if (bufferOffset == 0) {
                 return default(T);
             }
 
-            var result = GetOrCreate<T>(bufferOffset,obj);
+            var result = (T)GetOrCreate(bufferOffset,typeof(T));
             return result;
         }
 
 
         public T GetRoot<T>() where T : IFBSerializable2, new() {
             int offset = GetRootOffset();
-            return GetOrCreate<T>(offset);
+            T data = new T();
+            return GetOrCreate<T>(offset,ref data);
         }
 
         public int GetRootOffset() {
@@ -213,22 +250,30 @@ namespace Service.Serializer
             builder = new FlatBufferBuilder(bb);
         }
 
+        private void AdObj2OffsetMapping(object obj,int offset) {
+            obj2offsetMapping[obj] = offset;
+        }
+
         public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
             
             if (cachedOffset != -1) {
                 return cachedOffset;
             }
-            
+
             if (obj is IFBSerializable2) {
                 var iFBSer2Obj = (IFBSerializable2)obj;
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
                 return newOffset;
-            }
+            } 
             else if (obj is IList) {
-                int newOffset = builder.CreateList((IList)obj,this);
+                int newOffset = builder.CreateList((IList)obj, this);
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
+            } 
+            else if (obj is IDictionary) {
+                int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
+                obj2offsetMapping[obj] = newOffset;
             }
             return 0;
         }
