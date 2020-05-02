@@ -274,6 +274,7 @@ namespace Service.Serializer
             else if (obj is IDictionary) {
                 int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
                 obj2offsetMapping[obj] = newOffset;
+                return newOffset;
             }
             return 0;
         }

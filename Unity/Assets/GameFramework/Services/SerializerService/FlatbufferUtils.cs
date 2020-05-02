@@ -943,7 +943,8 @@ namespace Service.Serializer
             }
             else if (keyPrimitive && !valuePrimitive) {
                 for (int i = 0; i < count; i++) {
-                    dict[bb.Get(currentAddress, typeKey)] = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
+                    var valData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
+                    dict[bb.Get(currentAddress, typeKey)] = valData;
                     currentAddress += elementSize;
                     currentValueAddress += elementSize;
                 }

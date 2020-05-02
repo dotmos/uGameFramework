@@ -1321,7 +1321,7 @@ namespace FlatBuffers
             } else if (!keyPrimitive) {
                 foreach (object elem in data) {
                     _space -= elementSize;
-                    sctx.AddLateReference(Offset, elem);
+                    sctx.AddLateReference(Offset, elem); // tell the sctx where to later put the offset to the serialized object
                 }
             }
         }
