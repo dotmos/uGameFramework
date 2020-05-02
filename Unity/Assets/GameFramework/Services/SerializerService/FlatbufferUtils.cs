@@ -991,29 +991,36 @@ namespace Service.Serializer
         }
 
 
-        //    public List<T> GetList<T>(int fbPos, ref List<T> intList) {
-        //    int o = GetVTableOffset(fbPos);
-        //    return GetListFromOffset(o, ref intList);
-        //}
-        //public List<T> GetListFromOffset<T>(int offset,ref List<T> intList)  {
-        //    if (offset == 0) {
-        //        intList = null;
-        //        return null;
-        //    } 
+        public T GetOrCreate<T>(int fbPos, ref T obj,DeserializationContext dctx) where T : new() {
+            int offset = GetOffset(fbPos);
+            if (offset == 0) return default(T);
+            var result = dctx.GetOrCreate<T>(offset, ref obj);
+            return result;
+        }
 
-        //    if (intList == null) {
-        //        intList = new List<T>();
-        //    } else {
-        //        intList.Clear();
-        //    }
-        //    int count = GetListLengthFromOffset(offset);
-        //    int vecBase = __tbl.__vector(offset);
-        //    for (int i = 0; i < count; i++) {
-        //        int value = __tbl.bb.GetInt(vecBase + i * 4);
-        //        intList.Add(value);
-        //    }
+            //    public List<T> GetList<T>(int fbPos, ref List<T> intList) {
+            //    int o = GetVTableOffset(fbPos);
+            //    return GetListFromOffset(o, ref intList);
+            //}
+            //public List<T> GetListFromOffset<T>(int offset,ref List<T> intList)  {
+            //    if (offset == 0) {
+            //        intList = null;
+            //        return null;
+            //    } 
 
-        //    return intList;
-        //}
-    }
+            //    if (intList == null) {
+            //        intList = new List<T>();
+            //    } else {
+            //        intList.Clear();
+            //    }
+            //    int count = GetListLengthFromOffset(offset);
+            //    int vecBase = __tbl.__vector(offset);
+            //    for (int i = 0; i < count; i++) {
+            //        int value = __tbl.bb.GetInt(vecBase + i * 4);
+            //        intList.Add(value);
+            //    }
+
+            //    return intList;
+            //}
+        }
 }
