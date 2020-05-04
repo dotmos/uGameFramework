@@ -35,6 +35,7 @@
 // dangerous. Do so at your own risk!
 //
 
+using Service.Serializer;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -133,6 +134,7 @@ namespace FlatBuffers
         static readonly Type typeByte = typeof(byte);
         static readonly Type typeString = typeof(string);
         static readonly Type typeShort = typeof(short);
+        static readonly Type typeIFSerializable2Struct = typeof(IFBSerializable2Struct);
 
         private ByteBufferAllocator _buffer;
         private int _pos;  // Must track start of the buffer.
@@ -224,6 +226,15 @@ namespace FlatBuffers
             if (type.IsEnum) {
                 return sizeof(int);
             } else {
+                if (genericSizes.TryGetValue(type, out int value)) {
+                    return value;
+                } else { 
+                    if (typeIFSerializable2Struct.IsAssignableFrom(type)) {
+                        // for this struct is no value known, yet. Create this once!
+                        IFBSerializable2Struct dummy = (IFBSerializable2Struct)Activator.CreateInstance(type);
+                        genericSizes[type] = dummy.ByteSize;
+                    }
+                }
                 return genericSizes[type];
             }
         }

@@ -909,7 +909,7 @@ namespace Service.Serializer
         }
 
         public object GetStructFromOffset(int offset, Type type, bool useDirectMemory=false) {
-                offset = useDirectMemory ? offset : Off2Buf(offset);
+            offset = useDirectMemory ? offset : Off2Buf(offset);
 
             if (type == typeUID) {
                 var uid = (ECS.UID)Activator.CreateInstance(type);
@@ -968,11 +968,12 @@ namespace Service.Serializer
                 return bb.Get(offset, type);
             }
             else {
-                if (type == typeVector3) {
-                    Vector3 vec = new Vector3();
-                    GetVector3FromOffset(offset, ref vec);
-                    return vec;
-                }
+                return GetStructFromOffset(offset, type,true);
+                //if (type == typeVector3) {
+                //    Vector3 vec = new Vector3();
+                //    GetVector3FromOffset(offset, ref vec);
+                //    return vec;
+                //}
             }
             throw new ArgumentException($"unsupported type in getPrimitveOrStruct:{type}");
         }

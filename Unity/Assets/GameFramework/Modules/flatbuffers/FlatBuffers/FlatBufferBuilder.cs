@@ -1329,14 +1329,13 @@ namespace FlatBuffers
             Prep(overallSize, 0);
 
             // set startposition
-            int dictionaryStartSpace = _space;
             int dictionaryStart = Offset;
 
             PutCollectionData(dict.Keys, sctx, typeKey, keyPrimitive,keyIsStruct, elementSize);
             int dictHead = _space;
             // set the pointer on the value 'after' the dict by adding the keySize.
             // (before writing the first element, we subtract elementSize and are then on a valid position) 
-            _space = dictionaryStartSpace + valueSize;
+            _space = Off2Buf(dictionaryStart) + valueSize;
             PutCollectionData(dict.Values, sctx, typeValue, valuePrimitive,valueIsStruct, elementSize);
             
             _space = dictHead;
@@ -1348,30 +1347,50 @@ namespace FlatBuffers
             // lots of reperition....(to avoid if checks in the loop. 
             // TODO: Check how big the check for type impact would be...
             if (isPrimitive) {
+                int spaceTemp = _space + 4; 
+                _space += 4;
                 if (type == typeInt) {
                     foreach (int elem in data) {
-                        _space -= elementSize;
-                        _bb.PutInt(_space, (int)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _space = spaceTemp -= elementSize;
+                        PutInt((int)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeFloat) {
                     foreach (float elem in data) {
-                        _space -= elementSize;
-                        _bb.PutFloat(_space, (float)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _space = spaceTemp -= elementSize;
+                        PutFloat((float)(object)elem); // I don't want to, but I really don't know how to prevent it
+                    }
+                } else if (type == typeBool) {
+                    foreach (bool elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutBool((bool)(object)elem); // I don't want to, but I really don't know how to prevent it
+                    }
+                } else if (type == typeShort) {
+                    foreach (short elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutShort((short)(object)elem); // I don't want to, but I really don't know how to prevent it
+                    }
+                } else if (type == typeByte) {
+                    foreach (byte elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutByte((byte)(object)elem); // I don't want to, but I really don't know how to prevent it
+                    }
+                } else if (type == typeLong) {
+                    foreach (long elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutFloat((long)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 }
                 return;
             } 
             else if (isStruct) {
-                int spaceTemp = _space+4;
+                int spaceTemp = _space + 4;
                 if (type == typeUID) {
-                    _space += 4;
                     foreach (ECS.UID elem in data) {
                         _space = spaceTemp -= elementSize;
                         PutUID(elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } 
                 else if (type == typeVector3) {
-                    _space += 4;
                     foreach (Vector3 elem in data) {
                         _space = spaceTemp -= elementSize;
                         PutVector3(elem); // I don't want to, but I really don't know how to prevent it
@@ -1397,7 +1416,17 @@ namespace FlatBuffers
                         _space = spaceTemp -= elementSize;
                         PutVector3(elem); // I don't want to, but I really don't know how to prevent it
                     }
+                } 
+                else if (typeIFBserializabel2Struct.IsAssignableFrom(type)) {
+                    foreach (IFBSerializable2Struct elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        elem.Put(this); // I don't want to, but I really don't know how to prevent it
+                    }
                 }
+                else {
+                    throw new ArgumentException($"Unsupported struct-dict-type: {type} ");
+                }
+
                 return;
             } 
             else if (!isPrimitive) {
