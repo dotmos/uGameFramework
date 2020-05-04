@@ -16,7 +16,7 @@ namespace ECS {
         /// </summary>
         //This is super cache unfriendly.
         //TODO: Make cache friendly and do not use a list of components, but use a list of ids, targeting component arrays of same component type. I.e. one array per component type
-        protected readonly Dictionary<UID, HashSet<IComponent>> _entities;
+        protected readonly Dictionary<UID, List<IComponent>> _entities;
         private readonly HashSet<UID> _entityIDs;
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace ECS {
         [Inject] DisposableManager dManager;
 
         public EntityManager() {
-            _entities = new Dictionary<UID, HashSet<IComponent>>();
+            _entities = new Dictionary<UID, List<IComponent>>();
             _entityIDs = new HashSet<UID>();
             _systems = new List<ISystem>();
             _recycledEntityIds = new Queue<UID>();
@@ -181,7 +181,7 @@ namespace ECS {
             UID uid = new UID(id, revision);
             //UnityEngine.Debug.Log(uid.ID);
 
-            _entities.Add(uid, new HashSet<IComponent>());
+            _entities.Add(uid, new List<IComponent>());
             _entityIDs.Add(uid);
 
             return uid;
@@ -195,7 +195,7 @@ namespace ECS {
             //UnityEngine.Debug.Log(uid.ID);
             lock (_entities) {
                 UID uid = new UID(id, revision);
-                _entities.Add(uid, new HashSet<IComponent>());
+                _entities.Add(uid, new List<IComponent>());
                 _entityIDs.Add(uid);
                 return uid;
             }
@@ -475,12 +475,45 @@ namespace ECS {
         /// <returns></returns>
         public T GetComponent<T>(UID entity) where T : IComponent{
             if (EntityExists(entity)) {
-                HashSet<IComponent> components = _entities[entity];
-                foreach (IComponent comp in components) {
+                List<IComponent> components = _entities[entity];
+                for(int i=0; i<components.Count; ++i){
+                    IComponent comp = components[i];
+                    if (comp.GetType() == typeof(T)) {
+                        return (T)comp;
+                    }
+                }
+            }
+
+            return default;
+        }
+
+        public T GetComponentTEST<T>(UID entity) where T : IComponent {
+            if (EntityExists(entity)) {
+                List<IComponent> components = _entities[entity];
+                
+                for (int i = 0; i < components.Count; ++i) {
+
+                    IComponent comp = components[i];
+                    // ~3 ms
+                    if (comp.GetType() == typeof(T)) {
+                        return (T)comp;
+                    }
+                    
+
+                    /*
+                    // ~8 ms
+                    if(comp is T) {
+                        return (T)comp;
+                    }
+
+                    // ~8 ms
                     if (comp is T castedComp) {
                         return castedComp;
                     }
+                    */
+
                 }
+
             }
 
             return default;
@@ -495,8 +528,9 @@ namespace ECS {
         /// <returns></returns>
         public IComponent GetComponent(UID entity,Type componentType) {
             if (EntityExists(entity)) {
-                HashSet<IComponent> components = _entities[entity];
-                foreach (IComponent comp in components) {
+                List<IComponent> components = _entities[entity];
+                for(int i=0; i<components.Count; ++i) {
+                    IComponent comp = components[i];
                     if (comp.GetType()==componentType) {
                         return comp;
                     }
@@ -508,11 +542,12 @@ namespace ECS {
         public object ThreadSafeGetComponent(UID entity, Type componentType) {
             if (EntityExists(entity)) {
                 IComponent c = null;// 
-                HashSet<IComponent> entityComponents = null;
+                List<IComponent> entityComponents = null;
                 lock (_entities) {
                     entityComponents = _entities[entity];
                 }
-                foreach (IComponent comp in entityComponents) {
+                for(int i=0; i<entityComponents.Count; ++i){
+                    IComponent comp = entityComponents[i];
                     if (comp.GetType() == componentType) {
                         c = comp;
                         break;
@@ -550,10 +585,13 @@ namespace ECS {
                 //IComponent c = _entities[entity].Find(o => o is T);
 
                 //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
+                //UPDATE: List version again as list content is relatively small and will not create garbage when iterating / does not need GetEnumarator()
                 IComponent c = null;// 
-                foreach (IComponent comp in _entities[entity]) {
-                    if (comp is T) {
-                        c = comp;
+                List<IComponent> components = _entities[entity];
+                for(int i=0; i<components.Count; ++i){
+                    IComponent comp = components[i];
+                    if (comp.GetType() == typeof(T)) {
+                        c = (T)comp;
                         break;
                     }
                 }
@@ -573,6 +611,7 @@ namespace ECS {
                 //}
 
                 //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
+                //UPDATE: List version again as list content is relatively small and will not create garbage when iterating/does not need GetEnumarator()
                 return _entities[entity].Contains(component);
             }
             return false;
@@ -581,7 +620,9 @@ namespace ECS {
         public bool HasComponent(UID entity, Type componentType) {
             if (EntityExists(entity)) {
                 IComponent c = null;// 
-                foreach (IComponent comp in _entities[entity]) {
+                List<IComponent> components = _entities[entity];
+                for(int i=0; i< components.Count; ++i) {
+                    IComponent comp = components[i];
                     if (comp.GetType() == componentType) {
                         c = comp;
                         break;
@@ -717,7 +758,7 @@ namespace ECS {
             }
             _systems.Clear();
 
-            foreach(KeyValuePair<UID, HashSet<IComponent>> kv in _entities) {
+            foreach(KeyValuePair<UID, List<IComponent>> kv in _entities) {
                 kv.Value.Clear();
             }
             _entities.Clear();
