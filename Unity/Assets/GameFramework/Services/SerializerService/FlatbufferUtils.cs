@@ -579,11 +579,16 @@ namespace Service.Serializer
             } */
             
             if (innerType.IsPrimitive || innerType.IsEnum) {
-                // TODO: If observableList create othewise null....(faster)
                 object newObject = list ?? Activator.CreateInstance(listType);
                 IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
 
                 var result = GetPrimitiveListFromOffset(offset, resultList, innerType, useDirectBuffer);
+                return result;
+            } 
+            else if (innerType.IsValueType) {
+                object newObject = list ?? Activator.CreateInstance(listType);
+                IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
+                var result = GetStructListFromOffset(offset, resultList, innerType, useDirectBuffer);
                 return result;
             } else {
                 var thiz = this;
@@ -808,7 +813,7 @@ namespace Service.Serializer
         }
 
         public List<T> GetStructList<T>(int fbPos, ref List<T> tlist) where T : struct {
-            int vecOffset = GetVTableOffset(fbPos);
+            int vecOffset = GetOffset(fbPos);
             if (vecOffset == 0) {
                 tlist = null;
                 return null;
@@ -820,27 +825,32 @@ namespace Service.Serializer
                 tlist.Clear();
             }
 
-            Type innerType = typeof(T);
+            var result = GetStructListFromOffset(vecOffset, tlist,typeof(T), false);
+            return (List<T>)result;
+        }
 
-            int vector_start = __tbl.__vector(vecOffset);
-            int vector_len = __tbl.__vector_len(vecOffset);
-            int buflength = __tbl.bb.Length;
+        public IList GetStructListFromOffset(int offset, IList tlist,Type innerType, bool directMemoryAccess = false) {
+            int currentAddress = directMemoryAccess ? offset : Off2Buf(offset);
+
+            int vector_start = currentAddress + sizeof(int);
+            int vector_len = bb.GetInt(currentAddress);
+            int buflength = bb.Length;
 
             if (innerType == typeUID) {
                 int bytesize = 8;
                 ECS.UID uid = new ECS.UID();
                 for (int i = 0; i < vector_len; i++) {
                     GetUIDFromOffset(vector_start, ref uid);
-                    tlist.Add((T)(object)uid);
+                    tlist.Add(uid);
                     vector_start += bytesize;
                 }
                 return tlist;
             } else if (typeIFBSerializableStruct.IsAssignableFrom(innerType)) {
-                IFBSerializable2Struct elem = (IFBSerializable2Struct)new T();
+                IFBSerializable2Struct elem = (IFBSerializable2Struct)Activator.CreateInstance(innerType);
                 int bytesize = elem.ByteSize;
                 for (int i = 0; i < vector_len; i++) {
                     elem.Get(this, vector_start);
-                    tlist.Add((T)elem);
+                    tlist.Add(elem);
                     vector_start += bytesize;
                 }
                 return tlist;
@@ -849,7 +859,7 @@ namespace Service.Serializer
                 Vector2 vec2 = new Vector2();
                 for (int i = 0; i < vector_len; i++) {
                     GetVector2FromOffset(vector_start, ref vec2);
-                    tlist.Add((T)(object)vec2);
+                    tlist.Add(vec2);
                     vector_start += bytesize;
                 }
                 return tlist;
@@ -858,7 +868,7 @@ namespace Service.Serializer
                 Vector3 vec3 = new Vector3();
                 for (int i = 0; i < vector_len; i++) {
                     GetVector3FromOffset(vector_start, ref vec3);
-                    tlist.Add((T)(object)vec3);
+                    tlist.Add(vec3);
                     vector_start += bytesize;
                 }
                 return tlist;
@@ -867,7 +877,7 @@ namespace Service.Serializer
                 Vector4 vec4 = new Vector4();
                 for (int i = 0; i < vector_len; i++) {
                     GetVector4FromOffset(vector_start, ref vec4);
-                    tlist.Add((T)(object)vec4);
+                    tlist.Add(vec4);
                     vector_start += bytesize;
                 }
                 return tlist;
@@ -876,15 +886,16 @@ namespace Service.Serializer
                 Quaternion quaternion = new Quaternion();
                 for (int i = 0; i < vector_len; i++) {
                     GetQuaternionFromOffset(vector_start, ref quaternion);
-                    tlist.Add((T)(object)quaternion);
+                    tlist.Add(quaternion);
                     vector_start += bytesize;
                 }
                 return tlist;
             }
-            Debug.LogError($"GetStructList<{typeof(T)}>: Do not know how to serialize type:{innerType}");
+            Debug.LogError($"GetStructList<{innerType}>: Do not know how to serialize type:{innerType}");
             return null;
         }
-        
+
+
         public ObservableList<T> GetStructList<T>(int fbPos, ref ObservableList<T> tlist) where T : struct {
 
             if (GetVTableOffset(fbPos) == 0) {
