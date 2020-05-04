@@ -41,6 +41,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using UnityEngine;
 
 #if ENABLE_SPAN_T
 using System.Buffers.Binary;
@@ -201,6 +202,12 @@ namespace FlatBuffers
             { typeof(uint),     sizeof(uint) },
             { typeof(ulong),    sizeof(ulong) },
             { typeof(long),     sizeof(long) },
+
+            { typeof(ECS.UID), 8 },
+            { typeof(Vector2), 8 },
+            { typeof(Vector3), 12 },
+            { typeof(Vector4), 16 },
+            { typeof(Quaternion), 16 }
         };
 
         /// <summary>
@@ -911,6 +918,16 @@ namespace FlatBuffers
                 //}
             }
             return offset;
+        }
+
+        public byte[] __getsubarray(int from,int to) {
+            from = from < Length ? from: Length;
+            to = to < Length ? to : Length;
+            int len = from - to;
+            if (len == 0) return null;
+            byte[] result = new byte[len];
+            Array.Copy(_buffer.Buffer, from, result, 0, len);
+            return result;
         }
 
 #if ENABLE_SPAN_T

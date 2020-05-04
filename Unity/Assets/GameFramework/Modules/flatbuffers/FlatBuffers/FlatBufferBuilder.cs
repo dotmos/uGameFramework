@@ -1317,11 +1317,11 @@ namespace FlatBuffers
             bool keyPrimitive = typeKey.IsPrimitive || typeKey.IsEnum;
             bool keyIsStruct = !keyPrimitive && typeKey.IsValueType;
             bool valuePrimitive = typeValue.IsPrimitive || typeValue.IsEnum;
-            bool valueIsStruct = !keyPrimitive && typeKey.IsValueType;
+            bool valueIsStruct = !valuePrimitive && typeValue.IsValueType;
 
             int count = dict.Count;
-            int keySize = keyPrimitive ? ByteBuffer.SizeOf(typeKey) : ByteBuffer.SizeOf(typeInt);
-            int valueSize = valuePrimitive ? ByteBuffer.SizeOf(typeValue) : ByteBuffer.SizeOf(typeInt);
+            int keySize = (keyPrimitive || keyIsStruct) ? ByteBuffer.SizeOf(typeKey) : 4;
+            int valueSize = (valuePrimitive || valueIsStruct) ? ByteBuffer.SizeOf(typeValue) : 4;
             int elementSize = keySize + valueSize;
             int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 
@@ -1332,35 +1332,82 @@ namespace FlatBuffers
             int dictionaryStartSpace = _space;
             int dictionaryStart = Offset;
 
-            PutCollectionData(dict.Keys, sctx, typeKey, keyPrimitive, elementSize);
+            PutCollectionData(dict.Keys, sctx, typeKey, keyPrimitive,keyIsStruct, elementSize);
             int dictHead = _space;
             // set the pointer on the value 'after' the dict by adding the keySize.
             // (before writing the first element, we subtract elementSize and are then on a valid position) 
-            _space = dictionaryStartSpace + keySize;
-            PutCollectionData(dict.Values, sctx, typeValue, valuePrimitive, elementSize);
+            _space = dictionaryStartSpace + valueSize;
+            PutCollectionData(dict.Values, sctx, typeValue, valuePrimitive,valueIsStruct, elementSize);
             
             _space = dictHead;
             PutInt(count);
             return Offset;
         }
 
-        private void PutCollectionData(ICollection data, SerializationContext sctx, Type type, bool keyPrimitive, int elementSize) {
-            if (type == typeInt) {
-                foreach (int elem in data) {
-                    _space -= elementSize;
-                    _bb.PutInt(_space, (int)(object)elem); // I don't want to, but I really don't know how to prevent it
+        private void PutCollectionData(ICollection data, SerializationContext sctx, Type type, bool isPrimitive,bool isStruct, int elementSize) {
+            // lots of reperition....(to avoid if checks in the loop. 
+            // TODO: Check how big the check for type impact would be...
+            if (isPrimitive) {
+                if (type == typeInt) {
+                    foreach (int elem in data) {
+                        _space -= elementSize;
+                        _bb.PutInt(_space, (int)(object)elem); // I don't want to, but I really don't know how to prevent it
+                    }
+                } else if (type == typeFloat) {
+                    foreach (float elem in data) {
+                        _space -= elementSize;
+                        _bb.PutFloat(_space, (float)(object)elem); // I don't want to, but I really don't know how to prevent it
+                    }
                 }
-            } else if (type == typeFloat) {
-                foreach (float elem in data) {
-                    _space -= elementSize;
-                    _bb.PutFloat(_space, (float)(object)elem); // I don't want to, but I really don't know how to prevent it
+                return;
+            } 
+            else if (isStruct) {
+                int spaceTemp = _space+4;
+                if (type == typeUID) {
+                    _space += 4;
+                    foreach (ECS.UID elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutUID(elem); // I don't want to, but I really don't know how to prevent it
+                    }
+                } 
+                else if (type == typeVector3) {
+                    _space += 4;
+                    foreach (Vector3 elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutVector3(elem); // I don't want to, but I really don't know how to prevent it
+                    }
+                } 
+                else if (type == typeQuaternion) {
+                    foreach (Quaternion elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutQuaternion(elem);
+                    }
+                } else if (type == typeVector4) {
+                    foreach (Vector4 elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutVector4(elem); 
+                    }
+                } else if (type == typeVector2) {
+                    foreach (Vector2 elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutVector2(elem); 
+                    }
+                } else if (type == typeVector3) {
+                    foreach (Vector3 elem in data) {
+                        _space = spaceTemp -= elementSize;
+                        PutVector3(elem); // I don't want to, but I really don't know how to prevent it
+                    }
                 }
-            } else if (!keyPrimitive) {
+                return;
+            } 
+            else if (!isPrimitive) {
                 foreach (object elem in data) {
                     _space -= elementSize;
                     sctx.AddLateReference(Offset, elem); // tell the sctx where to later put the offset to the serialized object
                 }
+                return;
             }
+            throw new ArgumentException($"Unsupported Dictionary-Innertype {type}");
         }
 
        

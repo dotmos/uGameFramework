@@ -166,8 +166,7 @@ namespace Service.Serializer
         }
         public void GetVector2(int fbPos, ref Vector2 vec2) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4);
-            vec2.x = __tbl.bb.GetFloat(vec_pos + 0);
-            vec2.y = __tbl.bb.GetFloat(vec_pos + 4);
+            GetVector2FromOffset(vec_pos, ref vec2);
         }
         public void GetVector2FromOffset(int vec_pos, ref Vector2 vec2) {
             vec2.x = __tbl.bb.GetFloat(vec_pos + 0);
@@ -198,9 +197,7 @@ namespace Service.Serializer
 
         public void GetVector3(int o, ref Vector3 vec) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
-            vec.x = __tbl.bb.GetFloat(vec_pos + 0);
-            vec.y = __tbl.bb.GetFloat(vec_pos + 4);
-            vec.z = __tbl.bb.GetFloat(vec_pos + 8);
+            GetVector3FromOffset(vec_pos, ref vec);
         }
         public void GetVector3FromOffset(int vec_pos, ref Vector3 vec) {
             vec.x = __tbl.bb.GetFloat(vec_pos + 0);
@@ -231,10 +228,7 @@ namespace Service.Serializer
 
         public void GetVector4(int o, ref Vector4 vec) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
-            vec.x = __tbl.bb.GetFloat(vec_pos + 0);
-            vec.y = __tbl.bb.GetFloat(vec_pos + 4);
-            vec.z = __tbl.bb.GetFloat(vec_pos + 8);
-            vec.w = __tbl.bb.GetFloat(vec_pos + 12);
+            GetVector4FromOffset(vec_pos, ref vec);
         }
         public void GetVector4FromOffset(int vec_pos, ref Vector4 vec) {
             vec.x = __tbl.bb.GetFloat(vec_pos + 0);
@@ -266,10 +260,7 @@ namespace Service.Serializer
 
         public void GetQuaternion(int o, ref Quaternion quat) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
-            quat.x = __tbl.bb.GetFloat(vec_pos + 0);
-            quat.y = __tbl.bb.GetFloat(vec_pos + 4);
-            quat.z = __tbl.bb.GetFloat(vec_pos + 8);
-            quat.w = __tbl.bb.GetFloat(vec_pos + 12);
+            GetQuaternionFromOffset(vec_pos, ref quat);
         }
 
         public void GetQuaternionFromOffset(int quat_pos, ref Quaternion quat) {
@@ -296,8 +287,7 @@ namespace Service.Serializer
 
         public void GetUID(int fbPos, ref ECS.UID uid) {
             int vec_pos = __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4);
-            uid.ID = __tbl.bb.GetInt(vec_pos + 0);
-            uid.__SetRevision(__tbl.bb.GetInt(vec_pos + 4));
+            GetUIDFromOffset(vec_pos, ref uid);
         }
 
         public void GetUIDFromOffset(int uid_pos, ref ECS.UID uid) {
@@ -882,7 +872,7 @@ namespace Service.Serializer
                     vector_start += bytesize;
                 }
                 return tlist;
-            } else if (innerType == typeVector4) {
+            } else if (innerType == typeQuaternion) {
                 int bytesize = 16;
                 Quaternion quaternion = new Quaternion();
                 for (int i = 0; i < vector_len; i++) {
@@ -913,10 +903,46 @@ namespace Service.Serializer
             return tlist;
         }
 
-        public T GetStruct<T>(int fbPos, ref T structElem) where T:IFBSerializable2Struct {
+        public void GetStruct<T>(int fbPos, ref T structElem) {
             int structOffset = GetStructBegin(fbPos);
-            structElem.Get(this,structOffset);
-            return structElem;
+            structElem = (T)GetStructFromOffset(structOffset, typeof(T),true);
+        }
+
+        public object GetStructFromOffset(int offset, Type type, bool useDirectMemory=false) {
+                offset = useDirectMemory ? offset : Off2Buf(offset);
+
+            if (type == typeUID) {
+                var uid = (ECS.UID)Activator.CreateInstance(type);
+                GetUIDFromOffset(offset, ref uid);
+                return uid;
+            } 
+            else if (type == typeVector3) {
+                Vector3 vec3 = new Vector3();
+                GetVector3FromOffset(offset, ref vec3);
+                return vec3;
+            } 
+            else if (typeIFBSerializableStruct.IsAssignableFrom(type)) {
+                IFBSerializable2Struct structElem = (IFBSerializable2Struct)Activator.CreateInstance(type);
+                structElem.Get(this, offset);
+                return structElem;
+            } 
+            else if (type == typeVector2) {
+                var vec2 = new Vector2();
+                GetVector2FromOffset(offset, ref vec2);
+                return vec2;
+            } 
+            else if (type == typeVector4) {
+                Vector4 vec4 = new Vector4();
+                GetVector4FromOffset(offset, ref vec4);
+                return vec4;
+            } 
+            else if (type == typeQuaternion) {
+                Quaternion quaternion = new Quaternion();
+                GetQuaternionFromOffset(offset, ref quaternion);
+                return quaternion;
+            }
+            Debug.LogError($"GetStructList<{type}>: Do not know how to serialize type:{type}");
+            return null;
         }
 
         public Dictionary<TKey,TValue> GetDictionary<TKey,TValue>(int fbPos, ref Dictionary<TKey,TValue> dict, DeserializationContext dctx, bool directMemoryAccess = false) {
@@ -937,6 +963,20 @@ namespace Service.Serializer
             return dict;
         }
 
+        private object GetPrimitiveOrStruct(int offset,Type type) {
+            if (type.IsPrimitive) {
+                return bb.Get(offset, type);
+            }
+            else {
+                if (type == typeVector3) {
+                    Vector3 vec = new Vector3();
+                    GetVector3FromOffset(offset, ref vec);
+                    return vec;
+                }
+            }
+            throw new ArgumentException($"unsupported type in getPrimitveOrStruct:{type}");
+        }
+
         /// <summary>
         /// Caution dict needs to be internally of IDictionary<,>
         /// </summary>
@@ -955,41 +995,48 @@ namespace Service.Serializer
             var typeKey = genericTypes[0];
             var typeValue = genericTypes[1];
 
-            bool keyPrimitive = typeKey.IsPrimitive || typeKey.IsEnum;
-            bool keyIsStruct = !keyPrimitive && typeKey.IsValueType;
-            bool valuePrimitive = typeValue.IsPrimitive || typeValue.IsEnum;
-            bool valueIsStruct = !keyPrimitive && typeKey.IsValueType;
+            bool keyPrimitiveOrStruct = typeKey.IsValueType;
+            bool keyIsStruct = !keyPrimitiveOrStruct && typeKey.IsValueType;
+            bool valuePrimitiveOrStruct = typeValue.IsValueType;
 
-            int keySize = keyPrimitive ? ByteBuffer.SizeOf(typeKey) : ByteBuffer.SizeOf(typeInt);
-            int valueSize = valuePrimitive ? ByteBuffer.SizeOf(typeValue) : ByteBuffer.SizeOf(typeInt);
+            bool valueIsStruct = !valuePrimitiveOrStruct && typeValue.IsValueType;
+
+            int keySize = keyPrimitiveOrStruct ? ByteBuffer.SizeOf(typeKey) : ByteBuffer.SizeOf(typeInt);
+            int valueSize = valuePrimitiveOrStruct ? ByteBuffer.SizeOf(typeValue) : ByteBuffer.SizeOf(typeInt);
             int elementSize = keySize + valueSize;
             int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 
             int currentValueAddress = currentAddress + keySize;
-            if (keyPrimitive && valuePrimitive) {
+            if (keyPrimitiveOrStruct && valuePrimitiveOrStruct) {
                 for (int i = 0; i < count; i++) {
-                    dict[bb.Get(currentAddress, typeKey)] = bb.Get(currentValueAddress, typeValue);
+                    var keyData = GetPrimitiveOrStruct(currentAddress, typeKey);
+                    var valData = GetPrimitiveOrStruct(currentValueAddress, typeValue);
+
+                    dict[keyData] = valData;
                     currentAddress += elementSize;
                     currentValueAddress += elementSize;
                 }
             }
-            else if (keyPrimitive && !valuePrimitive) {
+            else if (keyPrimitiveOrStruct && !valuePrimitiveOrStruct) {
                 for (int i = 0; i < count; i++) {
+                    var keyData = GetPrimitiveOrStruct(currentAddress, typeKey);
                     var valData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
-                    dict[bb.Get(currentAddress, typeKey)] = valData;
+                    dict[keyData] = valData;
                     currentAddress += elementSize;
                     currentValueAddress += elementSize;
                 }
             } 
-            else if (!keyPrimitive && valuePrimitive) {
+            else if (!keyPrimitiveOrStruct && valuePrimitiveOrStruct) {
                 for (int i = 0; i < count; i++) {
                     var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);
-                    dict[keyData] = bb.Get(currentValueAddress, typeValue);
+                    var valData = GetPrimitiveOrStruct(currentValueAddress, typeValue);
+
+                    dict[keyData] = valData;
                     currentAddress += elementSize;
                     currentValueAddress += elementSize;
                 }
             } 
-            else if (!keyPrimitive && !valuePrimitive) {
+            else if (!keyPrimitiveOrStruct && !valuePrimitiveOrStruct) {
                 for (int i = 0; i < count; i++) {
                     var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);
                     var valueData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
