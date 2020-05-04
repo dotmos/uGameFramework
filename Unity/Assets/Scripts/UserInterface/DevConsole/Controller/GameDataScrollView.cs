@@ -96,7 +96,9 @@ namespace UserInterface {
                 Action<object, List<DataCellObject>> traverseObj = null;
                 traverseObj = (rowObj,rowData) => {
                     DataBrowser.Traverse(rowObj, (varName, varObj, type, meta) => {
+#if UNITY_EDITOR
                         Debug.Log(varName + " : " + varObj);
+#endif
                         if (rowNr == 0) {
                             // define the columns in the first row
                             ColumnDefinition headerElement = new ColumnDefinition() {
@@ -145,7 +147,9 @@ namespace UserInterface {
                                     }
                                     // try to set the value of this field/property
                                     bool successful = DataBrowser.SetValue(rowObj, varName, newVal);
+#if UNITY_EDITOR
                                     Debug.Log("Setting var " + varName + " to new Value:" + newVal + " [" + (successful ? "success" : "fail") + "]");
+#endif
                                 }
 
                             };
@@ -180,7 +184,9 @@ namespace UserInterface {
                                     value = cellTitle,
                                     callback = (newVal) => {
                                         ArrayList objList = new ArrayList() { varObj };
+#if UNITY_EDITOR
                                         Debug.Log("Go to REF:" + varObj.ToString());
+#endif
                                         history.Add(new HistoryElement() { historyTitle = title, objectList = list });
                                         _eventService.Publish(new Service.DevUIService.Events.NewDataTable() {
                                             // since this is a single object and the DataBrowser is meant for lists, wrap the object in a list
@@ -208,8 +214,9 @@ namespace UserInterface {
                                 DataCellObject rowElem = new DataCellObject() {
                                     value = cellTitle,
                                     callback = (newVal) => {
+#if UNITY_EDITOR
                                         Debug.Log("Cannot go into empty lists");
-
+#endif
                                         if (theList.Count == 0) {
                                             //
                                             return;
