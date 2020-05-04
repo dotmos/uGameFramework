@@ -239,6 +239,8 @@ public class SomeClazz2 : DefaultSerializable2
     public FreeTypeTestObject freeTypeTest = null;
 
     public List<UID> structList = new List<UID>();
+    public ObservableList<UID> obsStructList = new ObservableList<UID>();
+
     public List<SomeClazz2> objectList = new List<SomeClazz2>();
     public ObservableList<SomeClazz2> obsObjectList = new ObservableList<SomeClazz2>();
     public System.Collections.Generic.List<UID> testListUID = new System.Collections.Generic.List<UID>();
@@ -479,6 +481,10 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_create_string*/
         /*block:s_list_primitive*/int /*name|fu,pre#offset:name*/offsetTestListPrimitive/*endname*/ = /*name:name*/testListPrimitive/*endname*/==null ? 0 : ctx.builder.CreatePrimitiveList(/*name:name*/testListPrimitive/*endname*/);
         /*endblock:s_list_primitive*/
+        /*block:s_list_struct*/int /*name|fu,pre#offset:name*/offsetStructList/*endname*/ = /*name:name*/structList/*endname*/==null ? 0 : ctx.builder.CreateStructList(/*name:name*/testListPrimitive/*endname*/);
+        /*endblock:s_list_struct*/
+        /*block:s_obs_list_struct*/int /*name|fu,pre#offset:name*/offsetObsStructList/*endname*/ = /*name:name*/obsStructList/*endname*/==null ? 0 : ctx.builder.CreateStructList(/*name:name*/obsStructList/*endname*/.__innerList);
+        /*endblock:s_obs_list_struct*/
         /*block:s_obs_list_primitive*/int /*name|fu,pre#offset:name*/offsetTestObsListPrimitive/*endname*/ = /*name:name*/testObsListPrimitive/*endname*/==null ? 0 : ctx.builder.CreatePrimitiveList(/*name:name*/testObsListPrimitive/*endname*/.__innerList);
         /*endblock:s_list_primitive*/
         /*block:s_list_non_primitive*/int /*name|fu,pre#offset:name*/offsetTestListNonPrimitive/*endname*/ =/*name:name*/objectList/*endname*/== null ? 0 : ctx.builder.CreateNonPrimitiveList(/*name:name*/objectList/*endname*/, ctx);

@@ -250,6 +250,11 @@ namespace FlatBuffers
             _bb.PutFloat(_space -= sizeof(float), x);
         }
 
+        // just moves the current offset position
+        public void MoveCurrentOffset(int amount) {
+            _space -= amount;
+        }
+
         /// <summary>
         /// Puts an array of type T into this builder at the
         /// current offset
@@ -1101,9 +1106,13 @@ namespace FlatBuffers
 
         public int CreateList(IList list, SerializationContext sctx) {
             Type innerType = list.GetType().GetGenericArguments()[0];
-            if (innerType.IsPrimitive || innerType.IsEnum || innerType.IsValueType) {
+            if (innerType.IsPrimitive || innerType.IsEnum ) {
                 return CreatePrimitiveList(list);
+            } 
+            else if (innerType.IsValueType) {
+                return CreateStructList(list);
             }
+
             return CreateNonPrimitiveList(list, sctx);
         }
 
@@ -1116,69 +1125,96 @@ namespace FlatBuffers
 
             Type innerType = list.GetType().GetGenericArguments()[0];
 
+            if (!(innerType.IsPrimitive||innerType.IsEnum) ) {
+                Debug.LogError($"using non primitive type for primitive list:{innerType}");
+            }
+            
+            if (innerType.IsEnum) {
+                StartVector(4, count, 4);
+                for (int i = count - 1; i >= 0; i--) AddInt((int)(object) list[i]);
+                return EndVector().Value;
+            }
+            else if (innerType == typeInt) {
+                IList<int> primList = (IList<int>)list;
+                StartVector(4, count, 4);
+                int[] buf = GetUnderlyingArray(primList);
+                Add(buf, count);
+                return EndVector().Value;
+            } 
+            else if (innerType == typeFloat) {
+                IList<float> primList = (IList<float>)list;
+                StartVector(4, count, 4);
+                float[] buf = GetUnderlyingArray(primList);
+                Add(buf, count);
+                return EndVector().Value;
+            } else if (innerType == typeBool) {
+                IList<bool> primList = (IList<bool>)list;
+                StartVector(1, count, 1);
+                bool[] buf = GetUnderlyingArray(primList);
+                Add(buf, count);
+                return EndVector().Value;
+            } else if (innerType == typeLong) {
+                IList<long> primList = (IList<long>)list;
+                StartVector(8, count, 8);
+                long[] buf = GetUnderlyingArray(primList);
+                Add(buf, count);
+                return EndVector().Value;
+            } else if (innerType == typeShort) {
+                IList<short> primList = (IList<short>)list;
+                StartVector(2, count, 2);
+                short[] buf = GetUnderlyingArray(primList);
+                Add(buf, count);
+                return EndVector().Value;
+            } else if (innerType == typeByte) {
+                IList<byte> primList = (IList<byte>)list;
+                StartVector(1, count, 1);
+                byte[] buf = GetUnderlyingArray(primList);
+                Add(buf, count);
+                return EndVector().Value;
+            } else {
+                Debug.LogError($"Unsupported primitive-list-type: {innerType}");
+            }
+
+            Debug.LogError($"PrimitveList: Do not know how to serialize type:{innerType}");
+
+            return 0;
+
+        }
+
+        private void WriteStructListHeader(int count,bool writeLengthInfo,int reserveAdditionalBytes) {
+            if (writeLengthInfo) {
+                PutInt(count);
+            }
+            if (reserveAdditionalBytes != 0) {
+                MoveCurrentOffset(reserveAdditionalBytes);
+            }
+        }
+
+        public int CreateStructList(IList list, int reserveAdditionalBytes=0, bool writeLengthInfo=true) {
+            if (list == null) return 0;
+
+            int count = list.Count;
+
+            Type innerType = list.GetType().GetGenericArguments()[0];
+
             if (innerType == typeUID) {
                 for (int i = count - 1; i >= 0; i--) {
                     PutUID((ECS.UID)(object)list[i]);
                 }
-                PutInt(count);
+                WriteStructListHeader(count, writeLengthInfo, reserveAdditionalBytes);
                 return Offset;
-            } else if (innerType.IsPrimitive) {
-                if (innerType == typeInt) {
-                    IList<int> primList = (IList<int>)list;
-                    StartVector(4, count, 4);
-                    int[] buf = GetUnderlyingArray(primList);
-                    Add(buf, count);
-                    return EndVector().Value;
-                } else if (innerType == typeFloat) {
-                    IList<float> primList = (IList<float>)list;
-                    StartVector(4, count, 4);
-                    float[] buf = GetUnderlyingArray(primList);
-                    Add(buf, count);
-                    return EndVector().Value;
-                } else if (innerType == typeBool) {
-                    IList<bool> primList = (IList<bool>)list;
-                    StartVector(1, count, 1);
-                    bool[] buf = GetUnderlyingArray(primList);
-                    Add(buf, count);
-                    return EndVector().Value;
-                } else if (innerType == typeLong) {
-                    IList<long> primList = (IList<long>)list;
-                    StartVector(8, count, 8);
-                    long[] buf = GetUnderlyingArray(primList);
-                    Add(buf, count);
-                    return EndVector().Value;
-                } else if (innerType == typeShort) {
-                    IList<short> primList = (IList<short>)list;
-                    StartVector(2, count, 2);
-                    short[] buf = GetUnderlyingArray(primList);
-                    Add(buf, count);
-                    return EndVector().Value;
-                } else if (innerType == typeByte) {
-                    IList<byte> primList = (IList<byte>)list;
-                    StartVector(1, count, 1);
-                    byte[] buf = GetUnderlyingArray(primList);
-                    Add(buf, count);
-                    return EndVector().Value;
-                } else {
-                    Debug.LogError($"Unsupported primitive-list-type: {innerType}");
-                }
-                // primitive-list (int)
-            } else if (innerType.IsEnum) {
-                StartVector(4, count, 4);
-                for (int i = count - 1; i >= 0; i--) AddInt((int)(object)list[i]);
-                return EndVector().Value;
-            }
+            } 
               // struct list
               // I know here comes lots of repetition. Need to find an efficient way 
               // to abstract this without too much overhead. Until then, every type
               // gets its dedicated loop of its own. Too tired for fancy generic magic ;)
               // ...and this casting-madness if used here... :|
-              else if (typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
+            else if (typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
                 for (int i = count - 1; i >= 0; i--) {
                     IFBSerializable2Struct ifbStruct = (IFBSerializable2Struct)list[i];
                     ifbStruct.Put(this);
                 }
-                PutInt(count);
+                WriteStructListHeader(count, writeLengthInfo, reserveAdditionalBytes);
                 return Offset;
             } else if (innerType == typeVector2) {
                 for (int i = count - 1; i >= 0; i--) {
@@ -1190,30 +1226,31 @@ namespace FlatBuffers
                 for (int i = count - 1; i >= 0; i--) {
                     PutVector3((Vector3)(object)list[i]);
                 }
-                PutInt(count);
+                WriteStructListHeader(count, writeLengthInfo, reserveAdditionalBytes);
                 return Offset;
 
             } else if (innerType == typeVector4) {
                 for (int i = count - 1; i >= 0; i--) {
                     PutVector4((Vector4)(object)(list[i]));
                 }
-                PutInt(count);
+                WriteStructListHeader(count, writeLengthInfo, reserveAdditionalBytes);
                 return Offset;
 
             } else if (innerType == typeQuaternion) {
                 for (int i = count - 1; i >= 0; i--) {
                     PutQuaternion((Quaternion)(object)list[i]);
                 }
-                PutInt(count);
+                WriteStructListHeader(count, writeLengthInfo, reserveAdditionalBytes);
                 return Offset;
             }
 
 
-            Debug.LogError($"PrimitveList: Do not know how to serialize type:{innerType}");
+            Debug.LogError($"StructList: Do not know how to serialize type:{innerType}");
 
             return 0;
-
         }
+
+
 
         private List<int> tempOffsets = new List<int>();
 

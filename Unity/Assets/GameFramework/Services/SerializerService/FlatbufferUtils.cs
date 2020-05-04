@@ -812,6 +812,7 @@ namespace Service.Serializer
             return tlist;
         }
 
+
         public List<T> GetStructList<T>(int fbPos, ref List<T> tlist) where T : struct {
             int vecOffset = GetOffset(fbPos);
             if (vecOffset == 0) {
