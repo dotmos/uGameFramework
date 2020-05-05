@@ -17,7 +17,8 @@ namespace ParallelProcessing {
         public static Thread[] Workers {
             get { return _workers; }
         }
-        public static int WorkerCount { get; private set; }
+        readonly static int _workerCount = Environment.ProcessorCount;// Math.Max(1, Environment.ProcessorCount-1);
+        public static int MaxWorkerCount { get { return _workerCount; }}
         public static readonly object _workingCountLocker = new object();
         public static long _workingCount = 0;
         
@@ -28,10 +29,9 @@ namespace ParallelProcessing {
 
         public static void Setup() {
             if (_workers == null) {
-                WorkerCount = Math.Max(Environment.ProcessorCount, 0); //Math.Max(1, (int)(Environment.ProcessorCount*0.5f));// Math.Max(Environment.ProcessorCount-1, 0);
-                _workers = new Thread[WorkerCount];
+                _workers = new Thread[MaxWorkerCount];
                 // Create and start a separate thread for each worker
-                for (int i = 0; i < WorkerCount; i++) {
+                for (int i = 0; i < MaxWorkerCount; i++) {
                     Thread t = new Thread(Consume);
                     t.Name = "ParallelComponentProcessor-" + i.ToString();
                     t.IsBackground = true;
