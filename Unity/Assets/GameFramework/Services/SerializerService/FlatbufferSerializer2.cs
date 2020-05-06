@@ -109,8 +109,8 @@ namespace Service.Serializer
             object cachedObject = _GetCachedObject(bufferOffset,objectType);
             if (cachedObject != null) {
                 return cachedObject;
-            } 
-            object newObject = _GetOrCreate(bufferOffset,objectType);
+            }
+            object newObject = _GetOrCreate(bufferOffset, objectType, obj);
             return newObject;
         }
 
@@ -184,19 +184,65 @@ namespace Service.Serializer
             //var result = genMethod.Invoke(this, new object[] { bufferOffset,obj });
             if (bufferOffset == 0) return null;
 
-            var result = GetOrCreate(bufferOffset, objType, obj);
+            if (ExtendedTable.typeObservableDict.IsAssignableFrom(objType)) {
+                IObservableDictionary dict = (IObservableDictionary)obj;
+                if (dict == null) {
+                    dict =(IObservableDictionary) Activator.CreateInstance(objType);
+                } else {
+                    dict.InnerIDict.Clear();
+                }
+                var inner = GetOrCreate(bufferOffset, dict.InnerIDict.GetType() , dict.InnerIDict);
+                return obj;
+            }
 
-            return result;
+            obj = GetOrCreate(bufferOffset, objType, obj);
+
+            return obj;
         }
 
-        public T GetReference<T>(int bufferOffset, T obj = default(T)) where T :  new() {
+        public ObservableList<T> GetReference<T>(int bufferOffset, ref ObservableList<T> obj) {
+            if (bufferOffset == 0) {
+                return null;
+            }
+
+            if (obj == null) {
+                obj = new ObservableList<T>();
+            } else {
+                obj.Clear();
+            }
+
+            obj = (ObservableList <T>)GetReferenceByType(bufferOffset, typeof(ObservableList<T>), obj);
+            return obj;
+        }
+
+        public ObservableDictionary<TKey,TValue> GetReference<TKey,TValue>(int bufferOffset, ref ObservableDictionary<TKey,TValue> obj)  {
+            if (bufferOffset == 0) {
+                return null;
+            }
+
+            if (obj == null) {
+                obj = new ObservableDictionary<TKey, TValue>();
+            } else {
+                obj.Clear();
+            }
+
+            obj = (ObservableDictionary<TKey, TValue>)GetReferenceByType(bufferOffset, typeof(ObservableDictionary<TKey, TValue>), obj);
+            return obj;
+        }
+
+
+        public T GetReference<T>(int bufferOffset, ref T obj) where T :  new() {
             // TODO: white/black-listing...
             if (bufferOffset == 0) {
                 return default(T);
             }
 
-            var result = (T)GetOrCreate(bufferOffset,typeof(T));
-            return result;
+            if (obj == null) {
+                obj = new T();
+            }
+
+            obj = (T)GetOrCreate(bufferOffset,typeof(T),obj);
+            return obj;
         }
 
 

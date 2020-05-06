@@ -183,6 +183,15 @@ public interface IObservableList {
     }
 }
 
+public interface IObservableDictionary
+{
+    Type GetKeyType();
+    Type GetValueType();
+    IDictionary InnerIDict {
+        get;
+    }
+}
+
 public class ObservableList<T> : IList<T>,IObservableList, IDirtyFlagable {
 
     public List<T> __innerList;
@@ -310,7 +319,7 @@ public class Utils {
     }
 }
 
-public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDirtyFlagable {
+public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDirtyFlagable, IObservableDictionary {
     private Dictionary<TKey, TValue> innerDictionary = new Dictionary<TKey, TValue>();
     private bool isDirty = true;
 
@@ -325,6 +334,7 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDi
     public ObservableDictionary() {
     }
 
+    
 
     public Dictionary<TKey,TValue> InnerDictionary {
         get { return innerDictionary; }
@@ -349,6 +359,8 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDi
     public int Count => ((IDictionary<TKey, TValue>)innerDictionary).Count;
 
     public bool IsReadOnly => ((IDictionary<TKey, TValue>)innerDictionary).IsReadOnly;
+
+    public IDictionary InnerIDict => innerDictionary;
 
     public TValue this[TKey key] { get => ((IDictionary<TKey, TValue>)innerDictionary)[key]; set { ((IDictionary<TKey, TValue>)innerDictionary)[key] = value; SetDirtyFlag(); } }
 
@@ -404,6 +416,14 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDi
 
     IEnumerator IEnumerable.GetEnumerator() {
         return ((IDictionary<TKey, TValue>)innerDictionary).GetEnumerator();
+    }
+
+    public Type GetKeyType() {
+        return typeof(TKey);
+    }
+
+    public Type GetValueType() {
+        return typeof(TValue);
     }
 }
 

@@ -594,7 +594,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_string*/
         /*block:d_typed_object*//*name:name*/typedObj1/*endname*/ = ser2table.GetOrCreateTypedObject</*name:type*/DefaultSerializable2/*endname*/>(/*name:fieldid*/0/*endname*/,dctx);
         /*endblock:d_typed_object*/
-        /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,dctx);
+        /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,ref /*name:name*/serObj/*endname*/,dctx);
         /*endblock:d_object*/
         /*block:d_special_object*/ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/8/*endname*/,ref /*name:name*/testUID/*endname*/);
         /*endblock:d_special_object*/

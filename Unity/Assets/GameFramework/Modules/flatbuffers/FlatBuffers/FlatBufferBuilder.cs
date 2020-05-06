@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using UniRx;
 using UnityEngine;
 
 /// @file
@@ -1282,7 +1283,10 @@ namespace FlatBuffers
         public int CreateNonPrimitiveList(IList list, SerializationContext ctx) {
             int count = list.Count;
 
-            // TODO: List
+            if (list == null) {
+                return 0;
+            }
+
             if (ctx == null) {
                 Debug.LogError("you need to specfiy serialization context if using CreateNonPrimitiveList with objects");
                 return 0;
@@ -1305,11 +1309,23 @@ namespace FlatBuffers
             }
             return EndVector().Value;
         }
+
         public int CreateDictionary<TKey, TValue>(Dictionary<TKey, TValue> dict, SerializationContext sctx) {
             return CreateIDictionary(dict, sctx);
         }
 
+        public int CreateDictionary<TKey, TValue>(ObservableDictionary<TKey, TValue> dict, SerializationContext sctx) {
+            return CreateIDictionary(dict.InnerDictionary, sctx);
+        }
+
         public int CreateIDictionary(IDictionary dict,SerializationContext sctx) {
+            if (dict == null) return 0;
+
+            if (sctx == null) {
+                Debug.LogError($"CreateIDictionary: sctx not set. DictType:{dict.GetType()}");
+                return 0;
+            }
+
             Type typeDict = dict.GetType();
             Type typeKey = typeDict.GetGenericArguments()[0];
             Type typeValue = typeDict.GetGenericArguments()[1];
