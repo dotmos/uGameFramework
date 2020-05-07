@@ -350,7 +350,8 @@ namespace Service.Serializer
         /// <returns></returns>
         public T GetOrCreateTypedObject<T>(int fbPos, DeserializationContext dctx) where T : IFBSerializable2 {
             // pos of the struct ( with string(c# typename) and offset to object)
-            int structOffset = __tbl.bb_pos + __tbl.__offset(4 + fbPos * 2);
+//            int structOffset = __tbl.bb_pos + __tbl.__offset(4 + fbPos * 2);
+            int structOffset = this.offset - __tbl.__offset(4 + fbPos * 2);
             var result = GetOrCreateTypedObjectFromOffset(structOffset,dctx);
             return (T)result;
         }
@@ -363,20 +364,34 @@ namespace Service.Serializer
         /// <param name="dctx"></param>
         /// <returns></returns>
         public object GetOrCreateTypedObjectFromOffset(int offset, DeserializationContext dctx)  {
+            int bufferPosition = Buf2Off(offset);
             // pos of the struct ( with string(c# typename) and offset to object)
-            int structOffset = offset;
-            int objAddress = __tbl.bb.Length - __tbl.__indirect(structOffset + 4);
-
-            // get the typename
-            string typeName = __tbl.__string(structOffset);
-            // get the object
-            object dObj = dctx.GetOrCreate(objAddress, Type.GetType(typeName));
+            string typeName = __tbl.__string(bufferPosition+4);
+            Type objectType = Type.GetType(typeName);
+            int objectAddress = Buf2Off(__tbl.__indirect(bufferPosition));
+            object dObj = dctx.GetOrCreate(objectAddress, objectType);
             return dObj;
+
+//            // get the typename
+//            int len = bb.GetInt(offset+4);
+//            int startPos = offset + 8;
+//            int objAddress = __tbl.__indirect(offset);
+///*            int objAddress = __tbl.bb.Length - __tbl.__indirect(structOffset + 4);
+
+//            // get the typename
+//            -string typeName = __tbl.__string(structOffset);*/
+
+
+//            string typeName = bb.GetStringUTF8(startPos, len);
+
+//            // get the object
+//            object dObj = dctx.GetOrCreate(objAddress, Type.GetType(typeName));
+//            return dObj;
         }
 
-        public T GetReference<T>(int fbPos, ref T obj, DeserializationContext dctx) where T : new() {
+        public T GetReference<T>(int fbPos, ref T obj, DeserializationContext dctx, bool storedAsTypedReference=false) where T : new() {
             int bufferPos = GetOffset(fbPos);
-            T result = dctx.GetReference<T>(bufferPos,ref obj);
+            T result = dctx.GetReference<T>(bufferPos,ref obj,storedAsTypedReference);
             return result;
         }
 
@@ -394,8 +409,41 @@ namespace Service.Serializer
 
 
         public List<string> GetStringList(int fbPos, ref List<string> tlist) {
-            int vtableOffset = GetVTableOffset(fbPos);
-            if (vtableOffset == 0) {
+            int offset = GetOffset(fbPos);
+
+            //int vtableOffset = GetVTableOffset(fbPos);
+            //if (vtableOffset == 0) {
+            //    tlist = null;
+            //    return null;
+            //}
+
+            //if (tlist == null) {
+            //    tlist = new List<string>();
+            //} else {
+            //    tlist.Clear();
+            //}
+
+            //int vector_start = __tbl.__vector(vtableOffset);
+            //int vector_len = __tbl.__vector_len(vtableOffset);
+            //for (int i = 0; i < vector_len; i++) {
+            //    int offset = __tbl.__indirect(vector_start);
+            //    if (offset == 0) {
+            //        tlist.Add(null);
+            //        continue;
+            //    }
+
+            //    int strlen = bb.GetInt(offset);
+            //    int strstartPos = offset + 4;
+            //    tlist.Add(bb.GetStringUTF8(strstartPos, strlen));
+            //    vector_start += 4;
+            //}
+
+            tlist = GetStringListFromOffset(offset, tlist);
+            return tlist;
+        }
+
+        public List<string> GetStringListFromOffset(int offset, IList tlist) {
+            if (offset == 0) {
                 tlist = null;
                 return null;
             }
@@ -406,23 +454,26 @@ namespace Service.Serializer
                 tlist.Clear();
             }
 
-            int vector_start = __tbl.__vector(vtableOffset);
-            int vector_len = __tbl.__vector_len(vtableOffset);
+            offset = Off2Buf(offset);
+
+            int vector_start = offset;
+            int vector_len = bb.GetInt(offset);
             for (int i = 0; i < vector_len; i++) {
-                int offset = __tbl.__indirect(vector_start);
-                if (offset == 0) {
+                vector_start += 4;
+                int stOffset = __tbl.__indirect(vector_start);
+                if (stOffset == 0) {
                     tlist.Add(null);
                     continue;
                 }
+                int strstartPos = stOffset + 4;
 
-                int strlen = bb.GetInt(offset);
-                int strstartPos = offset + 4;
+                int strlen = bb.GetInt(stOffset);
                 tlist.Add(bb.GetStringUTF8(strstartPos, strlen));
-                vector_start += 4;
             }
 
-            return tlist;
+            return (List<string>)tlist;
         }
+
 
         public ObservableList<string> GetStringList(int fbPos, ref ObservableList<string> tlist)  {
             if (GetVTableOffset(fbPos) == 0) {
@@ -546,7 +597,7 @@ namespace Service.Serializer
         }
 
 
-        public ObservableList<T> GetList<T>(int fbPos, ref ObservableList<T> tlist, DeserializationContext dctx) {
+        public ObservableList<T> GetList<T>(int fbPos, ref ObservableList<T> tlist, DeserializationContext dctx, bool storedAsTypedObject = false) {
             if (GetVTableOffset(fbPos) == 0) {
                 tlist = null;
                 return null;
@@ -557,17 +608,17 @@ namespace Service.Serializer
             } else {
                 tlist.Clear();
             }
-            GetList<T>(fbPos, ref tlist.__innerList,dctx);
+            GetList<T>(fbPos, ref tlist.__innerList,dctx,storedAsTypedObject);
             return tlist;
         }
 
-        public List<T> GetList<T>(int fbPos, ref List<T> tlist, DeserializationContext dctx){
+        public List<T> GetList<T>(int fbPos, ref List<T> tlist, DeserializationContext dctx,bool storedAsTypedObject=false){
             int offset = GetOffset(fbPos);
-            tlist = (List<T>)GetListFromOffset(offset, typeof(List<T>), dctx, tlist,false);
+            tlist = (List<T>)GetListFromOffset(offset, typeof(List<T>), dctx, tlist,false, storedAsTypedObject);
             return tlist;
         }
 
-        public IList GetListFromOffset(int offset,Type listType,DeserializationContext dctx, IList list=null,bool useDirectBuffer=false) {
+        public IList GetListFromOffset(int offset,Type listType,DeserializationContext dctx, IList list=null,bool useDirectBuffer=false, bool storedAsTypedobject=false) {
             
             if (!listType.IsGenericType) {
                 throw new ArgumentException($"GetListFromOffset: Invalid parameters offset:{offset} type:{listType}");
@@ -601,22 +652,30 @@ namespace Service.Serializer
 
                 var result = GetPrimitiveListFromOffset(offset, resultList, innerType, useDirectBuffer);
                 return result;
-            } else if (innerType.IsValueType) {
+            } 
+            else if (innerType.IsValueType) {
                 object newObject = list ?? Activator.CreateInstance(listType);
                 IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
                 var result = GetStructListFromOffset(offset, resultList, innerType, useDirectBuffer);
                 return result;
-            } else if (!typeIDictionary.IsAssignableFrom(innerType) && !typeIList.IsAssignableFrom(innerType)) {
-                object newList = list ?? Activator.CreateInstance(listType);
-                var result = GetObjectListFromOffset(offset, (IList)newList,innerType, dctx, useDirectBuffer);
+            } 
+            else if (innerType == typeString) {
+                IList newList = list ?? new List<string>();
+                var result = GetStringListFromOffset(offset, (List<string>)newList);
                 return result;
-            } else {
+            }
+            else if (!typeIDictionary.IsAssignableFrom(innerType) && !typeIList.IsAssignableFrom(innerType)) {
+                object newList = list ?? Activator.CreateInstance(listType);
+                var result = GetObjectListFromOffset(offset, (IList)newList,innerType, dctx, useDirectBuffer, storedAsTypedobject);
+                return result;
+            } 
+            else {
                 var thiz = this;
                 object newObject = list ?? Activator.CreateInstance(listType);
                 IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
                 resultList = TraverseIListFromOffset(offset, (_offset) => {
                     Debug.Log($"outer-offset:{offset}  inneroffset:{_offset} innerType:{innerType}");
-                    return dctx.GetOrCreate(thiz.Buf2Off(_offset), innerType, null);
+                    return dctx.GetOrCreate(thiz.Buf2Off(_offset), innerType, null,storedAsTypedobject);
                 }, resultList, useDirectBuffer);
                 return resultList;
                 //object newObject = list ?? Activator.CreateInstance(listType);
@@ -796,7 +855,7 @@ namespace Service.Serializer
             return tlist;
         }
 
-        public IList GetObjectListFromOffset(int offset, IList tlist, Type innerType,DeserializationContext dctx = null,bool directMemoryAccess=false) {
+        public IList GetObjectListFromOffset(int offset, IList tlist, Type innerType,DeserializationContext dctx = null,bool directMemoryAccess=false, bool storedAsTypedobject=false) {
             // int[] offsets = __tbl.__vector_as_array<int>(4 + fbPos * 2);
             offset = directMemoryAccess ? offset : Off2Buf(offset);
             int elempos = offset;
@@ -810,9 +869,13 @@ namespace Service.Serializer
                 }
 
                 int idxOffset = __tbl.__indirect(elempos);
-
-                IFBSerializable2 deserializedObject = (IFBSerializable2)dctx.GetReferenceByType(buflength-idxOffset,innerType);
-                tlist.Add(deserializedObject); // i hate this casting madness. isn't there a cleaner way?
+                if (storedAsTypedobject) {
+                    object result = GetOrCreateTypedObjectFromOffset(idxOffset, dctx);
+                    tlist.Add(result);
+                } else {
+                    IFBSerializable2 deserializedObject = (IFBSerializable2)dctx.GetReferenceByType(buflength - idxOffset, innerType);
+                    tlist.Add(deserializedObject); // i hate this casting madness. isn't there a cleaner way?
+                }
             }
             return tlist;
         }
@@ -916,6 +979,23 @@ namespace Service.Serializer
             Debug.LogError($"GetStructList<{innerType}>: Do not know how to serialize type:{innerType}");
             return null;
         }
+
+        public IList GetTypedObjectList(int offset, IList tlist, DeserializationContext dctx, bool directMemoryAccess = false) {
+            int currentAddress = directMemoryAccess ? offset : Off2Buf(offset);
+
+            int vector_start = currentAddress + sizeof(int);
+            int vector_len = bb.GetInt(currentAddress);
+            int buflength = bb.Length;
+
+            for (int i = 0; i < vector_len; i++) {
+                var result = GetOrCreateTypedObjectFromOffset(vector_start, dctx);
+                //GetUIDFromOffset(vector_start, ref uid);
+                //tlist.Add(uid);
+                //vector_start += bytesize;
+            }
+            return tlist;
+        }
+
 
 
         public ObservableList<T> GetStructList<T>(int fbPos, ref ObservableList<T> tlist) where T : struct {

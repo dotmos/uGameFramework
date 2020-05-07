@@ -51,9 +51,9 @@ namespace FlatBuffers
         }
 
         // Retrieve the relative offset stored at "offset"
-        public int __indirect(int offset)
+        public int __indirect(int bufferPos)
         {
-            return offset + bb.GetInt(offset);
+            return bufferPos + bb.GetInt(bufferPos);
         }
 
         public static int __indirect(int offset, ByteBuffer bb)

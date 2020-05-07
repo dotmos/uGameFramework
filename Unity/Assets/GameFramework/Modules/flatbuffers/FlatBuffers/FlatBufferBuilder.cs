@@ -479,8 +479,8 @@ namespace FlatBuffers
         }
 
         /// @cond FLATBUFFERS_INTERNAL
-        public void StartVector(int elemSize, int count, int alignment) {
-            NotNested();
+        public void StartVector(int elemSize, int count, int alignment, bool deactivateNestedCheck=false) {
+            if (!deactivateNestedCheck) NotNested();
             _vectorNumElems = count;
             Prep(sizeof(int), elemSize * count);
             Prep(alignment, elemSize * count); // Just in case alignment > int.
@@ -738,7 +738,7 @@ namespace FlatBuffers
             if (!nested) NotNested();
             AddByte(0);
             int utf8StringLen = Encoding.UTF8.GetByteCount(s);
-            StartVector(1, utf8StringLen, 1);
+            StartVector(1, utf8StringLen, 1, true);
             _bb.PutStringUTF8(_space -= utf8StringLen, s);
             return new StringOffset(EndVector().Value);
         }
@@ -1093,28 +1093,24 @@ namespace FlatBuffers
             return Offset;
         }
 
-        /// <summary>
-        /// Creates a struct 0:offset to typename(as shared string) 1:offset to serialized obj
-        /// </summary>
-        /// <param name="offsetTypeName"></param>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public int PutTypedObject(int offsetTypeName, IFBSerializable2 obj) {
-            Prep(4, 8);
-            AddOffset(offsetTypeName);
-            return 0;
-        }
-
-        public int CreateList(IList list, SerializationContext sctx) {
+        public int CreateList(IList list, SerializationContext sctx, bool storeAsTypedReference = false) {
             Type innerType = list.GetType().GetGenericArguments()[0];
-            if (innerType.IsPrimitive || innerType.IsEnum ) {
+            
+            if (innerType == typeString) {
+                return CreateStringList(list);
+            }
+            else if (innerType.IsPrimitive || innerType.IsEnum ) {
                 return CreatePrimitiveList(list);
             } 
             else if (innerType.IsValueType) {
                 return CreateStructList(list);
             }
 
-            return CreateNonPrimitiveList(list, sctx);
+            return CreateNonPrimitiveList(list, sctx, storeAsTypedReference);
+        }
+
+        public int CreateTypedObjectList(IList list,SerializationContext sctx) {
+            return 0;
         }
 
         public int CreatePrimitiveList(IList list) {
@@ -1255,7 +1251,7 @@ namespace FlatBuffers
 
         private List<int> tempOffsets = new List<int>();
 
-        public int CreateStringList(IList<String> stringList) {
+        public int CreateStringList(IList stringList) {
             if (stringList == null) return 0;
 
             tempOffsets.Clear();
@@ -1276,11 +1272,11 @@ namespace FlatBuffers
         //}
 
 
-        public int CreateNonPrimitiveList(IObservableList obsList, SerializationContext ctx) {
-            return CreateNonPrimitiveList(obsList.InnerIList, ctx);
+        public int CreateNonPrimitiveList(IObservableList obsList, SerializationContext ctx, bool storeAsTypedReference=false) {
+            return CreateNonPrimitiveList(obsList.InnerIList, ctx, storeAsTypedReference);
         }
 
-        public int CreateNonPrimitiveList(IList list, SerializationContext ctx) {
+        public int CreateNonPrimitiveList(IList list, SerializationContext ctx, bool storeAsTypedReference=false) {
             int count = list.Count;
 
             if (list == null) {
@@ -1292,7 +1288,10 @@ namespace FlatBuffers
                 return 0;
             }
 
-            StartVector(4, count, 4);
+            //StartVector(4, count, 4);
+            Prep(sizeof(int), 4 * count);
+            Prep(4, 4 * count); // Just in case alignment > int.
+
             for (int i = count - 1; i >= 0; i--) {
                 object obj = list[i];
                 if (obj == null) {
@@ -1305,9 +1304,14 @@ namespace FlatBuffers
                 //    continue;
                 //}
 
-                ctx.AddReferenceOffset(-1, obj);
+                if (storeAsTypedReference) {
+                    ctx.AddTypedObject((IFBSerializable2)obj);
+                } else {
+                    ctx.AddReferenceOffset(-1, obj);
+                }
             }
-            return EndVector().Value;
+            AddInt(count);
+            return Offset;
         }
 
         public int CreateDictionary<TKey, TValue>(Dictionary<TKey, TValue> dict, SerializationContext sctx) {

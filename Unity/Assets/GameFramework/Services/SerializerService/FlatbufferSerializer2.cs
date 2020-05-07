@@ -105,12 +105,12 @@ namespace Service.Serializer
             return (T)GetOrCreate(bufferOffset, typeof(T), obj);
         }
         
-        public object GetOrCreate(int bufferOffset, Type objectType,object obj=null) {
+        public object GetOrCreate(int bufferOffset, Type objectType,object obj=null, bool storedAsTypedReference = false) {
             object cachedObject = _GetCachedObject(bufferOffset,objectType);
             if (cachedObject != null) {
                 return cachedObject;
             }
-            object newObject = _GetOrCreate(bufferOffset, objectType, obj);
+            object newObject = _GetOrCreate(bufferOffset, objectType, obj,storedAsTypedReference);
             return newObject;
         }
 
@@ -137,8 +137,13 @@ namespace Service.Serializer
         }
 
 
-        private object _GetOrCreate(int bufferOffset, Type objType, object obj=null) {
+        private object _GetOrCreate(int bufferOffset, Type objType, object obj=null, bool storedAsTypedReference = false) {
             if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
+                if (storedAsTypedReference) {
+                    obj = extTbl.GetOrCreateTypedObjectFromOffset(bufferOffset, this);
+                    pos2obj[bufferOffset] = obj;
+                    return obj;
+                }
                 var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newIFBSer2obj;
                 newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
@@ -147,7 +152,7 @@ namespace Service.Serializer
             else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
                 var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newList;
-                newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
+                newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false,storedAsTypedReference);
                 return newList;
             } 
             else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
@@ -155,7 +160,8 @@ namespace Service.Serializer
                 pos2obj[bufferOffset] = newDict;
                 newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
                 return newDict;
-            } else {
+            } 
+            else {
                 UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
                 return null;
             }
@@ -231,17 +237,13 @@ namespace Service.Serializer
         }
 
 
-        public T GetReference<T>(int bufferOffset, ref T obj) where T :  new() {
+        public T GetReference<T>(int bufferOffset, ref T obj, bool storedAsTypedReference = false) where T :  new() {
             // TODO: white/black-listing...
             if (bufferOffset == 0) {
                 return default(T);
             }
 
-            if (obj == null) {
-                obj = new T();
-            }
-
-            obj = (T)GetOrCreate(bufferOffset,typeof(T),obj);
+            obj = (T)GetOrCreate(bufferOffset,typeof(T),obj,storedAsTypedReference);
             return obj;
         }
 
@@ -271,11 +273,25 @@ namespace Service.Serializer
         ///// </summary>
         //public readonly Dictionary<IFBSerializable2, int> obj2offset = new Dictionary<IFBSerializable2, int>();
 
+        public struct LateReference
+        {
+            public LateReference(object obj,bool storeAsTyped = false) {
+                this.obj = obj;
+                this.storeAsTyped = storeAsTyped;
+            }
+            public override bool Equals(object _compareWith) {
+                if (!(_compareWith is LateReference)) return false;
+                return obj.Equals(((LateReference)_compareWith).obj);
+            }
+
+            public object obj;
+            public bool storeAsTyped;
+        }
         /// <summary>
         /// mappings to objects that are not serialized,yet
         /// </summary>
-        public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
-        public readonly List<object> lateReferenceList = new List<object>();
+        public readonly Dictionary<LateReference, List<int>> lateReferences = new Dictionary<LateReference, List<int>>();
+        public readonly List<LateReference> lateReferenceList = new List<LateReference>();
 
         public readonly FlatBufferBuilder builder;
 
@@ -300,7 +316,7 @@ namespace Service.Serializer
             obj2offsetMapping[obj] = offset;
         }
 
-        public int GetOrCreate(object obj) {
+        public int GetOrCreate(object obj, bool storeAsTypedReference=false) {
             int cachedOffset = GetCachedOffset(obj);
             
             if (cachedOffset != -1) {
@@ -313,7 +329,7 @@ namespace Service.Serializer
                 return newOffset;
             } 
             else if (obj is IList) {
-                int newOffset = builder.CreateList((IList)obj, this);
+                int newOffset = builder.CreateList((IList)obj, this, storeAsTypedReference);
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
             } 
@@ -333,23 +349,27 @@ namespace Service.Serializer
         /// <param name="offsetTypeName"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public int AddTypedObject(int o, int offsetTypeName, IFBSerializable2 obj) {
-            AddReferenceOffset(-1, obj);
+        //public int AddTypedObject(int o, int offsetTypeName, IFBSerializable2 obj) {
+        //    AddReferenceOffset(-1, obj);
+        //    builder.AddOffset(offsetTypeName);
+        //    int offset = builder.Offset;
+        //    builder.AddStruct(o, offset, 0);
+        //    return offset;
+        //}
+
+        public int AddTypedObject(IFBSerializable2 obj) {
+            int offsetTypeName = builder.CreateSharedString(builder.GetTypeName(obj), true).Value;
+
             builder.AddOffset(offsetTypeName);
+            AddReferenceOffset(-1, obj);
             int offset = builder.Offset;
-            builder.AddStruct(o, offset, 0);
             return offset;
         }
 
-
         public int AddTypedObject(int o, IFBSerializable2 obj) {
-            int offsetTypeName = builder.CreateSharedString(builder.GetTypeName(obj), true).Value;
-
-            AddReferenceOffset(-1, obj);
-            builder.AddOffset(offsetTypeName);
-            int offset = builder.Offset;
-            builder.AddStruct(o, offset, 0);
-            return offset;
+            int typeObjectStruct = AddTypedObject(obj);
+            builder.AddStruct(o, typeObjectStruct, 0);
+            return typeObjectStruct;
         }
 
         private int GetCachedOffset(object obj) {
@@ -366,10 +386,10 @@ namespace Service.Serializer
             }
         }
 
-        public void AddReferenceOffset(object obj) {
-            AddReferenceOffset(-1, obj);
+        public void AddReferenceOffset(object obj, bool storeAsTypedReference = false) {
+            AddReferenceOffset(-1, obj,storeAsTypedReference);
         }
-        public void AddReferenceOffset(int o, object obj) {
+        public void AddReferenceOffset(int o, object obj, bool storeAsTypedReference = false) {
             if (obj == null) {
                 return;
             }
@@ -384,17 +404,18 @@ namespace Service.Serializer
                 // the object is not referenced,yet. Write a dummy int,that will be replaced later with the real offset
                 builder.AddInt(255);
                 if (o != -1) builder.Slot(o);
-                AddLateReference(builder.Offset, obj);
+                AddLateReference(builder.Offset, obj,storeAsTypedReference);
             }
         }
 
-        public void AddLateReference(int offset,object obj) {
+        public void AddLateReference(int offset,object obj, bool storeAsTypedReference = false) {
             // TODO: check for cache and set immediately
-            if (lateReferences.TryGetValue(obj, out List<int> offsetDummies)) {
+            var lateRef = new LateReference(obj, storeAsTypedReference);
+            if (lateReferences.TryGetValue(lateRef, out List<int> offsetDummies)) {
                 offsetDummies.Add(offset);
             } else {
-                lateReferences[obj] = new List<int>() { offset };
-                lateReferenceList.Add(obj);
+                lateReferences[lateRef] = new List<int>() { offset };
+                lateReferenceList.Add(lateRef);
             }
         }
 
@@ -478,7 +499,8 @@ namespace Service.Serializer
             int calls = 0;
             while (lateReferenceList.Count > checkIdx) {
                 calls++;
-                var refObj = lateReferenceList[checkIdx];
+                var lateReference = lateReferenceList[checkIdx];
+                var refObj = lateReference.obj;
 
                 if ((whiteList != null && !whiteList.Contains(refObj.GetType()))
                      || (blackList != null && blackList.Contains(refObj.GetType()))
@@ -498,17 +520,19 @@ namespace Service.Serializer
                     }
                 }
 
-                ResolveLateReference(refObj);
-                lateReferences.Remove(refObj);
-                lateReferenceList.RemoveAt(checkIdx);
+                ResolveLateReference(refObj,lateReference.storeAsTyped);
+                //lateReferences.Remove(lateReference);
+                //lateReferenceList.RemoveAt(checkIdx);
             }
             UnityEngine.Debug.Log($"ResolveLateReference-Calls: {calls}");
         }
 
-        public void ResolveLateReference(object obj) {
-            int offset = GetOrCreate(obj);
+        public void ResolveLateReference(object obj,bool storeAsTypedReference=false) {
+            LateReference lr = new LateReference(obj, storeAsTypedReference);
 
-            if (lateReferences.TryGetValue(obj, out List<int> referenceLocations)) {
+            int offset = GetOrCreate(obj,storeAsTypedReference);
+
+            if (lateReferences.TryGetValue(lr, out List<int> referenceLocations)) {
                 foreach (int referenceLoc in referenceLocations) {
                     int offsetAdjustment = 0;
                     if (offsetMapping != null  && obj is IFBSerializable2) {
@@ -519,6 +543,8 @@ namespace Service.Serializer
                     int relativeOffset = referenceLoc - (offset + offsetAdjustment);
                     builder.DataBuffer.PutInt(builder.DataBuffer.Length - referenceLoc, relativeOffset);
                 }
+                lateReferences.Remove(lr);
+                bool found = lateReferenceList.Remove(lr);
             }
         }
 
