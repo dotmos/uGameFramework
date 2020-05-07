@@ -363,11 +363,13 @@ namespace Service.Serializer
         /// <param name="fbPos"></param>
         /// <param name="dctx"></param>
         /// <returns></returns>
-        public object GetOrCreateTypedObjectFromOffset(int offset, DeserializationContext dctx)  {
-            int bufferPosition = Buf2Off(offset);
+        public object GetOrCreateTypedObjectFromOffset(int offset, DeserializationContext dctx, bool directBufferAccess = false)  {
+            int bufferPosition = directBufferAccess ? offset : Buf2Off(offset);
             // pos of the struct ( with string(c# typename) and offset to object)
-            string typeName = __tbl.__string(bufferPosition+4);
-            Type objectType = Type.GetType(typeName);
+            // string typeName = __tbl.__string(bufferPosition+4);
+            // Type objectType = Type.GetType(typeName);
+            int typeId = bb.GetInt(bufferPosition + 4);
+            Type objectType = Type2IntMapper.instance.GetTypeFromId(typeId);
             int objectAddress = Buf2Off(__tbl.__indirect(bufferPosition));
             object dObj = dctx.GetOrCreate(objectAddress, objectType);
             return dObj;
@@ -858,23 +860,28 @@ namespace Service.Serializer
         public IList GetObjectListFromOffset(int offset, IList tlist, Type innerType,DeserializationContext dctx = null,bool directMemoryAccess=false, bool storedAsTypedobject=false) {
             // int[] offsets = __tbl.__vector_as_array<int>(4 + fbPos * 2);
             offset = directMemoryAccess ? offset : Off2Buf(offset);
-            int elempos = offset;
+            int elempos = offset + 4;
             int vector_len = __tbl.bb.GetInt(offset);
             int buflength = __tbl.bb.Length;
             for (int i = 0; i < vector_len; i++) {
-                elempos += 4;
-                if (__tbl.bb.GetInt(elempos)==0) {
-                    tlist.Add(null);
-                    continue;
-                }
 
-                int idxOffset = __tbl.__indirect(elempos);
+
                 if (storedAsTypedobject) {
-                    object result = GetOrCreateTypedObjectFromOffset(idxOffset, dctx);
+                    // TODO: handle null typed objects
+                    object result = GetOrCreateTypedObjectFromOffset(elempos, dctx,true); // call with directbuffer-position
                     tlist.Add(result);
+                    elempos += 8;
                 } else {
+                    if (__tbl.bb.GetInt(elempos) == 0) {
+                        tlist.Add(null);
+                        elempos += 4;
+                        continue;
+                    }
+
+                    int idxOffset = __tbl.__indirect(elempos);
                     IFBSerializable2 deserializedObject = (IFBSerializable2)dctx.GetReferenceByType(buflength - idxOffset, innerType);
                     tlist.Add(deserializedObject); // i hate this casting madness. isn't there a cleaner way?
+                    elempos += 4;
                 }
             }
             return tlist;
@@ -980,7 +987,7 @@ namespace Service.Serializer
             return null;
         }
 
-        public IList GetTypedObjectList(int offset, IList tlist, DeserializationContext dctx, bool directMemoryAccess = false) {
+/*        public IList GetTypedObjectList(int offset, IList tlist, DeserializationContext dctx, bool directMemoryAccess = false) {
             int currentAddress = directMemoryAccess ? offset : Off2Buf(offset);
 
             int vector_start = currentAddress + sizeof(int);
@@ -988,14 +995,14 @@ namespace Service.Serializer
             int buflength = bb.Length;
 
             for (int i = 0; i < vector_len; i++) {
-                var result = GetOrCreateTypedObjectFromOffset(vector_start, dctx);
+                var result = GetOrCreateTypedObjectFromOffset(vector_start, dctx,out int type);
                 //GetUIDFromOffset(vector_start, ref uid);
                 //tlist.Add(uid);
                 //vector_start += bytesize;
             }
             return tlist;
         }
-
+*/
 
 
         public ObservableList<T> GetStructList<T>(int fbPos, ref ObservableList<T> tlist) where T : struct {

@@ -10,6 +10,45 @@ using System.Threading;
 
 namespace Service.Serializer
 {
+    
+    public interface ISerializeAsTypedObject { }
+
+    public class Type2IntMapper
+    {
+        public static Type2IntMapper instance=new Type2IntMapper();
+
+        private Type2IntMapper() { }
+
+        Dictionary<int, Type> int2type  = new Dictionary<int, Type>();
+        Dictionary<Type, int> type2int = new Dictionary<Type, int>();
+
+        public void AddType(int id,Type type) {
+            if (int2type.ContainsKey(id)) {
+                if (int2type[id] != type) {
+                    throw new ArgumentException($"Type2IntMapper.AddType: id:{id} is already taken by {int2type[id]}");
+                }
+                return; // just return
+            }
+
+            int2type[id] = type;
+            type2int[type] = id;
+        }
+
+        public Type GetTypeFromId(int id) {
+            if (int2type.TryGetValue(id,out Type type)) {
+                return type;
+            }
+            throw new ArgumentException($"no type with id:{id} assigned");
+        }
+
+        public int GetIdFromType(Type type) {
+            if (type2int.TryGetValue(type, out int typeId)) {
+                return typeId;
+            }
+            throw new ArgumentException($"no id for type:{type} assigned");
+        }
+    }
+
     public interface IFBSerializable2 {
         int Ser2Serialize(SerializationContext ctx);
         void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
@@ -358,9 +397,9 @@ namespace Service.Serializer
         //}
 
         public int AddTypedObject(IFBSerializable2 obj) {
-            int offsetTypeName = builder.CreateSharedString(builder.GetTypeName(obj), true).Value;
-
-            builder.AddOffset(offsetTypeName);
+//            int offsetTypeName = builder.CreateSharedString(builder.GetTypeName(obj), true).Value;
+            int typeId = Type2IntMapper.instance.GetIdFromType(obj.GetType());
+            builder.AddInt(typeId);
             AddReferenceOffset(-1, obj);
             int offset = builder.Offset;
             return offset;
