@@ -1093,7 +1093,7 @@ namespace FlatBuffers
             return Offset;
         }
 
-        public int CreateList(IList list, SerializationContext sctx, bool storeAsTypedReference = false) {
+        public int CreateList(IList list, SerializationContext sctx) {
             Type innerType = list.GetType().GetGenericArguments()[0];
             
             if (innerType == typeString) {
@@ -1106,7 +1106,7 @@ namespace FlatBuffers
                 return CreateStructList(list);
             }
 
-            return CreateNonPrimitiveList(list, sctx, storeAsTypedReference);
+            return CreateNonPrimitiveList(list, sctx);
         }
 
         public int CreateTypedObjectList(IList list,SerializationContext sctx) {
@@ -1272,11 +1272,11 @@ namespace FlatBuffers
         //}
 
 
-        public int CreateNonPrimitiveList(IObservableList obsList, SerializationContext ctx, bool storeAsTypedReference=false) {
-            return CreateNonPrimitiveList(obsList.InnerIList, ctx, storeAsTypedReference);
+        public int CreateNonPrimitiveList(IObservableList obsList, SerializationContext ctx) {
+            return CreateNonPrimitiveList(obsList.InnerIList, ctx);
         }
 
-        public int CreateNonPrimitiveList(IList list, SerializationContext ctx, bool storeAsTypedReference=false) {
+        public int CreateNonPrimitiveList(IList list, SerializationContext ctx) {
             int count = list.Count;
 
             if (list == null) {
@@ -1304,11 +1304,8 @@ namespace FlatBuffers
                 //    continue;
                 //}
 
-                if (storeAsTypedReference) {
-                    ctx.AddTypedObject((IFBSerializable2)obj);
-                } else {
-                    ctx.AddReferenceOffset(-1, obj);
-                }
+
+                ctx.AddReferenceOffset(-1, obj);
             }
             AddInt(count);
             return Offset;

@@ -144,12 +144,12 @@ namespace Service.Serializer
             return (T)GetOrCreate(bufferOffset, typeof(T), obj);
         }
         
-        public object GetOrCreate(int bufferOffset, Type objectType,object obj=null, bool storedAsTypedReference = false) {
+        public object GetOrCreate(int bufferOffset, Type objectType,object obj=null) {
             object cachedObject = _GetCachedObject(bufferOffset,objectType);
             if (cachedObject != null) {
                 return cachedObject;
             }
-            object newObject = _GetOrCreate(bufferOffset, objectType, obj,storedAsTypedReference);
+            object newObject = _GetOrCreate(bufferOffset, objectType, obj);
             return newObject;
         }
 
@@ -166,7 +166,7 @@ namespace Service.Serializer
 
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
 #if FLATBUFFER_CHECK_TYPES
-                if (result.GetType() != objType) {
+                if (result.GetType() != objType && !ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
                     UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()}");
                 }                
 #endif
@@ -176,13 +176,12 @@ namespace Service.Serializer
         }
 
 
-        private object _GetOrCreate(int bufferOffset, Type objType, object obj=null, bool storedAsTypedReference = false) {
+        private object _GetOrCreate(int bufferOffset, Type objType, object obj=null) {
             if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
-                if (storedAsTypedReference) {
-                    obj = extTbl.GetOrCreateTypedObjectFromOffset(bufferOffset, this);
-                    pos2obj[bufferOffset] = obj;
-                    return obj;
-                }
+                //if (ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
+                //    int typeId = bb.GetInt(bufferOffset + 4);
+                //    objType = Type2IntMapper.instance.GetTypeFromId(typeId);
+                //}
                 var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newIFBSer2obj;
                 newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
@@ -191,7 +190,7 @@ namespace Service.Serializer
             else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
                 var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newList;
-                newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false,storedAsTypedReference);
+                newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
                 return newList;
             } 
             else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
@@ -276,14 +275,23 @@ namespace Service.Serializer
         }
 
 
-        public T GetReference<T>(int bufferOffset, ref T obj, bool storedAsTypedReference = false) where T :  new() {
+        public T GetReference<T>(int bufferOffset, ref T obj) where T :  new() {
             // TODO: white/black-listing...
             if (bufferOffset == 0) {
                 return default(T);
             }
 
-            obj = (T)GetOrCreate(bufferOffset,typeof(T),obj,storedAsTypedReference);
+            obj = (T)GetOrCreate(bufferOffset,typeof(T),obj);
             return obj;
+        }
+
+        public T GetReference<T>(int bufferOffset,object obj=null) {
+            if (bufferOffset == 0) {
+                return default;
+            }
+
+            T result = (T)GetOrCreate(bufferOffset, typeof(T), obj);
+            return result;
         }
 
 
@@ -312,7 +320,7 @@ namespace Service.Serializer
         ///// </summary>
         //public readonly Dictionary<IFBSerializable2, int> obj2offset = new Dictionary<IFBSerializable2, int>();
 
-        public struct LateReference
+        /*public struct LateReference
         {
             public LateReference(object obj,bool storeAsTyped = false) {
                 this.obj = obj;
@@ -325,12 +333,12 @@ namespace Service.Serializer
 
             public object obj;
             public bool storeAsTyped;
-        }
+        }*/
         /// <summary>
         /// mappings to objects that are not serialized,yet
         /// </summary>
-        public readonly Dictionary<LateReference, List<int>> lateReferences = new Dictionary<LateReference, List<int>>();
-        public readonly List<LateReference> lateReferenceList = new List<LateReference>();
+        public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
+        public readonly List<object> lateReferenceList = new List<object>();
 
         public readonly FlatBufferBuilder builder;
 
@@ -355,7 +363,7 @@ namespace Service.Serializer
             obj2offsetMapping[obj] = offset;
         }
 
-        public int GetOrCreate(object obj, bool storeAsTypedReference=false) {
+        public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
             
             if (cachedOffset != -1) {
@@ -368,7 +376,7 @@ namespace Service.Serializer
                 return newOffset;
             } 
             else if (obj is IList) {
-                int newOffset = builder.CreateList((IList)obj, this, storeAsTypedReference);
+                int newOffset = builder.CreateList((IList)obj, this);
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
             } 
@@ -440,8 +448,13 @@ namespace Service.Serializer
                 builder._AddOffset(cacheOffset);
                 if (o!=-1) builder.Slot(o);
             } else {
+                if (obj is ISerializeAsTypedObject) {
+                    int typeID = Type2IntMapper.instance.GetIdFromType(obj.GetType());
+                    builder.AddInt(typeID);
+                }
                 // the object is not referenced,yet. Write a dummy int,that will be replaced later with the real offset
                 builder.AddInt(255);
+
                 if (o != -1) builder.Slot(o);
                 AddLateReference(builder.Offset, obj,storeAsTypedReference);
             }
@@ -449,12 +462,11 @@ namespace Service.Serializer
 
         public void AddLateReference(int offset,object obj, bool storeAsTypedReference = false) {
             // TODO: check for cache and set immediately
-            var lateRef = new LateReference(obj, storeAsTypedReference);
-            if (lateReferences.TryGetValue(lateRef, out List<int> offsetDummies)) {
+            if (lateReferences.TryGetValue(obj, out List<int> offsetDummies)) {
                 offsetDummies.Add(offset);
             } else {
-                lateReferences[lateRef] = new List<int>() { offset };
-                lateReferenceList.Add(lateRef);
+                lateReferences[obj] = new List<int>() { offset };
+                lateReferenceList.Add(obj);
             }
         }
 
@@ -539,10 +551,10 @@ namespace Service.Serializer
             while (lateReferenceList.Count > checkIdx) {
                 calls++;
                 var lateReference = lateReferenceList[checkIdx];
-                var refObj = lateReference.obj;
 
-                if ((whiteList != null && !whiteList.Contains(refObj.GetType()))
-                     || (blackList != null && blackList.Contains(refObj.GetType()))
+                var lateRefType = lateReference.GetType();
+                if ((whiteList != null && !whiteList.Contains(lateRefType))
+                     || (blackList != null && blackList.Contains(lateRefType))
                 ) {
                     // ignore all types that are not on whitelist (if using whitelist at all)
                     // ignore all types that are on the blacklist (if using blacklist)
@@ -550,8 +562,8 @@ namespace Service.Serializer
                     continue;
                 }
 
-                if (refObj is IFBSerializable2) {
-                    var ifbObj = (IFBSerializable2)refObj;
+                if (lateReference is IFBSerializable2) {
+                    var ifbObj = (IFBSerializable2)lateReference;
                     if (ifbObj.Ser2HasOffset && ifbObj.Ser2Table.bb != myBB && (offsetMapping == null || !offsetMapping.ContainsKey(ifbObj.Ser2Table.bb))) {
                         // ignore objects that are create within another builder and that is not merged in,yet
                         checkIdx++;
@@ -559,19 +571,15 @@ namespace Service.Serializer
                     }
                 }
 
-                ResolveLateReference(refObj,lateReference.storeAsTyped);
-                //lateReferences.Remove(lateReference);
-                //lateReferenceList.RemoveAt(checkIdx);
+                ResolveLateReference(lateReference);
             }
             UnityEngine.Debug.Log($"ResolveLateReference-Calls: {calls}");
         }
 
-        public void ResolveLateReference(object obj,bool storeAsTypedReference=false) {
-            LateReference lr = new LateReference(obj, storeAsTypedReference);
+        public void ResolveLateReference(object obj) {
+            int offset = GetOrCreate(obj);
 
-            int offset = GetOrCreate(obj,storeAsTypedReference);
-
-            if (lateReferences.TryGetValue(lr, out List<int> referenceLocations)) {
+            if (lateReferences.TryGetValue(obj, out List<int> referenceLocations)) {
                 foreach (int referenceLoc in referenceLocations) {
                     int offsetAdjustment = 0;
                     if (offsetMapping != null  && obj is IFBSerializable2) {
@@ -582,8 +590,8 @@ namespace Service.Serializer
                     int relativeOffset = referenceLoc - (offset + offsetAdjustment);
                     builder.DataBuffer.PutInt(builder.DataBuffer.Length - referenceLoc, relativeOffset);
                 }
-                lateReferences.Remove(lr);
-                bool found = lateReferenceList.Remove(lr);
+                lateReferences.Remove(obj);
+                bool found = lateReferenceList.Remove(obj);
             }
         }
 
