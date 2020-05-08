@@ -905,7 +905,7 @@ namespace Service.Serializer
 
                 int idxOffset = __tbl.__indirect(elempos);
                 object obj = isTypedObject ? CreateTypedObjectTypeFromOffset(elempos,true) : null; // create the object for typedobjects
-                IFBSerializable2 deserializedObject = (IFBSerializable2)dctx.GetReferenceByType(buflength - idxOffset, innerType, obj);
+                object deserializedObject = dctx.GetReferenceByType(buflength - idxOffset, innerType, obj);
                 tlist.Add(deserializedObject); 
                 elempos += elemSize;
             }
@@ -1121,6 +1121,10 @@ namespace Service.Serializer
             throw new ArgumentException($"unsupported type in getPrimitveOrStruct:{type}");
         }
 
+        public bool IsTypedObjectType(Type type) {
+            return ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(type);
+        }
+
         /// <summary>
         /// Caution dict needs to be internally of IDictionary<,>
         /// </summary>
@@ -1140,15 +1144,18 @@ namespace Service.Serializer
             var typeValue = genericTypes[1];
 
             bool keyPrimitiveOrStruct = typeKey.IsValueType;
-            bool keyIsStruct = !keyPrimitiveOrStruct && typeKey.IsValueType;
+//            bool keyIsStruct = !keyPrimitiveOrStruct && typeKey.IsValueType;
             bool valuePrimitiveOrStruct = typeValue.IsValueType;
+
+            bool isKeyTypedObject = IsTypedObjectType(typeKey);
+            bool isValueTypedObject = IsTypedObjectType(typeValue);
 
             bool valueIsStruct = !valuePrimitiveOrStruct && typeValue.IsValueType;
 
-            int keySize = keyPrimitiveOrStruct ? ByteBuffer.SizeOf(typeKey) : ByteBuffer.SizeOf(typeInt);
-            int valueSize = valuePrimitiveOrStruct ? ByteBuffer.SizeOf(typeValue) : ByteBuffer.SizeOf(typeInt);
+            int keySize = keyPrimitiveOrStruct ? ByteBuffer.SizeOf(typeKey) : (isKeyTypedObject?8:4);
+            int valueSize = valuePrimitiveOrStruct ? ByteBuffer.SizeOf(typeValue) : (isValueTypedObject ? 8 : 4);
             int elementSize = keySize + valueSize;
-            int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
+            //int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 
             int currentValueAddress = currentAddress + keySize;
             if (keyPrimitiveOrStruct && valuePrimitiveOrStruct) {
@@ -1164,7 +1171,10 @@ namespace Service.Serializer
             else if (keyPrimitiveOrStruct && !valuePrimitiveOrStruct) {
                 for (int i = 0; i < count; i++) {
                     var keyData = GetPrimitiveOrStruct(currentAddress, typeKey);
-                    var valData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
+
+                    object valObj = isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null; // create the object for typedobjects
+                    object valData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue, valObj);
+//                    var valData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
                     dict[keyData] = valData;
                     currentAddress += elementSize;
                     currentValueAddress += elementSize;
@@ -1172,19 +1182,26 @@ namespace Service.Serializer
             } 
             else if (!keyPrimitiveOrStruct && valuePrimitiveOrStruct) {
                 for (int i = 0; i < count; i++) {
-                    var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);
+                    object keyObj = isKeyTypedObject ? CreateTypedObjectTypeFromOffset(currentAddress, true) : null; // create the object for typedobjects
+                    object keyData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentAddress)), typeKey, keyObj);
+//                    var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);
                     var valData = GetPrimitiveOrStruct(currentValueAddress, typeValue);
-
                     dict[keyData] = valData;
+
                     currentAddress += elementSize;
                     currentValueAddress += elementSize;
                 }
             } 
             else if (!keyPrimitiveOrStruct && !valuePrimitiveOrStruct) {
                 for (int i = 0; i < count; i++) {
-                    var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);
-                    var valueData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
-                    dict[keyData] = valueData;
+                    object keyObj = isKeyTypedObject ? CreateTypedObjectTypeFromOffset(currentAddress, true) : null; // create the object for typedobjects
+                    object keyData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentAddress)), typeKey, keyObj);
+                    object valObj = isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null; // create the object for typedobjects
+                    object valData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue, valObj);
+                    
+                    //var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);
+                    //var valueData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
+                    dict[keyData] = valData;
                     currentAddress += elementSize;
                     currentValueAddress += elementSize;
                 }

@@ -181,7 +181,7 @@ namespace FlatBuffers
         // such the int length field is aligned to SIZEOF_INT, and the string
         // data follows it directly.
         // If all you need to do is align, `additional_bytes` will be 0.
-        public void Prep(int size, int additionalBytes) {
+        public void Prep(int size, int additionalBytes,bool ignorePad=false) {
             // Track the biggest thing we've ever aligned to.
             if (size > _minAlign)
                 _minAlign = size;
@@ -1311,6 +1311,10 @@ namespace FlatBuffers
             return Offset;
         }
 
+        public bool IsTypedObjectType(Type type) {
+            return ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(type);
+        }
+
         public int CreateDictionary<TKey, TValue>(Dictionary<TKey, TValue> dict, SerializationContext sctx) {
             return CreateIDictionary(dict, sctx);
         }
@@ -1336,14 +1340,17 @@ namespace FlatBuffers
             bool valuePrimitive = typeValue.IsPrimitive || typeValue.IsEnum;
             bool valueIsStruct = !valuePrimitive && typeValue.IsValueType;
 
+            bool IsKeyTypedObject = IsTypedObjectType(typeKey);
+            bool IsValueTypedObject = IsTypedObjectType(typeValue);
+
             int count = dict.Count;
-            int keySize = (keyPrimitive || keyIsStruct) ? ByteBuffer.SizeOf(typeKey) : 4;
-            int valueSize = (valuePrimitive || valueIsStruct) ? ByteBuffer.SizeOf(typeValue) : 4;
+            int keySize = (keyPrimitive || keyIsStruct) ? ByteBuffer.SizeOf(typeKey) : (IsKeyTypedObject?8:4);
+            int valueSize = (valuePrimitive || valueIsStruct) ? ByteBuffer.SizeOf(typeValue) : (IsValueTypedObject ? 8 : 4);
             int elementSize = keySize + valueSize;
             int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 
             // prepare space
-            Prep(overallSize, 0);
+            Prep(4,overallSize-4);
 
             // set startposition
             int dictionaryStart = Offset;
@@ -1364,12 +1371,11 @@ namespace FlatBuffers
             // lots of reperition....(to avoid if checks in the loop. 
             // TODO: Check how big the check for type impact would be...
             if (isPrimitive) {
-                int spaceTemp = _space + 4; 
-                _space += 4;
+                int spaceTemp = _space;
                 if (type == typeInt) {
                     foreach (int elem in data) {
-                        _space = spaceTemp -= elementSize;
-                        PutInt((int)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _space -= elementSize;
+                        _bb.PutInt(_space,(int)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeFloat) {
                     foreach (float elem in data) {
@@ -1447,9 +1453,12 @@ namespace FlatBuffers
                 return;
             } 
             else if (!isPrimitive) {
+                _space += 4;
+                int spaceTemp = _space;
                 foreach (object elem in data) {
-                    _space -= elementSize;
-                    sctx.AddLateReference(Offset, elem); // tell the sctx where to later put the offset to the serialized object
+                    _space = spaceTemp -= elementSize;
+                    sctx.AddReferenceOffset(elem);
+                    //sctx.AddLateReference(Offset, elem); // tell the sctx where to later put the offset to the serialized object
                 }
                 return;
             }
