@@ -899,7 +899,7 @@ namespace Service.Serializer
             for (int i = 0; i < vector_len; i++) {
                 if (__tbl.bb.GetInt(elempos) == 0) {
                     tlist.Add(null);
-                    elempos += elemSize;
+                    elempos += 4;
                     continue;
                 }
 
