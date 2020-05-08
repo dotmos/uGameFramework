@@ -238,6 +238,16 @@ namespace Service.Serializer
                 var inner = GetOrCreate(bufferOffset, dict.InnerIDict.GetType() , dict.InnerIDict);
                 return obj;
             }
+            else if (ExtendedTable.typeObservableList.IsAssignableFrom(objType)) {
+                IObservableList obsList = (IObservableList)obj;
+                if (obsList == null) {
+                    obsList = (IObservableList)Activator.CreateInstance(objType);
+                } else {
+                    obsList.InnerIList.Clear();
+                }
+                var inner = GetOrCreate(bufferOffset, obsList.InnerIList.GetType(), obsList.InnerIList);
+                return obsList;
+            }
 
             obj = GetOrCreate(bufferOffset, objType, obj);
 
@@ -433,11 +443,20 @@ namespace Service.Serializer
             }
         }
 
-        public void AddReferenceOffset(object obj, bool storeAsTypedReference = false) {
-            AddReferenceOffset(-1, obj,storeAsTypedReference);
+        public void AddReferenceOffset(object obj) {
+            AddReferenceOffset(-1, obj);
         }
-        public void AddReferenceOffset(int o, object obj, bool storeAsTypedReference = false) {
+        public void AddReferenceOffset(int o, object obj) {
             if (obj == null) {
+                return;
+            }
+
+            if (obj is IObservableDictionary) {
+                AddReferenceOffset(o, ((IObservableDictionary)obj).InnerIDict);
+                return;
+            }
+            else if (obj is IObservableList) {
+                AddReferenceOffset(o, ((IObservableList)obj).InnerIList);
                 return;
             }
 
@@ -456,11 +475,11 @@ namespace Service.Serializer
                 builder.AddInt(255);
 
                 if (o != -1) builder.Slot(o);
-                AddLateReference(builder.Offset, obj,storeAsTypedReference);
+                AddLateReference(builder.Offset, obj);
             }
         }
 
-        public void AddLateReference(int offset,object obj, bool storeAsTypedReference = false) {
+        public void AddLateReference(int offset,object obj) {
             // TODO: check for cache and set immediately
             if (lateReferences.TryGetValue(obj, out List<int> offsetDummies)) {
                 offsetDummies.Add(offset);
