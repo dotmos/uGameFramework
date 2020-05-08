@@ -25,7 +25,7 @@ namespace ParallelProcessing {
         public ParallelProcessorVariable(Func<T> initialValue, Thread[] otherThreads = null) {
             ParallelProcessorWorkers.Setup();
 
-            threadVariableLUT = new Dictionary<int, T>(ParallelProcessorWorkers.WorkerCount);
+            threadVariableLUT = new Dictionary<int, T>(ParallelProcessorWorkers.MaxWorkerCount);
             
             //Create worker thread lists
             foreach (Thread t in ParallelProcessorWorkers.Workers) {

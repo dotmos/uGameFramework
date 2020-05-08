@@ -23,9 +23,9 @@ namespace ParallelProcessing {
             ParallelProcessorWorkers.Setup();
             ParallelProcessorWorkers._processorInstanceCount++;
 
-            processActionData = new ProcessActionData[ParallelProcessorWorkers.WorkerCount];
-            processActions = new Action[ParallelProcessorWorkers.WorkerCount];
-            for (int i = 0; i < ParallelProcessorWorkers.WorkerCount; ++i) {
+            processActionData = new ProcessActionData[ParallelProcessorWorkers.MaxWorkerCount];
+            processActions = new Action[ParallelProcessorWorkers.MaxWorkerCount];
+            for (int i = 0; i < ParallelProcessorWorkers.MaxWorkerCount; ++i) {
                 processActionData[i] = new ProcessActionData();
                 int threadID = i;
                 processActions[i] = () => {
@@ -79,7 +79,7 @@ namespace ParallelProcessing {
             if (componentsToProcessCount == 0) return;
 
             //Make sure we are not using more threads than components
-            int workersToUse = Math.Min(ParallelProcessorWorkers.WorkerCount, componentsToProcessCount);
+            int workersToUse = Math.Min(ParallelProcessorWorkers.MaxWorkerCount, componentsToProcessCount);
 
             Interlocked.Exchange(ref ParallelProcessorWorkers._workingCount, workersToUse);
 

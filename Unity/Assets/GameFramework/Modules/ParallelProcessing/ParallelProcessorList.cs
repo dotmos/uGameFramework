@@ -34,7 +34,7 @@ namespace ParallelProcessing {
                 threadLists = new List<List<T>>();
             }
             
-            threadListLUT = new Dictionary<int, List<T>>(ParallelProcessorWorkers.WorkerCount);
+            threadListLUT = new Dictionary<int, List<T>>(ParallelProcessorWorkers.MaxWorkerCount);
 
             //Create worker thread lists
             foreach (Thread t in ParallelProcessorWorkers.Workers) {
