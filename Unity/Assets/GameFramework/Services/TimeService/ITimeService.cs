@@ -101,7 +101,7 @@ namespace Service.TimeService {
         
     }
 
-    public partial class TimerElement : IMergeableData<TimerElement> {
+    public partial class TimerElement : IFBSerializeAsTypedObject, IMergeableData<TimerElement> {
     }
         
 }

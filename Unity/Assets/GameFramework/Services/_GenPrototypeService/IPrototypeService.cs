@@ -132,7 +132,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /*endname*/
     }
 
-    public partial class /*name:className*/SomeModel/*endname*/ : IMergeableData</*name:className*/SomeModel/*endname*/> {
+    public partial class /*name:className*/SomeModel/*endname*/ : IFBSerializeAsTypedObject, IMergeableData</*name:className*/SomeModel/*endname*/> {
     }
         /*endblock:modelClass*/
 }

@@ -131,7 +131,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*endname*/
     }
 
-    public partial class /*name:className*/SomeModel/*endname*/ : IMergeableData</*name:className*/SomeModel/*endname*/> { }
+    public partial class /*name:className*/SomeModel/*endname*/ : IFBSerializeAsTypedObject, IMergeableData</*name:className*/SomeModel/*endname*/> { }
 
     /*endblock:modelClass*/
 
@@ -507,7 +507,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_enumnullable*/
         /*block:s2_primitive*/builder./*name:addPrimitive*/AddInt/*endname*/(/*name:fieldid*/4/*endname*/,/*name:name*/intValue/*endname*/, 0);
         /*endblock:s2_primitive*/
-        /*block:s_typed_object*/ctx.AddTypedObject(/*name:fieldid*/5/*endname*/,/*name:name*/typedObj1/*endname*/);
+        /*block:s_typed_object*/ctx.AddReferenceOffset(/*name:fieldid*/5/*endname*/,/*name:name*/typedObj1/*endname*/);
         /*endblock:s_typed_object*/
         /*block:s_object*/ctx.AddReferenceOffset(/*name:fieldid*/6/*endname*/,/*name:name*/serObj/*endname*/);
         /*endblock:s_object*/
@@ -604,7 +604,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_struct*/
         /*block:d_list_primitive*/ser2table.GetPrimitiveList</*name:innertype*/int/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testListPrimitive/*endname*/);
         /*endblock:d_list_primitive*/
-        /*block:d_list_object*/ser2table.GetObjectList(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
+        /*block:d_list_object*/ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
         /*endblock:d_list_object*/
         /*block:d_list_struct*/ser2table.GetStructList(/*name:fieldid*/9/*endname*/, ref /*name:name*/structList/*endname*/);
         /*endblock:d_list_struct*/

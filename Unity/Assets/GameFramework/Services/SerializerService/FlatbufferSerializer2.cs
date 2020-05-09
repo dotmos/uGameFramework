@@ -11,7 +11,7 @@ using System.Threading;
 namespace Service.Serializer
 {
     
-    public interface ISerializeAsTypedObject { }
+    public interface IFBSerializeAsTypedObject { }
 
     public class Type2IntMapper
     {
@@ -21,19 +21,7 @@ namespace Service.Serializer
 
         Dictionary<int, Type> int2type  = new Dictionary<int, Type>();
         Dictionary<Type, int> type2int = new Dictionary<Type, int>();
-
-        public void AddType(int id,Type type) {
-            if (int2type.ContainsKey(id)) {
-                if (int2type[id] != type) {
-                    throw new ArgumentException($"Type2IntMapper.AddType: id:{id} is already taken by {int2type[id]}");
-                }
-                return; // just return
-            }
-
-            int2type[id] = type;
-            type2int[type] = id;
-        }
-
+        int idCounter = 100;
         public Type GetTypeFromId(int id) {
             if (int2type.TryGetValue(id,out Type type)) {
                 return type;
@@ -45,7 +33,11 @@ namespace Service.Serializer
             if (type2int.TryGetValue(type, out int typeId)) {
                 return typeId;
             }
-            throw new ArgumentException($"no id for type:{type} assigned");
+
+            int id = idCounter++;
+            type2int[type] = id;
+            int2type[id] = type;
+            return id;
         }
     }
 
@@ -467,7 +459,7 @@ namespace Service.Serializer
                 builder._AddOffset(cacheOffset);
                 if (o!=-1) builder.Slot(o);
             } else {
-                if (obj is ISerializeAsTypedObject) {
+                if (obj is IFBSerializeAsTypedObject) {
                     int typeID = Type2IntMapper.instance.GetIdFromType(obj.GetType());
                     builder.AddInt(typeID);
                 }

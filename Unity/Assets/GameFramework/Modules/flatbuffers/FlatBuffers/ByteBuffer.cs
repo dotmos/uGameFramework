@@ -130,6 +130,7 @@ namespace FlatBuffers
         /// ONLY use for testing and debugging....
         /// </summary>
         public static ByteBuffer __debug_bb;
+        
 
         static readonly Type typeBool = typeof(bool);
         static readonly Type typeInt = typeof(int);

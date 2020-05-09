@@ -239,7 +239,7 @@ namespace Service.DevUIService {
         
     }
 
-    public partial class DataBrowserTopLevel : IMergeableData<DataBrowserTopLevel> {
+    public partial class DataBrowserTopLevel : IFBSerializeAsTypedObject, IMergeableData<DataBrowserTopLevel> {
     }
         
     [System.Serializable]
@@ -280,7 +280,7 @@ namespace Service.DevUIService {
         
     }
 
-    public partial class HistoryElement : IMergeableData<HistoryElement> {
+    public partial class HistoryElement : IFBSerializeAsTypedObject, IMergeableData<HistoryElement> {
     }
         
 }

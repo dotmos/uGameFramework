@@ -119,7 +119,7 @@ namespace Service.GameStateService {
         
     }
 
-    public partial class GSContext : IMergeableData<GSContext> {
+    public partial class GSContext : IFBSerializeAsTypedObject, IMergeableData<GSContext> {
     }
         
 }

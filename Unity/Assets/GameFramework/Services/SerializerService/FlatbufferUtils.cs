@@ -37,7 +37,7 @@ namespace Service.Serializer
         public static readonly Type typeObservableList = typeof(IObservableList);
         public static readonly Type typeObservableDict = typeof(IObservableDictionary);
         public static readonly Type typeExtendedTable = typeof(ExtendedTable);
-        public static readonly Type typeISerializeAsTypedObject = typeof(ISerializeAsTypedObject);
+        public static readonly Type typeISerializeAsTypedObject = typeof(IFBSerializeAsTypedObject);
 
         public ExtendedTable(int offset, ByteBuffer _bb) {
             __tbl = new Table(offset, _bb);
@@ -1150,7 +1150,7 @@ namespace Service.Serializer
             bool isKeyTypedObject = IsTypedObjectType(typeKey);
             bool isValueTypedObject = IsTypedObjectType(typeValue);
 
-            bool valueIsStruct = !valuePrimitiveOrStruct && typeValue.IsValueType;
+      //      bool valueIsStruct = !valuePrimitiveOrStruct && typeValue.IsValueType;
 
             int keySize = keyPrimitiveOrStruct ? ByteBuffer.SizeOf(typeKey) : (isKeyTypedObject?8:4);
             int valueSize = valuePrimitiveOrStruct ? ByteBuffer.SizeOf(typeValue) : (isValueTypedObject ? 8 : 4);

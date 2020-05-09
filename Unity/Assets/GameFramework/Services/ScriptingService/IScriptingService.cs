@@ -250,7 +250,7 @@ namespace Service.Scripting {
         
     }
 
-    public partial class ScriptingServiceData : IMergeableData<ScriptingServiceData> {
+    public partial class ScriptingServiceData : IFBSerializeAsTypedObject, IMergeableData<ScriptingServiceData> {
     }
         
     [System.Serializable]
@@ -312,7 +312,7 @@ namespace Service.Scripting {
         
     }
 
-    public partial class LuaCoroutine : IMergeableData<LuaCoroutine> {
+    public partial class LuaCoroutine : IFBSerializeAsTypedObject, IMergeableData<LuaCoroutine> {
     }
         
 }
