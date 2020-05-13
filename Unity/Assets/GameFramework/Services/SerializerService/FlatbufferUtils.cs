@@ -141,6 +141,15 @@ namespace Service.Serializer
             return o != 0 ? __tbl.__string(o + __tbl.bb_pos) : null;
         }
 
+        public string GetStringFromOffset(int offset,bool useDirectBuffer = false) {
+            if (offset == 0) return null;
+
+            offset = useDirectBuffer ? offset : Off2Buf(offset);
+            int len = bb.GetInt(offset);
+            int startPos = offset + sizeof(int);
+            return bb.GetStringUTF8(startPos, len);
+        }
+
         public void MutateString(int fbPos, string newValue) {
             int o = __tbl.__offset(4 + fbPos * 2);
             if (o == 0) return;
