@@ -13,31 +13,80 @@ namespace Service.Serializer
     
     public interface IFBSerializeAsTypedObject { }
 
-    public class Type2IntMapper
+    public class Type2IntMapper : DefaultSerializable2
     {
         public static Type2IntMapper instance=new Type2IntMapper();
+        
+        private StringBuilder stb = new StringBuilder();
+
+        private String GetTypeName(Type type) {
+            stb.Clear();
+            string assemblyName = type.Assembly.FullName;
+            stb.Append(type.FullName).Append(", ").Append(assemblyName.Substring(0, assemblyName.IndexOf(',')));
+            return stb.ToString();
+        }
 
         private Type2IntMapper() { }
 
-        Dictionary<int, Type> int2type  = new Dictionary<int, Type>();
-        Dictionary<Type, int> type2int = new Dictionary<Type, int>();
+        Dictionary<int, Type> id2type  = new Dictionary<int, Type>();
+        Dictionary<Type, int> type2id = new Dictionary<Type, int>();
+        Dictionary<int, String> id2typeAsString = new Dictionary<int, string>();
+
         int idCounter = 100;
+
+        private object lock_addType = new object();
+
+        public void Clear() {
+            ser2table = ExtendedTable.NULL;
+            id2type.Clear();
+            type2id.Clear();
+            id2typeAsString.Clear();
+        }
+
         public Type GetTypeFromId(int id) {
-            if (int2type.TryGetValue(id,out Type type)) {
+            if (id2type.TryGetValue(id,out Type type)) {
                 return type;
             }
             throw new ArgumentException($"no type with id:{id} assigned");
         }
 
         public int GetIdFromType(Type type) {
-            if (type2int.TryGetValue(type, out int typeId)) {
+            if (type2id.TryGetValue(type, out int typeId)) { 
                 return typeId;
             }
 
-            int id = idCounter++;
-            type2int[type] = id;
-            int2type[id] = type;
-            return id;
+            lock (lock_addType) {
+                if (type2id.TryGetValue(type, out typeId)) { // double check for case where while waiting from lock the wanted type was created.
+                    return typeId;
+                }
+                int id = idCounter++;
+                type2id[type] = id;
+                id2type[id] = type;
+                id2typeAsString[id] = GetTypeName(type);
+                return id;
+            }
+        }
+
+        public override void Ser2CreateTable(SerializationContext sctx, FlatBufferBuilder builder) {
+            base.Ser2CreateTable(sctx, builder);
+
+            int pos = builder.CreateIDictionary(id2typeAsString, sctx);
+            ser2table = new ExtendedTable(pos, builder);
+        }
+
+        public override void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
+            base.Ser2Deserialize(tblOffset, dctx);
+            id2typeAsString = (Dictionary<int, String>)ser2table.GetDictionaryFromOffset(ser2table.offset, id2typeAsString, dctx);
+            // TODO: do this in postprocess
+            if (id2typeAsString == null) return;
+
+            type2id = new Dictionary<Type, int>();
+            id2type = new Dictionary<int, Type>();
+            foreach (var kv in id2typeAsString) {
+                Type type = Type.GetType(kv.Value);
+                id2type[kv.Key] = type;
+                type2id[type] = kv.Key;
+            }
         }
     }
 
@@ -178,19 +227,22 @@ namespace Service.Serializer
                 pos2obj[bufferOffset] = newIFBSer2obj;
                 newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
                 return newIFBSer2obj;
-            }
-            else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
+            } else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
                 var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newList;
                 newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
                 return newList;
-            } 
-            else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
+            } else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
                 var newDict = (IDictionary)obj ?? (IDictionary)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newDict;
                 newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
                 return newDict;
             } 
+            else if (objType == ExtendedTable.typeString) {
+                string stringData = extTbl.GetStringFromOffset(bufferOffset);
+                pos2obj[bufferOffset] = stringData;
+                return stringData;
+            }
             else {
                 UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
                 return null;
@@ -384,6 +436,11 @@ namespace Service.Serializer
             } 
             else if (obj is IDictionary) {
                 int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            }
+            else if (obj is String) {
+                int newOffset = builder.CreateString((string)obj).Value;
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
             }
