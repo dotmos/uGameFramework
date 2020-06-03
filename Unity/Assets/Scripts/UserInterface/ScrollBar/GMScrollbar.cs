@@ -265,6 +265,7 @@ namespace UserInterface.Scrollbar {
             Vector2 handleCorner = handleCenterRelativeToContainerCorner - (m_HandleRect.rect.size - m_HandleRect.sizeDelta) * 0.5f;
 
             float parentSize = behavior.ChooseValueByAxis(m_ContainerRect.rect.width, m_ContainerRect.rect.height);
+
             float remainingSize = parentSize * (1 - size);
             if (remainingSize <= 0)
                 return;

@@ -14,9 +14,9 @@ namespace UserInterface.Scrollbar {
         /// </summary>
         public static readonly Dictionary<Direction, DirectionalStrategy> lookup = new Dictionary<Direction, DirectionalStrategy>() {
             { Direction.RightToLeft, new DirectionalStrategy((handleCorner, remainingSize) => 1f - (handleCorner.x / remainingSize), Axis.Horizontal, true) },
-            { Direction.LeftToRight, new DirectionalStrategy((handleCorner, remainingSize) => 1f - (handleCorner.x / remainingSize), Axis.Horizontal, false) },
+            { Direction.LeftToRight, new DirectionalStrategy((handleCorner, remainingSize) => handleCorner.x / remainingSize, Axis.Horizontal, false) },
             { Direction.BottomToTop, new DirectionalStrategy((handleCorner, remainingSize) => handleCorner.y / remainingSize, Axis.Vertical, false) },
-            { Direction.TopToBottom, new DirectionalStrategy((handleCorner, remainingSize) => handleCorner.y / remainingSize, Axis.Vertical, true) },
+            { Direction.TopToBottom, new DirectionalStrategy((handleCorner, remainingSize) => 1f - handleCorner.y / remainingSize, Axis.Vertical, true) },
         };
 
         public Func<Vector2, float, float> updateDragBehavior = null;
@@ -33,12 +33,12 @@ namespace UserInterface.Scrollbar {
             this.reverse = reverse;
             this.axisValue = (int)axis;
 
-            chooseValueByAxis = axisValue == 0 ? (valueWhenH, valueWhenV) => valueWhenH : chooseValueByAxis = (valueWhenH, valueWhenV) => valueWhenV;
-            chooseValueByReverse = reverse ? (valueWhenR, valueWhenNotR) => valueWhenR : chooseValueByAxis = (valueWhenR, valueWhenNotR) => valueWhenNotR;
+            chooseValueByAxis = axisValue == 0 ? chooseValueByAxis = (valueWhenH, valueWhenV) => valueWhenH : chooseValueByAxis = (valueWhenH, valueWhenV) => valueWhenV;
+            chooseValueByReverse = reverse ? (valueWhenR, valueWhenNotR) => valueWhenR : chooseValueByReverse = (valueWhenR, valueWhenNotR) => valueWhenNotR;
         }
 
-        public float ChooseValueByAxis(float valueWhenHorinzontal, float valueWhenVertical) {
-            return chooseValueByAxis(valueWhenHorinzontal, valueWhenVertical);
+        public float ChooseValueByAxis(float valueWhenHorizontal, float valueWhenVertical) {
+            return chooseValueByAxis(valueWhenHorizontal, valueWhenVertical);
         }
 
         public float ChooseValueByReverse(float valueWhenReversed, float valueWhenNotReversed) {
