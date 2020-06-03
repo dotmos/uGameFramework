@@ -14,7 +14,9 @@ namespace UserInterface.Scrollbar {
         /// </summary>
         public static readonly Dictionary<Direction, DirectionalStrategy> lookup = new Dictionary<Direction, DirectionalStrategy>() {
             { Direction.RightToLeft, new DirectionalStrategy((handleCorner, remainingSize) => 1f - (handleCorner.x / remainingSize), Axis.Horizontal, true) },
+            { Direction.LeftToRight, new DirectionalStrategy((handleCorner, remainingSize) => 1f - (handleCorner.x / remainingSize), Axis.Horizontal, false) },
             { Direction.BottomToTop, new DirectionalStrategy((handleCorner, remainingSize) => handleCorner.y / remainingSize, Axis.Vertical, false) },
+            { Direction.TopToBottom, new DirectionalStrategy((handleCorner, remainingSize) => handleCorner.y / remainingSize, Axis.Vertical, true) },
         };
 
         public Func<Vector2, float, float> updateDragBehavior = null;
