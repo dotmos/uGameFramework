@@ -120,15 +120,6 @@ namespace UserInterface
             return myTabBar;
         }
 
-#if UNITY_EDITOR
-        protected override void OnValidate()
-        {
-            base.OnValidate();
-
-            OnToggleValueChanged(isOn);
-        }
-#endif
-
         protected override void DoStateTransition(SelectionState state, bool instant) {
             base.DoStateTransition(state, instant);
 

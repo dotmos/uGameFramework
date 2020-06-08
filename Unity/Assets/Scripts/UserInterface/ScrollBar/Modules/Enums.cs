@@ -4,8 +4,10 @@
     /// Direction types for our Scrollbar.
     /// </summary>
     public enum Direction {
-        RightToLeft,
-        BottomToTop,
+        RightToLeft = 0,
+        BottomToTop = 1,
+        LeftToRight = 2,
+        TopToBottom = 3
     }
 
     /// <summary>
