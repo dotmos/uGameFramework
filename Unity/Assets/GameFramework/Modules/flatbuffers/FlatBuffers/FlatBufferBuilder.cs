@@ -1372,37 +1372,37 @@ namespace FlatBuffers
             // TODO: Check how big the check for type impact would be...
             if (isPrimitive) {
                 int spaceTemp = _space;
-                if (type == typeInt) {
+                if (type == typeInt || type.IsEnum) {
                     foreach (int elem in data) {
                         _space -= elementSize;
-                        _bb.PutInt(_space,(int)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.PutInt(_space, (int)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeFloat) {
                     foreach (float elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutFloat((float)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.PutFloat(_space,(float)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeBool) {
                     foreach (bool elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutBool((bool)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.Put(_space,((bool)(object)elem)?(byte)0:(byte)1); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeShort) {
                     foreach (short elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutShort((short)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.PutShort(_space,(short)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeByte) {
                     foreach (byte elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutByte((byte)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.Put(_space,(byte)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeLong) {
                     foreach (long elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutFloat((long)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.PutLong(_space,(long)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
-                }
+                } else Debug.LogError("Could not handle primitive type:" + type);
                 return;
             } 
             else if (isStruct) {

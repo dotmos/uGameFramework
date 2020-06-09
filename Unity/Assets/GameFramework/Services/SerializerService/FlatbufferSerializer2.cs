@@ -114,6 +114,8 @@ namespace Service.Serializer
 
     public class DefaultSerializable2 : IFBSerializable2
     {
+        private bool forceCreation = true;
+
         public ExtendedTable ser2table = ExtendedTable.NULL;
 
         public ExtendedTable Ser2Table => ser2table;
@@ -134,7 +136,7 @@ namespace Service.Serializer
 
 
         public virtual int Ser2Serialize(SerializationContext ctx) {
-            if (!Ser2HasOffset) {
+            if (forceCreation || !Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);

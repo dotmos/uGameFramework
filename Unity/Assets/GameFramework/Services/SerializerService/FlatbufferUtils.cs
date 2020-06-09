@@ -1129,9 +1129,11 @@ namespace Service.Serializer
         private object GetPrimitiveOrStruct(int offset,Type type) {
             if (type.IsPrimitive) {
                 return bb.Get(offset, type);
-            }
-            else {
-                return GetStructFromOffset(offset, type,true);
+            } else if (type.IsEnum) {
+                int value = bb.GetInt(offset);
+                return Enum.ToObject(type, value);
+            } else {
+                return GetStructFromOffset(offset, type, true);
                 //if (type == typeVector3) {
                 //    Vector3 vec = new Vector3();
                 //    GetVector3FromOffset(offset, ref vec);
