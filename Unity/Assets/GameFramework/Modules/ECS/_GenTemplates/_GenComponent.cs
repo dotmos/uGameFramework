@@ -495,6 +495,8 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_list_string*/
         /*block:s_obs_list_string*/int /*name|fu,pre#offset:name*/offsetObsStringList/*endname*/ = /*name:name*/obsTestStringList/*endname*/== null ? 0 : ctx.builder.CreateStringList(/*name:name*/obsTestStringList/*endname*/.__innerList);
         /*endblock:s_obs_list_string*/
+        /*block:s_dict*/int /*name|fu,pre#offset:name*/offsetTestDict/*endname*/ =/*name:name*/testDict2/*endname*/== null ? 0 : ctx.builder.CreateDictionary(/*name:name*/testDict2/*endname*/, ctx);
+        /*endblock:s_dict*/
 
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
         /*block:s_component_header*/builder.AddStruct(0, builder.PutUID(Entity), 0);
@@ -547,9 +549,6 @@ public class SomeClazz2 : DefaultSerializable2
         ///*block:s_dictold*/
         //var /*name|fu,pre#s:name*/sIntIntDict/*endname*/ = FlatBufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:name*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/);
         ///*endblock:s_dictold*/
-        ///*block:s_dict*/
-        //var /*name|fu,pre#s:name*/sIntIntDict2/*endname*/ = FlatBufferSerializer.CreateDictionary</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/,/*name:fbKeyType*/int/*endname*/, /*name:fbValueType*/int/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/>(builder, /*name:dictName*/testDict/*endname*/, Serial./*name:serialDictType*/DTEST_int_int/*endname*/./*name|fu,pre#Create:serialDictType*/CreateDTEST_int_int/*endname*/, Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Create,post#Vector:name*/CreateTestDictVector/*endname*/, true,/*name:keyTyped*/false/*endname*/,/*name:valueTyped*/false/*endname*/);
-        ///*endblock:s_dict*/
         //Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#StartFB:ComponentName*/StartFBGenTemplateComponent/*endname*/(builder);
         ///*block:s2_default*/        /*block:nullcheck*/
         //if (/*name|fu,pre#s:name*/sState/*endname*/!= null)/*endblock:nullcheck*/ Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|fu,pre#Add:name*/AddState/*endname*/(builder,/*name|fu,pre#s:name*/sState/*endname*/);
@@ -612,6 +611,8 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_list_string*/
         /*block:d_list_nested*/ser2table.GetList</*name:innertype*/List<int>/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testNestedList/*endname*/, dctx);
         /*endblock:d_list_nested*/
+        /*block:d_dict*/ser2table.GetDictionary(/*name:fieldid*/9/*endname*/, ref /*name:name*/testDict/*endname*/, dctx);
+        /*endblock:d_dict*/
 
         //object data = null;
         //if (data is Serial.FBRef) {
@@ -679,62 +680,6 @@ public class SomeClazz2 : DefaultSerializable2
         //    for (int i = 0; i < input./*name|fu,post#Length:name*/TestListUIDLength/*endname*/; i++) /*name:name*/testStringList/*endname*/.Add(input./*name|fu:name*/TestStringList/*endname*/(i));
         //}
         ///*endblock:d_string_list*/
-        ///*block:d_dict*/
-        //{
-        //    //            object result = FlatBufferSerializer.FindInDeserializeCache</*name:dictType*/Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>>(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/);
-        //    object result = null;
-        //    if (result != null) {
-        //        /*name:name*/
-        //        testDict/*endname*/ = (/*name:dictType*/System.Collections.Generic.Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>)result;
-        //    } else {
-        //        /*name:name*/
-        //        testDict/*endname*/ = new /*name:dictType*/System.Collections.Generic.Dictionary/*endname*/</*name:keyType*/int/*endname*/, /*name:valueType*/int/*endname*/>();
-        //        var innerManual = FlatBufferSerializer.GetManualObject(data);
-        //        for (int i = 0; i < input./*name|fu,post#Length:name*/TestDictLength/*endname*/; i++) {
-        //            var e = input./*name|fu:name*/TestDictNonPrim/*endname*/(i);
-        //            if (e.HasValue) {
-        //                var elem = e.Value;
-        //                innerManual.__initFromRef(elem);
-        //                /*block:nonprim_key*/
-        //                var key = FlatBufferSerializer.GetOrCreateDeserialize</*name:keyType*/SerializableHelper/*endname*/>((Serial./*name:fbKeyType*/FBComponent/*endname*/)elem.Key);
-        //                /*endblock:nonprim_key*/
-        //                /*block:nonprim_value*/
-        //                var value = FlatBufferSerializer.GetOrCreateDeserialize</*name:valueType*/SerializableHelper/*endname*/>((Serial./*name:fbValueType*/FBComponent/*endname*/)elem.Value);
-        //                /*endblock:nonprim_value*/
-        //                /*block:rip*/
-        //                var elem2 = new Serial.DTEST_intlinst_intlist();/*endblock:rip*/
-        //                /*block:list_key*/
-        //                var /*name:valueName*/key2/*endname*/ = innerManual.GetPrimitiveList</*name:listType*/int/*endname*/>(0);
-        //                /*endblock:list_key*/
-        //                /*block:list_value*/
-        //                var /*name:valueName*/value2/*endname*/ = innerManual.GetPrimitiveList</*name:listType*/int/*endname*/>(1);
-        //                /*endblock:list_value*/
-        //                /*block:nonprim_list_key*/
-        //                var /*name:keyName*/key3/*endname*/ = innerManual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0);
-        //                /*endblock:nonprim_list_key*/
-        //                /*block:nonprim_list_value*/
-        //                var /*name:valueName*/value3/*endname*/ = innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1);
-        //                /*endblock:nonprim_list_value*/
-        //                /*block:nonprim_obs_list_key*/
-        //                var /*name:keyName*/key4/*endname*/ = new ObservableList</*name:keyType*/SerializableHelper/*endname*/>((System.Collections.Generic.List</*name:keyType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbKeyType*/FBComponent/*endname*/,/*name:keyType*/SerializableHelper/*endname*/>(0));
-        //                /*endblock:nonprim_obs_list_key*/
-        //                /*block:nonprim_obs_list_value*/
-        //                var /*name:valueName*/value4/*endname*/ = new ObservableList</*name:valueType*/SerializableHelper/*endname*/>((System.Collections.Generic.List</*name:valueType*/SerializableHelper/*endname*/>)innerManual.GetNonPrimList<Serial./*name:fbValueType*/FBComponent/*endname*/,/*name:valueType*/SerializableHelper/*endname*/>(1));
-        //                /*endblock:nonprim_obs_list_value*/
-        //                /*block:nonprim_key_typed_object*/
-        //                var /*name:keyName*/key5/*endname*/ = innerManual.GetTypedObject</*name:keyType*/SerializableHelper/*endname*/>(0);
-        //                /*endblock:nonprim_key_typed_object*/
-        //                /*block:nonprim_value_typed_object*/
-        //                var /*name:valueName*/value5/*endname*/ = innerManual.GetTypedObject</*name:valueType*/SerializableHelper/*endname*/>(1);
-        //                /*endblock:nonprim_value_typed_object*/
-        //                /*name:name*/
-        //                testDict2/*endname*/[(/*name:keyType*/SerializableHelper/*endname*/)/*name:thekey*/key/*endname*/] = (/*name:valueType*/SerializableHelper/*endname*/)/*name:thevalue*/value/*endname*/;
-        //            }
-        //        }
-        //        //FlatBufferSerializer.PutIntoDeserializeCache(input./*name|fu,post#BufferPosition:name*/TestDictNonPrimBufferPosition/*endname*/, /*name:name*/testDict/*endname*/);
-        //    }
-        //}
-        /*endblock:d_dict*/
     }
 
 

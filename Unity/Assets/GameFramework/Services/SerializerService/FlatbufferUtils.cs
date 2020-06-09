@@ -1097,7 +1097,7 @@ namespace Service.Serializer
             return null;
         }
 
-        public Dictionary<TKey,TValue> GetDictionary<TKey,TValue>(int fbPos, ref Dictionary<TKey,TValue> dict, DeserializationContext dctx, bool directMemoryAccess = false) {
+        public Dictionary<TKey,TValue> GetDictionary<TKey,TValue>(int fbPos, ref Dictionary<TKey,TValue> dict, DeserializationContext dctx) {
             int offset = GetDirectMemoryAddressOfOffset(fbPos);
             if (offset == 0) {
                 dict = null;
@@ -1112,6 +1112,17 @@ namespace Service.Serializer
 
             dict = (Dictionary<TKey,TValue>)GetDictionaryFromOffset(offset, dict, dctx, true);
 
+            return dict;
+        }
+
+        public ObservableDictionary<TKey, TValue> GetDictionary<TKey, TValue>(int fbPos, ref ObservableDictionary<TKey, TValue> dict, DeserializationContext dctx) {
+            int offset = GetDirectMemoryAddressOfOffset(fbPos);
+            if (offset == 0) {
+                dict = null;
+                return null;
+            }
+            var innerDict = dict.InnerDictionary;
+            GetDictionary(fbPos, ref innerDict, dctx);
             return dict;
         }
 
