@@ -519,6 +519,8 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_special_object_nullable*/
         /*block:s_struct*/builder.AddStruct(/*name:fieldid*/10/*endname*/, /*name:name*/serStruct/*endname*/.Put(builder),0);
         /*endblock:s_struct*/
+        /*block:s_ref_offset*/ctx.AddReferenceOffset(/*name:fieldid*/6/*endname*/,/*name:name*/serObj/*endname*/);
+        /*endblock:s_ref_offset*/
 
         int tblPos = builder.EndTable();
         ser2table = new ExtendedTable(tblPos, builder);
@@ -613,6 +615,8 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_list_nested*/
         /*block:d_dict*/ser2table.GetDictionary(/*name:fieldid*/9/*endname*/, ref /*name:name*/testDict/*endname*/, dctx);
         /*endblock:d_dict*/
+        /*block:d_ref_offset*/ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
+        /*endblock:d_ref_offset*/
 
         //object data = null;
         //if (data is Serial.FBRef) {

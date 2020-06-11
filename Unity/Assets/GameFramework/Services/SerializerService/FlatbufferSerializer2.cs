@@ -76,12 +76,17 @@ namespace Service.Serializer
 
         public override void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
             base.Ser2Deserialize(tblOffset, dctx);
-            id2typeAsString = (Dictionary<int, String>)ser2table.GetDictionaryFromOffset(ser2table.offset, id2typeAsString, dctx);
+            DeserializeFromOffset(base.ser2table.__tbl.bb_pos, dctx, true);
+        }
+
+        public void DeserializeFromOffset(int offset, DeserializationContext dctx, bool isDirectBuffer = true) {
+            type2id = new Dictionary<Type, int>();
+            id2type = new Dictionary<int, Type>();
+            
+            id2typeAsString = (Dictionary<int, String>)ser2table.GetDictionaryFromOffset(offset, id2typeAsString, dctx,true);
             // TODO: do this in postprocess
             if (id2typeAsString == null) return;
 
-            type2id = new Dictionary<Type, int>();
-            id2type = new Dictionary<int, Type>();
             foreach (var kv in id2typeAsString) {
                 Type type = Type.GetType(kv.Value);
                 id2type[kv.Key] = type;
@@ -163,9 +168,14 @@ namespace Service.Serializer
             this.bb = bb;
             extTbl = new ExtendedTable(0, bb);
         }
-        public DeserializationContext(byte[] buf) {
+        public DeserializationContext(byte[] buf, bool readTypes=true) {
             this.bb = new ByteBuffer(buf);
             extTbl = new ExtendedTable(0, bb);
+            if (readTypes) {
+                Type2IntMapper.instance.ser2table = new ExtendedTable(4, bb);
+                int typeDataAddress = Type2IntMapper.instance.ser2table.__tbl.__indirect(4);
+                Type2IntMapper.instance.DeserializeFromOffset(typeDataAddress, this, true);
+            }
         }
 
         public T GetOrCreate<T>(int bufferOffset, ref T obj) where T: new() {
@@ -665,10 +675,14 @@ namespace Service.Serializer
             }
         }
 
-        public byte[] CreateSizedByteArray(int main) {
+        public byte[] CreateSizedByteArray(int main, bool writeTypedList=true) {
+            int offsetTypes2Int = Type2IntMapper.instance.Ser2Serialize(this);
+            ResolveLateReferences();
+            builder.AddOffset(offsetTypes2Int);
             builder.Finish(main);
             return builder.SizedByteArray();
         }
+
 
         public void Cleanup() {
             lateReferences.Clear();

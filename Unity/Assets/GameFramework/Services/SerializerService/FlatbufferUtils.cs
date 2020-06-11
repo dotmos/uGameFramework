@@ -1158,6 +1158,8 @@ namespace Service.Serializer
         public IDictionary GetDictionaryFromOffset(int offset, IDictionary dict,DeserializationContext dctx,bool directMemoryAccess = false) {
             int currentAddress = directMemoryAccess ? offset : Off2Buf(offset);
 
+            if (currentAddress == 0) return null;
+
             int count = bb.GetInt(currentAddress);
             currentAddress += 4;
             var dictType = dict.GetType();

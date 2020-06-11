@@ -1355,26 +1355,26 @@ namespace FlatBuffers
             // set startposition
             int dictionaryStart = Offset;
 
-            PutCollectionData(dict.Keys, sctx, typeKey, keyPrimitive,keyIsStruct, elementSize);
+            PutCollectionData(dict.Keys, sctx, typeKey, keyPrimitive,keyIsStruct, keySize,elementSize);
             int dictHead = _space;
             // set the pointer on the value 'after' the dict by adding the keySize.
             // (before writing the first element, we subtract elementSize and are then on a valid position) 
-            _space = Off2Buf(dictionaryStart) + valueSize;
-            PutCollectionData(dict.Values, sctx, typeValue, valuePrimitive,valueIsStruct, elementSize);
+            _space = Off2Buf(dictionaryStart) + keySize;
+            PutCollectionData(dict.Values, sctx, typeValue, valuePrimitive,valueIsStruct, valueSize,elementSize);
             
             _space = dictHead;
             PutInt(count);
             return Offset;
         }
 
-        private void PutCollectionData(ICollection data, SerializationContext sctx, Type type, bool isPrimitive,bool isStruct, int elementSize) {
+        private void PutCollectionData(ICollection data, SerializationContext sctx, Type type, bool isPrimitive,bool isStruct, int dataSize,int elementSize) {
             // lots of reperition....(to avoid if checks in the loop. 
             // TODO: Check how big the check for type impact would be...
             if (isPrimitive) {
                 int spaceTemp = _space;
                 if (type == typeInt || type.IsEnum) {
                     foreach (int elem in data) {
-                        _space -= elementSize;
+                        _space = spaceTemp -= elementSize;
                         _bb.PutInt(_space, (int)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeFloat) {
@@ -1385,7 +1385,7 @@ namespace FlatBuffers
                 } else if (type == typeBool) {
                     foreach (bool elem in data) {
                         _space = spaceTemp -= elementSize;
-                        _bb.Put(_space,((bool)(object)elem)?(byte)0:(byte)1); // I don't want to, but I really don't know how to prevent it
+                        _bb.Put(_space,((bool)(object)elem)?(byte)1:(byte)0); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeShort) {
                     foreach (short elem in data) {
@@ -1406,7 +1406,7 @@ namespace FlatBuffers
                 return;
             } 
             else if (isStruct) {
-                int spaceTemp = _space + 4;
+                int spaceTemp = _space + dataSize;
                 if (type == typeUID) {
                     foreach (ECS.UID elem in data) {
                         _space = spaceTemp -= elementSize;
@@ -1453,7 +1453,7 @@ namespace FlatBuffers
                 return;
             } 
             else if (!isPrimitive) {
-                _space += 4;
+                _space += dataSize;
                 int spaceTemp = _space;
                 foreach (object elem in data) {
                     _space = spaceTemp -= elementSize;
