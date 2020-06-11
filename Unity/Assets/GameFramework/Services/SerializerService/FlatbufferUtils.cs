@@ -534,6 +534,27 @@ namespace Service.Serializer
             return tlist;
         }
 
+
+        public T[] GetPrimitiveArray<T>(int fbPos) where T:struct{
+            Type innerType = typeof(T);
+            
+            if (innerType.IsEnum) {
+                int[] result = __tbl.__vector_as_array<int>(fbPos);
+                int amount = result.Length;
+                T[] enumResult = new T[amount];
+
+                for (int i = 0; i < amount; i++) {
+                    enumResult[i] = (T)Enum.ToObject(innerType, i);
+                }
+                return enumResult;
+
+            } else {
+                T[] result = __tbl.__vector_as_array<T>(fbPos, false);
+                return result;
+            }
+
+        }
+
         /// <summary>
         /// Fastest was to read a primitve list 
         /// </summary>

@@ -677,7 +677,9 @@ namespace Service.Serializer
 
         public void ResolveLateReference(object obj) {
             int offset = GetOrCreate(obj);
-
+            if (offset == -1) {
+                throw new Exception("Offset == -1 for type:"+obj.GetType());
+            }
             if (lateReferences.TryGetValue(obj, out List<int> referenceLocations)) {
                 foreach (int referenceLoc in referenceLocations) {
                     int offsetAdjustment = 0;

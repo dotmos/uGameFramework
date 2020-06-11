@@ -49,8 +49,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
         [System.NonSerialized]
-        private bool isDirty;
-        public /*name:newkeyword*/new/*endname*/ bool Ser2IsDirty { get => isDirty; set => isDirty = value; } // TODO. Is dirty should be some kind of virtual
+        private bool ser2flags;
+        public /*name:newkeyword*/new/*endname*/ bool Ser2Flags { get => ser2flags; set => ser2flags = value; } // TODO. Is dirty should be some kind of virtual
 
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
 

@@ -52,7 +52,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 
         public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
-        public /*name:newkeyword*/new/*endname*/ bool Ser2IsDirty { get; set; } // TODO. Is dirty should be some kind of virtual
+        public /*name:newkeyword*/new/*endname*/ bool Ser2Flags { get; set; } 
 
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
 

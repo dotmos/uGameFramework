@@ -1179,6 +1179,37 @@ namespace FlatBuffers
 
         }
 
+        public int CreatePrimitiveArray<T>(T[] arrayData) where T : struct {
+            // I need to use IList here without generic due to usage from within the ReferenceResolving
+            // TODO: Rethink how to reinvent this workflow with generics?!
+            if (arrayData == null) return 0;
+
+            int count = arrayData.Length;
+
+            Type innerType = typeof(T);
+
+            if (!(innerType.IsPrimitive || innerType.IsEnum)) {
+                Debug.LogError($"using non primitive type for primitive list:{innerType}");
+            }
+
+            if (innerType.IsEnum) {
+                StartVector(4, count, 4);
+                for (int i = count - 1; i >= 0; i--) AddInt((int)(object)arrayData[i]);
+                return EndVector().Value;
+            } else if (innerType == typeInt) {
+                StartVector(4, count, 4);
+                Add<T>(arrayData);
+                return EndVector().Value;
+            } 
+
+            Debug.LogError($"PrimitveList: Do not know how to serialize type:{innerType}");
+
+            return 0;
+
+        }
+
+
+
         private void WriteStructListHeader(int count,bool writeLengthInfo,int reserveAdditionalBytes) {
             if (writeLengthInfo) {
                 PutInt(count);
