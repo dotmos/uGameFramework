@@ -103,11 +103,16 @@ namespace Service.Serializer
         void Ser2Deserialize(DeserializationContext ctx);
 
 
-        bool Ser2IsDirty { get; set; }
+        bool Ser2Flags { get; set; }
         ExtendedTable Ser2Table { get; }
         bool Ser2HasOffset { get; }
         int Ser2Offset { get; }
     }
+
+    public class Serializer2Flags {
+        public const int FLAG_DIRTY = 1;
+        public const int FLAG_DONT_SERIALIZE = 2;
+    };
 
     public interface IFBSerializable2Struct
     {
@@ -125,7 +130,7 @@ namespace Service.Serializer
 
         public ExtendedTable Ser2Table => ser2table;
 
-        public bool Ser2IsDirty { get; set; }
+        public bool Ser2Flags { get; set; }
 
         public bool Ser2HasOffset => !ser2table.IsNULL();
 
@@ -404,7 +409,9 @@ namespace Service.Serializer
         /// mappings to objects that are not serialized,yet
         /// </summary>
         public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
-        public readonly List<object> lateReferenceList = new List<object>();
+        //public readonly List<object> lateReferenceList = new List<object>();
+        public Queue<object> lateReferenceQueue = new Queue<object>();
+        public Queue<object> tempReferenceQueue = new Queue<object>();
 
         public readonly FlatBufferBuilder builder;
 
@@ -522,16 +529,17 @@ namespace Service.Serializer
             }
 
             int cacheOffset = GetCachedOffset(obj);
+            
+            if (obj is IFBSerializeAsTypedObject) {
+                int typeID = Type2IntMapper.instance.GetIdFromType(obj.GetType());
+                builder.AddInt(typeID);
+            }
 
             if (cacheOffset != -1) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
                 // the object is already serialized
                 builder._AddOffset(cacheOffset);
                 if (o!=-1) builder.Slot(o);
             } else {
-                if (obj is IFBSerializeAsTypedObject) {
-                    int typeID = Type2IntMapper.instance.GetIdFromType(obj.GetType());
-                    builder.AddInt(typeID);
-                }
                 // the object is not referenced,yet. Write a dummy int,that will be replaced later with the real offset
                 builder.AddInt(255);
 
@@ -546,7 +554,7 @@ namespace Service.Serializer
                 offsetDummies.Add(offset);
             } else {
                 lateReferences[obj] = new List<int>() { offset };
-                lateReferenceList.Add(obj);
+                lateReferenceQueue.Enqueue(obj);
             }
         }
 
@@ -585,8 +593,8 @@ namespace Service.Serializer
 
                 foreach (var kv in mergeCtx.lateReferences) {
                     var obj = kv.Key;
-                    if (!lateReferenceList.Contains(obj)) {
-                        lateReferenceList.Add(obj);
+                    if (!lateReferenceQueue.Contains(obj)) {
+                        lateReferenceQueue.Enqueue(obj);
                     }
 
                     if (!lateReferences.ContainsKey(obj)) {
@@ -623,14 +631,17 @@ namespace Service.Serializer
             blackList.Add(type);
         }
 
+        
         public void ResolveLateReferences() {
             var myBB = builder.DataBuffer;
 
             int checkIdx = 0;
-            int calls = 0;
-            while (lateReferenceList.Count > checkIdx) {
+            int calls = 0; 
+            
+            while (lateReferenceQueue.Count > 0) {
                 calls++;
-                var lateReference = lateReferenceList[checkIdx];
+                //                var lateReference = lateReferenceList[checkIdx];
+                var lateReference = lateReferenceQueue.Dequeue();
 
                 var lateRefType = lateReference.GetType();
                 if ((whiteList != null && !whiteList.Contains(lateRefType))
@@ -646,13 +657,21 @@ namespace Service.Serializer
                     var ifbObj = (IFBSerializable2)lateReference;
                     if (ifbObj.Ser2HasOffset && ifbObj.Ser2Table.bb != myBB && (offsetMapping == null || !offsetMapping.ContainsKey(ifbObj.Ser2Table.bb))) {
                         // ignore objects that are create within another builder and that is not merged in,yet
+                        tempReferenceQueue.Enqueue(lateReference);
                         checkIdx++;
                         continue;
                     }
                 }
-
+                int a = 0;
+                int amountBefore = lateReferenceQueue.Count;
                 ResolveLateReference(lateReference);
+                int amountAfter = lateReferenceQueue.Count;
+                //UnityEngine.Debug.Log($"LateRef:{lateReference.GetType()} before:{amountBefore} after:{amountAfter}");
             }
+            var _tempQueue = lateReferenceQueue;
+            lateReferenceQueue = tempReferenceQueue;
+            tempReferenceQueue = _tempQueue;
+
             UnityEngine.Debug.Log($"ResolveLateReference-Calls: {calls}");
         }
 
@@ -671,7 +690,7 @@ namespace Service.Serializer
                     builder.DataBuffer.PutInt(builder.DataBuffer.Length - referenceLoc, relativeOffset);
                 }
                 lateReferences.Remove(obj);
-                bool found = lateReferenceList.Remove(obj);
+                //bool found = lateReferenceList.Remove(obj);
             }
         }
 

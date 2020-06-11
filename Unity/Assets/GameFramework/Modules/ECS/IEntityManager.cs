@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Service.Serializer;
+using System;
 using System.Collections.Generic;
 
 namespace ECS {
-    public interface IEntityManager : IFBSerializable, IDisposable {
+    public interface IEntityManager : IFBSerializable,IFBSerializable2, IDisposable {
         void Initialize();
 
         void Tick(float deltaTime);

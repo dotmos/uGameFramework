@@ -1093,6 +1093,7 @@ namespace FlatBuffers
             return Offset;
         }
 
+
         public int CreateList(IList list, SerializationContext sctx) {
             Type innerType = list.GetType().GetGenericArguments()[0];
             
@@ -1276,7 +1277,7 @@ namespace FlatBuffers
             return CreateNonPrimitiveList(obsList.InnerIList, ctx);
         }
 
-        public int CreateNonPrimitiveList(IList list, SerializationContext ctx) {
+        public int CreateNonPrimitiveList(IList list, SerializationContext ctx,Func<object,bool> filter=null) {
             int count = list.Count;
 
             if (list == null) {
@@ -1291,9 +1292,10 @@ namespace FlatBuffers
             //StartVector(4, count, 4);
             Prep(sizeof(int), 4 * count);
             Prep(4, 4 * count); // Just in case alignment > int.
-
+            int serializedAmount = 0;
             for (int i = count - 1; i >= 0; i--) {
                 object obj = list[i];
+
                 if (obj == null) {
                     PutInt(0);
                     continue;
@@ -1323,7 +1325,7 @@ namespace FlatBuffers
             return CreateIDictionary(dict.InnerDictionary, sctx);
         }
 
-        public int CreateIDictionary(IDictionary dict,SerializationContext sctx) {
+        public int CreateIDictionary(IDictionary dict,SerializationContext sctx, Func<object,bool> filter=null) {
             if (dict == null) return 0;
 
             if (sctx == null) {

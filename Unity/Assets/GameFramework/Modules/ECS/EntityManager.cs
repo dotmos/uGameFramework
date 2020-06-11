@@ -9,15 +9,17 @@ using Zenject;
 using Service.Serializer;
 
 namespace ECS {
-    public class EntityManager : IEntityManager {
+    public class EntityManager : DefaultSerializable2, IEntityManager {
 
         /// <summary>
         /// Holds components of entities
         /// </summary>
         //This is super cache unfriendly.
         //TODO: Make cache friendly and do not use a list of components, but use a list of ids, targeting component arrays of same component type. I.e. one array per component type
-        protected readonly Dictionary<UID, List<IComponent>> _entities;
-        private readonly HashSet<UID> _entityIDs;
+        protected Dictionary<UID, List<IComponent>> _entities;
+
+        // TODO: do we need this? this hashset-functionality can be replaced by _entities.ContainsKey(...). Performance is the same (see UnitTestPerformance.cs TestCompareHashsetWithDictKey-Testcase)
+        // private readonly HashSet<UID> _entityIDs;
 
         /// <summary>
         /// List of all registered systems
@@ -54,12 +56,19 @@ namespace ECS {
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
         /// </summary>
         public bool AutoCallEntityModified { get; set; } = true;
+        public bool Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public ExtendedTable Ser2Table => throw new NotImplementedException();
+
+        public bool Ser2HasOffset => throw new NotImplementedException();
+
+        public int Ser2Offset => throw new NotImplementedException();
 
         [Inject] DisposableManager dManager;
 
         public EntityManager() {
             _entities = new Dictionary<UID, List<IComponent>>();
-            _entityIDs = new HashSet<UID>();
+            //_entityIDs = new HashSet<UID>();
             _systems = new List<ISystem>();
             _recycledEntityIds = new Queue<UID>();
             _recycledComponentIds = new Queue<UID>();
@@ -182,7 +191,7 @@ namespace ECS {
             //UnityEngine.Debug.Log(uid.ID);
 
             _entities.Add(uid, new List<IComponent>());
-            _entityIDs.Add(uid);
+            //_entityIDs.Add(uid);
 
             return uid;
         }
@@ -196,7 +205,7 @@ namespace ECS {
             lock (_entities) {
                 UID uid = new UID(id, revision);
                 _entities.Add(uid, new List<IComponent>());
-                _entityIDs.Add(uid);
+                //_entityIDs.Add(uid);
                 return uid;
             }
         }
@@ -215,7 +224,7 @@ namespace ECS {
                 }
 
                 _entities[entity].Clear();
-                _entityIDs.Remove(entity);
+                //_entityIDs.Remove(entity);
                 _EntityModified(entity);
                 _entities[entity] = null;
                 _entities.Remove(entity);
@@ -239,7 +248,8 @@ namespace ECS {
         //}
 
         public int EntityCount() {
-            return _entityIDs.Count;
+//            return _entityIDs.Count;
+            return _entities.Count;
         }
 
         /// <summary>
@@ -251,7 +261,8 @@ namespace ECS {
             //return _entities.ContainsKey(entity);
             if (entity.ID == 0) return false;
 
-            return _entityIDs.Contains(entity);
+//            return _entityIDs.Contains(entity);
+            return _entities.ContainsKey(entity);
         }
 
         /// <summary>
@@ -260,8 +271,9 @@ namespace ECS {
         /// <param name="id"></param>
         /// <returns></returns>
         public UID? GetEntityForID_SLOW(int id) {
-            foreach(UID uid in _entityIDs) {
-                if (uid.ID == id) return uid;
+//            foreach (UID uid in _entityIDs) {
+            foreach (UID uid in _entities.Keys) {
+                    if (uid.ID == id) return uid;
             }
             return null;
         }
@@ -764,11 +776,12 @@ namespace ECS {
                 kv.Value.Clear();
             }
             _entities.Clear();
-            _entityIDs.Clear();
+            //_entityIDs.Clear();
             _lastComponentId = _startComponentID;
             _lastEntityId = _startEntityID;
             _recycledEntityIds.Clear();
             _recycledComponentIds.Clear();
         }
+
     }
 }

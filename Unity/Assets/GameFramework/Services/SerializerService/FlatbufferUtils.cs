@@ -426,6 +426,8 @@ namespace Service.Serializer
 
         public T GetReference<T>(int fbPos, DeserializationContext dctx) where T : IFBSerializable2 {
             int bufferPos = GetOffset(fbPos);
+            if (bufferPos == 0) return default(T);
+
             object obj = typeISerializeAsTypedObject.IsAssignableFrom(typeof(T)) ? CreateTypedObjectType(fbPos) : null;
             T result = dctx.GetReference<T>(bufferPos,obj);
             return result;
@@ -716,7 +718,7 @@ namespace Service.Serializer
                 object newObject = list ?? Activator.CreateInstance(listType);
                 IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
                 resultList = TraverseIListFromOffset(offset, (_offset) => {
-                    Debug.Log($"outer-offset:{offset}  inneroffset:{_offset} innerType:{innerType}");
+                    //Debug.Log($"outer-offset:{offset}  inneroffset:{_offset} innerType:{innerType}");
                     return dctx.GetOrCreate(thiz.Buf2Off(_offset), innerType, null);
                 }, resultList, useDirectBuffer);
                 return resultList;
@@ -746,7 +748,7 @@ namespace Service.Serializer
                 }
             }
 
-            Debug.Log($"Travers on offset:{offset}");
+           // Debug.Log($"Travers on offset:{offset}");
 
             list.Clear();
 
@@ -793,7 +795,7 @@ namespace Service.Serializer
         /// <param name="usingBufferPos"></param>
         /// <returns></returns>
         public List<T> TraverseList<T>(int fbPos,System.Func<int,object> offset2obj,ref List<T> list) {
-            Debug.Log($"Travers on offset:{fbPos}");
+            //Debug.Log($"Travers on offset:{fbPos}");
 
             if (list == null) {
                 list = new List<T>();

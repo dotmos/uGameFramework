@@ -1,5 +1,7 @@
-﻿namespace ECS {
-    public interface IComponent : System.IDisposable, IFBSerializable{
+﻿using Service.Serializer;
+
+namespace ECS {
+    public interface IComponent : System.IDisposable, IFBSerializable, IFBSerializable2, IFBSerializeAsTypedObject {
         UID ID { get; set; }
         UID Entity { get; set; }
 

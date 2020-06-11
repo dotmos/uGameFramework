@@ -54,6 +54,13 @@ namespace ECS {
         /// </summary>
         public bool AutoCallEntityModified { get; set; } = true;
         bool IEntityManager.AutoCallEntityModified { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public ExtendedTable Ser2Table => throw new NotImplementedException();
+
+        public bool Ser2HasOffset => throw new NotImplementedException();
+
+        public int Ser2Offset => throw new NotImplementedException();
 
         [Inject] DisposableManager dManager;
 
@@ -792,6 +799,26 @@ namespace ECS {
         }
 
         void IDisposable.Dispose() {
+            throw new NotImplementedException();
+        }
+
+        public int Ser2Serialize(SerializationContext ctx) {
+            throw new NotImplementedException();
+        }
+
+        public void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            throw new NotImplementedException();
+        }
+
+        public void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            throw new NotImplementedException();
+        }
+
+        public void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
+            throw new NotImplementedException();
+        }
+
+        public void Ser2Deserialize(DeserializationContext ctx) {
             throw new NotImplementedException();
         }
     }
