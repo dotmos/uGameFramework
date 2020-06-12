@@ -1,6 +1,7 @@
 
 using ECS;
 using FlatBuffers;
+using ModestTree;
 using Service.Serializer;
 using System.Collections.Generic;
 using System.Linq;
@@ -301,6 +302,15 @@ public class SomeClazz2 : DefaultSerializable2
         }   
 /*endblock:newInstanceCopy*/
     }
+
+#if TESTING
+    public override void AssertSimpleFieldsEqual(IComponent _comp2) {
+        UnityEngine.Assertions.Assert.IsTrue(_comp2 is  /*name:ComponentName*/GenTemplateComponent/*endname*/,$"_comp2.type!=/*name:ComponentName*/GenTemplateComponent/*endname*/:{_comp2.GetType()}");
+        var comp2 = (/*name:ComponentName*/GenTemplateComponent/*endname*/)_comp2;
+        /*block:simpleAssert*/UnityEngine.Assertions.Assert.AreEqual(/*name:name*/intValue/*endname*/,comp2./*name:name*/intValue/*endname*/);
+        /*endblock:simpleAssert*/
+    }
+#endif
 
     public override IComponent Clone(bool cloneFromPrefab=false) {
         var clone = new  /*name:ComponentName*/GenTemplateComponent/*endname*/();
@@ -699,6 +709,10 @@ public class SomeClazz2 : DefaultSerializable2
 public class GenTemplateComponent2 : ECS.Component
 {
     public float time;
+
+    public override void AssertSimpleFieldsEqual(IComponent _comp2) {
+        throw new System.NotImplementedException();
+    }
 
     public override IComponent Clone(bool cloneFromPrefab=false) {
         throw new System.NotImplementedException();

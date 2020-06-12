@@ -14,7 +14,7 @@ using Service.Serializer;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/
 {
-    public  abstract class /*name:serviceName*/PrototypeService/*endname*/ : /*name:interfaceName*/IPrototypeService/*endname*/, IDisposable
+    public  abstract class /*name:serviceName*/PrototypeService/*endname*/ : DefaultSerializable2,/*name:interfaceName*/IPrototypeService/*endname*/, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

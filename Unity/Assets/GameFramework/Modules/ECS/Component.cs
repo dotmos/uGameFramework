@@ -55,6 +55,8 @@ namespace ECS {
         public virtual void Dispose() {
         }
 
+
+
         public virtual int Serialize(FlatBufferBuilder builder) {
             return Serial.FBComponent.CreateFBComponent(builder, new Offset<Serial.FBUID>(ID.Serialize(builder)), new Offset<Serial.FBUID>(Entity.Serialize(builder)), wasConstructed).Value;
         }
@@ -68,5 +70,9 @@ namespace ECS {
         public virtual void Deserialize(ByteBuffer buf) {
             throw new NotImplementedException();
         }
+
+#if TESTING
+        public abstract void AssertSimpleFieldsEqual(IComponent _comp2);
+#endif
     }
 }

@@ -17,7 +17,7 @@ using Service.Serializer;
 
 namespace Service.TimeService
 {
-    public  abstract class TimeServiceBase : ITimeService, IDisposable
+    public  abstract class TimeServiceBase : DefaultSerializable2,ITimeService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

@@ -16,7 +16,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.LoggingService {
-    public interface ILoggingService : IFBSerializable, IService {
+    public interface ILoggingService : IFBSerializable2, IFBSerializable, IService {
 
 
         

@@ -18,7 +18,7 @@ using Service.Serializer;
 
 namespace Service.DevUIService
 {
-    public  abstract class DevUIServiceBase : IDevUIService, IDisposable
+    public  abstract class DevUIServiceBase : DefaultSerializable2,IDevUIService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

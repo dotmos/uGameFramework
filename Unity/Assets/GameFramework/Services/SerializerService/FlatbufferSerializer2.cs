@@ -649,7 +649,7 @@ namespace Service.Serializer
                 ) {
                     // ignore all types that are not on whitelist (if using whitelist at all)
                     // ignore all types that are on the blacklist (if using blacklist)
-                    checkIdx++;
+                    tempReferenceQueue.Enqueue(lateReference);
                     continue;
                 }
 
@@ -658,7 +658,6 @@ namespace Service.Serializer
                     if (ifbObj.Ser2HasOffset && ifbObj.Ser2Table.bb != myBB && (offsetMapping == null || !offsetMapping.ContainsKey(ifbObj.Ser2Table.bb))) {
                         // ignore objects that are create within another builder and that is not merged in,yet
                         tempReferenceQueue.Enqueue(lateReference);
-                        checkIdx++;
                         continue;
                     }
                 }

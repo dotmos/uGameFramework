@@ -17,7 +17,7 @@ using Service.Serializer;
 
 namespace Service.LoggingService
 {
-    public  abstract class LoggingServiceBase : ILoggingService, IDisposable
+    public  abstract class LoggingServiceBase : DefaultSerializable2,ILoggingService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

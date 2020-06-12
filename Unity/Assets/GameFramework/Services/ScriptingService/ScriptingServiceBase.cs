@@ -19,7 +19,7 @@ using Service.Serializer;
 
 namespace Service.Scripting
 {
-    public  abstract class ScriptingServiceBase : IScriptingService, IDisposable
+    public  abstract class ScriptingServiceBase : DefaultSerializable2,IScriptingService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

@@ -16,7 +16,7 @@ using Service.Serializer;
 
 namespace Service.PerformanceTest
 {
-    public  abstract class PerformanceTestServiceBase : IPerformanceTestService, IDisposable
+    public  abstract class PerformanceTestServiceBase : DefaultSerializable2,IPerformanceTestService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

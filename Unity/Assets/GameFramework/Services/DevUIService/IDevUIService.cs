@@ -17,7 +17,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.DevUIService {
-    public interface IDevUIService : IFBSerializable, IService {
+    public interface IDevUIService : IFBSerializable2, IFBSerializable, IService {
 
 
         

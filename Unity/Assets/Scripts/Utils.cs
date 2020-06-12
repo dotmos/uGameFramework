@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ModestTree;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using UniRx;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 using Zenject;
 
@@ -426,6 +426,60 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDi
         return typeof(TValue);
     }
 }
+
+/*public class TestUtils {
+
+    private static Type typeIList = typeof(IList);
+    private static Type typeIDictionary = typeof(IDictionary);
+
+    public static void AssertCompareObjs<T>(T self, T to,string prefix="") where T : class {
+        if (self != null && to != null) {
+            Type type = typeof(T);
+            foreach (System.Reflection.PropertyInfo pi in type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)) {
+                var prop = type.GetProperty(pi.Name);
+                object selfValue = type.GetProperty(pi.Name).GetValue(self, null);
+                object toValue = type.GetProperty(pi.Name).GetValue(to, null);
+                if (prop.PropertyType.IsPrimitive) {
+                    //Assert.AreNotEqual()
+                    UnityEngine.Assertions.Assert.AreEqual(selfValue, toValue,$"{typeof(T)}.{prop.PropertyType.GetSimpleName()} same?");
+                } else {
+                    AssertCompareObjs(selfValue, toValue, $"{prefix}{typeof(T)}.{prop.PropertyType.GetSimpleName()}.");
+                }
+            }
+
+            foreach (var fi in type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)) {
+                var prop = type.GetField(fi.Name);
+                object selfValue = type.GetField(fi.Name).GetValue(self);
+                object toValue = type.GetField(fi.Name).GetValue(to);
+                var fieldType = prop.FieldType;
+                if (fieldType.IsPrimitive) {
+                    //Assert.AreNotEqual()
+                    UnityEngine.Assertions.Assert.AreEqual(selfValue, toValue, $"{typeof(T)}.{prop.FieldType.GetSimpleName()} same?");
+                } 
+                else if (fieldType.IsAssignableFrom(typeIList)) {
+                    IList selfList = (IList)selfValue;
+                    IList ToList = (IList)toValue;
+                    for (int i = 0; i < selfList.Count; i++) {
+                        Type innerType = selfList[i].GetType();
+                        if (innerType.IsPrimitive) { 
+                        }
+                        AssertCompareObjs(selfList[i], ToList[i], $"{typeof(T)}.{prop.FieldType.GetSimpleName()}");
+                    }
+                }
+                else if (fieldType.IsAssignableFrom(typeIDictionary)) {
+                    IDictionary selfList = (IDictionary)selfValue;
+                    IDictionary ToList = (IDictionary)toValue;
+                    for (int i = 0; i < selfList.Count; i++) {
+                        AssertCompareObjs(selfList[i], ToList[i], $"{typeof(T)}.{prop.FieldType.GetSimpleName()}");
+                    }
+                }  
+                else {
+                    AssertCompareObjs(selfValue, toValue);
+                }
+            }
+        }
+    }
+}*/
 
 public class DebugUtils {
     /// <summary>

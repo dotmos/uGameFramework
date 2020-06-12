@@ -14,7 +14,7 @@ using Service.Serializer;
 
 namespace Service.AsyncManager
 {
-    public  abstract class AsyncManagerBase : IAsyncManager, IDisposable
+    public  abstract class AsyncManagerBase : DefaultSerializable2,IAsyncManager, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

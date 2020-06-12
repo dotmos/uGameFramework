@@ -17,7 +17,7 @@ using Service.Serializer;
 
 namespace Service.MemoryBrowserService
 {
-    public  abstract class MemoryBrowserServiceBase : IMemoryBrowserService, IDisposable
+    public  abstract class MemoryBrowserServiceBase : DefaultSerializable2,IMemoryBrowserService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

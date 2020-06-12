@@ -7,5 +7,9 @@ namespace ECS {
 
         void CopyValues(IComponent otherComponent, bool initFromPrefab = false);
         IComponent Clone(bool cloneFromPrefab=false);
+
+#if TESTING
+        void AssertSimpleFieldsEqual(IComponent _comp2);
+#endif
     }
 }

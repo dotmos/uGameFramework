@@ -16,7 +16,7 @@ using Service.Serializer;
 
 namespace Service.GameStateService
 {
-    public  abstract class GameStateServiceBase : IGameStateService, IDisposable
+    public  abstract class GameStateServiceBase : DefaultSerializable2,IGameStateService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;

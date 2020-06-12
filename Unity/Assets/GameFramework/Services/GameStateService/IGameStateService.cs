@@ -15,7 +15,7 @@ using Service.Serializer;
 using System.Linq;
 
 namespace Service.GameStateService {
-    public interface IGameStateService : IFBSerializable, IService {
+    public interface IGameStateService : IFBSerializable2, IFBSerializable, IService {
 
 
         

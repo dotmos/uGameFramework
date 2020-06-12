@@ -1188,19 +1188,27 @@ namespace FlatBuffers
 
             Type innerType = typeof(T);
 
-            if (!(innerType.IsPrimitive || innerType.IsEnum)) {
-                Debug.LogError($"using non primitive type for primitive list:{innerType}");
-            }
-
             if (innerType.IsEnum) {
                 StartVector(4, count, 4);
                 for (int i = count - 1; i >= 0; i--) AddInt((int)(object)arrayData[i]);
                 return EndVector().Value;
-            } else if (innerType == typeInt) {
+            } else if (innerType.IsPrimitive) {
                 StartVector(4, count, 4);
                 Add<T>(arrayData);
                 return EndVector().Value;
-            } 
+            } else {
+                if (typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
+                    for (int i = count - 1; i >= 0; i--) {
+                        ((IFBSerializable2Struct)(object)arrayData[i]).Put(this);
+                    }
+                    PutInt(count);
+                    return EndVector().Value;
+                } else {
+                    throw new Exception("Unsupported PrimitiveArray-StructType:" + innerType);
+                }
+                // struct
+
+            }
 
             Debug.LogError($"PrimitveList: Do not know how to serialize type:{innerType}");
 
@@ -1214,6 +1222,7 @@ namespace FlatBuffers
             if (writeLengthInfo) {
                 PutInt(count);
             }
+            // TODO: is this bullshit? äh,..unneeded?
             if (reserveAdditionalBytes != 0) {
                 MoveCurrentOffset(reserveAdditionalBytes);
             }

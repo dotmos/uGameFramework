@@ -16,7 +16,7 @@ using Service.Serializer;
 
 namespace Service.FileSystem
 {
-    public  abstract class FileSystemServiceBase : IFileSystemService, IDisposable
+    public  abstract class FileSystemServiceBase : DefaultSerializable2,IFileSystemService, IDisposable
     {
         protected DisposableManager _dManager;
         protected Service.Events.IEventsService _eventService;
