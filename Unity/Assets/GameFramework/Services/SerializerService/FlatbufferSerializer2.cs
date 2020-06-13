@@ -159,6 +159,9 @@ namespace Service.Serializer
         public virtual void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
             ser2table = new ExtendedTable(tblOffset, ctx.bb);
         }
+        protected void SetTable(int tblOffset, DeserializationContext dctx) {
+            ser2table = new ExtendedTable(tblOffset, dctx.bb);
+        }
     }
 
     public class DeserializationContext

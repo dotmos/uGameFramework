@@ -1103,7 +1103,7 @@ namespace FlatBuffers
             else if (innerType.IsPrimitive || innerType.IsEnum ) {
                 return CreatePrimitiveList(list);
             } 
-            else if (innerType.IsValueType) {
+            else if (innerType.IsValueType || typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
                 return CreateStructList(list);
             }
 

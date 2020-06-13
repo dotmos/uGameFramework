@@ -718,7 +718,7 @@ namespace Service.Serializer
                 var result = GetPrimitiveListFromOffset(offset, resultList, innerType, useDirectBuffer);
                 return result;
             } 
-            else if (innerType.IsValueType) {
+            else if (innerType.IsValueType || typeIFBSerializableStruct.IsAssignableFrom(innerType) ) {
                 object newObject = list ?? Activator.CreateInstance(listType);
                 IList resultList = newObject is IObservableList ? ((IObservableList)newObject).InnerIList : (IList)newObject;
                 var result = GetStructListFromOffset(offset, resultList, innerType, useDirectBuffer);
