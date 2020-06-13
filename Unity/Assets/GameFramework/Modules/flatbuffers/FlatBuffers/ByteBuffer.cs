@@ -35,8 +35,6 @@
 // dangerous. Do so at your own risk!
 //
 
-#define UNSAFE_BYTEBUFFER
-
 using Service.Serializer;
 using System;
 using System.Collections.Generic;
@@ -267,6 +265,45 @@ namespace FlatBuffers
         {
             return SizeOf<T>() * x.Length;
         }
+
+        /// <summary>
+        /// Universal get. 
+        /// CAUTION: Always prefer the direct call as here is overhead to determine the right method to use
+        ///          Need to find a better way, but let's use it as a first start. Look at that boxing magic :[
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public T Get<T>(int index) {
+            return (T)Get(index, typeof(T));
+        }
+        /// <summary>
+        /// Get type at index. (caution boxing) better use the direct call
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public object Get(int index, Type type) {
+            if (type == typeInt) {
+                return GetInt(index);
+            } else if (type == typeFloat) {
+                return GetFloat(index);
+            } else if (type == typeBool) {
+                return GetBool(index);
+            } else if (type == typeShort) {
+                return GetShort(index);
+            } else if (type == typeByte) {
+                return Get(index);
+            } else if (type == typeLong) {
+                return GetLong(index);
+            } else if (type == typeDouble) {
+                return GetDouble(index);
+            }
+
+            throw new ArgumentException($"Get<T>(..) using unsupported type:{type}");
+        }
+
+
 
 #if ENABLE_SPAN_T
         public static int ArraySize<T>(Span<T> x)
@@ -777,43 +814,6 @@ namespace FlatBuffers
                     return *(float*)(&uvalue);
                 }
             }
-        }
-
-        /// <summary>
-        /// Universal get. 
-        /// CAUTION: Always prefer the direct call as here is overhead to determine the right method to use
-        ///          Need to find a better way, but let's use it as a first start. Look at that boxing magic :[
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public T Get<T>(int index) {
-            return (T)Get(index, typeof(T));
-        }
-        /// <summary>
-        /// Get type at index. (caution boxing) better use the direct call
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public object Get(int index, Type type) {
-            if (type == typeInt) {
-                return GetInt(index);
-            } else if (type == typeFloat) {
-                return GetFloat(index);
-            } else if (type == typeBool) {
-                return GetBool(index);
-            } else if (type == typeShort) {
-                return GetShort(index);
-            } else if (type == typeByte) {
-                return Get(index);
-            } else if (type == typeLong) {
-                return GetLong(index);
-            } else if (type == typeDouble) {
-                return GetDouble(index);
-            }
-
-            throw new ArgumentException($"Get<T>(..) using unsupported type:{type}");
         }
 
 
