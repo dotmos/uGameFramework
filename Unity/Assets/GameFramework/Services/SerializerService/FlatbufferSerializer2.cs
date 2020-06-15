@@ -144,8 +144,14 @@ namespace Service.Serializer
         }
 
 
-
         public virtual int Ser2Serialize(SerializationContext ctx) {
+            return Ser2Serialize(ctx, false);
+        }
+
+        public virtual int Ser2Serialize(SerializationContext ctx,bool ignoreCurrentOffset=false) {
+            if (Ser2HasOffset && !ignoreCurrentOffset) {
+                return ser2table.offset;
+            }
             if (forceCreation || !Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
             } else {
@@ -420,6 +426,7 @@ namespace Service.Serializer
 
         private HashSet<Type> whiteList = null;
         private HashSet<Type> blackList = null;
+        private Func<object, bool> customFilter = null;
         private Dictionary<object, int> obj2offsetMapping = new Dictionary<object, int>(); // mapping to offset of objects != ifbserializable2
 
         /// <summary>
@@ -592,6 +599,7 @@ namespace Service.Serializer
                 builder.Add<byte>(buf);
 
                 // keep the new ending for later adjustment
+                // serialized objects know where they are serialized, if you try to serialize again you can query the ByteBuffer and map with this offset
                 offsetMapping[mergeBB] = newBufEnd;
 
                 foreach (var kv in mergeCtx.lateReferences) {
@@ -610,14 +618,25 @@ namespace Service.Serializer
                         lateRefsForObjects.Add(locationOffset + newBufEnd);
                     }
                 }
+                
             }
 
             whiteList = null;
             blackList = null;
+            customFilter = null;
 
             // now that we merged all the lateReferences and adjusted it to the new buffer, solve the last
             ResolveLateReferences();
 
+        }
+
+        /// <summary>
+        /// Set filter for reference(!)-types that should be serialzied by this SerializationContext.
+        /// If the filter return false, this type is not serialized, only marked for later serialization
+        /// </summary>
+        /// <param name="customFilter"></param>
+        public void SetCustomFilter(Func<object,bool> customFilter) {
+            this.customFilter = customFilter;
         }
 
         public void AddTypeToWhiteList(Type type) {
@@ -635,7 +654,7 @@ namespace Service.Serializer
         }
 
         
-        public void ResolveLateReferences() {
+        public void ResolveLateReferences(bool forceAll=false) {
             var myBB = builder.DataBuffer;
 
             int checkIdx = 0;
@@ -647,8 +666,10 @@ namespace Service.Serializer
                 var lateReference = lateReferenceQueue.Dequeue();
 
                 var lateRefType = lateReference.GetType();
-                if ((whiteList != null && !whiteList.Contains(lateRefType))
-                     || (blackList != null && blackList.Contains(lateRefType))
+                if ( !forceAll 
+                    && ( (customFilter!=null && !customFilter(lateReference))
+                    || (whiteList != null && !whiteList.Contains(lateRefType))
+                     || (blackList != null && blackList.Contains(lateRefType)) )
                 ) {
                     // ignore all types that are not on whitelist (if using whitelist at all)
                     // ignore all types that are on the blacklist (if using blacklist)
@@ -664,11 +685,7 @@ namespace Service.Serializer
                         continue;
                     }
                 }
-                int a = 0;
-                int amountBefore = lateReferenceQueue.Count;
                 ResolveLateReference(lateReference);
-                int amountAfter = lateReferenceQueue.Count;
-                //UnityEngine.Debug.Log($"LateRef:{lateReference.GetType()} before:{amountBefore} after:{amountAfter}");
             }
             var _tempQueue = lateReferenceQueue;
             lateReferenceQueue = tempReferenceQueue;
