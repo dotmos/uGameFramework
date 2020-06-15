@@ -62,6 +62,8 @@ namespace ECS {
 
         public int Ser2Offset => throw new NotImplementedException();
 
+        int IFBSerializable2.Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         [Inject] DisposableManager dManager;
 
         public EntityManagerTest() {
@@ -819,6 +821,10 @@ namespace ECS {
         }
 
         public void Ser2Deserialize(DeserializationContext ctx) {
+            throw new NotImplementedException();
+        }
+
+        public void Ser2Clear() {
             throw new NotImplementedException();
         }
     }

@@ -50,8 +50,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
         [System.NonSerialized]
-        private bool ser2flags;
-        public /*name:newkeyword*/new/*endname*/ bool Ser2Flags { get => ser2flags; set => ser2flags = value; } // TODO. Is dirty should be some kind of virtual
+        private int ser2flags;
+        public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get => ser2flags; set => ser2flags = value; } // TODO. Is dirty should be some kind of virtual
 
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
 
@@ -63,12 +63,22 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         }
 
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
+            if (Ser2HasOffset) {
+                return Ser2Offset;
+            }
             if (!Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
+#if TESTING
+                SerializationContext.allSerializedObjects.Add(this);
+#endif 
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }
             return Ser2Offset;
+        }
+
+        public /*name:newkeyword*/new/*endname*/ void Ser2Clear() {
+            ser2table = ExtendedTable.NULL;
         }
         /*endblock:ser2_header*/
 
@@ -534,7 +544,6 @@ public class SomeClazz2 : DefaultSerializable2
 
         int tblPos = builder.EndTable();
         ser2table = new ExtendedTable(tblPos, builder);
-
         //int sState = 0;
 
         ///*block:inheritanceSer*/

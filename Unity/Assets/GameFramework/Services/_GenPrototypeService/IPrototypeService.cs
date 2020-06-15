@@ -52,7 +52,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 
         public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
-        public /*name:newkeyword*/new/*endname*/ bool Ser2Flags { get; set; } 
+        public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get; set; } 
 
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
 
@@ -64,12 +64,22 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         }
 
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
+            if (Ser2HasOffset) {
+                return Ser2Offset;
+            }
             if (!Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
+#if TESTING
+                SerializationContext.allSerializedObjects.Add(this);
+#endif 
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }
             return Ser2Offset;
+        }
+
+        public /*name:newkeyword*/new/*endname*/ void Ser2Clear() {
+            ser2table = ExtendedTable.NULL;
         }
         /*endblock:ser2_header*/
 

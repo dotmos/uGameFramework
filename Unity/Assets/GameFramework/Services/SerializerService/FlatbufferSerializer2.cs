@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections;
 using System.Text;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace Service.Serializer
 {
@@ -102,8 +103,8 @@ namespace Service.Serializer
         void Ser2Deserialize(int tblOffset, DeserializationContext ctx);
         void Ser2Deserialize(DeserializationContext ctx);
 
-
-        bool Ser2Flags { get; set; }
+        void Ser2Clear();
+        int Ser2Flags { get; set; }
         ExtendedTable Ser2Table { get; }
         bool Ser2HasOffset { get; }
         int Ser2Offset { get; }
@@ -124,18 +125,25 @@ namespace Service.Serializer
 
     public class DefaultSerializable2 : IFBSerializable2
     {
-        private bool forceCreation = true;
-
+        [JsonIgnore]
         public ExtendedTable ser2table = ExtendedTable.NULL;
 
+        [JsonIgnore]
         public ExtendedTable Ser2Table => ser2table;
 
+        [JsonIgnore]
         public bool Ser2Flags { get; set; }
 
+        [JsonIgnore]
         public bool Ser2HasOffset => !ser2table.IsNULL();
 
+        [JsonIgnore]
         public int Ser2Offset => ser2table.offset;
 
+        [JsonIgnore]
+        int IFBSerializable2.Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        [JsonIgnore]
         private object lock_state = new object();
 
         public void Ser2Deserialize(DeserializationContext ctx) {
@@ -145,15 +153,14 @@ namespace Service.Serializer
 
 
         public virtual int Ser2Serialize(SerializationContext ctx) {
-            return Ser2Serialize(ctx, false);
-        }
-
-        public virtual int Ser2Serialize(SerializationContext ctx,bool ignoreCurrentOffset=false) {
-            if (Ser2HasOffset && !ignoreCurrentOffset) {
+            if (Ser2HasOffset) {
                 return ser2table.offset;
             }
-            if (forceCreation || !Ser2HasOffset) {
+            if (!Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
+#if TESTING
+                SerializationContext.allSerializedObjects.Add(this);
+#endif 
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }
@@ -167,6 +174,10 @@ namespace Service.Serializer
         }
         protected void SetTable(int tblOffset, DeserializationContext dctx) {
             ser2table = new ExtendedTable(tblOffset, dctx.bb);
+        }
+
+        public void Ser2Clear() {
+            ser2table = ExtendedTable.NULL;
         }
     }
 
@@ -395,6 +406,17 @@ namespace Service.Serializer
 
     public class SerializationContext
     {
+#if TESTING
+        public static List<IFBSerializable2> allSerializedObjects = new List<IFBSerializable2>();
+
+        public static void ResetAllSerializedObjects() { 
+            foreach (IFBSerializable2 serObj in allSerializedObjects) {
+                serObj.Ser2Clear();
+            }
+            allSerializedObjects.Clear();
+        }
+#endif
+
         ///// <summary>
         ///// A mapping object 2 offset in FlatBuffer
         ///// </summary>
