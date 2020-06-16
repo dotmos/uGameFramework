@@ -719,10 +719,11 @@ public class GenTemplateComponent2 : ECS.Component
 {
     public float time;
 
+#if TESTING
     public override void AssertSimpleFieldsEqual(IComponent _comp2) {
         throw new System.NotImplementedException();
     }
-
+#endif
     public override IComponent Clone(bool cloneFromPrefab=false) {
         throw new System.NotImplementedException();
     }
