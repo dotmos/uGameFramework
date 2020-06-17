@@ -640,6 +640,24 @@ namespace Service.Scripting {
             return builder.EndTable();
         }
 
+        public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            base.Ser2CreateTable(ctx, builder);
+            builder.StartTable(1);
+            ctx.AddReferenceOffset(0, data.replayScript.ToString());
+            int tblPos = builder.EndTable();
+            ser2table = new ExtendedTable(tblPos, builder);
+        }
+
+        public override void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
+            base.Ser2Deserialize(tblOffset, ctx);
+            
+            if (data == null) {
+                data = new ScriptingServiceData();
+            }
+            data.replayScript.Clear();
+            data.replayScript.Append(ser2table.GetString(0));
+        }
+
         public override void Deserialize(object incoming) {
             var manualObject = FlatBufferSerializer.GetManualObject(incoming);
 

@@ -38,6 +38,7 @@ namespace Service.Serializer
         public static readonly Type typeObservableDict = typeof(IObservableDictionary);
         public static readonly Type typeExtendedTable = typeof(ExtendedTable);
         public static readonly Type typeISerializeAsTypedObject = typeof(IFBSerializeAsTypedObject);
+        public static readonly Type typeObject = typeof(object);
 
         public ExtendedTable(int offset, ByteBuffer _bb) {
             __tbl = new Table(offset, _bb);
@@ -200,7 +201,7 @@ namespace Service.Serializer
         }
 
 
-        public UnityEngine.Vector4 GetVector3(int o) {
+        public UnityEngine.Vector3 GetVector3(int o) {
             Vector3 vec3 = new Vector3();
             GetVector3(o, ref vec3);
             return vec3;
@@ -428,7 +429,7 @@ namespace Service.Serializer
             int bufferPos = GetOffset(fbPos);
             if (bufferPos == 0) return default(T);
 
-            object obj = typeISerializeAsTypedObject.IsAssignableFrom(typeof(T)) ? CreateTypedObjectType(fbPos) : null;
+            object obj = IsTypedObjectType(typeof(T)) ? CreateTypedObjectType(fbPos) : null;
             T result = dctx.GetReference<T>(bufferPos,obj);
             return result;
         }
@@ -926,7 +927,7 @@ namespace Service.Serializer
             int elempos = offset + 4;
             int vector_len = __tbl.bb.GetInt(offset);
             int buflength = __tbl.bb.Length;
-            bool isTypedObject = typeISerializeAsTypedObject.IsAssignableFrom(innerType);
+            bool isTypedObject = IsTypedObjectType(innerType);
             int elemSize = isTypedObject ? 8 : 4;
             for (int i = 0; i < vector_len; i++) {
                 if (__tbl.bb.GetInt(elempos) == 0) {
@@ -1167,7 +1168,7 @@ namespace Service.Serializer
         }
 
         public bool IsTypedObjectType(Type type) {
-            return ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(type);
+            return ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(type) || type==typeObject;
         }
 
         /// <summary>

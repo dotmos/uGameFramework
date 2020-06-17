@@ -195,6 +195,8 @@ namespace Service.Serializer
         }
         public DeserializationContext(byte[] buf, bool readTypes=true) {
             this.bb = new ByteBuffer(buf);
+            ByteBuffer.__debug_bb = this.bb;
+                 
             extTbl = new ExtendedTable(0, bb);
             if (readTypes) {
                 Type2IntMapper.instance.ser2table = new ExtendedTable(4, bb);
@@ -255,6 +257,9 @@ namespace Service.Serializer
 
 
         private object _GetOrCreate(int bufferOffset, Type objType, object obj=null) {
+            if (obj != null) {
+                objType = obj.GetType();
+            }
             if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
                 //if (ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
                 //    int typeId = bb.GetInt(bufferOffset + 4);

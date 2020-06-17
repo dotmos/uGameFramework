@@ -67,6 +67,7 @@ namespace FlatBuffers
         static readonly Type typeVector3 = typeof(Vector3);
         static readonly Type typeVector4 = typeof(Vector4);
         static readonly Type typeQuaternion = typeof(Quaternion);
+        static readonly Type typeObject = typeof(object);
 
         static readonly Type typeIFBserializabel2Struct = typeof(IFBSerializable2Struct);
         static readonly Type typeIList = typeof(IList);
@@ -1354,7 +1355,7 @@ namespace FlatBuffers
         }
 
         public bool IsTypedObjectType(Type type) {
-            return ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(type);
+            return ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(type) || type == typeObject;
         }
 
         public int CreateDictionary<TKey, TValue>(Dictionary<TKey, TValue> dict, SerializationContext sctx) {
