@@ -56,13 +56,6 @@ namespace ECS {
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
         /// </summary>
         public bool AutoCallEntityModified { get; set; } = true;
-        public bool Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public ExtendedTable Ser2Table => throw new NotImplementedException();
-
-        public bool Ser2HasOffset => throw new NotImplementedException();
-
-        public int Ser2Offset => throw new NotImplementedException();
 
         [Inject] DisposableManager dManager;
 

@@ -1220,7 +1220,10 @@ namespace Service.Serializer
                 for (int i = 0; i < count; i++) {
                     var keyData = GetPrimitiveOrStruct(currentAddress, typeKey);
 
-                    object valObj = isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null; // create the object for typedobjects
+                    // TODO: is this a good idea to reuse existing objects here? 
+                    bool containsKeyAlready = dict.Contains(keyData);
+
+                    object valObj = containsKeyAlready ? dict[keyData] : (isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null); // create the object for typedobjects
                     object valData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue, valObj);
 //                    var valData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
                     dict[keyData] = valData;
@@ -1244,7 +1247,10 @@ namespace Service.Serializer
                 for (int i = 0; i < count; i++) {
                     object keyObj = isKeyTypedObject ? CreateTypedObjectTypeFromOffset(currentAddress, true) : null; // create the object for typedobjects
                     object keyData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentAddress)), typeKey, keyObj);
-                    object valObj = isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null; // create the object for typedobjects
+
+                    bool containsKeyAlready = dict.Contains(keyData);
+
+                    object valObj = containsKeyAlready ? dict[keyData] : (isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null); // create the object for typedobjects
                     object valData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue, valObj);
                     
                     //var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);

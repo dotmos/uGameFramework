@@ -195,8 +195,10 @@ namespace Service.Serializer
         }
         public DeserializationContext(byte[] buf, bool readTypes=true) {
             this.bb = new ByteBuffer(buf);
+#if TESTING
             ByteBuffer.__debug_bb = this.bb;
-                 
+#endif
+            
             extTbl = new ExtendedTable(0, bb);
             if (readTypes) {
                 Type2IntMapper.instance.ser2table = new ExtendedTable(4, bb);
@@ -390,10 +392,10 @@ namespace Service.Serializer
             return result;
         }
 
-
-        public T GetRoot<T>() where T : IFBSerializable2, new() {
+         
+        public T GetRoot<T>(T obj=default) where T : class,IFBSerializable2, new() {
             int offset = GetRootOffset();
-            T data = new T();
+            T data = obj ?? new T();
             return GetOrCreate<T>(offset,ref data);
         }
 
@@ -482,6 +484,18 @@ namespace Service.Serializer
 
             if (obj is IFBSerializable2) {
                 var iFBSer2Obj = (IFBSerializable2)obj;
+                
+                if (iFBSer2Obj is IFBSerializeOnMainThread) {
+                    // serialize this on mainthread
+                    ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
+                        int _newOffset = iFBSer2Obj.Ser2Serialize(this);
+                        return _newOffset;
+                    });
+                    // wait for the result
+                    int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
+                    return newOffsetFromMainThread;
+                } 
+
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
                 return newOffset;
             } 
