@@ -8,6 +8,8 @@ using System.Collections;
 using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
+using ECS;
 
 namespace Service.Serializer
 {
@@ -73,6 +75,7 @@ namespace Service.Serializer
 
             int pos = builder.CreateIDictionary(id2typeAsString, sctx);
             ser2table = new ExtendedTable(pos, builder);
+            sctx.ResolveLateReferences();
         }
 
         public override void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
@@ -184,6 +187,7 @@ namespace Service.Serializer
     public class DeserializationContext
     {
         private readonly Dictionary<int, object> pos2obj = new Dictionary<int, object>();
+        private readonly Queue<IFBPostDeserialization> postDeserializations = new Queue<IFBPostDeserialization>();
 
         public ByteBuffer bb;
 
@@ -193,6 +197,18 @@ namespace Service.Serializer
             this.bb = bb;
             extTbl = new ExtendedTable(0, bb);
         }
+
+        public void AddOnPostDeserializationObject(IFBPostDeserialization obj) {
+            postDeserializations.Enqueue(obj);
+        }
+
+        public void ProcessPostSerialization(IEntityManager em,int fileDataFormat,int currentDataFormat) { 
+            while (postDeserializations.Count > 0) {
+                var obj = postDeserializations.Dequeue();
+                obj.OnPostDeserialization(em, null, fileDataFormat, currentDataFormat);
+            }
+        }
+
         public DeserializationContext(byte[] buf, bool readTypes=true) {
             this.bb = new ByteBuffer(buf);
 #if TESTING
@@ -757,8 +773,8 @@ namespace Service.Serializer
         }
 
         public byte[] CreateSizedByteArray(int main, bool writeTypedList=true) {
-            int offsetTypes2Int = Type2IntMapper.instance.Ser2Serialize(this);
             ResolveLateReferences();
+            int offsetTypes2Int = Type2IntMapper.instance.Ser2Serialize(this);
             builder.AddOffset(offsetTypes2Int);
             builder.Finish(main);
             return builder.SizedByteArray();

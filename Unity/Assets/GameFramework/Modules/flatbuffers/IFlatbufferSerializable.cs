@@ -10,11 +10,6 @@ public interface IFBSerializable<T> where T : struct, FlatBuffers.IFlatbufferObj
 
 public interface IFBDontCache { }
 
-
-/// <summary>
-/// Union of both serializable types
-/// </summary>
-public interface IFBSerialzableOneTwo : IFBSerializable, IFBSerializable2 { }
 public interface IFBSerializable {
     int Serialize(FlatBuffers.FlatBufferBuilder builder);
     void Deserialize(object incoming); 
