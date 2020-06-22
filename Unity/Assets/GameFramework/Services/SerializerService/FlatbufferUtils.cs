@@ -556,6 +556,8 @@ namespace Service.Serializer
 
         }
 
+
+
         /// <summary>
         /// Fastest was to read a primitve list 
         /// </summary>
@@ -921,6 +923,7 @@ namespace Service.Serializer
             return tlist;
         }
 
+
         public IList GetObjectListFromOffset(int offset, IList tlist, Type innerType,DeserializationContext dctx = null,bool directMemoryAccess=false) {
             // int[] offsets = __tbl.__vector_as_array<int>(4 + fbPos * 2);
             offset = directMemoryAccess ? offset : Off2Buf(offset);
@@ -1045,6 +1048,9 @@ namespace Service.Serializer
             return null;
         }
 
+
+
+
 /*        public IList GetTypedObjectList(int offset, IList tlist, DeserializationContext dctx, bool directMemoryAccess = false) {
             int currentAddress = directMemoryAccess ? offset : Off2Buf(offset);
 
@@ -1077,6 +1083,89 @@ namespace Service.Serializer
             }
             GetStructList<T>(fbPos, ref tlist.__innerList);
             return tlist;
+        }
+
+        public T[] GetStructArray<T>(int fbPos, ref T[] tlist) where T : struct {
+            int vecOffset = GetOffset(fbPos);
+            if (vecOffset == 0) {
+                tlist = null;
+                return null;
+            }
+
+            T[] result = GetStructArrayFromOffset(vecOffset,ref tlist,  false);
+            return result;
+        }
+
+        public T[] GetStructArrayFromOffset<T>(int offset, ref T[] resultArray, bool directMemoryAccess = false) {
+            int currentAddress = directMemoryAccess ? offset : Off2Buf(offset);
+
+            int vector_start = currentAddress + sizeof(int);
+            int vector_len = bb.GetInt(currentAddress);
+            int buflength = bb.Length;
+            Type innerType = typeof(T);
+
+            if (innerType == typeUID) {
+                int bytesize = 8;
+                var ecsArray = new ECS.UID[vector_len];
+                for (int i = 0; i < vector_len; i++) {
+                    var tData = (ECS.UID)(object)resultArray[i];
+
+                    GetUIDFromOffset(vector_start, ref ecsArray[i]);
+                    
+                    vector_start += bytesize;
+                }
+                resultArray = (T[])(object)(ecsArray);
+                return resultArray;
+            } else if (typeIFBSerializableStruct.IsAssignableFrom(innerType)) {
+                IFBSerializable2Struct elem = (IFBSerializable2Struct)Activator.CreateInstance(innerType);
+                int bytesize = elem.ByteSize;
+                resultArray = new T[vector_len];
+                for (int i = 0; i < vector_len; i++) {
+                    elem.Get(this, vector_start);
+                    resultArray[i] = (T)elem;
+                    vector_start += bytesize;
+                }
+                return resultArray;
+            } else if (innerType == typeVector2) {
+                var vec2Array = new UnityEngine.Vector2[vector_len];
+                int bytesize = 8;
+                Vector2 vec2 = new Vector2();
+                for (int i = 0; i < vector_len; i++) {
+                    GetVector2FromOffset(vector_start, ref vec2Array[i]);
+                    vector_start += bytesize;
+                }
+                resultArray = (T[])(object)(vec2Array);
+                return resultArray;
+            } else if (innerType == typeVector3) {
+                int bytesize = 12;
+                var vec3Array = new UnityEngine.Vector3[vector_len];
+                for (int i = 0; i < vector_len; i++) {
+                    GetVector3FromOffset(vector_start, ref vec3Array[i]);
+                    vector_start += bytesize;
+                }
+                resultArray = (T[])(object)(vec3Array);
+                return resultArray;
+            } else if (innerType == typeVector4) {
+                int bytesize = 16;
+                var vec4Array = new UnityEngine.Vector4[vector_len];
+                for (int i = 0; i < vector_len; i++) {
+                    GetVector4FromOffset(vector_start, ref vec4Array[i]);
+                    vector_start += bytesize;
+                }
+                resultArray = (T[])(object)(vec4Array);
+                return resultArray;
+            } else if (innerType == typeQuaternion) {
+                int bytesize = 16;
+                var quaternionArray = new UnityEngine.Quaternion[vector_len];
+                for (int i = 0; i < vector_len; i++) {
+                    GetQuaternionFromOffset(vector_start, ref quaternionArray[i]);
+                    vector_start += bytesize;
+                }
+                resultArray = (T[])(object)(quaternionArray);
+                return resultArray;
+            }
+            Debug.LogError($"GetStructList<{innerType}>: Do not know how to serialize type:{innerType}");
+            return null;
         }
 
         public void GetStruct<T>(int fbPos, ref T structElem) {

@@ -429,7 +429,6 @@ namespace Service.Serializer
 
     public class SerializationContext
     {
-#if TESTING
         public static List<IFBSerializable2> allSerializedObjects = new List<IFBSerializable2>();
 
         public static void ResetAllSerializedObjects() { 
@@ -438,7 +437,6 @@ namespace Service.Serializer
             }
             allSerializedObjects.Clear();
         }
-#endif
 
         ///// <summary>
         ///// A mapping object 2 offset in FlatBuffer
