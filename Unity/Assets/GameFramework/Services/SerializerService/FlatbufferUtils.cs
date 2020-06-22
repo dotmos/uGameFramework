@@ -541,6 +541,9 @@ namespace Service.Serializer
             
             if (innerType.IsEnum) {
                 int[] result = __tbl.__vector_as_array<int>(fbPos);
+                if (result == null) {
+                    return null;
+                }
                 int amount = result.Length;
                 T[] enumResult = new T[amount];
 
@@ -550,7 +553,7 @@ namespace Service.Serializer
                 return enumResult;
 
             } else {
-                T[] result = __tbl.__vector_as_array<T>(fbPos, false);
+                T[] result = __tbl.__vector_as_array<T>(fbPos);
                 return result;
             }
 
@@ -1108,10 +1111,7 @@ namespace Service.Serializer
                 int bytesize = 8;
                 var ecsArray = new ECS.UID[vector_len];
                 for (int i = 0; i < vector_len; i++) {
-                    var tData = (ECS.UID)(object)resultArray[i];
-
                     GetUIDFromOffset(vector_start, ref ecsArray[i]);
-                    
                     vector_start += bytesize;
                 }
                 resultArray = (T[])(object)(ecsArray);

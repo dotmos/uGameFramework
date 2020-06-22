@@ -161,9 +161,7 @@ namespace Service.Serializer
             }
             if (!Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
-#if TESTING
                 SerializationContext.allSerializedObjects.Add(this);
-#endif 
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }
@@ -772,8 +770,10 @@ namespace Service.Serializer
 
         public byte[] CreateSizedByteArray(int main, bool writeTypedList=true) {
             ResolveLateReferences();
-            int offsetTypes2Int = Type2IntMapper.instance.Ser2Serialize(this);
-            builder.AddOffset(offsetTypes2Int);
+            if (writeTypedList) {
+                int offsetTypes2Int = Type2IntMapper.instance.Ser2Serialize(this);
+                builder.AddOffset(offsetTypes2Int);
+            }
             builder.Finish(main);
             return builder.SizedByteArray();
         }

@@ -714,6 +714,39 @@ namespace ECS {
             return builder.EndTable();
         }
 
+        public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            base.Ser2CreateTable(ctx, builder);
+            builder.StartTable(4);
+            builder.AddInt(0, _lastEntityId, 0);
+            builder.AddInt(1, _lastComponentId, 0);
+            ctx.AddReferenceOffset(2, new List<UID>(_recycledEntityIds));
+            ctx.AddReferenceOffset(3, new List<UID>(_recycledComponentIds));
+            int tblPos = builder.EndTable();
+            ser2table = new ExtendedTable(tblPos, builder);
+            //ctx.AddReferenceOffset(2, _recycledEntityIds);
+            //ctx.AddReferenceOffset(3, _recycledComponentIds);
+        }
+
+        public override void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
+            base.Ser2Deserialize(tblOffset, ctx);
+            
+            _lastEntityId = ser2table.GetInt(0);
+            _lastComponentId = ser2table.GetInt(1);
+            UID[] tempUIDs = null;
+            ser2table.GetStructArray<UID>(2,ref tempUIDs);
+            if (tempUIDs != null) {
+                for (int i = 0; i < tempUIDs.Length; i++) {
+                    _recycledEntityIds.Enqueue(tempUIDs[i]);
+                }
+            }
+            ser2table.GetStructArray<UID>(3, ref tempUIDs);
+            if (tempUIDs != null) {
+                for (int i = 0; i < tempUIDs.Length; i++) {
+                    _recycledComponentIds.Enqueue(tempUIDs[i]);
+                }
+            }
+        }
+
         public virtual void Deserialize(object incoming) {
             if (incoming == null){
                 return;
