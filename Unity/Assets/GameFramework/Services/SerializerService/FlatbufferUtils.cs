@@ -548,7 +548,7 @@ namespace Service.Serializer
                 T[] enumResult = new T[amount];
 
                 for (int i = 0; i < amount; i++) {
-                    enumResult[i] = (T)Enum.ToObject(innerType, i);
+                    enumResult[i] = (T)Enum.ToObject(innerType, result[i]);
                 }
                 return enumResult;
 

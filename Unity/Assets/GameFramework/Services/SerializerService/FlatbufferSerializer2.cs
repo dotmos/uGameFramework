@@ -575,6 +575,10 @@ namespace Service.Serializer
         }
 
         public void AddReferenceOffset(object obj) {
+            if (obj == null) {
+                builder.AddInt(0);
+                return;
+            }
             AddReferenceOffset(-1, obj);
         }
         public void AddReferenceOffset(int o, object obj) {
