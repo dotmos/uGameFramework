@@ -49,6 +49,11 @@ namespace FlatBuffers
             return vtableOffset < bb.GetShort(vtable) ? (int)bb.GetShort(vtable + vtableOffset) : 0;
         }
 
+        public bool IsOffsetPresent(int vtableOffset) {
+            int vtable = bb_pos - bb.GetInt(bb_pos);
+            return vtableOffset < bb.GetShort(vtable);
+        }
+
         public static int __offset(int vtableOffset, int offset, ByteBuffer bb)
         {
             int vtable = bb.Length - offset;
