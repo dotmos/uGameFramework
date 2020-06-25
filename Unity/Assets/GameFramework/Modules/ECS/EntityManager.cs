@@ -109,7 +109,8 @@ namespace ECS {
                 }
                 watchOverall.Restart();
 #endif
-                for (int i = 0; i < _systems.Count; ++i) {
+                int _systemCount = _systems.Count;
+                for (int i = 0; i < _systemCount; ++i) {
                     try { _systems[i].ProcessSystem(deltaTime); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
                 }
 #if ECS_PROFILING && UNITY_EDITOR
@@ -476,7 +477,8 @@ namespace ECS {
         public T GetComponent<T>(UID entity) where T : IComponent{
             if (EntityExists(entity)) {
                 List<IComponent> components = _entities[entity];
-                for(int i=0; i<components.Count; ++i){
+                int _componentsCount = components.Count;
+                for(int i=0; i< _componentsCount; ++i){
                     IComponent comp = components[i];
                     if (comp.GetType() == typeof(T)) {
                         return (T)comp;
@@ -490,8 +492,9 @@ namespace ECS {
         public T GetComponentTEST<T>(UID entity) where T : IComponent {
             if (EntityExists(entity)) {
                 List<IComponent> components = _entities[entity];
-                
-                for (int i = 0; i < components.Count; ++i) {
+
+                int _componentsCount = components.Count;
+                for (int i = 0; i < _componentsCount; ++i) {
 
                     IComponent comp = components[i];
                     // ~3 ms
@@ -529,7 +532,8 @@ namespace ECS {
         public IComponent GetComponent(UID entity,Type componentType) {
             if (EntityExists(entity)) {
                 List<IComponent> components = _entities[entity];
-                for(int i=0; i<components.Count; ++i) {
+                int _componentsCount = components.Count;
+                for (int i=0; i< _componentsCount; ++i) {
                     IComponent comp = components[i];
                     if (comp.GetType()==componentType) {
                         return comp;
@@ -588,7 +592,8 @@ namespace ECS {
                 //UPDATE: List version again as list content is relatively small and will not create garbage when iterating / does not need GetEnumarator()
                 IComponent c = null;// 
                 List<IComponent> components = _entities[entity];
-                for(int i=0; i<components.Count; ++i){
+                int _componentsCount = components.Count;
+                for (int i=0; i<_componentsCount; ++i){
                     IComponent comp = components[i];
                     if (comp.GetType() == typeof(T)) {
                         c = (T)comp;
@@ -621,7 +626,8 @@ namespace ECS {
             if (EntityExists(entity)) {
                 IComponent c = null;// 
                 List<IComponent> components = _entities[entity];
-                for(int i=0; i< components.Count; ++i) {
+                int _componentsCount = components.Count;
+                for (int i=0; i< _componentsCount; ++i) {
                     IComponent comp = components[i];
                     if (comp.GetType() == componentType) {
                         c = comp;
@@ -686,7 +692,8 @@ namespace ECS {
         /// </summary>
         /// <param name="entities"></param>
         public virtual void EntitiesModified(List<UID> entities) {
-            for(int i=0; i<entities.Count; ++i) {
+            int _entityCount = entities.Count;
+            for(int i=0; i<_entityCount; ++i) {
                 EntityModified(entities[i]);
             }
         }
