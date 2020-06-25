@@ -240,7 +240,8 @@ namespace ECS {
                 */
             }
             else {
-                for (int i = 0; i < componentsToProcess.Count; ++i) {
+                int _count = componentsToProcess.Count;
+                for (int i = 0; i < _count; ++i) {
                     ProcessAtIndex(i, deltaTime);
                 }
             }      
@@ -259,7 +260,8 @@ namespace ECS {
             //Tell system there are new components
             if (newComponents.Count > 0) {
                 OnRegistered(newComponents);
-                for(int i=0; i<newComponents.Count; ++i) {
+                int _count = newComponents.Count;
+                for(int i=0; i< _count; ++i) {
                     TComponents components = newComponents[i];
                     EntityUpdated(ref components);
                 }
@@ -267,7 +269,8 @@ namespace ECS {
             }
             //Tell system components were updated
             if(updatedComponents.Count > 0) {
-                for(int i=0; i<updatedComponents.Count; ++i) {
+                int _count = updatedComponents.Count;
+                for(int i=0; i< _count; ++i) {
                     TComponents components = updatedComponents[i];
                     EntityUpdated(ref components);
                 }
