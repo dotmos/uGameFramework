@@ -26,6 +26,7 @@ namespace Service.Serializer
         public static readonly Type typeShort = typeof(short);
         public static readonly Type typeIFBSerializableStruct = typeof(IFBSerializable2Struct);
         public static readonly Type typeIFBSerializable2 = typeof(IFBSerializable2);
+        public static readonly Type typeIFPostSerializable = typeof(IFBPostDeserialization);
         public static readonly Type typeUID = typeof(ECS.UID);
         public static readonly Type typeVector2 = typeof(Vector2);
         public static readonly Type typeVector3 = typeof(Vector3);

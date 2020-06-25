@@ -184,8 +184,12 @@ namespace Service.Serializer
 
     public class DeserializationContext
     {
+        public static int current_savegame_dataformat = 0;
+        
         private readonly Dictionary<int, object> pos2obj = new Dictionary<int, object>();
         private readonly Queue<IFBPostDeserialization> postDeserializations = new Queue<IFBPostDeserialization>();
+
+        private readonly Dictionary<int, Queue<object>> postDeserializeQueues = new Dictionary<int, Queue<object>>();
 
         public ByteBuffer bb;
 
@@ -196,6 +200,28 @@ namespace Service.Serializer
             extTbl = new ExtendedTable(0, bb);
         }
 
+        public void AddToPostProcessObjects(int queueNr,object uid) {
+            if (postDeserializeQueues.TryGetValue(queueNr, out Queue<object> queue)) {
+                queue.Enqueue(uid);
+            } else {
+                Queue <object> newQueue = new Queue<object>();
+                postDeserializeQueues[queueNr] = newQueue;
+                newQueue.Enqueue(uid);
+            }
+        }
+
+        public Queue<object> GetPostProcessUIDQueue(int queueNr) {
+            if (postDeserializeQueues.TryGetValue(queueNr,out Queue<object> queue)){
+                return queue;
+            }
+
+            return null;
+        }
+
+        public void RemovePostProcessUIDQueue(int queueNr) {
+            postDeserializeQueues.Remove(queueNr);
+        }
+
         public void AddOnPostDeserializationObject(IFBPostDeserialization obj) {
             postDeserializations.Enqueue(obj);
         }
@@ -203,7 +229,7 @@ namespace Service.Serializer
         public void ProcessPostSerialization(IEntityManager em,int fileDataFormat,int currentDataFormat) { 
             while (postDeserializations.Count > 0) {
                 var obj = postDeserializations.Dequeue();
-                obj.OnPostDeserialization(em, null, fileDataFormat, currentDataFormat);
+                obj.OnPostDeserialization(em, this, fileDataFormat, currentDataFormat);
             }
         }
 
@@ -284,6 +310,9 @@ namespace Service.Serializer
                 var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
                 pos2obj[bufferOffset] = newIFBSer2obj;
                 newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
+                if (newIFBSer2obj is IFBPostDeserialization) {
+                    AddOnPostDeserializationObject((IFBPostDeserialization)newIFBSer2obj);
+                }
                 return newIFBSer2obj;
             } else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
                 var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
@@ -295,16 +324,15 @@ namespace Service.Serializer
                 pos2obj[bufferOffset] = newDict;
                 newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
                 return newDict;
-            } 
-            else if (objType == ExtendedTable.typeString) {
+            } else if (objType == ExtendedTable.typeString) {
                 string stringData = extTbl.GetStringFromOffset(bufferOffset);
                 pos2obj[bufferOffset] = stringData;
                 return stringData;
-            }
-            else {
+            } else {
                 UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
                 return null;
             }
+
         }
 
 

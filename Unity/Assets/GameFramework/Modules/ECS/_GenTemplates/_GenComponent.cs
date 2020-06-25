@@ -520,8 +520,10 @@ public class SomeClazz2 : DefaultSerializable2
 
         builder.StartTable(/*name:fieldamount*/10/*endname*/);
         /*block:s_component_header*/builder.AddStruct(0, builder.PutUID(Entity), 0);
+        builder.AddStruct(1, builder.PutUID(ID), 0);
         /*endblock:s_component_header*/
-        /*block:s_add_offset*/builder.AddOffset(/*name:fieldid*/1/*endname*/,/*name|fu,pre#offset:name*/offsetString/*endname*/,0);
+        /*block:s_add_offset*/
+        builder.AddOffset(/*name:fieldid*/1/*endname*/,/*name|fu,pre#offset:name*/offsetString/*endname*/,0);
         /*endblock:s_add_offset*/
         /*block:s_enum*/builder.AddInt(/*name:fieldid*/2/*endname*/, (int)/*name:name*/state/*endname*/, 0); 
         /*endblock:s_enum*/
@@ -535,7 +537,11 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:s_object*/
         /*block:s_special_object*/builder.AddStruct(/*name:fieldid*/8/*endname*/,builder./*name|pre#Put:type*/PutUID/*endname*/(ref /*name:name*/testUID/*endname*/),0);
         /*endblock:s_special_object*/
-        /*block:s_special_object_nullable*/if (/*name:name*/testUIDnullable/*endname*/.HasValue) builder.AddStruct(/*name:fieldid*/9/*endname*/,builder./*name|pre#Put:type*/PutUID/*endname*/(/*name:name*/testUIDnullable/*endname*/.Value),0);
+        /*block:s_special_object_nullable*/if (/*name:name*/testUIDnullable/*endname*/.HasValue) {
+            builder.AddStruct(/*name:fieldid*/9/*endname*/,builder./*name|pre#Put:type*/PutUID/*endname*/(/*name:name*/testUIDnullable/*endname*/.Value),0);
+        } else {
+            builder.AddStruct(/*name:fieldid*/9/*endname*/, 0, 0);
+        }
         /*endblock:s_special_object_nullable*/
         /*block:s_struct*/builder.AddStruct(/*name:fieldid*/10/*endname*/, /*name:name*/serStruct/*endname*/.Put(builder),0);
         /*endblock:s_struct*/
@@ -597,7 +603,8 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_deserialize_clazz_header*/
         /*block:d_component_header*/
         base.Ser2Deserialize(tblOffset, dctx); // init extendend table;
-        ID = ser2table.GetUID(0);
+        Entity = ser2table.GetUID(0);
+        ID = ser2table.GetUID(1);
         /*endblock:d_component_header*/
 
         /*block:d_deserialize_base*/
@@ -618,7 +625,11 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_object*/
         /*block:d_special_object*/ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/8/*endname*/,ref /*name:name*/testUID/*endname*/);
         /*endblock:d_special_object*/
-        /*block:d_special_object_nullable*//*name:name*/testUIDnullable/*endname*/ = ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/9/*endname*/);
+        /*block:d_special_object_nullable*/ if (ser2table.GetOffset(/*name:fieldid*/9/*endname*/)==0) {
+            /*name:name*/testUIDnullable/*endname*/=null;
+            } else {
+                /*name:name*/testUIDnullable/*endname*/ = ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/9/*endname*/);
+            }
         /*endblock:d_special_object_nullable*/
         /*block:d_struct*/ser2table.GetStruct(/*name:fieldid*/8/*endname*/, ref /*name:name*/serStruct/*endname*/);
         /*endblock:d_struct*/
@@ -636,6 +647,10 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_dict*/
         /*block:d_ref_offset*/ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
         /*endblock:d_ref_offset*/
+
+        if (this is IFBPostDeserialization) {
+            dctx.AddOnPostDeserializationObject((IFBPostDeserialization)this);
+        }
 
         //object data = null;
         //if (data is Serial.FBRef) {
