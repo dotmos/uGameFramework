@@ -194,11 +194,8 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             throw new System.NotImplementedException();
         }
 
-        public int Put(SerializationContext ctx, FlatBufferBuilder builder) {
-            throw new System.NotImplementedException();
-        }
 
-        public int Put(FlatBufferBuilder builder) {
+        public int Put(FlatBufferBuilder builder,bool prep=true) {
             throw new System.NotImplementedException();
         }
         #endregion

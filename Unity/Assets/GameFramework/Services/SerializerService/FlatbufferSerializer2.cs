@@ -120,7 +120,7 @@ namespace Service.Serializer
 
     public interface IFBSerializable2Struct
     {
-        int Put(FlatBuffers.FlatBufferBuilder builder);
+        int Put(FlatBuffers.FlatBufferBuilder builder, bool prepare=true);
         void Get(ExtendedTable table, int fbPos);
 
         int ByteSize { get; }

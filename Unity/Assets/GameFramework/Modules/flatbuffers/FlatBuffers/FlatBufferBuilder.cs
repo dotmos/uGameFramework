@@ -202,6 +202,14 @@ namespace FlatBuffers
                 Pad(alignSize);
         }
 
+        public void EnsureBuffer(int size) {
+            while (_space < size) {
+                int oldBufSize = (int)_bb.Length;
+                GrowBuffer();
+                _space += (int)_bb.Length - oldBufSize;
+            }
+        }
+
         public void PutBool(bool x) {
             _bb.PutByte(_space -= sizeof(byte), (byte)(x ? 1 : 0));
         }
@@ -1014,7 +1022,7 @@ namespace FlatBuffers
         /// <param name="y"></param>
         /// <returns></returns>
         public int PutVector2(float x, float y) {
-            Prep(4, 8);
+            Prep(4, 4);
             PutFloat(y);
             PutFloat(x);
             return Offset;
@@ -1035,7 +1043,7 @@ namespace FlatBuffers
         /// <param name="z"></param>
         /// <returns></returns>
         public int PutVector3(float x, float y, float z) {
-            Prep(4, 12);
+            Prep(4, 8);
             PutFloat(z);
             PutFloat(y);
             PutFloat(x);
@@ -1058,7 +1066,7 @@ namespace FlatBuffers
         /// <param name="w"></param>
         /// <returns></returns>
         public int PutVector4(float x, float y, float z, float w) {
-            Prep(4, 16);
+            Prep(4, 12);
             PutFloat(w);
             PutFloat(z);
             PutFloat(y);
@@ -1081,14 +1089,14 @@ namespace FlatBuffers
         }
 
         public int PutUID(ECS.UID uid) {
-            Prep(4, 8);
+            Prep(4,4);
             PutInt(uid.Revision);
             PutInt(uid.ID);
             return Offset;
         }
 
         public int PutUID(ref ECS.UID uid) {
-            Prep(4, 8);
+            Prep(4, 4);
             PutInt(uid.Revision);
             PutInt(uid.ID);
             return Offset;
@@ -1249,11 +1257,15 @@ namespace FlatBuffers
               // gets its dedicated loop of its own. Too tired for fancy generic magic ;)
               // ...and this casting-madness if used here... :|
             else if (typeIFBserializabel2Struct.IsAssignableFrom(innerType)) {
+                if (count > 0) {
+                    Prep(4, count * ((IFBSerializable2Struct)list[0]).ByteSize);
+                }
                 for (int i = count - 1; i >= 0; i--) {
                     IFBSerializable2Struct ifbStruct = (IFBSerializable2Struct)list[i];
-                    ifbStruct.Put(this);
+                    ifbStruct.Put(this, false);
                 }
                 WriteStructListHeader(count, writeLengthInfo, reserveAdditionalBytes);
+
                 return Offset;
             } else if (innerType == typeVector2) {
                 for (int i = count - 1; i >= 0; i--) {

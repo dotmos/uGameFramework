@@ -949,7 +949,7 @@ namespace FlatBuffers
         public byte[] __getsubarray(int from,int to) {
             from = from < Length ? from: Length;
             to = to < Length ? to : Length;
-            int len = from - to;
+            int len = to - from;
             if (len == 0) return null;
             byte[] result = new byte[len];
             Array.Copy(_buffer.Buffer, from, result, 0, len);
