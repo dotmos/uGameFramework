@@ -190,6 +190,7 @@ namespace Service.Serializer
         private readonly Queue<IFBPostDeserialization> postDeserializations = new Queue<IFBPostDeserialization>();
 
         private readonly Dictionary<int, Queue<object>> postDeserializeQueues = new Dictionary<int, Queue<object>>();
+        private readonly Type typeObject = typeof(object);
 
         public ByteBuffer bb;
 
@@ -288,7 +289,7 @@ namespace Service.Serializer
 
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
 #if FLATBUFFER_CHECK_TYPES
-                if (result.GetType() != objType && !ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
+                if (objType!=typeObject && result.GetType() != objType && !ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
                     UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()}");
                 }                
 #endif
