@@ -53,7 +53,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         private int ser2flags;
         public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get => ser2flags; set => ser2flags = value; } // TODO. Is dirty should be some kind of virtual
 
-        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
+        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL() && ser2table.bb != null;
 
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
 
@@ -68,9 +68,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             }
             if (!Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
-#if TESTING
-                SerializationContext.allSerializedObjects.Add(this);
-#endif 
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }

@@ -13,7 +13,7 @@ namespace Service.Serializer
     public struct ExtendedTable
     {
         public static readonly ExtendedTable NULL = new ExtendedTable(-1, (ByteBuffer)null);
-
+        
         public Table __tbl;
         public int offset;
 
@@ -40,6 +40,16 @@ namespace Service.Serializer
         public static readonly Type typeExtendedTable = typeof(ExtendedTable);
         public static readonly Type typeISerializeAsTypedObject = typeof(IFBSerializeAsTypedObject);
         public static readonly Type typeObject = typeof(object);
+
+        public static ExtendedTable Create(int offset, ByteBuffer _bb) {
+            ExtendedTable tbl = new ExtendedTable(offset, _bb);
+            return tbl;
+        }
+
+        public static ExtendedTable Create(int offset, FlatBufferBuilder builder) {
+            ExtendedTable tbl = new ExtendedTable(offset, builder);
+            return tbl;
+        }
 
         public ExtendedTable(int offset, ByteBuffer _bb) {
             __tbl = new Table(offset, _bb);

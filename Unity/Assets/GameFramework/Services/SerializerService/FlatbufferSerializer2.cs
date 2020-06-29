@@ -72,7 +72,7 @@ namespace Service.Serializer
 
         public override void Ser2CreateTable(SerializationContext sctx, FlatBufferBuilder builder) {
             base.Ser2CreateTable(sctx, builder);
-
+            
             int pos = builder.CreateIDictionary(id2typeAsString, sctx);
             ser2table = new ExtendedTable(pos, builder);
             sctx.ResolveLateReferences();
@@ -138,7 +138,7 @@ namespace Service.Serializer
         public bool Ser2Flags { get; set; }
 
         [JsonIgnore]
-        public bool Ser2HasOffset => !ser2table.IsNULL();
+        public bool Ser2HasOffset => !ser2table.IsNULL() && ser2table.bb!=null;
 
         [JsonIgnore]
         public int Ser2Offset => ser2table.offset;
@@ -148,6 +148,8 @@ namespace Service.Serializer
 
         [JsonIgnore]
         private object lock_state = new object();
+
+
 
         public void Ser2Deserialize(DeserializationContext ctx) {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
@@ -161,7 +163,6 @@ namespace Service.Serializer
             }
             if (!Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
-                SerializationContext.allSerializedObjects.Add(this);
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }
@@ -199,6 +200,15 @@ namespace Service.Serializer
         public DeserializationContext(ByteBuffer bb) {
             this.bb = bb;
             extTbl = new ExtendedTable(0, bb);
+        }
+
+        private void ClearTables() {
+            foreach (KeyValuePair<int, object> kv in pos2obj) {
+                if (kv.Value is IFBSerializable2) {
+                    ((IFBSerializable2)kv.Value).Ser2Clear();
+                }
+            }
+            Type2IntMapper.instance.Ser2Clear();
         }
 
         public void AddToPostProcessObjects(int queueNr,object uid) {
@@ -245,6 +255,7 @@ namespace Service.Serializer
                 Type2IntMapper.instance.ser2table = new ExtendedTable(4, bb);
                 int typeDataAddress = Type2IntMapper.instance.ser2table.__tbl.__indirect(4);
                 Type2IntMapper.instance.DeserializeFromOffset(typeDataAddress, this, true);
+
             }
         }
 
@@ -452,19 +463,16 @@ namespace Service.Serializer
             ExtendedTable tbl = new ExtendedTable(offset, bb);
             return tbl;
         }
+
+        public void Cleanup() {
+            ClearTables();
+            pos2obj.Clear();
+        }
     }
 
     public class SerializationContext
     {
-        public static List<IFBSerializable2> allSerializedObjects = new List<IFBSerializable2>();
-
-        public static void ResetAllSerializedObjects() { 
-            foreach (IFBSerializable2 serObj in allSerializedObjects) {
-                serObj.Ser2Clear();
-            }
-            allSerializedObjects.Clear();
-        }
-
+        
         ///// <summary>
         ///// A mapping object 2 offset in FlatBuffer
         ///// </summary>
@@ -512,6 +520,15 @@ namespace Service.Serializer
             builder = new FlatBufferBuilder(bb);
         }
 
+        private void ClearTables() {
+            foreach (KeyValuePair<object, int> kv in obj2offsetMapping) {
+                if (kv.Key is IFBSerializable2) {
+                    ((IFBSerializable2)kv.Key).Ser2Clear();
+                }
+            }
+            Type2IntMapper.instance.Ser2Clear();
+        }
+
         private void AdObj2OffsetMapping(object obj,int offset) {
             obj2offsetMapping[obj] = offset;
         }
@@ -525,7 +542,7 @@ namespace Service.Serializer
 
             if (obj is IFBSerializable2) {
                 var iFBSer2Obj = (IFBSerializable2)obj;
-                
+
                 if (iFBSer2Obj is IFBSerializeOnMainThread) {
                     // serialize this on mainthread
                     ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
@@ -535,7 +552,7 @@ namespace Service.Serializer
                     // wait for the result
                     int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
                     return newOffsetFromMainThread;
-                } 
+                }
 
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
                 return newOffset;
@@ -813,6 +830,7 @@ namespace Service.Serializer
 
 
         public void Cleanup() {
+            ClearTables();
             lateReferences.Clear();
             builder.Clear();
             obj2offsetMapping.Clear();

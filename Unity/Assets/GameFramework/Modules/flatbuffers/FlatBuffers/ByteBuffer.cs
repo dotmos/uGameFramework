@@ -174,6 +174,10 @@ namespace FlatBuffers
             _pos = 0;
         }
 
+        public void Clear() {
+            _buffer = null;
+        }
+
         // Create a new ByteBuffer on the same underlying data.
         // The new ByteBuffer's position will be same as this buffer's.
         public ByteBuffer Duplicate()
