@@ -72,7 +72,7 @@ namespace ECS {
         }
 
 #if TESTING
-        public abstract void AssertSimpleFieldsEqual(IComponent _comp2);
+        //public abstract void AssertSimpleFieldsEqual(IComponent _comp2);
 #endif
     }
 }

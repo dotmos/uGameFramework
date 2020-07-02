@@ -69,9 +69,6 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             }
             if (!Ser2HasOffset) {
                 Ser2CreateTable(ctx, ctx.builder);
-#if TESTING
-                SerializationContext.allSerializedObjects.Add(this);
-#endif 
             } else {
                 Ser2UpdateTable(ctx, ctx.builder);
             }

@@ -15,7 +15,7 @@ namespace Service.Serializer
 {
     
     public interface IFBSerializeAsTypedObject { }
-
+    public interface IFB2Validatable { bool IsValid(); }
     public class Type2IntMapper : DefaultSerializable2
     {
         public static Type2IntMapper instance=new Type2IntMapper();
@@ -99,7 +99,7 @@ namespace Service.Serializer
         }
     }
 
-    public interface IFBSerializable2 {
+    public interface IFBSerializable2  {
         int Ser2Serialize(SerializationContext ctx);
         void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
         void Ser2UpdateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
@@ -108,9 +108,12 @@ namespace Service.Serializer
 
         void Ser2Clear();
         int Ser2Flags { get; set; }
-        ExtendedTable Ser2Table { get; }
-        bool Ser2HasOffset { get; }
-        int Ser2Offset { get; }
+
+        object Ser2Context { get; set; }
+        bool Ser2HasValidContext { get; }
+        //ExtendedTable Ser2Table { get; }
+        //bool Ser2HasOffset { get; }
+        //int Ser2Offset { get; }
     }
 
     public class Serializer2Flags {
@@ -145,6 +148,9 @@ namespace Service.Serializer
 
         [JsonIgnore]
         int IFBSerializable2.Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public object Ser2Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public bool Ser2HasValidContext => Ser2Context != null && ((IFB2Validatable)Ser2Context).IsValid();
 
         [JsonIgnore]
         private object lock_state = new object();
@@ -178,12 +184,12 @@ namespace Service.Serializer
             ser2table = new ExtendedTable(tblOffset, dctx.bb);
         }
 
-        public void Ser2Clear() {
+        public virtual void Ser2Clear() {
             ser2table = ExtendedTable.NULL;
         }
     }
 
-    public class DeserializationContext
+    public class DeserializationContext : IFB2Validatable
     {
         public static int current_savegame_dataformat = 0;
         
@@ -196,6 +202,11 @@ namespace Service.Serializer
         public ByteBuffer bb;
 
         private ExtendedTable extTbl; // make helper calls available. (obviously only offset-based calls makes sense here)
+        private bool isValid = true;
+
+        public bool IsValid() {
+            return isValid;
+        }
 
         public DeserializationContext(ByteBuffer bb) {
             this.bb = bb;
@@ -307,6 +318,10 @@ namespace Service.Serializer
                 return result;
             }
             return null;
+        }
+
+        public void AddToCache(int pos,object obj) {
+            pos2obj[pos] = obj;
         }
 
 
@@ -470,7 +485,16 @@ namespace Service.Serializer
         }
     }
 
-    public class SerializationContext
+
+
+
+
+
+
+
+
+
+    public class SerializationContext : IFB2Validatable
     {
         
         ///// <summary>
@@ -510,8 +534,13 @@ namespace Service.Serializer
         /// <summary>
         /// The amount of bytes to add to the offset of those bytebuffers
         /// </summary>
-        private Dictionary<ByteBuffer, int> offsetMapping = null;
+        private Dictionary<object, int> offsetMapping = null;
+        
+        private bool isValid = true;
 
+        public bool IsValid() {
+            return isValid;
+        }
         public SerializationContext(int initialBuilderCapacity) {
             builder = new FlatBufferBuilder(initialBuilderCapacity);
         }
@@ -529,13 +558,19 @@ namespace Service.Serializer
             Type2IntMapper.instance.Ser2Clear();
         }
 
-        private void AdObj2OffsetMapping(object obj,int offset) {
+        public void AdObj2OffsetMapping(object obj,int offset) {
             obj2offsetMapping[obj] = offset;
+        }
+
+        public int GetOrCreateLocked(object obj) {
+            lock (obj) {
+                return GetOrCreate(obj);
+            }
         }
 
         public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
-            
+
             if (cachedOffset != -1) {
                 return cachedOffset;
             }
@@ -551,23 +586,23 @@ namespace Service.Serializer
                     });
                     // wait for the result
                     int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
+                    obj2offsetMapping[obj] = newOffsetFromMainThread;
+
                     return newOffsetFromMainThread;
                 }
 
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
+                obj2offsetMapping[obj] = newOffset;
                 return newOffset;
-            } 
-            else if (obj is IList) {
+            } else if (obj is IList) {
                 int newOffset = builder.CreateList((IList)obj, this);
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
-            } 
-            else if (obj is IDictionary) {
+            } else if (obj is IDictionary) {
                 int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
-            }
-            else if (obj is String) {
+            } else if (obj is String) {
                 int newOffset = builder.CreateString((string)obj).Value;
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
@@ -607,17 +642,16 @@ namespace Service.Serializer
         }
 
         private int GetCachedOffset(object obj) {
-            if (obj is IFBSerializable2) {
-                var ifbObj = (IFBSerializable2)obj;
-                // only return offset for already serialized object from our buffers (offset from other buffers will change)
-                return (ifbObj.Ser2HasOffset && ifbObj.Ser2Table.bb == builder.DataBuffer) ? ifbObj.Ser2Offset : -1;
-            }
-            else {
-                if (obj2offsetMapping.TryGetValue(obj,out int offset)) {
-                    return offset;
+            if (obj2offsetMapping.TryGetValue(obj,out int offset)) {
+                if (obj is IFBSerializable2) {
+                    var ifbObj = (IFBSerializable2)obj;
+                    // only return offset for already serialized object from our buffers (offset from other buffers will change)
+                    return (ifbObj.Ser2Context == this) ? offset : -1;
                 }
-                return -1;
+
+                return offset;
             }
+            return -1;
         }
 
         public void AddReferenceOffset(object obj) {
@@ -685,7 +719,7 @@ namespace Service.Serializer
             ResolveLateReferences();
 
             if (offsetMapping == null) {
-                offsetMapping = new Dictionary<ByteBuffer, int>();
+                offsetMapping = new Dictionary<object, int>();
             }
 
             foreach (var mergeCtx in mergeCtxs) {
@@ -782,7 +816,7 @@ namespace Service.Serializer
 
                 if (lateReference is IFBSerializable2) {
                     var ifbObj = (IFBSerializable2)lateReference;
-                    if (ifbObj.Ser2HasOffset && ifbObj.Ser2Table.bb != myBB && (offsetMapping == null || !offsetMapping.ContainsKey(ifbObj.Ser2Table.bb))) {
+                    if (ifbObj.Ser2HasValidContext && ifbObj.Ser2Context == this && (offsetMapping == null || !offsetMapping.ContainsKey(ifbObj.Ser2Context))) {
                         // ignore objects that are create within another builder and that is not merged in,yet
                         tempReferenceQueue.Enqueue(lateReference);
                         continue;
@@ -829,11 +863,16 @@ namespace Service.Serializer
         }
 
 
-        public void Cleanup() {
+        public void Cleanup(params IFBSerializable2[] cleanupObjects) {
             ClearTables();
             lateReferences.Clear();
             builder.Clear();
             obj2offsetMapping.Clear();
+            if (cleanupObjects != null) {
+                for (int i=cleanupObjects.Length-1; i>=0;  i--) {
+                    cleanupObjects[i].Ser2Clear();
+                }
+            }
         }
 
     }

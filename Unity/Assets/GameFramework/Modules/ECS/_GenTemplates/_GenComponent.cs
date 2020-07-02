@@ -308,12 +308,12 @@ public class SomeClazz2 : DefaultSerializable2
     }
 
 #if TESTING
-    public override void AssertSimpleFieldsEqual(IComponent _comp2) {
-        UnityEngine.Assertions.Assert.IsTrue(_comp2 is  /*name:ComponentName*/GenTemplateComponent/*endname*/,$"_comp2.type!=/*name:ComponentName*/GenTemplateComponent/*endname*/:{_comp2.GetType()}");
-        var comp2 = (/*name:ComponentName*/GenTemplateComponent/*endname*/)_comp2;
-        /*block:simpleAssert*/UnityEngine.Assertions.Assert.AreEqual(/*name:name*/intValue/*endname*/,comp2./*name:name*/intValue/*endname*/);
-        /*endblock:simpleAssert*/
-    }
+    //public override void AssertSimpleFieldsEqual(IComponent _comp2) {
+    //    UnityEngine.Assertions.Assert.IsTrue(_comp2 is  /*name:ComponentName*/GenTemplateComponent/*endname*/,$"_comp2.type!=/*name:ComponentName*/GenTemplateComponent/*endname*/:{_comp2.GetType()}");
+    //    var comp2 = (/*name:ComponentName*/GenTemplateComponent/*endname*/)_comp2;
+    //    /*block:simpleAssert*/UnityEngine.Assertions.Assert.AreEqual(/*name:name*/intValue/*endname*/,comp2./*name:name*/intValue/*endname*/);
+    //    /*endblock:simpleAssert*/
+    //}
 #endif
 
     public override IComponent Clone(bool cloneFromPrefab=false) {
@@ -488,7 +488,8 @@ public class SomeClazz2 : DefaultSerializable2
     /*block:serialization2*/
     #region serialization2
     public  /*name:override*/override/*endname*/ void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
-        /*block:s_inheritance_offset*/int offsetBase = base.Ser2Serialize(ctx);
+        /*block:s_inheritance_offset*/
+        int offsetBase = base.Ser2Serialize(ctx);
         /*endblock:s_inheritance_offset*/
         /*block:s_create_string*/
         int /*name|fu,pre#offset:name*/offsetString/*endname*/ = /*name:name*/testName/*endname*/==null ? 0 : builder.CreateString(/*name:name*/testName/*endname*/).Value;
@@ -728,11 +729,11 @@ public class GenTemplateComponent2 : ECS.Component
 {
     public float time;
 
-#if TESTING
-    public override void AssertSimpleFieldsEqual(IComponent _comp2) {
-        throw new System.NotImplementedException();
-    }
-#endif
+//#if TESTING
+//    public override void AssertSimpleFieldsEqual(IComponent _comp2) {
+//        throw new System.NotImplementedException();
+//    }
+//#endif
     public override IComponent Clone(bool cloneFromPrefab=false) {
         throw new System.NotImplementedException();
     }
