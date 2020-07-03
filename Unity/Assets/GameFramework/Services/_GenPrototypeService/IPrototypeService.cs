@@ -52,9 +52,9 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 
         public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
-        public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get; set; } 
+        public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get; set; }
 
-        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL();
+        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb != null;
 
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
 
@@ -62,16 +62,20 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
             Ser2Deserialize(offset, ctx);
         }
+        public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
+        public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
             if (Ser2HasOffset) {
                 return Ser2Offset;
             }
-            if (!Ser2HasOffset) {
-                Ser2CreateTable(ctx, ctx.builder);
-            } else {
-                Ser2UpdateTable(ctx, ctx.builder);
-            }
+            Ser2CreateTable(ctx, ctx.builder);
+
+            //if (!Ser2HasOffset) {
+            //    Ser2CreateTable(ctx, ctx.builder);
+            //} else {
+            //    Ser2UpdateTable(ctx, ctx.builder);
+            //}
             return Ser2Offset;
         }
 

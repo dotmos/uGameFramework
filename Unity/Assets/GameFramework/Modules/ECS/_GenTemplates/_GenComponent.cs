@@ -53,9 +53,11 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         private int ser2flags;
         public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get => ser2flags; set => ser2flags = value; } // TODO. Is dirty should be some kind of virtual
 
-        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => !ser2table.IsNULL() && ser2table.bb != null;
+        public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb != null;
 
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
+        public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
+        public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
         public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
@@ -66,11 +68,13 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             if (Ser2HasOffset) {
                 return Ser2Offset;
             }
-            if (!Ser2HasOffset) {
-                Ser2CreateTable(ctx, ctx.builder);
-            } else {
-                Ser2UpdateTable(ctx, ctx.builder);
-            }
+            Ser2CreateTable(ctx, ctx.builder);
+
+            //if (!Ser2HasOffset) {
+            //    Ser2CreateTable(ctx, ctx.builder);
+            //} else {
+            //    Ser2UpdateTable(ctx, ctx.builder);
+            //}
             return Ser2Offset;
         }
 

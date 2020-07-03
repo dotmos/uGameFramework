@@ -26,12 +26,14 @@ namespace Service.FileSystem {
         private string scriptingPath;
         private string devUIViewsPath;
         private string localizationPath;
+        private string debuggingPath;
 
         protected override void AfterInitialize() {
             configPath = persistentDataPath + "/config";
             savegamePath = persistentDataPath + "/savegame";
             scriptingPath = persistentDataPath + "/scripting";
             devUIViewsPath = persistentDataPath + "/dev-ui/views";
+            debuggingPath = persistentDataPath + "/debugging";
 
             //Check if there are locas in streaming assets. If not, use game/Localization folder
             localizationPath = streamingAssetsPath + "/Localizations";
@@ -91,6 +93,8 @@ namespace Service.FileSystem {
                 case FSDomain.DevUIViewsArchieve: path = GetPath(FSDomain.DevUIViews)+"/archives"; break;
                 case FSDomain.RuntimeAssets: path = streamingAssetsPath; break;
                 case FSDomain.Localizations: path = localizationPath; break;
+                case FSDomain.Debugging: path = debuggingPath; break;
+
 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }

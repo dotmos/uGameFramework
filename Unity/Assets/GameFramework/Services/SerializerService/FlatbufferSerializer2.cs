@@ -15,7 +15,10 @@ namespace Service.Serializer
 {
     
     public interface IFBSerializeAsTypedObject { }
-    public interface IFB2Validatable { bool IsValid(); }
+    public interface IFB2Context { 
+        bool IsValid();
+        void Invalidate();
+    }
     public class Type2IntMapper : DefaultSerializable2
     {
         public static Type2IntMapper instance=new Type2IntMapper();
@@ -109,7 +112,7 @@ namespace Service.Serializer
         void Ser2Clear();
         int Ser2Flags { get; set; }
 
-        object Ser2Context { get; set; }
+        IFB2Context Ser2Context { get; set; }
         bool Ser2HasValidContext { get; }
         //ExtendedTable Ser2Table { get; }
         //bool Ser2HasOffset { get; }
@@ -141,16 +144,18 @@ namespace Service.Serializer
         public bool Ser2Flags { get; set; }
 
         [JsonIgnore]
-        public bool Ser2HasOffset => !ser2table.IsNULL() && ser2table.bb!=null;
+        public bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb!=null;
 
         [JsonIgnore]
         public int Ser2Offset => ser2table.offset;
 
         [JsonIgnore]
-        int IFBSerializable2.Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public object Ser2Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public bool Ser2HasValidContext => Ser2Context != null && ((IFB2Validatable)Ser2Context).IsValid();
+        int IFBSerializable2.Ser2Flags { get; set; }
+        [JsonIgnore]
+        public IFB2Context Ser2Context { get; set; }
+        
+        [JsonIgnore]
+        public bool Ser2HasValidContext => Ser2Context != null && Ser2Context.IsValid();
 
         [JsonIgnore]
         private object lock_state = new object();
@@ -167,11 +172,14 @@ namespace Service.Serializer
             if (Ser2HasOffset) {
                 return ser2table.offset;
             }
-            if (!Ser2HasOffset) {
-                Ser2CreateTable(ctx, ctx.builder);
-            } else {
-                Ser2UpdateTable(ctx, ctx.builder);
-            }
+            Ser2CreateTable(ctx, ctx.builder);
+
+            // update-mechnanism not implemented at the moment
+            //if (!Ser2HasOffset) {
+            //    Ser2CreateTable(ctx, ctx.builder);
+            //} else {
+            //    Ser2UpdateTable(ctx, ctx.builder);
+            //}
             return ser2table.offset;
         }
 
@@ -189,7 +197,7 @@ namespace Service.Serializer
         }
     }
 
-    public class DeserializationContext : IFB2Validatable
+    public class DeserializationContext : IFB2Context
     {
         public static int current_savegame_dataformat = 0;
         
@@ -206,6 +214,10 @@ namespace Service.Serializer
 
         public bool IsValid() {
             return isValid;
+        }
+
+        public void Invalidate() {
+            isValid = false;
         }
 
         public DeserializationContext(ByteBuffer bb) {
@@ -482,6 +494,7 @@ namespace Service.Serializer
         public void Cleanup() {
             ClearTables();
             pos2obj.Clear();
+            Invalidate();
         }
     }
 
@@ -494,9 +507,42 @@ namespace Service.Serializer
 
 
 
-    public class SerializationContext : IFB2Validatable
+    public class SerializationContext : IFB2Context
     {
-        
+#if TESTING
+        Dictionary<Type, int> lateRefCalls = new Dictionary<Type, int>();
+        String debugOutput = "";
+
+        public void AddRefCall(object obj) {
+            lateRefCalls.TryGetValue(obj.GetType(), out int amount);
+            lateRefCalls[obj.GetType()] = ++amount;
+        }
+
+        private void OutputDebugInfo(string top="") {
+            StringBuilder stb = new StringBuilder();
+            int all = 0;
+            var keys = lateRefCalls.Keys.OrderBy(a => a.ToString());
+            foreach (var key in keys) {
+                var value = lateRefCalls[key];
+                all += value;
+                stb.Append($"{key}=>{value}\n");
+            }
+            stb.Append($"\n {debugOutput}\n");
+            stb.Insert(0, $"all calls:{all}\n\n");
+            stb.Insert(0, $"{top}\n");
+            var fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
+
+            fs.WriteStringToFileAtDomain(FileSystem.FSDomain.Debugging, "ser2_lateref_calls_" + DateTime.Now.ToString("yyyyMMdd_H_mm_ss") + ".txt",stb.ToString());
+            lateRefCalls.Clear();
+            debugOutput = "";
+        }
+
+        private void AddDebugOutput(String output) {
+            debugOutput += output+"\n";
+        }
+#endif        
+
+
         ///// <summary>
         ///// A mapping object 2 offset in FlatBuffer
         ///// </summary>
@@ -534,13 +580,18 @@ namespace Service.Serializer
         /// <summary>
         /// The amount of bytes to add to the offset of those bytebuffers
         /// </summary>
-        private Dictionary<object, int> offsetMapping = null;
+        private Dictionary<IFB2Context, int> offsetMapping = null;
         
         private bool isValid = true;
 
         public bool IsValid() {
             return isValid;
         }
+
+        public void Invalidate() {
+            isValid = false;
+        }
+
         public SerializationContext(int initialBuilderCapacity) {
             builder = new FlatBufferBuilder(initialBuilderCapacity);
         }
@@ -571,8 +622,12 @@ namespace Service.Serializer
         public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
 
-            if (cachedOffset != -1) {
+            if (cachedOffset >= 0) {
                 return cachedOffset;
+            }
+
+            if (cachedOffset == -2) {
+                throw new Exception($"Get or create on object that is already serialized by other context:{obj} [{obj.GetType()}]");
             }
 
             if (obj is IFBSerializable2) {
@@ -643,8 +698,9 @@ namespace Service.Serializer
 
         private int GetCachedOffset(object obj) {
             if (obj2offsetMapping.TryGetValue(obj,out int offset)) {
-                if (obj is IFBSerializable2) {
-                    var ifbObj = (IFBSerializable2)obj;
+                if (obj is IFBSerializable2 ifbObj) {
+                    if (ifbObj.Ser2Context != null && ifbObj.Ser2Context.IsValid()) return -2; // someone-else did already handled this object
+
                     // only return offset for already serialized object from our buffers (offset from other buffers will change)
                     return (ifbObj.Ser2Context == this) ? offset : -1;
                 }
@@ -682,7 +738,7 @@ namespace Service.Serializer
                 builder.AddInt(typeID);
             }
 
-            if (cacheOffset != -1) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
+            if (cacheOffset >= 0) { // if the obj has an offset(already serialized) but only if it is part of the same buffer
                 // the object is already serialized
                 builder._AddOffset(cacheOffset);
                 if (o!=-1) builder.Slot(o);
@@ -719,7 +775,7 @@ namespace Service.Serializer
             ResolveLateReferences();
 
             if (offsetMapping == null) {
-                offsetMapping = new Dictionary<object, int>();
+                offsetMapping = new Dictionary<IFB2Context, int>();
             }
 
             foreach (var mergeCtx in mergeCtxs) {
@@ -737,7 +793,7 @@ namespace Service.Serializer
 
                 // keep the new ending for later adjustment
                 // serialized objects know where they are serialized, if you try to serialize again you can query the ByteBuffer and map with this offset
-                offsetMapping[mergeBB] = newBufEnd;
+                offsetMapping[mergeCtx] = newBufEnd;
 
                 foreach (var kv in mergeCtx.lateReferences) {
                     var obj = kv.Key;
@@ -792,9 +848,6 @@ namespace Service.Serializer
 
         
         public void ResolveLateReferences(bool forceAll=false) {
-            var myBB = builder.DataBuffer;
-
-            int checkIdx = 0;
             int calls = 0; 
             
             while (lateReferenceQueue.Count > 0) {
@@ -832,16 +885,21 @@ namespace Service.Serializer
         }
 
         public void ResolveLateReference(object obj) {
+#if TESTING
+            AddRefCall(obj);
+#endif
             int offset = GetOrCreate(obj);
-            if (offset == -1) {
-                throw new Exception("Offset == -1 for type:"+obj.GetType());
+            if (offset < 0) {
+                throw new Exception($"Offset == {offset} for type:"+obj.GetType());
             }
             if (lateReferences.TryGetValue(obj, out List<int> referenceLocations)) {
                 foreach (int referenceLoc in referenceLocations) {
                     int offsetAdjustment = 0;
                     if (offsetMapping != null  && obj is IFBSerializable2) {
                         var ifbObj = (IFBSerializable2)obj;
-                        offsetMapping.TryGetValue(ifbObj.Ser2Table.bb, out offsetAdjustment);
+                        IFB2Context objCtx = ifbObj.Ser2Context;
+                        
+                        offsetMapping.TryGetValue(objCtx, out offsetAdjustment);
                     }
 
                     int relativeOffset = referenceLoc - (offset + offsetAdjustment);
@@ -852,27 +910,32 @@ namespace Service.Serializer
             }
         }
 
-        public byte[] CreateSizedByteArray(int main, bool writeTypedList=true) {
+        public byte[] CreateSizedByteArray(int main, bool writeTypedList = true) {
             ResolveLateReferences();
             if (writeTypedList) {
                 int offsetTypes2Int = Type2IntMapper.instance.Ser2Serialize(this);
                 builder.AddOffset(offsetTypes2Int);
             }
             builder.Finish(main);
-            return builder.SizedByteArray();
+            byte[] result = builder.SizedByteArray();
+            AddDebugOutput($"buffersize:{result.Length}");
+            return result;
         }
 
 
-        public void Cleanup(params IFBSerializable2[] cleanupObjects) {
+        public void Cleanup(params IFB2Context[] contexts) {
+#if TESTING
+            OutputDebugInfo();
+#endif
             ClearTables();
             lateReferences.Clear();
             builder.Clear();
             obj2offsetMapping.Clear();
-            if (cleanupObjects != null) {
-                for (int i=cleanupObjects.Length-1; i>=0;  i--) {
-                    cleanupObjects[i].Ser2Clear();
-                }
+            Invalidate();
+            foreach (IFB2Context ctx in contexts) {
+                ctx.Invalidate();
             }
+
         }
 
     }
