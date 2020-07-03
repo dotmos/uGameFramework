@@ -169,9 +169,11 @@ namespace Service.Serializer
 
 
         public virtual int Ser2Serialize(SerializationContext ctx) {
-            if (Ser2HasOffset) {
-                return ser2table.offset;
+#if TESTING
+            if (Ser2HasOffset && Ser2HasValidContext) {
+                UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized");
             }
+#endif
             Ser2CreateTable(ctx, ctx.builder);
 
             // update-mechnanism not implemented at the moment
@@ -642,11 +644,11 @@ namespace Service.Serializer
                     // wait for the result
                     int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
                     obj2offsetMapping[obj] = newOffsetFromMainThread;
-
+                    iFBSer2Obj.Ser2Context = this;
                     return newOffsetFromMainThread;
                 }
-
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
+                iFBSer2Obj.Ser2Context = this;
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
             } else if (obj is IList) {
@@ -699,9 +701,10 @@ namespace Service.Serializer
         private int GetCachedOffset(object obj) {
             if (obj2offsetMapping.TryGetValue(obj,out int offset)) {
                 if (obj is IFBSerializable2 ifbObj) {
-                    if (ifbObj.Ser2Context != null && ifbObj.Ser2Context.IsValid()) return -2; // someone-else did already handled this object
-
-                    // only return offset for already serialized object from our buffers (offset from other buffers will change)
+                    if (ifbObj.Ser2Context != null && ifbObj.Ser2Context != this && ifbObj.Ser2Context.IsValid()) {
+                        return -2; // someone-else did already handled this object
+                    } 
+                        
                     return (ifbObj.Ser2Context == this) ? offset : -1;
                 }
 

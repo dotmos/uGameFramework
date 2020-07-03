@@ -66,9 +66,11 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
-            if (Ser2HasOffset) {
-                return Ser2Offset;
+#if TESTING
+            if (Ser2HasOffset && Ser2HasValidContext) {
+                UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized");
             }
+#endif
             Ser2CreateTable(ctx, ctx.builder);
 
             //if (!Ser2HasOffset) {

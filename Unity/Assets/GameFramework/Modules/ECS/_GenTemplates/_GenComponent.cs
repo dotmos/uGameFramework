@@ -65,9 +65,11 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         }
 
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
-            if (Ser2HasOffset) {
-                return Ser2Offset;
+#if TESTING
+            if (Ser2HasOffset && Ser2HasValidContext) {
+                UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized");
             }
+#endif
             Ser2CreateTable(ctx, ctx.builder);
 
             //if (!Ser2HasOffset) {
