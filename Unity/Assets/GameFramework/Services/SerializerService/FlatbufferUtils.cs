@@ -709,6 +709,8 @@ namespace Service.Serializer
                 return null;
             }
 
+            if (list != null) list.Clear();
+
 
             Type innerType = listType.GetGenericArguments()[0];
 
@@ -1320,10 +1322,7 @@ namespace Service.Serializer
                 for (int i = 0; i < count; i++) {
                     var keyData = GetPrimitiveOrStruct(currentAddress, typeKey);
 
-                    // TODO: is this a good idea to reuse existing objects here? 
-                    bool containsKeyAlready = dict.Contains(keyData);
-
-                    object valObj = containsKeyAlready ? dict[keyData] : (isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null); // create the object for typedobjects
+                    object valObj = isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null; // create the object for typedobjects
                     object valData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue, valObj);
 //                    var valData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue);
                     dict[keyData] = valData;
@@ -1348,9 +1347,7 @@ namespace Service.Serializer
                     object keyObj = isKeyTypedObject ? CreateTypedObjectTypeFromOffset(currentAddress, true) : null; // create the object for typedobjects
                     object keyData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentAddress)), typeKey, keyObj);
 
-                    bool containsKeyAlready = dict.Contains(keyData);
-
-                    object valObj = containsKeyAlready ? dict[keyData] : (isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null); // create the object for typedobjects
+                    object valObj = (isValueTypedObject ? CreateTypedObjectTypeFromOffset(currentValueAddress, true) : null); // create the object for typedobjects
                     object valData = dctx.GetReferenceByType(Buf2Off(__tbl.__indirect(currentValueAddress)), typeValue, valObj);
                     
                     //var keyData = dctx.GetOrCreate(Buf2Off(__tbl.__indirect(currentAddress)), typeKey);
