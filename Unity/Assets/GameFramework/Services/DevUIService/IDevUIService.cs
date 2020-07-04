@@ -204,7 +204,7 @@ namespace Service.DevUIService {
     [System.Serializable]
     public partial class DataBrowserTopLevel: DefaultSerializable2
     {
-    
+        
 
         public DataBrowserTopLevel() { }
         
@@ -245,7 +245,7 @@ namespace Service.DevUIService {
     [System.Serializable]
     public partial class HistoryElement: DefaultSerializable2
     {
-    
+        
 
         public HistoryElement() { }
         

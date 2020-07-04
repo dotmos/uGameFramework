@@ -141,7 +141,10 @@ namespace Service.PerformanceTest
         public abstract             void StopWatch(string t);
 
         
-        public abstract             void PrintPerfTests();
+        public abstract             void PerfTestOutputToConsole();
+
+        
+        public abstract             string PerfTestOutputAsString();
 
         
         public abstract             void Clear();

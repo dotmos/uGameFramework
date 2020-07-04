@@ -28,7 +28,11 @@ namespace Service.PerformanceTest {
         
                            
         
-                    void PrintPerfTests();
+                    void PerfTestOutputToConsole();
+        
+                           
+        
+                    string PerfTestOutputAsString();
         
                            
         

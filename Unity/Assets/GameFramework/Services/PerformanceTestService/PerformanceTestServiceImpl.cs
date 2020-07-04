@@ -5,6 +5,7 @@ using Zenject;
 using UniRx;
 using FlatBuffers;
 using System;
+using System.Text;
 
 namespace Service.PerformanceTest {
 
@@ -44,16 +45,22 @@ namespace Service.PerformanceTest {
             }
         }
 
-        public override void PrintPerfTests() {
-            UnityEngine.Debug.Log("PerfTest:\n-----------------------------------");
+        public override string PerfTestOutputAsString() {
+            StringBuilder stb = new StringBuilder();
+            stb.Append("PerfTest:\n-----------------------------------");
             foreach (KeyValuePair<string, PerfTestData> pTest in perfTestStopwatches) {
                 if (pTest.Value.calls == 0) {
                     continue;
                 }
                 float average = pTest.Value.watch.ElapsedMilliseconds / pTest.Value.calls;
-                UnityEngine.Debug.Log(pTest.Key + ": overall:" + pTest.Value.watch.ElapsedMilliseconds + "ms calls:" + pTest.Value.calls + " average:" + average + "ms");
+                stb.Append(pTest.Key + ": overall:" + pTest.Value.watch.ElapsedMilliseconds + "ms calls:" + pTest.Value.calls + " average:" + average + "ms");
             }
-            UnityEngine.Debug.Log("----------------------------------\n");
+            stb.Append("----------------------------------\n");
+            return stb.ToString();
+        }
+
+        public override void PerfTestOutputToConsole() {
+            UnityEngine.Debug.Log(PerfTestOutputAsString());
         }
 
         public override void Clear() {

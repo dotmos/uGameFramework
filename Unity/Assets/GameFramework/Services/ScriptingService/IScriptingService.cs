@@ -208,7 +208,7 @@ namespace Service.Scripting {
     [System.Serializable]
     public partial class ScriptingServiceData: DefaultSerializable2
     {
-    
+        
 
         public ScriptingServiceData() { }
         
@@ -256,7 +256,7 @@ namespace Service.Scripting {
     [System.Serializable]
     public partial class LuaCoroutine: DefaultSerializable2
     {
-    
+        
 
         public LuaCoroutine() { }
         

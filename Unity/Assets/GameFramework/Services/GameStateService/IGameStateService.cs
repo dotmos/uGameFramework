@@ -98,7 +98,7 @@ namespace Service.GameStateService {
     [System.Serializable]
     public partial class GSContext: DefaultSerializable2
     {
-    
+        
 
         public GSContext() { }
         

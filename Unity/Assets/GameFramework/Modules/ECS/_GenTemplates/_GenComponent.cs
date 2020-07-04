@@ -51,12 +51,19 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
 
         [System.NonSerialized]
         private int ser2flags;
+
+        [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get => ser2flags; set => ser2flags = value; } // TODO. Is dirty should be some kind of virtual
 
+        [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb != null;
 
+        [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
+
+        [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
+        [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
         public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {

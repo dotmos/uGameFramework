@@ -45,7 +45,7 @@ namespace Service.TimeService {
     [System.Serializable]
     public partial class TimerElement: DefaultSerializable2
     {
-    
+        
 
         public TimerElement() { }
         

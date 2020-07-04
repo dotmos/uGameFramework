@@ -512,6 +512,7 @@ namespace Service.Serializer
     public class SerializationContext : IFB2Context
     {
 #if TESTING
+        Service.PerformanceTest.IPerformanceTestService perfTest;
         Dictionary<Type, int> lateRefCalls = new Dictionary<Type, int>();
         String debugOutput = "";
 
@@ -530,6 +531,7 @@ namespace Service.Serializer
                 stb.Append($"{key}=>{value}\n");
             }
             stb.Append($"\n {debugOutput}\n");
+            stb.Append($"\n {perfTest.PerfTestOutputAsString()}");
             stb.Insert(0, $"all calls:{all}\n\n");
             stb.Insert(0, $"{top}\n");
             var fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
@@ -596,6 +598,9 @@ namespace Service.Serializer
 
         public SerializationContext(int initialBuilderCapacity) {
             builder = new FlatBufferBuilder(initialBuilderCapacity);
+#if TESTING
+            perfTest = Kernel.Instance.Container.Resolve<Service.PerformanceTest.IPerformanceTestService>();
+#endif 
         }
 
         public SerializationContext(ByteBuffer bb) {
@@ -636,6 +641,10 @@ namespace Service.Serializer
                 var iFBSer2Obj = (IFBSerializable2)obj;
 
                 if (iFBSer2Obj is IFBSerializeOnMainThread) {
+#if TESTING
+                    String watchname = obj.GetType().ToString();
+                    perfTest.StartWatch(watchname);
+#endif
                     // serialize this on mainthread
                     ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
                         int _newOffset = iFBSer2Obj.Ser2Serialize(this);
@@ -643,6 +652,9 @@ namespace Service.Serializer
                     });
                     // wait for the result
                     int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
+#if TESTING
+                    perfTest.StopWatch(watchname);
+#endif
                     obj2offsetMapping[obj] = newOffsetFromMainThread;
                     iFBSer2Obj.Ser2Context = this;
                     return newOffsetFromMainThread;

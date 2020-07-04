@@ -6,7 +6,8 @@ namespace Service.PerformanceTest {
     public interface IPerformanceTestService {  	
         void StartWatch(string t);
         void StopWatch(string t);
-        void PrintPerfTests();
+        void PerfTestOutputToConsole();
+        string PerfTestOutputAsString();
         void Clear();
     }      
 }                      

@@ -26,7 +26,9 @@ namespace Service.PerformanceTest{
 
             this.OnEvent<StopWatchCommand>().Subscribe(e => StopWatchCommandHandler(e)).AddTo(this);
 
-            this.OnEvent<PrintPerfTestsCommand>().Subscribe(e => PrintPerfTestsCommandHandler(e)).AddTo(this);
+            this.OnEvent<PerfTestOutputToConsoleCommand>().Subscribe(e => PerfTestOutputToConsoleCommandHandler(e)).AddTo(this);
+
+            this.OnEvent<PerfTestOutputAsStringCommand>().Subscribe(e => PerfTestOutputAsStringCommandHandler(e)).AddTo(this);
 
             this.OnEvent<ClearCommand>().Subscribe(e => ClearCommandHandler(e)).AddTo(this);
 
@@ -86,20 +88,45 @@ namespace Service.PerformanceTest{
         /// 
         /// </summary>
         
-        public class PrintPerfTestsCommand  {
+        public class PerfTestOutputToConsoleCommand  {
 
             
         }
 
-		protected void PrintPerfTestsCommandHandler  (PrintPerfTestsCommand cmd) {
+		protected void PerfTestOutputToConsoleCommandHandler  (PerfTestOutputToConsoleCommand cmd) {
 #if PERFORMANCE_TEST
             var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("PrintPerfTestsCommand");
+            ptest.Start("PerfTestOutputToConsoleCommand");
 #endif
-        _service.PrintPerfTests();
+        _service.PerfTestOutputToConsole();
 #if PERFORMANCE_TEST
             // now stop the watches
-            ptest.Stop("PrintPerfTestsCommand");
+            ptest.Stop("PerfTestOutputToConsoleCommand");
+#endif
+        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+        public class PerfTestOutputAsStringCommand  {
+            public string result;
+            
+            
+        }
+
+		protected void PerfTestOutputAsStringCommandHandler  (PerfTestOutputAsStringCommand cmd) {
+#if PERFORMANCE_TEST
+            var ptest=Service.Performance.PerformanceTest.Get();
+            ptest.Start("PerfTestOutputAsStringCommand");
+#endif
+        
+            cmd.result = _service.PerfTestOutputAsString();
+#if PERFORMANCE_TEST
+            // now stop the watches
+            ptest.Stop("PerfTestOutputAsStringCommand");
 #endif
         }
         

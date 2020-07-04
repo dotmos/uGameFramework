@@ -47,22 +47,30 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     [System.Serializable]
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
     {
-    /*block:ser2_header*/
+        /*block:ser2_header*/
+        [Newtonsoft.Json.JsonIgnore]
+
         private /*name:newkeyword*/new/*endname*/ ExtendedTable ser2table = ExtendedTable.NULL;
 
+        [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
 
+        [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb != null;
 
+        [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
 
         public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
             Ser2Deserialize(offset, ctx);
         }
+        [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
+        [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
