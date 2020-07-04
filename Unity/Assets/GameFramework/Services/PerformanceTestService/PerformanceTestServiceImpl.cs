@@ -6,6 +6,7 @@ using UniRx;
 using FlatBuffers;
 using System;
 using System.Text;
+using System.Linq;
 
 namespace Service.PerformanceTest {
 
@@ -47,13 +48,13 @@ namespace Service.PerformanceTest {
 
         public override string PerfTestOutputAsString() {
             StringBuilder stb = new StringBuilder();
-            stb.Append("PerfTest:\n-----------------------------------");
-            foreach (KeyValuePair<string, PerfTestData> pTest in perfTestStopwatches) {
+            stb.Append("PerfTest:\n-----------------------------------\n");
+            foreach (KeyValuePair<string, PerfTestData> pTest in perfTestStopwatches.OrderByDescending(kv=>kv.Value.watch.ElapsedMilliseconds)) {
                 if (pTest.Value.calls == 0) {
                     continue;
                 }
-                float average = pTest.Value.watch.ElapsedMilliseconds / pTest.Value.calls;
-                stb.Append(pTest.Key + ": overall:" + pTest.Value.watch.ElapsedMilliseconds + "ms calls:" + pTest.Value.calls + " average:" + average + "ms");
+                float average = (float)pTest.Value.watch.Elapsed.TotalSeconds / pTest.Value.calls;
+                stb.Append(pTest.Value.watch.Elapsed.TotalSeconds+"s overall "+pTest.Key + ": overall:"  + "ms calls:" + pTest.Value.calls + " average:" + average + "s\n");
             }
             stb.Append("----------------------------------\n");
             return stb.ToString();

@@ -62,7 +62,7 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb != null;
 
         [Newtonsoft.Json.JsonIgnore]
-        public /*name:newkeyword*/new/*endname*/ int Ser2Offset => ser2table.offset;
+        public /*name:newkeyword*/new/*endname*/ int Ser2Offset { get => ser2table.offset; set => ser2table.offset = value; }
 
         public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
             int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
@@ -76,7 +76,11 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
 #if TESTING
             if (Ser2HasOffset && Ser2HasValidContext) {
-                UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized");
+                if (Ser2Context == this) {
+                    UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized by this sctx");
+                } else {
+                    UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized by another context");
+                }
             }
 #endif
             Ser2CreateTable(ctx, ctx.builder);

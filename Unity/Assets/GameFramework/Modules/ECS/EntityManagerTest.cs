@@ -68,6 +68,7 @@ namespace ECS {
         public bool Ser2HasValidContext => throw new NotImplementedException();
 
         IFB2Context IFBSerializable2.Ser2Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        int IFBSerializable2.Ser2Offset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         [Inject] DisposableManager dManager;
 

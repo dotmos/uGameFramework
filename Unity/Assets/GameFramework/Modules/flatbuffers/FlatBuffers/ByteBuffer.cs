@@ -34,6 +34,8 @@
 // performance gain of ~15% for some operations, however doing so is potentially 
 // dangerous. Do so at your own risk!
 //
+//#define BYTEBUFFER_NO_BOUNDS_CHECK
+//#define UNSAFE_BYTEBUFFER
 
 using Service.Serializer;
 using System;

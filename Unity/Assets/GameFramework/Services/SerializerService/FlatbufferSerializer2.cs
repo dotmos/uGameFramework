@@ -6,9 +6,7 @@ using FlatBuffers;
 using System.Linq;
 using System.Collections;
 using System.Text;
-using System.Threading;
 using Newtonsoft.Json;
-using System.Collections.Concurrent;
 using ECS;
 
 namespace Service.Serializer
@@ -114,9 +112,9 @@ namespace Service.Serializer
 
         IFB2Context Ser2Context { get; set; }
         bool Ser2HasValidContext { get; }
-        //ExtendedTable Ser2Table { get; }
-        //bool Ser2HasOffset { get; }
-        //int Ser2Offset { get; }
+        ExtendedTable Ser2Table { get; }
+        bool Ser2HasOffset { get; }
+        int Ser2Offset { get; set; }
     }
 
     public class Serializer2Flags {
@@ -147,7 +145,7 @@ namespace Service.Serializer
         public bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb!=null;
 
         [JsonIgnore]
-        public int Ser2Offset => ser2table.offset;
+        public int Ser2Offset { get => ser2table.offset; set => ser2table.offset = value; }
 
         [JsonIgnore]
         int IFBSerializable2.Ser2Flags { get; set; }
@@ -171,7 +169,11 @@ namespace Service.Serializer
         public virtual int Ser2Serialize(SerializationContext ctx) {
 #if TESTING
             if (Ser2HasOffset && Ser2HasValidContext) {
-                UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized");
+                if (Ser2Context == this) {
+                    UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized by this sctx");
+                } else {
+                    UnityEngine.Debug.LogError($"Ser2Serialize called for {GetType()} but it was already serialized by another context");
+                }
             }
 #endif
             Ser2CreateTable(ctx, ctx.builder);
@@ -616,8 +618,20 @@ namespace Service.Serializer
             Type2IntMapper.instance.Ser2Clear();
         }
 
-        public void AdObj2OffsetMapping(object obj,int offset) {
+        public void AddObj2OffsetMapping(object obj,int offset) {
             obj2offsetMapping[obj] = offset;
+        }
+
+        public int AddObjectFromMergedCtx(SerializationContext mergedCtx, object obj) {
+            if (offsetMapping!=null && offsetMapping.TryGetValue(mergedCtx,out int ctxOffset)) {
+                int offset = mergedCtx.GetCachedOffset(obj);
+                int newOffset = offset + ctxOffset;
+                AddObj2OffsetMapping(obj, newOffset);
+                return newOffset;
+            } else {
+                UnityEngine.Debug.LogError($"Tried to use AddObjectFromMergedCtx for obj {obj}[{obj.GetType()}]! Did not work!");
+                return 0;
+            }
         }
 
         public int GetOrCreateLocked(object obj) {
@@ -637,45 +651,48 @@ namespace Service.Serializer
                 throw new Exception($"Get or create on object that is already serialized by other context:{obj} [{obj.GetType()}]");
             }
 
-            if (obj is IFBSerializable2) {
-                var iFBSer2Obj = (IFBSerializable2)obj;
-
-                if (iFBSer2Obj is IFBSerializeOnMainThread) {
 #if TESTING
-                    String watchname = obj.GetType().ToString();
-                    perfTest.StartWatch(watchname);
+            String watchname = obj.GetType().ToString();
+            perfTest.StartWatch(watchname);
+            try {
 #endif
+                if (obj is IFBSerializable2 iFBSer2Obj) {
+                    if (iFBSer2Obj is IFBSerializeOnMainThread) {
                     // serialize this on mainthread
-                    ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
-                        int _newOffset = iFBSer2Obj.Ser2Serialize(this);
-                        return _newOffset;
-                    });
-                    // wait for the result
-                    int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
-#if TESTING
-                    perfTest.StopWatch(watchname);
-#endif
-                    obj2offsetMapping[obj] = newOffsetFromMainThread;
+                        ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
+                            int _newOffset = iFBSer2Obj.Ser2Serialize(this);
+                            return _newOffset;
+                        });
+                        // wait for the result
+                        int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
+                        obj2offsetMapping[obj] = newOffsetFromMainThread;
+                        iFBSer2Obj.Ser2Context = this;
+                        return newOffsetFromMainThread;
+                    }
+                    int newOffset = iFBSer2Obj.Ser2Serialize(this);
                     iFBSer2Obj.Ser2Context = this;
-                    return newOffsetFromMainThread;
+                    obj2offsetMapping[obj] = newOffset;
+                    return newOffset;
+                } else if (obj is IList) {
+                    int newOffset = builder.CreateList((IList)obj, this);
+                    obj2offsetMapping[obj] = newOffset;
+                    return newOffset;
+                } else if (obj is IDictionary) {
+                    int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
+                    obj2offsetMapping[obj] = newOffset;
+                    return newOffset;
+                } else if (obj is String) {
+                    int newOffset = builder.CreateString((string)obj).Value;
+                    obj2offsetMapping[obj] = newOffset;
+                    return newOffset;
                 }
-                int newOffset = iFBSer2Obj.Ser2Serialize(this);
-                iFBSer2Obj.Ser2Context = this;
-                obj2offsetMapping[obj] = newOffset;
-                return newOffset;
-            } else if (obj is IList) {
-                int newOffset = builder.CreateList((IList)obj, this);
-                obj2offsetMapping[obj] = newOffset;
-                return newOffset;
-            } else if (obj is IDictionary) {
-                int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
-                obj2offsetMapping[obj] = newOffset;
-                return newOffset;
-            } else if (obj is String) {
-                int newOffset = builder.CreateString((string)obj).Value;
-                obj2offsetMapping[obj] = newOffset;
-                return newOffset;
+#if TESTING
             }
+            finally {
+                perfTest.StopWatch(watchname);
+            }
+#endif
+
             return 0;
         }
 
@@ -711,17 +728,28 @@ namespace Service.Serializer
         }
 
         private int GetCachedOffset(object obj) {
-            if (obj2offsetMapping.TryGetValue(obj,out int offset)) {
-                if (obj is IFBSerializable2 ifbObj) {
-                    if (ifbObj.Ser2Context != null && ifbObj.Ser2Context != this && ifbObj.Ser2Context.IsValid()) {
-                        return -2; // someone-else did already handled this object
-                    } 
-                        
-                    return (ifbObj.Ser2Context == this) ? offset : -1;
+            if (obj is IFBSerializable2 ifbObj) {
+                if (ifbObj.Ser2HasValidContext) {
+                    if (ifbObj.Ser2Context == this) {
+                        return ifbObj.Ser2Offset;
+                    } else {
+                        // not serialized by this serializer
+                        if (offsetMapping!=null && offsetMapping.TryGetValue(ifbObj.Ser2Context,out int bufOffset)) {
+                            // this object is merged into this serializer, so we can use this by adding the corresponding offset
+                            // plus we will add it to our obj2offsetMapping
+                            ifbObj.Ser2Context = this;
+                            int newOffset = ifbObj.Ser2Offset += bufOffset;
+                            obj2offsetMapping[obj] = newOffset;
+                            return newOffset;
+                        } else {
+                            return -2; // someone-else did already handled this object. We actually should never come to this point, as it should be prevented in the calls before(!?)
+                        }
+                    }
                 }
-
-                return offset;
             }
+            else if (obj2offsetMapping.TryGetValue(obj,out int offset)) {
+                return offset;
+            } 
             return -1;
         }
 
@@ -785,9 +813,12 @@ namespace Service.Serializer
         /// </summary>
         /// <param name="mergeCtx"></param>
         public void Merge(params SerializationContext[] mergeCtxs) {
+            Merge(true, mergeCtxs);
+        }
+        public void Merge(bool resolveLateReferenceOnMain,params SerializationContext[] mergeCtxs) {
 
             // first resolve our local late references (TODO: multithreading)
-            ResolveLateReferences();
+            if (resolveLateReferenceOnMain) ResolveLateReferences();
 
             if (offsetMapping == null) {
                 offsetMapping = new Dictionary<IFB2Context, int>();
@@ -834,7 +865,7 @@ namespace Service.Serializer
             customFilter = null;
 
             // now that we merged all the lateReferences and adjusted it to the new buffer, solve the last
-            ResolveLateReferences();
+            if (resolveLateReferenceOnMain) ResolveLateReferences();
 
         }
 
@@ -884,7 +915,7 @@ namespace Service.Serializer
 
                 if (lateReference is IFBSerializable2) {
                     var ifbObj = (IFBSerializable2)lateReference;
-                    if (ifbObj.Ser2HasValidContext && ifbObj.Ser2Context == this && (offsetMapping == null || !offsetMapping.ContainsKey(ifbObj.Ser2Context))) {
+                    if (ifbObj.Ser2HasValidContext && ifbObj.Ser2Context != this && (offsetMapping == null || !offsetMapping.ContainsKey(ifbObj.Ser2Context))) {
                         // ignore objects that are create within another builder and that is not merged in,yet
                         tempReferenceQueue.Enqueue(lateReference);
                         continue;
@@ -947,6 +978,12 @@ namespace Service.Serializer
             builder.Clear();
             obj2offsetMapping.Clear();
             Invalidate();
+            if (offsetMapping != null)
+            {
+                foreach (var ctx in offsetMapping.Keys) {
+                    ctx.Invalidate();
+                }
+            }
             foreach (IFB2Context ctx in contexts) {
                 ctx.Invalidate();
             }
