@@ -19,7 +19,7 @@ public interface IFBSerializable {
 public interface IFBSerializeOnMainThread { }
 
 public interface IFBPostDeserialization {
-    void OnPostDeserialization(ECS.IEntityManager entityManager,object userobject,int savedDataFormat, int currentDataFormat);
+    void OnPostDeserialization(ECS.IEntityManager entityManager,object userobject,int savedDataFormat, int currentDataFormat, bool useSerialization2);
 }
 
 
@@ -27,7 +27,7 @@ public interface IFBPostDeserialization {
 /// If an object (e.g.) has a version mismatch during deserialization it calls the upgrade-function to make it valid (if needed)
 /// </summary>
 public interface IFBUpgradeable {
-    void Upgrade(int serializedFormatNr, int currentNr, object incoming);
+    void Upgrade(int serializedFormatNr, int currentNr, object incoming, bool useSerialization2);
 }
 
 /*public interface IFBSerializableManual {

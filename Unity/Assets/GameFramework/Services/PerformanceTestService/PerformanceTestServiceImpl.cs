@@ -48,16 +48,25 @@ namespace Service.PerformanceTest {
 
         public override string PerfTestOutputAsString() {
             StringBuilder stb = new StringBuilder();
-            stb.Append("PerfTest:\n-----------------------------------\n");
-            foreach (KeyValuePair<string, PerfTestData> pTest in perfTestStopwatches.OrderByDescending(kv=>kv.Value.watch.ElapsedMilliseconds)) {
-                if (pTest.Value.calls == 0) {
-                    continue;
+            try
+            {
+                stb.Append("PerfTest:\n-----------------------------------\n");
+                foreach (KeyValuePair<string, PerfTestData> pTest in perfTestStopwatches.OrderByDescending(kv => kv.Value.watch.ElapsedMilliseconds))
+                {
+                    if (pTest.Value.calls == 0)
+                    {
+                        continue;
+                    }
+                    float average = (float)pTest.Value.watch.Elapsed.TotalSeconds / pTest.Value.calls;
+                    stb.Append(pTest.Value.watch.Elapsed.TotalSeconds + "s overall " + pTest.Key + ": overall:" + "ms calls:" + pTest.Value.calls + " average:" + average + "s\n");
                 }
-                float average = (float)pTest.Value.watch.Elapsed.TotalSeconds / pTest.Value.calls;
-                stb.Append(pTest.Value.watch.Elapsed.TotalSeconds+"s overall "+pTest.Key + ": overall:"  + "ms calls:" + pTest.Value.calls + " average:" + average + "s\n");
+                stb.Append("----------------------------------\n");
+                return stb.ToString();
             }
-            stb.Append("----------------------------------\n");
-            return stb.ToString();
+            catch (Exception e) {
+                stb.Append("PerfTestOutputAsString: Exception: " + e.Message + "\n" + e.StackTrace+"\n");
+                return stb.ToString();
+            }
         }
 
         public override void PerfTestOutputToConsole() {

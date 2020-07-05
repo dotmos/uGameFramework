@@ -8,6 +8,7 @@ using System.Collections;
 using System.Text;
 using Newtonsoft.Json;
 using ECS;
+using UnityEngine;
 
 namespace Service.Serializer
 {
@@ -267,7 +268,7 @@ namespace Service.Serializer
         public void ProcessPostSerialization(IEntityManager em,int fileDataFormat,int currentDataFormat) { 
             while (postDeserializations.Count > 0) {
                 var obj = postDeserializations.Dequeue();
-                obj.OnPostDeserialization(em, this, fileDataFormat, currentDataFormat);
+                obj.OnPostDeserialization(em, this, fileDataFormat, currentDataFormat,true);
             }
         }
 
@@ -328,7 +329,7 @@ namespace Service.Serializer
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
 #if FLATBUFFER_CHECK_TYPES
                 if (objType!=typeObject && result.GetType() != objType && !ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
-                    UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()}");
+                    UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()} at offset:{bufferOffset}");
                 }                
 #endif
                 return result;
@@ -543,10 +544,14 @@ namespace Service.Serializer
             debugOutput = "";
         }
 
-        private void AddDebugOutput(String output) {
-            debugOutput += output+"\n";
+        public void AddDebugOutput(String output, bool outputToConsoleImmediately=false) {
+            debugOutput += $"[{name}]: {output}\n";
+            if (outputToConsoleImmediately)
+            {
+                Debug.Log(output);
+            }
         }
-#endif        
+#endif
 
 
         ///// <summary>
@@ -571,6 +576,14 @@ namespace Service.Serializer
         /// <summary>
         /// mappings to objects that are not serialized,yet
         /// </summary>
+
+        public string name = ""; // optional just for debugging purpose
+        public static int name_counter = 1;
+        /// <summary>
+        /// If merged into another context this becomes the parent
+        /// </summary>
+        public SerializationContext parentContext = null; 
+
         public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
         //public readonly List<object> lateReferenceList = new List<object>();
         public Queue<object> lateReferenceQueue = new Queue<object>();
@@ -598,15 +611,17 @@ namespace Service.Serializer
             isValid = false;
         }
 
-        public SerializationContext(int initialBuilderCapacity) {
+        public SerializationContext(int initialBuilderCapacity,string _name=null) {
             builder = new FlatBufferBuilder(initialBuilderCapacity);
 #if TESTING
             perfTest = Kernel.Instance.Container.Resolve<Service.PerformanceTest.IPerformanceTestService>();
 #endif 
+            name = _name ?? "sctx-" + (name_counter++);
         }
 
-        public SerializationContext(ByteBuffer bb) {
+        public SerializationContext(ByteBuffer bb, string _name = null) {
             builder = new FlatBufferBuilder(bb);
+            name = _name ?? "sctx-" + (name_counter++);
         }
 
         private void ClearTables() {
@@ -629,7 +644,7 @@ namespace Service.Serializer
                 AddObj2OffsetMapping(obj, newOffset);
                 return newOffset;
             } else {
-                UnityEngine.Debug.LogError($"Tried to use AddObjectFromMergedCtx for obj {obj}[{obj.GetType()}]! Did not work!");
+                UnityEngine.Debug.LogError($"[{name}] Tried to use AddObjectFromMergedCtx for obj {obj}[{obj.GetType()}]! Did not work!");
                 return 0;
             }
         }
@@ -644,11 +659,14 @@ namespace Service.Serializer
             int cachedOffset = GetCachedOffset(obj);
 
             if (cachedOffset >= 0) {
+#if TESTING
+                //Debug.Log($"[{name}]: Reused cached object {obj}[{obj.GetType()}]|{obj.GetHashCode()}");
+#endif
                 return cachedOffset;
             }
 
             if (cachedOffset == -2) {
-                throw new Exception($"Get or create on object that is already serialized by other context:{obj} [{obj.GetType()}]");
+                throw new Exception($"[{name}] Get or create on object that is already serialized by other context:{obj} [{obj.GetType()}]");
             }
 
 #if TESTING
@@ -734,7 +752,7 @@ namespace Service.Serializer
                         return ifbObj.Ser2Offset;
                     } else {
                         // not serialized by this serializer
-                        if (offsetMapping!=null && offsetMapping.TryGetValue(ifbObj.Ser2Context,out int bufOffset)) {
+                        if (offsetMapping!=null && offsetMapping.TryGetValue(ifbObj.Ser2Context, out int bufOffset) ) {
                             // this object is merged into this serializer, so we can use this by adding the corresponding offset
                             // plus we will add it to our obj2offsetMapping
                             ifbObj.Ser2Context = this;
@@ -840,6 +858,15 @@ namespace Service.Serializer
                 // keep the new ending for later adjustment
                 // serialized objects know where they are serialized, if you try to serialize again you can query the ByteBuffer and map with this offset
                 offsetMapping[mergeCtx] = newBufEnd;
+                
+                // add offsetmapping to new ctx and change their offset to match the new data-position
+                if (mergeCtx.offsetMapping != null) {
+                    foreach(var om in mergeCtx.offsetMapping) {
+                        offsetMapping[om.Key] = om.Value + newBufEnd;
+                    }
+                }
+
+
 
                 foreach (var kv in mergeCtx.lateReferences) {
                     var obj = kv.Key;
@@ -857,8 +884,13 @@ namespace Service.Serializer
                         lateRefsForObjects.Add(locationOffset + newBufEnd);
                     }
                 }
-                
+
+#if TESTING
+                debugOutput += mergeCtx.debugOutput;
+#endif
             }
+
+            
 
             whiteList = null;
             blackList = null;
@@ -909,6 +941,9 @@ namespace Service.Serializer
                 ) {
                     // ignore all types that are not on whitelist (if using whitelist at all)
                     // ignore all types that are on the blacklist (if using blacklist)
+#if TESTING
+                    //UnityEngine.Debug.Log($"[{name}] Ignore lateref of {lateReference.GetType()}|{lateReference.GetHashCode()}. Keeping it for later mapping");
+#endif                    
                     tempReferenceQueue.Enqueue(lateReference);
                     continue;
                 }
@@ -926,8 +961,9 @@ namespace Service.Serializer
             var _tempQueue = lateReferenceQueue;
             lateReferenceQueue = tempReferenceQueue;
             tempReferenceQueue = _tempQueue;
-
-            UnityEngine.Debug.Log($"ResolveLateReference-Calls: {calls}");
+#if TESTING
+            //UnityEngine.Debug.Log($"[{name}]: ResolveLateReference-Calls: {calls}");
+#endif
         }
 
         public void ResolveLateReference(object obj) {
@@ -964,7 +1000,9 @@ namespace Service.Serializer
             }
             builder.Finish(main);
             byte[] result = builder.SizedByteArray();
+#if TESTING
             AddDebugOutput($"buffersize:{result.Length}");
+#endif
             return result;
         }
 

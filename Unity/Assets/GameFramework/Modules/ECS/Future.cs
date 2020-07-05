@@ -63,7 +63,18 @@ namespace ECS {
             } else if (f.ExecutionMode == FutureExecutionMode.onParallelQueue) {
                 parallelQueueActions.Enqueue(f);
             } else if (f.ExecutionMode == FutureExecutionMode.onOwnTask) {
-                Task t = new Task(() => { f.execute(); });
+                Task t = new Task(() => {
+                    Thread.CurrentThread.Name = "future";
+                    try
+                    {
+                        f.execute();
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.LogException(e);
+                    }
+                });
+                
                 t.Start();
             }
         }

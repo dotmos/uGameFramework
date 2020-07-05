@@ -815,7 +815,7 @@ namespace Service.Serializer {
                 for (int j = 0; j < postProcessObjList.Count; j++) {
                     object elem = postProcessObjList[j];
                     if (elem is IFBPostDeserialization) {
-                        ((IFBPostDeserialization)elem).OnPostDeserialization(entityManager, userobject,savedFormat, currentFormat);
+                        ((IFBPostDeserialization)elem).OnPostDeserialization(entityManager, userobject,savedFormat, currentFormat,false);
                     }
                 }
             }
@@ -1031,7 +1031,7 @@ namespace Service.Serializer {
         private static void UpgradeObjectIfNeeded(object deserializedObject,object incomingData) {
             if (deserializedObject is IFBUpgradeable) {
                 // the data we just deserialized has another version. Try to convert it to have valid data
-                ((IFBUpgradeable)deserializedObject).Upgrade(CurrentDeserializingDataFormatVersion, CurrentDataFormatVersion, incomingData);
+                ((IFBUpgradeable)deserializedObject).Upgrade(CurrentDeserializingDataFormatVersion, CurrentDataFormatVersion, incomingData,false);
             }
         }
 
