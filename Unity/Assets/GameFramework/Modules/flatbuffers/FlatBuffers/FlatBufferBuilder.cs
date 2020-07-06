@@ -1229,7 +1229,7 @@ namespace FlatBuffers
 
         private void WriteStructListHeader(int count,bool writeLengthInfo,int reserveAdditionalBytes) {
             if (writeLengthInfo) {
-                PutInt(count);
+                AddInt(count);
             }
             // TODO: is this bullshit? äh,..unneeded?
             if (reserveAdditionalBytes != 0) {
