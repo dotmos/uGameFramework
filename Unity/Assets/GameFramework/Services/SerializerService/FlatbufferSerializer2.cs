@@ -80,10 +80,10 @@ namespace Service.Serializer
             sctx.ResolveLateReferences();
         }
 
-        public override void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
-            base.Ser2Deserialize(tblOffset, dctx);
-            DeserializeFromOffset(base.ser2table.__tbl.bb_pos, dctx, true);
-        }
+        //public override void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
+        //    base.Ser2Deserialize(tblOffset, dctx);
+        //    DeserializeFromOffset(base.ser2table.__tbl.bb_pos, dctx, true);
+        //}
 
         public void DeserializeFromOffset(int offset, DeserializationContext dctx, bool isDirectBuffer = true) {
             type2id = new Dictionary<Type, int>();
@@ -102,17 +102,58 @@ namespace Service.Serializer
     }
 
     public interface IFBSerializable2  {
+        /// <summary>
+        /// entry point for serialization
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
         int Ser2Serialize(SerializationContext ctx);
-        void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
-        void Ser2UpdateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
-        void Ser2Deserialize(int tblOffset, DeserializationContext ctx);
-        void Ser2Deserialize(DeserializationContext ctx);
 
+        /// <summary>
+        /// serialize the current dataset. Override this (this equals to Serialization1's Serialize(..)-call).
+        /// CAUTION: you need to finish by creating an ExtendedTable like this:
+        ///    int tblPos = builder.EndTable();
+        ///    ser2table = new ExtendedTable(tblPos, builder);
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="builder"></param>
+        void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
+
+        /// <summary>
+        /// Update the current dataset (unused for now)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="builder"></param>
+        void Ser2UpdateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder);
+
+        /// <summary>
+        /// deserialize an object at the given tblOffset. override this. (this equals to Serialization2's Deserialize(..)-call).
+        /// </summary>
+        /// <param name="tblOffset"></param>
+        /// <param name="ctx"></param>
+        void Ser2Deserialize(int tblOffset, DeserializationContext ctx);
+        //void Ser2Deserialize(DeserializationContext ctx);
+
+        /// <summary>
+        /// Cleanup context
+        /// </summary>
         void Ser2Clear();
+        /// <summary>
+        /// Serialization-Flags (unused atm)
+        /// </summary>
         int Ser2Flags { get; set; }
 
+        /// <summary>
+        /// Context (Serialization/Deserialization) this object was processed with (needed especially for multithreads serialization)
+        /// </summary>
         IFB2Context Ser2Context { get; set; }
+        /// <summary>
+        /// Check for valid context. Contexts gets invalidated after loading/saving
+        /// </summary>
         bool Ser2HasValidContext { get; }
+        /// <summary>
+        /// The current ser2table which points to the position in the buffer this object and provides deserialization functions (comparable to ManualObject)
+        /// </summary>
         ExtendedTable Ser2Table { get; }
         bool Ser2HasOffset { get; }
         int Ser2Offset { get; set; }
@@ -160,13 +201,6 @@ namespace Service.Serializer
         private object lock_state = new object();
 
 
-
-        public void Ser2Deserialize(DeserializationContext ctx) {
-            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
-            Ser2Deserialize(offset, ctx);
-        }
-
-
         public virtual int Ser2Serialize(SerializationContext ctx) {
 #if TESTING
             if (Ser2HasOffset && Ser2HasValidContext) {
@@ -196,6 +230,10 @@ namespace Service.Serializer
         protected void SetTable(int tblOffset, DeserializationContext dctx) {
             ser2table = new ExtendedTable(tblOffset, dctx.bb);
         }
+        protected void SetTable(int tblOffset, ByteBuffer bb) {
+            ser2table = new ExtendedTable(tblOffset, bb);
+        }
+
 
         public virtual void Ser2Clear() {
             ser2table = ExtendedTable.NULL;
@@ -515,7 +553,7 @@ namespace Service.Serializer
     public class SerializationContext : IFB2Context
     {
 #if TESTING
-        Service.PerformanceTest.IPerformanceTestService perfTest;
+//        Service.PerformanceTest.IPerformanceTestService perfTest;
         Dictionary<Type, int> lateRefCalls = new Dictionary<Type, int>();
         String debugOutput = "";
 
@@ -534,7 +572,7 @@ namespace Service.Serializer
                 stb.Append($"{key}=>{value}\n");
             }
             stb.Append($"\n {debugOutput}\n");
-            stb.Append($"\n {perfTest.PerfTestOutputAsString()}");
+            //stb.Append($"\n {perfTest.PerfTestOutputAsString()}");
             stb.Insert(0, $"all calls:{all}\n\n");
             stb.Insert(0, $"{top}\n");
             var fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
@@ -614,7 +652,7 @@ namespace Service.Serializer
         public SerializationContext(int initialBuilderCapacity,string _name=null) {
             builder = new FlatBufferBuilder(initialBuilderCapacity);
 #if TESTING
-            perfTest = Kernel.Instance.Container.Resolve<Service.PerformanceTest.IPerformanceTestService>();
+            //perfTest = Kernel.Instance.Container.Resolve<Service.PerformanceTest.IPerformanceTestService>();
 #endif 
             name = _name ?? "sctx-" + (name_counter++);
         }
@@ -671,7 +709,7 @@ namespace Service.Serializer
 
 #if TESTING
             String watchname = obj.GetType().ToString();
-            perfTest.StartWatch(watchname);
+            //perfTest.StartWatch(watchname);
             try {
 #endif
                 if (obj is IFBSerializable2 iFBSer2Obj) {
@@ -707,7 +745,7 @@ namespace Service.Serializer
 #if TESTING
             }
             finally {
-                perfTest.StopWatch(watchname);
+                //perfTest.StopWatch(watchname);
             }
 #endif
 

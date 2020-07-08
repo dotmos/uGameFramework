@@ -53,10 +53,13 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         private /*name:newkeyword*/new/*endname*/ ExtendedTable ser2table = ExtendedTable.NULL;
 
         [Newtonsoft.Json.JsonIgnore]
-        public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
+        public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table { get => ser2table; set => ser2table = value; }
+
+        [System.NonSerialized]
+        private int ser2flags;
 
         [Newtonsoft.Json.JsonIgnore]
-        public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get; set; }
+        public /*name:newkeyword*/new/*endname*/ int Ser2Flags { get => ser2flags; set => ser2flags = value; } // TODO. Is dirty should be some kind of virtual
 
         [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ bool Ser2HasOffset => Ser2HasValidContext && !ser2table.IsNULL() && ser2table.bb != null;
@@ -64,10 +67,6 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset { get => ser2table.offset; set => ser2table.offset = value; }
 
-        public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
-            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
-            Ser2Deserialize(offset, ctx);
-        }
         [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
         [Newtonsoft.Json.JsonIgnore]

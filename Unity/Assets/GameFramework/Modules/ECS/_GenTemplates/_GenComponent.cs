@@ -47,7 +47,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /*block:ser2_header*/
         private /*name:newkeyword*/new/*endname*/ ExtendedTable ser2table = ExtendedTable.NULL;
 
-        public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table => ser2table;
+        public /*name:newkeyword*/new/*endname*/ ExtendedTable Ser2Table { get => ser2table; set => ser2table = value; }
 
         [System.NonSerialized]
         private int ser2flags;
@@ -66,10 +66,10 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
-        public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
-            int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
-            Ser2Deserialize(offset, ctx);
-        }
+        //public /*name:override*/virtual/*endname*/ void Ser2Deserialize(DeserializationContext ctx) {
+        //    int offset = ctx.bb.Length - ctx.bb.GetInt(ctx.bb.Position) + ctx.bb.Position;
+        //    Ser2Deserialize(offset, ctx);
+        //}
 
         public /*name:override*/virtual/*endname*/ int Ser2Serialize(SerializationContext ctx) {
 #if TESTING
@@ -504,9 +504,10 @@ public class SomeClazz2 : DefaultSerializable2
 
     /*block:serialization2*/
     #region serialization2
-    public  /*name:override*/override/*endname*/ void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
+    public  override void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
         /*block:s_inheritance_offset*/
-        int offsetBase = base.Ser2Serialize(ctx);
+        base.Ser2CreateTable(ctx, builder);
+        int offsetBase = Ser2Offset;
         /*endblock:s_inheritance_offset*/
         /*block:s_create_string*/
         int /*name|fu,pre#offset:name*/offsetString/*endname*/ = /*name:name*/testName/*endname*/==null ? 0 : builder.CreateString(/*name:name*/testName/*endname*/).Value;
@@ -610,7 +611,7 @@ public class SomeClazz2 : DefaultSerializable2
     public new void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         // not implemented,yet
     }
-    public /*name:override*/override/*endname*/ void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
+    public override void Ser2Deserialize(int tblOffset, DeserializationContext dctx) {
         /*block:d_deserialize_clazz_header*/ser2table = new ExtendedTable(tblOffset, dctx.bb);
         /*endblock:d_deserialize_clazz_header*/
         /*block:d_component_header*/
@@ -621,9 +622,11 @@ public class SomeClazz2 : DefaultSerializable2
 
         /*block:d_deserialize_base*/
         base.Ser2Deserialize(ser2table.GetOffset(0), dctx);
+        ser2table = new ExtendedTable(tblOffset, dctx.bb);
         /*endblock:d_deserialize_base*/
 
-        /*block:d_enum*//*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)ser2table.GetInt(/*name:fieldid*/0/*endname*/);
+        /*block:d_enum*//*name:name*/
+        state/*endname*/ = (/*name:type*/State/*endname*/)ser2table.GetInt(/*name:fieldid*/0/*endname*/);
         /*endblock:d_enum*/
         /*block:d_enum_nullable*//*name:name*/nullState/*endname*/ = (/*name:type*/State/*endname*/?)ser2table.GetNullableInt(/*name:fieldid*/0/*endname*/);
         /*endblock:d_enum_nullable*/
