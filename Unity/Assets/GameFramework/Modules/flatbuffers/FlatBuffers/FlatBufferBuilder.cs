@@ -198,7 +198,7 @@ namespace FlatBuffers
                 _space += (int)_bb.Length - oldBufSize;
 
             }
-            if (alignSize > 0)
+            if (alignSize > 0 && !ignorePad)
                 Pad(alignSize);
         }
 
@@ -360,7 +360,7 @@ namespace FlatBuffers
         /// </summary>
         /// <typeparam name="T">The type of the input data</typeparam>
         /// <param name="x">The array to copy data from</param>
-        public void Add<T>(T[] x, int length = -1)
+        public void Add<T>(T[] x, int length = -1,bool noAlignment=false)
             where T : struct {
             if (x == null) {
                 throw new ArgumentNullException("Cannot add a null array");
@@ -380,7 +380,7 @@ namespace FlatBuffers
             int size = ByteBuffer.SizeOf<T>();
             // Need to prep on size (for data alignment) and then we pass the
             // rest of the length (minus 1) as additional bytes
-            Prep(size, size * (length - 1));
+            Prep(size, size * (length - 1), noAlignment);
             Put(x, length);
         }
 
