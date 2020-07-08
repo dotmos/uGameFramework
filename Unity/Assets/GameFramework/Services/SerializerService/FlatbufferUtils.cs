@@ -551,7 +551,7 @@ namespace Service.Serializer
             Type innerType = typeof(T);
             
             if (innerType.IsEnum) {
-                int[] result = __tbl.__vector_as_array<int>(fbPos);
+                int[] result = __tbl.__vector_as_array<int>(fbPos,true,true);
                 if (result == null) {
                     return null;
                 }
@@ -564,7 +564,7 @@ namespace Service.Serializer
                 return enumResult;
 
             } else {
-                T[] result = __tbl.__vector_as_array<T>(fbPos);
+                T[] result = __tbl.__vector_as_array<T>(fbPos,true,true);
                 return result;
             }
 

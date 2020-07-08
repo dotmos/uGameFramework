@@ -132,7 +132,7 @@ namespace FlatBuffers
         // Get the data of a vector whoses offset is stored at "offset" in this object as an
         // T[]. If the vector is not present in the ByteBuffer, then a null value will be
         // returned.
-        public T[] __vector_as_array<T>(int offset,bool lookupVtable=true)
+        public T[] __vector_as_array<T>(int offset, bool lookupVtable = true,bool newMode=false)
         {
             if(!BitConverter.IsLittleEndian)
             {
@@ -140,7 +140,11 @@ namespace FlatBuffers
                     "system is not support");
             }
 
-            if (lookupVtable) offset = this.__offset(4 + offset * 2);
+            if (newMode) {
+                if (lookupVtable) offset = this.__offset(4 + offset * 2);
+            } else {
+                offset = this.__offset(offset);
+            }
 
             if (0 == offset)
             {

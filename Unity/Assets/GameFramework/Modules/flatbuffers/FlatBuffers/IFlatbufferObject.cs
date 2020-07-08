@@ -176,12 +176,12 @@ namespace FlatBuffers
                 }
 
                 if (typeof(T).IsEnum) {
-                    int[] tA = __p.__vector_as_array<int>(fbPos);
+                    int[] tA = __p.__vector_as_array<int>(fbPos,true,true);
                     T[] result = tA.Cast<T>().ToArray();
                     return result;
 
                 } else {
-                    T[] tA = __p.__vector_as_array<T>(fbPos);
+                    T[] tA = __p.__vector_as_array<T>(fbPos,true,true);
                     return tA;
                 }
             }
