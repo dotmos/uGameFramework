@@ -98,6 +98,7 @@ namespace Service.Serializer
                 id2type[kv.Key] = type;
                 type2id[type] = kv.Key;
             }
+            idCounter = id2typeAsString.Count;
         }
     }
 
