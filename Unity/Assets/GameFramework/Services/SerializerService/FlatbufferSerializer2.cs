@@ -37,7 +37,10 @@ namespace Service.Serializer
         Dictionary<Type, int> type2id = new Dictionary<Type, int>();
         Dictionary<int, String> id2typeAsString = new Dictionary<int, string>();
 
-        int idCounter = 100;
+
+        const int initialCount = 100;
+
+        int idCounter = initialCount;
 
         private object lock_addType = new object();
 
@@ -98,7 +101,7 @@ namespace Service.Serializer
                 id2type[kv.Key] = type;
                 type2id[type] = kv.Key;
             }
-            idCounter = id2typeAsString.Count;
+            idCounter = id2typeAsString.Count + 100;
         }
     }
 
