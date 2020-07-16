@@ -349,10 +349,13 @@ namespace Service.Serializer
         }
         
         public object GetOrCreate(int bufferOffset, Type objectType,object obj=null) {
-            object cachedObject = _GetCachedObject(bufferOffset,objectType);
-            if (cachedObject != null) {
-                return cachedObject;
+            if(obj == null) {
+                object cachedObject = _GetCachedObject(bufferOffset, objectType);
+                if (cachedObject != null) {
+                    return cachedObject;
+                }
             }
+            
             object newObject = _GetOrCreate(bufferOffset, objectType, obj);
             return newObject;
         }
