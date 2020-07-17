@@ -624,9 +624,9 @@ public class SomeClazz2 : DefaultSerializable2
         base.Ser2Deserialize(ser2table.GetOffset(0), dctx);
         ser2table = new ExtendedTable(tblOffset, dctx.bb);
         /*endblock:d_deserialize_base*/
-
-        /*block:d_enum*//*name:name*/
-        state/*endname*/ = (/*name:type*/State/*endname*/)ser2table.GetInt(/*name:fieldid*/0/*endname*/);
+        /*block:dser_master*/
+        /*name:pps*/ dctx.AddToPostDeserializeAction(() => { /*endname*/
+        /*block:d_enum*//*name:name*/state/*endname*/ = (/*name:type*/State/*endname*/)ser2table.GetInt(/*name:fieldid*/0/*endname*/);
         /*endblock:d_enum*/
         /*block:d_enum_nullable*//*name:name*/nullState/*endname*/ = (/*name:type*/State/*endname*/?)ser2table.GetNullableInt(/*name:fieldid*/0/*endname*/);
         /*endblock:d_enum_nullable*/
@@ -662,7 +662,8 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_dict*/
         /*block:d_ref_offset*/ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
         /*endblock:d_ref_offset*/
-
+        /*name:ppe*/ }); /*endname*/
+        /*endblock:dser_master*/
         if (this is IFBPostDeserialization) {
             dctx.AddOnPostDeserializationObject((IFBPostDeserialization)this);
         }

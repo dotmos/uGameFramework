@@ -247,10 +247,18 @@ namespace Service.Serializer
     public class DeserializationContext : IFB2Context
     {
         public static int current_savegame_dataformat = 0;
-        
+
+
+        /// <summary>
+        /// Filter to postpone deserialization of this object. e.g. Tasks
+        /// </summary>
+        private Func<bool, object> filter = null;
         private readonly Dictionary<int, object> pos2obj = new Dictionary<int, object>();
         private readonly Queue<IFBPostDeserialization> postDeserializations = new Queue<IFBPostDeserialization>();
-
+        /// <summary>
+        /// Actions to be called right after deserialization and before onPostDeserialize
+        /// </summary>
+        private readonly Queue<Action> postDerserializeActions = new Queue<Action>();
         private readonly Dictionary<int, Queue<object>> postDeserializeQueues = new Dictionary<int, Queue<object>>();
         private readonly Type typeObject = typeof(object);
 
@@ -279,6 +287,21 @@ namespace Service.Serializer
                 }
             }
             Type2IntMapper.instance.Ser2Clear();
+        }
+
+        public void AddToPostDeserializeAction(Action act) {
+            postDerserializeActions.Enqueue(act);
+        }
+
+        public bool ObjectInCache(int pos) {
+            return pos2obj.ContainsKey(pos);
+        }
+
+        public void ExecutePostDeserializationAction() { 
+            while (postDerserializeActions.Count > 0) {
+                Action act = postDerserializeActions.Dequeue();
+                act();
+            }
         }
 
         public void AddToPostProcessObjects(int queueNr,object uid) {
