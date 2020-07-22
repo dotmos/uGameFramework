@@ -76,7 +76,7 @@ namespace Service.MemoryBrowserService {
                 if (prop != null) {
                     if (prop.PropertyType == typeof(Vector2)) {
                         prop.SetValue(obj, UtilsExtensions.StringToVector2(newValueAsString));
-                    } else if (prop.PropertyType == typeof(Vector3)) {
+                    } else if (prop.PropertyType == typeof(Vector3) ) {
                         prop.SetValue(obj, UtilsExtensions.StringToVector3(newValueAsString));
                     } else {
                         prop.SetValue(obj, Convert.ChangeType(newValueAsString, prop.PropertyType));
