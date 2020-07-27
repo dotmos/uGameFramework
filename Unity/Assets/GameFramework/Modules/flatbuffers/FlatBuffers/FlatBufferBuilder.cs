@@ -1021,18 +1021,18 @@ namespace FlatBuffers
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public int PutVector2(float x, float y) {
-            Prep(4, 4);
+        public int PutVector2(float x, float y, bool prep = true) {
+            if (prep) Prep(4, 4);
             PutFloat(y);
             PutFloat(x);
             return Offset;
         }
 
-        public int PutVector2(ref UnityEngine.Vector2 vec2) {
-            return PutVector2(vec2.x, vec2.y);
+        public int PutVector2(ref UnityEngine.Vector2 vec2, bool prep = true) {
+            return PutVector2(vec2.x, vec2.y,prep);
         }
-        public int PutVector2(UnityEngine.Vector2 vec2) {
-            return PutVector2(vec2.x, vec2.y);
+        public int PutVector2(UnityEngine.Vector2 vec2, bool prep = true) {
+            return PutVector2(vec2.x, vec2.y,prep);
         }
 
         /// <summary>
@@ -1042,19 +1042,19 @@ namespace FlatBuffers
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public int PutVector3(float x, float y, float z) {
-            Prep(4, 8);
+        public int PutVector3(float x, float y, float z, bool prep = true) {
+            if (prep) Prep(4, 8);
             PutFloat(z);
             PutFloat(y);
             PutFloat(x);
             return Offset;
         }
 
-        public int PutVector3(ref UnityEngine.Vector3 vec3) {
-            return PutVector3(vec3.x, vec3.y, vec3.z);
+        public int PutVector3(ref UnityEngine.Vector3 vec3,bool prep = true) {
+            return PutVector3(vec3.x, vec3.y, vec3.z, prep);
         }
-        public int PutVector3(UnityEngine.Vector3 vec3) {
-            return PutVector3(vec3.x, vec3.y, vec3.z);
+        public int PutVector3(UnityEngine.Vector3 vec3, bool prep = true) {
+            return PutVector3(vec3.x, vec3.y, vec3.z,prep);
         }
 
         /// <summary>
@@ -1065,8 +1065,8 @@ namespace FlatBuffers
         /// <param name="z"></param>
         /// <param name="w"></param>
         /// <returns></returns>
-        public int PutVector4(float x, float y, float z, float w) {
-            Prep(4, 12);
+        public int PutVector4(float x, float y, float z, float w, bool prep = true) {
+            if (prep) Prep(4, 12);
             PutFloat(w);
             PutFloat(z);
             PutFloat(y);
@@ -1074,29 +1074,29 @@ namespace FlatBuffers
             return Offset;
         }
 
-        public int PutVector4(ref UnityEngine.Vector4 vec4) {
-            return PutVector4(vec4.x, vec4.y, vec4.z, vec4.w);
+        public int PutVector4(ref UnityEngine.Vector4 vec4, bool prep = true) {
+            return PutVector4(vec4.x, vec4.y, vec4.z, vec4.w, prep);
         }
-        public int PutVector4(UnityEngine.Vector4 vec4) {
-            return PutVector4(vec4.x, vec4.y, vec4.z, vec4.w);
-        }
-
-        public int PutQuaternion(ref Quaternion q) {
-            return PutVector4(q.x, q.y, q.z, q.w);
-        }
-        public int PutQuaternion(Quaternion q) {
-            return PutVector4(q.x, q.y, q.z, q.w);
+        public int PutVector4(UnityEngine.Vector4 vec4, bool prep = true) {
+            return PutVector4(vec4.x, vec4.y, vec4.z, vec4.w, prep);
         }
 
-        public int PutUID(ECS.UID uid) {
-            Prep(4,4);
+        public int PutQuaternion(ref Quaternion q, bool prep = true) {
+            return PutVector4(q.x, q.y, q.z, q.w, prep);
+        }
+        public int PutQuaternion(Quaternion q, bool prep = true) {
+            return PutVector4(q.x, q.y, q.z, q.w, prep);
+        }
+
+        public int PutUID(ECS.UID uid, bool prep=true) {
+            if (prep) Prep(4,4);
             PutInt(uid.Revision);
             PutInt(uid.ID);
             return Offset;
         }
 
-        public int PutUID(ref ECS.UID uid) {
-            Prep(4, 4);
+        public int PutUID(ref ECS.UID uid, bool prep = true) {
+            if (prep) Prep(4, 4);
             PutInt(uid.Revision);
             PutInt(uid.ID);
             return Offset;
@@ -1465,40 +1465,40 @@ namespace FlatBuffers
                 if (type == typeUID) {
                     foreach (ECS.UID elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutUID(elem); // I don't want to, but I really don't know how to prevent it
+                        PutUID(elem,false); // I don't want to, but I really don't know how to prevent it
                     }
                 } 
                 else if (type == typeVector3) {
                     foreach (Vector3 elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutVector3(elem); // I don't want to, but I really don't know how to prevent it
+                        PutVector3(elem,false); // I don't want to, but I really don't know how to prevent it
                     }
                 } 
                 else if (type == typeQuaternion) {
                     foreach (Quaternion elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutQuaternion(elem);
+                        PutQuaternion(elem, false);
                     }
                 } else if (type == typeVector4) {
                     foreach (Vector4 elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutVector4(elem); 
+                        PutVector4(elem, false); 
                     }
                 } else if (type == typeVector2) {
                     foreach (Vector2 elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutVector2(elem); 
+                        PutVector2(elem, false); 
                     }
                 } else if (type == typeVector3) {
                     foreach (Vector3 elem in data) {
                         _space = spaceTemp -= elementSize;
-                        PutVector3(elem); // I don't want to, but I really don't know how to prevent it
+                        PutVector3(elem, false); // I don't want to, but I really don't know how to prevent it
                     }
                 } 
                 else if (typeIFBserializabel2Struct.IsAssignableFrom(type)) {
                     foreach (IFBSerializable2Struct elem in data) {
                         _space = spaceTemp -= elementSize;
-                        elem.Put(this); // I don't want to, but I really don't know how to prevent it
+                        elem.Put(this,false); 
                     }
                 }
                 else {
