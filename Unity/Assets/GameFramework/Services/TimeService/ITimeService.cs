@@ -88,6 +88,10 @@ namespace Service.TimeService {
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(TimerElement incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("Trying to merge from null! Type: TimerElement");
+                return;
+            }
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.info = incoming.info;

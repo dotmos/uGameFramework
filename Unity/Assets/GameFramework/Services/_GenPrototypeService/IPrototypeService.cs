@@ -135,9 +135,14 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("Trying to merge from null! Type: /*name:className*/SomeModel/*endname*/");
+                return;
+            }
             /*name:mergeDataInheritance*/ // /*endname*/ base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
-            /*block:MergeField*//*name:copyNonPersisted*/if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
+            /*block:MergeField*//*name:copyNonPersisted*/
+            if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
             /*endblock:MergeField*/
         }
 

@@ -134,6 +134,10 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(/*name:className*/SomeModel/*endname*/ incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                Debug.LogError("Trying to merge from null! Type: /*name:className*/SomeModel/*endname*/");
+                return;
+            }
             /*name:mergeDataInheritance*/ // /*endname*/ base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             /*block:MergeField*//*name:copyNonPersisted*/
@@ -636,7 +640,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_string*/
         /*block:d_typed_object*//*name:name*/typedObj1/*endname*/ = ser2table.GetReference</*name:type*/DefaultSerializable2/*endname*/> (/*name:fieldid*/0/*endname*/,dctx);
         /*endblock:d_typed_object*/
-        /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,ref /*name:name*/serObj/*endname*/,dctx);
+        /*block:d_object*//*name:name*/serObj/*endname*/ = ser2table.GetReference</*name:type*/SomeClazz2/*endname*/>(/*name:fieldid*/0/*endname*/,dctx);
         /*endblock:d_object*/
         /*block:d_special_object*/ser2table./*name|pre#Get:type*/GetUID/*endname*/(/*name:fieldid*/8/*endname*/,ref /*name:name*/testUID/*endname*/);
         /*endblock:d_special_object*/
@@ -648,17 +652,17 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_special_object_nullable*/
         /*block:d_struct*/ser2table.GetStruct(/*name:fieldid*/8/*endname*/, ref /*name:name*/serStruct/*endname*/);
         /*endblock:d_struct*/
-        /*block:d_list_primitive*/ser2table.GetPrimitiveList</*name:innertype*/int/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testListPrimitive/*endname*/);
+        /*block:d_list_primitive*//*name:name*/testListPrimitive/*endname*/=null;ser2table.GetPrimitiveList</*name:innertype*/int/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testListPrimitive/*endname*/);
         /*endblock:d_list_primitive*/
-        /*block:d_list_object*/ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
+        /*block:d_list_object*//*name:name*/objectList/*endname*/=null;ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
         /*endblock:d_list_object*/
-        /*block:d_list_struct*/ser2table.GetStructList(/*name:fieldid*/9/*endname*/, ref /*name:name*/structList/*endname*/);
+        /*block:d_list_struct*//*name:name*/structList/*endname*/=null;ser2table.GetStructList(/*name:fieldid*/9/*endname*/, ref /*name:name*/structList/*endname*/);
         /*endblock:d_list_struct*/
-        /*block:d_list_string*/ser2table.GetStringList(/*name:fieldid*/9/*endname*/, ref /*name:name*/testStringList/*endname*/);
+        /*block:d_list_string*//*name:name*/testStringList/*endname*/=null;ser2table.GetStringList(/*name:fieldid*/9/*endname*/, ref /*name:name*/testStringList/*endname*/);
         /*endblock:d_list_string*/
-        /*block:d_list_nested*/ser2table.GetList</*name:innertype*/List<int>/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testNestedList/*endname*/, dctx);
+        /*block:d_list_nested*//*name:name*/testNestedList/*endname*/=null;ser2table.GetList</*name:innertype*/List<int>/*endname*/>(/*name:fieldid*/9/*endname*/, ref /*name:name*/testNestedList/*endname*/, dctx);
         /*endblock:d_list_nested*/
-        /*block:d_dict*/ser2table.GetDictionary(/*name:fieldid*/9/*endname*/, ref /*name:name*/testDict/*endname*/, dctx);
+        /*block:d_dict*//*name:name*/testDict/*endname*/=null;ser2table.GetDictionary(/*name:fieldid*/9/*endname*/, ref /*name:name*/testDict/*endname*/, dctx);
         /*endblock:d_dict*/
         /*block:d_ref_offset*/ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
         /*endblock:d_ref_offset*/

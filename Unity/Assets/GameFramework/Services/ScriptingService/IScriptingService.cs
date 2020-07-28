@@ -239,6 +239,10 @@ namespace Service.Scripting {
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(ScriptingServiceData incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("Trying to merge from null! Type: ScriptingServiceData");
+                return;
+            }
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.replayScript = incoming.replayScript;
@@ -299,6 +303,10 @@ namespace Service.Scripting {
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(LuaCoroutine incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("Trying to merge from null! Type: LuaCoroutine");
+                return;
+            }
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.co = incoming.co;
