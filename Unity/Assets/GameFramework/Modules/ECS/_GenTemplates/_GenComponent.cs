@@ -664,9 +664,9 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_ref_offset*/
         /*name:ppe*/ }); /*endname*/
         /*endblock:dser_master*/
-        if (this is IFBPostDeserialization) {
-            dctx.AddOnPostDeserializationObject((IFBPostDeserialization)this);
-        }
+        //if (this is IFBPostDeserialization) {
+        //    dctx.AddOnPostDeserializationObject((IFBPostDeserialization)this);
+        //}
 
         //object data = null;
         //if (data is Serial.FBRef) {
