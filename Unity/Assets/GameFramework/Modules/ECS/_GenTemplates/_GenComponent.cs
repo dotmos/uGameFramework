@@ -664,7 +664,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_list_nested*/
         /*block:d_dict*//*name:name*/testDict/*endname*/=null;ser2table.GetDictionary(/*name:fieldid*/9/*endname*/, ref /*name:name*/testDict/*endname*/, dctx);
         /*endblock:d_dict*/
-        /*block:d_ref_offset*/ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
+        /*block:d_ref_offset*//*name:name*/objectList/*endname*/=null;ser2table.GetReference(/*name:fieldid*/9/*endname*/, ref /*name:name*/objectList/*endname*/,dctx);
         /*endblock:d_ref_offset*/
         /*name:ppe*/ }); /*endname*/
         /*endblock:dser_master*/
