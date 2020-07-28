@@ -456,6 +456,9 @@ namespace Service.Serializer {
             for (int i=0;i<amount;i++) {
                 T elem = dataList[i];
                 if (elem == null) {
+#if UNITY_EDITOR
+                    UnityEngine.Debug.LogError("CreateTypedList: You serializing a null element");
+#endif
                     listOfOffsets.Add(0);
                     listOfOffsets.Add(0);
                     continue;
