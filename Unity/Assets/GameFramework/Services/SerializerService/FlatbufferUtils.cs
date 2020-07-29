@@ -81,9 +81,9 @@ namespace Service.Serializer
         }
 
 
-        public int GetInt(int fbPos) {
+        public int GetInt(int fbPos,int defaultValue=0) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.bb.GetInt(o + __tbl.bb_pos) : 0;
+            return o != 0 ? __tbl.bb.GetInt(o + __tbl.bb_pos) : defaultValue;
         }
         public int? GetNullableInt(int fbPos) {
             int o = __tbl.__offset(4 + fbPos * 2);
@@ -97,9 +97,9 @@ namespace Service.Serializer
             __tbl.bb.PutInt(o + __tbl.bb_pos, value);
         }
 
-        public byte GetByte(int fbPos) {
+        public byte GetByte(int fbPos, byte defaultValue = 0) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.bb.Get(o + __tbl.bb_pos) : (byte)0;
+            return o != 0 ? __tbl.bb.Get(o + __tbl.bb_pos) : defaultValue;
         }
         public void MutateByte(int fbPos, byte value) {
             int o = __tbl.__offset(4 + fbPos * 2);
@@ -107,9 +107,9 @@ namespace Service.Serializer
             __tbl.bb.PutByte(o + __tbl.bb_pos, value);
         }
 
-        public short GetShort(int fbPos) {
+        public short GetShort(int fbPos, short defaultValue=0) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.bb.GetShort(o + __tbl.bb_pos) : (short)0;
+            return o != 0 ? __tbl.bb.GetShort(o + __tbl.bb_pos) : defaultValue;
         }
         public void MutateShort(int fbPos, short value) {
             int o = __tbl.__offset(4 + fbPos * 2);
@@ -117,18 +117,18 @@ namespace Service.Serializer
             __tbl.bb.PutShort(o + __tbl.bb_pos, value);
         }
 
-        public float GetFloat(int fbPos) {
+        public float GetFloat(int fbPos,float defaultValue=0.0f) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.bb.GetFloat(o + __tbl.bb_pos) : (float)0.0f;
+            return o != 0 ? __tbl.bb.GetFloat(o + __tbl.bb_pos) : defaultValue;
         }
         public void MutateFloat(int fbPos, float value) {
             int o = __tbl.__offset(4 + fbPos * 2);
             if (o == 0) return;
             __tbl.bb.PutFloat(o + __tbl.bb_pos, value);
         }
-        public bool GetBool(int fbPos) {
+        public bool GetBool(int fbPos,bool defaultValue=false) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? 0 != __tbl.bb.Get(o + __tbl.bb_pos) : (bool)false;
+            return o != 0 ? 0 != __tbl.bb.Get(o + __tbl.bb_pos) : defaultValue;
         }
 
         public void MutateBool(int fbPos, bool value) {
@@ -137,9 +137,9 @@ namespace Service.Serializer
 
             __tbl.bb.Put(o + __tbl.bb_pos, value ? (byte)1 : (byte)0);
         }
-        public long GetLong(int fbPos) {
+        public long GetLong(int fbPos,long defaultValue=0) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.bb.GetLong(o + __tbl.bb_pos) : (long)0;
+            return o != 0 ? __tbl.bb.GetLong(o + __tbl.bb_pos) : defaultValue;
         }
 
         public void MutateLong(int fbPos, long value) {
@@ -148,9 +148,9 @@ namespace Service.Serializer
             __tbl.bb.PutLong(o + __tbl.bb_pos, value);
         }
 
-        public string GetString(int fbPos) {
+        public string GetString(int fbPos,string defaultValue=null) {
             int o = __tbl.__offset(4 + fbPos * 2);
-            return o != 0 ? __tbl.__string(o + __tbl.bb_pos) : null;
+            return o != 0 ? __tbl.__string(o + __tbl.bb_pos) : defaultValue;
         }
 
         public string GetStringFromOffset(int offset,bool useDirectBuffer = false) {
