@@ -229,6 +229,10 @@ namespace Service.DevUIService {
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(DataBrowserTopLevel incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("Trying to merge from null! Type: DataBrowserTopLevel");
+                return;
+            }
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.topLevelName = incoming.topLevelName;
@@ -270,6 +274,10 @@ namespace Service.DevUIService {
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(HistoryElement incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("Trying to merge from null! Type: HistoryElement");
+                return;
+            }
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             if (!onlyCopyPersistedData) this.objectList = incoming.objectList;

@@ -111,6 +111,10 @@ namespace Service.GameStateService {
         /// <param name="incoming"></param>
         /// <param name="onlyCopyPersistedData"></param>
         public void MergeDataFrom(GSContext incoming, bool onlyCopyPersistedData = false) {
+            if (incoming == null) {
+                UnityEngine.Debug.LogError("Trying to merge from null! Type: GSContext");
+                return;
+            }
             // base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
             
