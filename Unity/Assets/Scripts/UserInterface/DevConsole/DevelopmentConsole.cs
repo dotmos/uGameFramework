@@ -22,7 +22,7 @@ namespace UserInterface {
         private int historyID = -1;
         private List<string> history = new List<string>();
         private string currentViewText = "";
-        private Service.Scripting.Commands.ExecuteStringOnMainScriptCommand executeLuaCmd = new Service.Scripting.Commands.ExecuteStringOnMainScriptCommand();
+        //private Service.Scripting.Commands.ExecuteStringOnMainScriptCommand executeLuaCmd = new Service.Scripting.Commands.ExecuteStringOnMainScriptCommand();
 
         private string scriptingPath = null;
         private float keyHeldTimer;
@@ -121,11 +121,11 @@ namespace UserInterface {
                 }
             }).AddTo(this);
 
-            Service.Scripting.Commands.GetMainScriptCommand cmdGetMainScript = new Service.Scripting.Commands.GetMainScriptCommand();
-            Publish(cmdGetMainScript);
-            cmdGetMainScript.result.Options.DebugPrint = (inputString) => {
+            var scriptService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+            scriptService.GetMainScript().Options.DebugPrint=(inputString) => {
                 AddToText(inputString);
             };
+
         }
 
         void OnEndEdit(string input) {
@@ -257,10 +257,11 @@ namespace UserInterface {
                 }
             } else {
                 currentViewText += input + "\n";
-                executeLuaCmd.luaCode = input;
-                Publish(executeLuaCmd);
-                if (executeLuaCmd.result != "void") {
-                    currentViewText += executeLuaCmd.result + "\n";
+                var scriptService = Kernel.Instance.Container.Resolve<Service.Scripting.IScriptingService>();
+                var result = scriptService.ExecuteStringOnMainScript(input);
+
+                if (result != "void") {
+                    currentViewText += result + "\n";
                 }
                 consoleText.text = currentViewText;
                 consoleInput.ActivateInputField();
@@ -276,7 +277,8 @@ namespace UserInterface {
         }
 
         public void CloseConsole() {
-            this.Publish(new Service.DevUIService.Commands.CloseScriptingConsoleCommand());
+            var devUIService = Kernel.Instance.Container.Resolve<Service.DevUIService.IDevUIService>();
+            devUIService.CloseScriptingConsole();
         }
     }
 }

@@ -79,9 +79,9 @@ namespace Service.DevUIService
 
         protected void ActivateDefaultScripting(string name) {
             try {
-                var cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-                Publish(cmdGetScript);
-                cmdGetScript.result.Globals[name] = this;
+                var scriptService = Kernel.Instance.Resolve<Service.Scripting.IScriptingService>();
+                var mainscript = scriptService.GetMainScript();
+                mainscript.Globals[name] = this;
             }
             catch (Exception e) {
                 UnityEngine.Debug.LogError("Error activating default scripting for Service.DevUIService with lua-name:" + name);

@@ -21,16 +21,16 @@ namespace Service.MemoryBrowserService{
 
         [Inject]
         void Initialize([Inject] IMemoryBrowserService service) {
-            _service = service;
-            
-            this.OnEvent<IsSimpleTypeCommand>().Subscribe(e => IsSimpleTypeCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CreateMemoryBrowserCommand>().Subscribe(e => CreateMemoryBrowserCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<GetBrowserCommand>().Subscribe(e => GetBrowserCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<rxGetAllBrowsersCommand>().Subscribe(e => rxGetAllBrowsersCommandHandler(e)).AddTo(this);
-
+//            _service = service;
+//            
+//            this.OnEvent<IsSimpleTypeCommand>().Subscribe(e => IsSimpleTypeCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<CreateMemoryBrowserCommand>().Subscribe(e => CreateMemoryBrowserCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetBrowserCommand>().Subscribe(e => GetBrowserCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<rxGetAllBrowsersCommand>().Subscribe(e => rxGetAllBrowsersCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -39,25 +39,25 @@ namespace Service.MemoryBrowserService{
         /// Is this obj a simple type? (int,float,bool,string). 
         /// </summary>
         
-        public class IsSimpleTypeCommand  {
-            public bool result;
-                        public object obj;
-            
-            
-        }
+//        public class IsSimpleTypeCommand  {
+//            public bool result;
+//                        public object obj;
+//            
+//            
+//        }
 
-		protected void IsSimpleTypeCommandHandler  (IsSimpleTypeCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("IsSimpleTypeCommand");
-#endif
-        
-            cmd.result = _service.IsSimpleType(cmd.obj);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("IsSimpleTypeCommand");
-#endif
-        }
+//		protected void IsSimpleTypeCommandHandler  (IsSimpleTypeCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("IsSimpleTypeCommand");
+//#endif
+//        
+//            cmd.result = _service.IsSimpleType(cmd.obj);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("IsSimpleTypeCommand");
+//#endif
+//        }
         
 
         
@@ -65,26 +65,26 @@ namespace Service.MemoryBrowserService{
         /// 
         /// </summary>
         
-        public class CreateMemoryBrowserCommand  {
-            public MemoryBrowser result;
-                        public string id;
-                        public object root;
-            
-            
-        }
+//        public class CreateMemoryBrowserCommand  {
+//            public MemoryBrowser result;
+//                        public string id;
+//                        public object root;
+//            
+//            
+//        }
 
-		protected void CreateMemoryBrowserCommandHandler  (CreateMemoryBrowserCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CreateMemoryBrowserCommand");
-#endif
-        
-            cmd.result = _service.CreateMemoryBrowser(cmd.id,cmd.root);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CreateMemoryBrowserCommand");
-#endif
-        }
+//		protected void CreateMemoryBrowserCommandHandler  (CreateMemoryBrowserCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CreateMemoryBrowserCommand");
+//#endif
+//        
+//            cmd.result = _service.CreateMemoryBrowser(cmd.id,cmd.root);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CreateMemoryBrowserCommand");
+//#endif
+//        }
         
 
         
@@ -92,25 +92,25 @@ namespace Service.MemoryBrowserService{
         /// Get Browser by name
         /// </summary>
         
-        public class GetBrowserCommand  {
-            public MemoryBrowser result;
-                        public string id;
-            
-            
-        }
+//        public class GetBrowserCommand  {
+//            public MemoryBrowser result;
+//                        public string id;
+//            
+//            
+//        }
 
-		protected void GetBrowserCommandHandler  (GetBrowserCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("GetBrowserCommand");
-#endif
-        
-            cmd.result = _service.GetBrowser(cmd.id);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("GetBrowserCommand");
-#endif
-        }
+//		protected void GetBrowserCommandHandler  (GetBrowserCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetBrowserCommand");
+//#endif
+//        
+//            cmd.result = _service.GetBrowser(cmd.id);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetBrowserCommand");
+//#endif
+//        }
         
 
         
@@ -118,24 +118,24 @@ namespace Service.MemoryBrowserService{
         /// Get Reactive Dictionary with a memory-browsers(key=name value=MemoryBrowser)
         /// </summary>
         
-        public class rxGetAllBrowsersCommand  {
-            public ReactiveDictionary<string, MemoryBrowser> result;
-            
-            
-        }
+//        public class rxGetAllBrowsersCommand  {
+//            public ReactiveDictionary<string, MemoryBrowser> result;
+//            
+//            
+//        }
 
-		protected void rxGetAllBrowsersCommandHandler  (rxGetAllBrowsersCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("rxGetAllBrowsersCommand");
-#endif
-        
-            cmd.result = _service.rxGetAllBrowsers();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("rxGetAllBrowsersCommand");
-#endif
-        }
+//		protected void rxGetAllBrowsersCommandHandler  (rxGetAllBrowsersCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("rxGetAllBrowsersCommand");
+//#endif
+//        
+//            cmd.result = _service.rxGetAllBrowsers();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("rxGetAllBrowsersCommand");
+//#endif
+//        }
         
     }
 
@@ -143,7 +143,7 @@ namespace Service.MemoryBrowserService{
     public class CommandsInstaller : Installer<CommandsInstaller>{
         public override void InstallBindings()
         {
-            Commands cmds = Container.Instantiate<Commands>();
+//            Commands cmds = Container.Instantiate<Commands>();
             // commented out due to zenject update (26.06.18)
             //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }

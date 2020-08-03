@@ -18,16 +18,16 @@ namespace Service.AsyncManager{
 
         [Inject]
         void Initialize([Inject] IAsyncManager service) {
-            _service = service;
-            
-            this.OnEvent<AddToMainThreadCommand>().Subscribe(e => AddToMainThreadCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<AddToWorkerThreadCommand>().Subscribe(e => AddToWorkerThreadCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CallCommand>().Subscribe(e => CallCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<DisposeThreadsCommand>().Subscribe(e => DisposeThreadsCommandHandler(e)).AddTo(this);
-
+//            _service = service;
+//            
+//            this.OnEvent<AddToMainThreadCommand>().Subscribe(e => AddToMainThreadCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<AddToWorkerThreadCommand>().Subscribe(e => AddToWorkerThreadCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<CallCommand>().Subscribe(e => CallCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<DisposeThreadsCommand>().Subscribe(e => DisposeThreadsCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -36,54 +36,26 @@ namespace Service.AsyncManager{
         /// 
         /// </summary>
         
-        public class AddToMainThreadCommand  {
-            public AsyncFuture result;
-                        public Action act;
-                        public bool global=false;
-            
-            
-        }
+//        public class AddToMainThreadCommand  {
+//            public AsyncFuture result;
+//                        public Action act;
+//                        public bool global=false;
+//            
+//            
+//        }
 
-		protected void AddToMainThreadCommandHandler  (AddToMainThreadCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("AddToMainThreadCommand");
-#endif
-        
-            cmd.result = _service.AddToMainThread(cmd.act,cmd.global);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("AddToMainThreadCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class AddToWorkerThreadCommand  {
-            public AsyncFuture result;
-                        public Action act;
-                        public Action onFinished;
-                        public bool global=false;
-            
-            
-        }
-
-		protected void AddToWorkerThreadCommandHandler  (AddToWorkerThreadCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("AddToWorkerThreadCommand");
-#endif
-        
-            cmd.result = _service.AddToWorkerThread(cmd.act,cmd.onFinished,cmd.global);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("AddToWorkerThreadCommand");
-#endif
-        }
+//		protected void AddToMainThreadCommandHandler  (AddToMainThreadCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("AddToMainThreadCommand");
+//#endif
+//        
+//            cmd.result = _service.AddToMainThread(cmd.act,cmd.global);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("AddToMainThreadCommand");
+//#endif
+//        }
         
 
         
@@ -91,27 +63,27 @@ namespace Service.AsyncManager{
         /// 
         /// </summary>
         
-        public class CallCommand  {
-            public AsyncFuture result;
-                        public Action act;
-                        public bool usingCoroutine;
-                        public bool global=false;
-            
-            
-        }
+//        public class AddToWorkerThreadCommand  {
+//            public AsyncFuture result;
+//                        public Action act;
+//                        public Action onFinished;
+//                        public bool global=false;
+//            
+//            
+//        }
 
-		protected void CallCommandHandler  (CallCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CallCommand");
-#endif
-        
-            cmd.result = _service.Call(cmd.act,cmd.usingCoroutine,cmd.global);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CallCommand");
-#endif
-        }
+//		protected void AddToWorkerThreadCommandHandler  (AddToWorkerThreadCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("AddToWorkerThreadCommand");
+//#endif
+//        
+//            cmd.result = _service.AddToWorkerThread(cmd.act,cmd.onFinished,cmd.global);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("AddToWorkerThreadCommand");
+//#endif
+//        }
         
 
         
@@ -119,23 +91,51 @@ namespace Service.AsyncManager{
         /// 
         /// </summary>
         
-        public class DisposeThreadsCommand  {
-            public bool onlyNonGlobals=false;
-            
-            
-        }
+//        public class CallCommand  {
+//            public AsyncFuture result;
+//                        public Action act;
+//                        public bool usingCoroutine;
+//                        public bool global=false;
+//            
+//            
+//        }
 
-		protected void DisposeThreadsCommandHandler  (DisposeThreadsCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("DisposeThreadsCommand");
-#endif
-        _service.DisposeThreads(cmd.onlyNonGlobals);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("DisposeThreadsCommand");
-#endif
-        }
+//		protected void CallCommandHandler  (CallCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CallCommand");
+//#endif
+//        
+//            cmd.result = _service.Call(cmd.act,cmd.usingCoroutine,cmd.global);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CallCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class DisposeThreadsCommand  {
+//            public bool onlyNonGlobals=false;
+//            
+//            
+//        }
+
+//		protected void DisposeThreadsCommandHandler  (DisposeThreadsCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("DisposeThreadsCommand");
+//#endif
+//        _service.DisposeThreads(cmd.onlyNonGlobals);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("DisposeThreadsCommand");
+//#endif
+//        }
         
     }
 
@@ -143,7 +143,7 @@ namespace Service.AsyncManager{
     public class CommandsInstaller : Installer<CommandsInstaller>{
         public override void InstallBindings()
         {
-            Commands cmds = Container.Instantiate<Commands>();
+//            Commands cmds = Container.Instantiate<Commands>();
             // commented out due to zenject update (26.06.18)
             //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }

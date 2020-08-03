@@ -13,8 +13,6 @@ namespace Service.PerformanceTest {
     partial class PerformanceTestServiceImpl : PerformanceTestServiceBase
     {
         protected override void InitAPI() {
-            Scripting.Commands.GetMainScriptCommand cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-            Publish(cmdGetScript);
             
             //For manual/custom scripting uncomment following lines and comment DefaultScripting
             

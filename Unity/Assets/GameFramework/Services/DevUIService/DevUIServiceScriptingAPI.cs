@@ -12,11 +12,10 @@ namespace Service.DevUIService {
     partial class DevUIServiceImpl : DevUIServiceBase
     {
         protected override void InitAPI() {
-            Scripting.Commands.GetMainScriptCommand cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-            Publish(cmdGetScript);
-            API api = new API(this);
+            var scriptService = Kernel.Instance.Resolve<Service.Scripting.IScriptingService>();
+            var mainscript = scriptService.GetMainScript(); API api = new API(this);
             Kernel.Instance.Inject(api);
-            cmdGetScript.result.Globals["testValue"] = 95;
+            mainscript.Globals["testValue"] = 95;
 
             ActivateDefaultScripting("DevUIService");
         }

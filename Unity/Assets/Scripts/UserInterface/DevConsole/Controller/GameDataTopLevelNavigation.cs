@@ -12,7 +12,7 @@ namespace UserInterface {
         public GMTab tabTemplate;
         public GameDataBreadcrumpNavigation breadcrumpNavigation;
 
-        Commands.GetDataBrowserTopLevelElementsCommand getTopLevels = new Commands.GetDataBrowserTopLevelElementsCommand();
+        //Commands.GetDataBrowserTopLevelElementsCommand getTopLevels = new Commands.GetDataBrowserTopLevelElementsCommand();
 
         Dictionary<DataBrowserTopLevel, GMTab> tabs = new Dictionary<DataBrowserTopLevel, GMTab>();
 
@@ -38,13 +38,15 @@ namespace UserInterface {
 
         void Initialize() {
             //Get top levels
-            this.Publish(getTopLevels);
+            IDevUIService devUIService = Kernel.Instance.Container.Resolve<Service.DevUIService.IDevUIService>();
+            var topLevels = devUIService.GetDataBrowserTopLevelElements();
 
-            List<DataBrowserTopLevel> tabsToRemove = new List<DataBrowserTopLevel>();
+            List < DataBrowserTopLevel> tabsToRemove = new List<DataBrowserTopLevel>();
+
 
             //Destroy unneeded toplevels
             foreach(KeyValuePair<DataBrowserTopLevel, GMTab> tab in tabs) {
-                if (!getTopLevels.result.Contains(tab.Key)) {
+                if (!topLevels.Contains(tab.Key)) {
                     tabbar.RemoveTab(tab.Value, true);
                     tabsToRemove.Add(tab.Key);
                 }
@@ -56,7 +58,7 @@ namespace UserInterface {
             }
 
             //Spawn missing
-            foreach (DataBrowserTopLevel topLevel in getTopLevels.result) {
+            foreach (DataBrowserTopLevel topLevel in topLevels) {
                 if (!tabs.ContainsKey(topLevel)) {
                     SpawnTopLevelTab(topLevel);
                 }

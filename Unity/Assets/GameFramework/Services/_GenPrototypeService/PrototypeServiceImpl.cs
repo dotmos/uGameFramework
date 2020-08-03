@@ -3,6 +3,7 @@ using Zenject;
 using UniRx;
 using FlatBuffers;
 using System;
+using Service.Scripting;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
 /*block:impl*/
@@ -29,14 +30,14 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     partial class /*name:implName*/PrototypeServiceImpl/*endname*/ : /*name:serviceName*/PrototypeService/*endname*/
     {
         protected override void InitAPI() {
-            var cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-            Publish(cmdGetScript);
-            
+
+
             //For manual/custom scripting uncomment following lines and comment DefaultScripting
-            
+            //var scriptService = Kernel.Instance.Resolve<IScriptingService>();
             //var api = new API(this);
             //Kernel.Instance.Inject(api);
-            //cmdGetScript.result.Globals[/*name|dq:scriptName*/"GS"/*endname*/] = api;
+            //var mainscript = scriptService.GetMainScript();
+            //mainscript.Globals[/*name|dq:scriptName*/"GS"/*endname*/] = api;
             ActivateDefaultScripting(/*name|dq:scriptName*/"GS"/*endname*/);
         }
 
