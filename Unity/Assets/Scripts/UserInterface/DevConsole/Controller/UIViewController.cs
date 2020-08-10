@@ -115,7 +115,7 @@ namespace UserInterface {
         void ApplyAllAndClose() {
             ApplyAll();
 
-            this.Publish(new Service.DevUIService.Commands.CloseScriptingConsoleCommand());
+            Kernel.Instance.Container.Resolve<Service.DevUIService.IDevUIService>().CloseScriptingConsole();
         }
 
         void AddLuaButton() {

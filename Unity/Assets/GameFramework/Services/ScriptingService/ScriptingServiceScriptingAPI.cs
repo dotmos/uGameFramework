@@ -12,11 +12,11 @@ namespace Service.Scripting {
     partial class ScriptingServiceImpl : ScriptingServiceBase
     {
         protected override void InitAPI() {
-            Commands.GetMainScriptCommand cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-            Publish(cmdGetScript);
+            var scriptService = Kernel.Instance.Resolve<Service.Scripting.IScriptingService>();
+            var mainscript = scriptService.GetMainScript();
             API api = new API(this);
             Kernel.Instance.Inject(api);
-            Script script = cmdGetScript.result;
+            Script script = mainscript;
 
             string scriptCode = @"
                 print('lua-lib start')

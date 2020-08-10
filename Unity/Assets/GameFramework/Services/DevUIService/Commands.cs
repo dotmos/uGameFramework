@@ -22,50 +22,50 @@ namespace Service.DevUIService{
 
         [Inject]
         void Initialize([Inject] IDevUIService service) {
-            _service = service;
-            
-            this.OnEvent<GetRxViewsCommand>().Subscribe(e => GetRxViewsCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CreateViewCommand>().Subscribe(e => CreateViewCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<GetViewCommand>().Subscribe(e => GetViewCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<ViewNameExistsCommand>().Subscribe(e => ViewNameExistsCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<RemoveViewFromModelCommand>().Subscribe(e => RemoveViewFromModelCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<RemoveViewToArchieveCommand>().Subscribe(e => RemoveViewToArchieveCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<LoadViewsCommand>().Subscribe(e => LoadViewsCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<SaveViewsCommand>().Subscribe(e => SaveViewsCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<WriteToScriptingConsoleCommand>().Subscribe(e => WriteToScriptingConsoleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<OpenScriptingConsoleCommand>().Subscribe(e => OpenScriptingConsoleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CloseScriptingConsoleCommand>().Subscribe(e => CloseScriptingConsoleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<ToggleScriptingConsoleCommand>().Subscribe(e => ToggleScriptingConsoleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<IsScriptingConsoleVisibleCommand>().Subscribe(e => IsScriptingConsoleVisibleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<StartPickingEntityCommand>().Subscribe(e => StartPickingEntityCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CreateViewFromEntityCommand>().Subscribe(e => CreateViewFromEntityCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CreateViewFromPOCOCommand>().Subscribe(e => CreateViewFromPOCOCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<CreateDataBrowserTopLevelElementCommand>().Subscribe(e => CreateDataBrowserTopLevelElementCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<GetDataBrowserTopLevelElementsCommand>().Subscribe(e => GetDataBrowserTopLevelElementsCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<AddDataBrowserObjectConverterCommand>().Subscribe(e => AddDataBrowserObjectConverterCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<DataBrowserConvertObjectCommand>().Subscribe(e => DataBrowserConvertObjectCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<OutputGameInfoCommand>().Subscribe(e => OutputGameInfoCommandHandler(e)).AddTo(this);
-
+//            _service = service;
+//            
+//            this.OnEvent<GetRxViewsCommand>().Subscribe(e => GetRxViewsCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<CreateViewCommand>().Subscribe(e => CreateViewCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetViewCommand>().Subscribe(e => GetViewCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<ViewNameExistsCommand>().Subscribe(e => ViewNameExistsCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<RemoveViewFromModelCommand>().Subscribe(e => RemoveViewFromModelCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<RemoveViewToArchieveCommand>().Subscribe(e => RemoveViewToArchieveCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<LoadViewsCommand>().Subscribe(e => LoadViewsCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<SaveViewsCommand>().Subscribe(e => SaveViewsCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<WriteToScriptingConsoleCommand>().Subscribe(e => WriteToScriptingConsoleCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<OpenScriptingConsoleCommand>().Subscribe(e => OpenScriptingConsoleCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<CloseScriptingConsoleCommand>().Subscribe(e => CloseScriptingConsoleCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<ToggleScriptingConsoleCommand>().Subscribe(e => ToggleScriptingConsoleCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<IsScriptingConsoleVisibleCommand>().Subscribe(e => IsScriptingConsoleVisibleCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<StartPickingEntityCommand>().Subscribe(e => StartPickingEntityCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<CreateViewFromEntityCommand>().Subscribe(e => CreateViewFromEntityCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<CreateViewFromPOCOCommand>().Subscribe(e => CreateViewFromPOCOCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<CreateDataBrowserTopLevelElementCommand>().Subscribe(e => CreateDataBrowserTopLevelElementCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetDataBrowserTopLevelElementsCommand>().Subscribe(e => GetDataBrowserTopLevelElementsCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<AddDataBrowserObjectConverterCommand>().Subscribe(e => AddDataBrowserObjectConverterCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<DataBrowserConvertObjectCommand>().Subscribe(e => DataBrowserConvertObjectCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<OutputGameInfoCommand>().Subscribe(e => OutputGameInfoCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -74,24 +74,24 @@ namespace Service.DevUIService{
         /// Get ReaciveDictionar of all views
         /// </summary>
         
-        public class GetRxViewsCommand  {
-            public ReactiveCollection<DevUIView> result;
-            
-            
-        }
+//        public class GetRxViewsCommand  {
+//            public ReactiveCollection<DevUIView> result;
+//            
+//            
+//        }
 
-		protected void GetRxViewsCommandHandler  (GetRxViewsCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("GetRxViewsCommand");
-#endif
-        
-            cmd.result = _service.GetRxViews();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("GetRxViewsCommand");
-#endif
-        }
+//		protected void GetRxViewsCommandHandler  (GetRxViewsCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetRxViewsCommand");
+//#endif
+//        
+//            cmd.result = _service.GetRxViews();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetRxViewsCommand");
+//#endif
+//        }
         
 
         
@@ -99,27 +99,27 @@ namespace Service.DevUIService{
         /// Add/Create view with name
         /// </summary>
         
-        public class CreateViewCommand  {
-            public DevUIView result;
-                        public string viewName;
-                        public bool dynamicallyCreated=false;
-                        public bool extensionAllowed=true;
-            
-            
-        }
+//        public class CreateViewCommand  {
+//            public DevUIView result;
+//                        public string viewName;
+//                        public bool dynamicallyCreated=false;
+//                        public bool extensionAllowed=true;
+//            
+//            
+//        }
 
-		protected void CreateViewCommandHandler  (CreateViewCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CreateViewCommand");
-#endif
-        
-            cmd.result = _service.CreateView(cmd.viewName,cmd.dynamicallyCreated,cmd.extensionAllowed);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CreateViewCommand");
-#endif
-        }
+//		protected void CreateViewCommandHandler  (CreateViewCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CreateViewCommand");
+//#endif
+//        
+//            cmd.result = _service.CreateView(cmd.viewName,cmd.dynamicallyCreated,cmd.extensionAllowed);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CreateViewCommand");
+//#endif
+//        }
         
 
         
@@ -127,25 +127,25 @@ namespace Service.DevUIService{
         /// Get a view by name
         /// </summary>
         
-        public class GetViewCommand  {
-            public DevUIView result;
-                        public string viewName;
-            
-            
-        }
+//        public class GetViewCommand  {
+//            public DevUIView result;
+//                        public string viewName;
+//            
+//            
+//        }
 
-		protected void GetViewCommandHandler  (GetViewCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("GetViewCommand");
-#endif
-        
-            cmd.result = _service.GetView(cmd.viewName);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("GetViewCommand");
-#endif
-        }
+//		protected void GetViewCommandHandler  (GetViewCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetViewCommand");
+//#endif
+//        
+//            cmd.result = _service.GetView(cmd.viewName);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetViewCommand");
+//#endif
+//        }
         
 
         
@@ -153,25 +153,25 @@ namespace Service.DevUIService{
         /// Check if view already exists
         /// </summary>
         
-        public class ViewNameExistsCommand  {
-            public bool result;
-                        public string viewName;
-            
-            
-        }
+//        public class ViewNameExistsCommand  {
+//            public bool result;
+//                        public string viewName;
+//            
+//            
+//        }
 
-		protected void ViewNameExistsCommandHandler  (ViewNameExistsCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("ViewNameExistsCommand");
-#endif
-        
-            cmd.result = _service.ViewNameExists(cmd.viewName);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("ViewNameExistsCommand");
-#endif
-        }
+//		protected void ViewNameExistsCommandHandler  (ViewNameExistsCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("ViewNameExistsCommand");
+//#endif
+//        
+//            cmd.result = _service.ViewNameExists(cmd.viewName);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("ViewNameExistsCommand");
+//#endif
+//        }
         
 
         
@@ -179,23 +179,23 @@ namespace Service.DevUIService{
         /// Remove View from data model
         /// </summary>
         
-        public class RemoveViewFromModelCommand  {
-            public DevUIView view;
-            
-            
-        }
+//        public class RemoveViewFromModelCommand  {
+//            public DevUIView view;
+//            
+//            
+//        }
 
-		protected void RemoveViewFromModelCommandHandler  (RemoveViewFromModelCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("RemoveViewFromModelCommand");
-#endif
-        _service.RemoveViewFromModel(cmd.view);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("RemoveViewFromModelCommand");
-#endif
-        }
+//		protected void RemoveViewFromModelCommandHandler  (RemoveViewFromModelCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RemoveViewFromModelCommand");
+//#endif
+//        _service.RemoveViewFromModel(cmd.view);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RemoveViewFromModelCommand");
+//#endif
+//        }
         
 
         
@@ -203,23 +203,23 @@ namespace Service.DevUIService{
         /// Remove View from views-folder and put it to the archieve-folder
         /// </summary>
         
-        public class RemoveViewToArchieveCommand  {
-            public DevUIView view;
-            
-            
-        }
+//        public class RemoveViewToArchieveCommand  {
+//            public DevUIView view;
+//            
+//            
+//        }
 
-		protected void RemoveViewToArchieveCommandHandler  (RemoveViewToArchieveCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("RemoveViewToArchieveCommand");
-#endif
-        _service.RemoveViewToArchieve(cmd.view);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("RemoveViewToArchieveCommand");
-#endif
-        }
+//		protected void RemoveViewToArchieveCommandHandler  (RemoveViewToArchieveCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RemoveViewToArchieveCommand");
+//#endif
+//        _service.RemoveViewToArchieve(cmd.view);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RemoveViewToArchieveCommand");
+//#endif
+//        }
         
 
         
@@ -227,24 +227,24 @@ namespace Service.DevUIService{
         /// Load views from views-folder
         /// </summary>
         
-        public class LoadViewsCommand  {
-            public IObservable<float> result;
-            
-            
-        }
+//        public class LoadViewsCommand  {
+//            public IObservable<float> result;
+//            
+//            
+//        }
 
-		protected void LoadViewsCommandHandler  (LoadViewsCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("LoadViewsCommand");
-#endif
-        
-            cmd.result = _service.LoadViews();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("LoadViewsCommand");
-#endif
-        }
+//		protected void LoadViewsCommandHandler  (LoadViewsCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("LoadViewsCommand");
+//#endif
+//        
+//            cmd.result = _service.LoadViews();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("LoadViewsCommand");
+//#endif
+//        }
         
 
         
@@ -252,22 +252,22 @@ namespace Service.DevUIService{
         /// Save views and its dynamically created elements
         /// </summary>
         
-        public class SaveViewsCommand  {
+//        public class SaveViewsCommand  {
+//
+//            
+//        }
 
-            
-        }
-
-		protected void SaveViewsCommandHandler  (SaveViewsCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("SaveViewsCommand");
-#endif
-        _service.SaveViews();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("SaveViewsCommand");
-#endif
-        }
+//		protected void SaveViewsCommandHandler  (SaveViewsCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("SaveViewsCommand");
+//#endif
+//        _service.SaveViews();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("SaveViewsCommand");
+//#endif
+//        }
         
 
         
@@ -275,23 +275,23 @@ namespace Service.DevUIService{
         /// Output to console
         /// </summary>
         
-        public class WriteToScriptingConsoleCommand  {
-            public string text;
-            
-            
-        }
+//        public class WriteToScriptingConsoleCommand  {
+//            public string text;
+//            
+//            
+//        }
 
-		protected void WriteToScriptingConsoleCommandHandler  (WriteToScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("WriteToScriptingConsoleCommand");
-#endif
-        _service.WriteToScriptingConsole(cmd.text);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("WriteToScriptingConsoleCommand");
-#endif
-        }
+//		protected void WriteToScriptingConsoleCommandHandler  (WriteToScriptingConsoleCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("WriteToScriptingConsoleCommand");
+//#endif
+//        _service.WriteToScriptingConsole(cmd.text);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("WriteToScriptingConsoleCommand");
+//#endif
+//        }
         
 
         
@@ -299,22 +299,22 @@ namespace Service.DevUIService{
         /// Open the console
         /// </summary>
         
-        public class OpenScriptingConsoleCommand  {
+//        public class OpenScriptingConsoleCommand  {
+//
+//            
+//        }
 
-            
-        }
-
-		protected void OpenScriptingConsoleCommandHandler  (OpenScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("OpenScriptingConsoleCommand");
-#endif
-        _service.OpenScriptingConsole();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("OpenScriptingConsoleCommand");
-#endif
-        }
+//		protected void OpenScriptingConsoleCommandHandler  (OpenScriptingConsoleCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("OpenScriptingConsoleCommand");
+//#endif
+//        _service.OpenScriptingConsole();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("OpenScriptingConsoleCommand");
+//#endif
+//        }
         
 
         
@@ -322,22 +322,22 @@ namespace Service.DevUIService{
         /// Close the console
         /// </summary>
         
-        public class CloseScriptingConsoleCommand  {
+//        public class CloseScriptingConsoleCommand  {
+//
+//            
+//        }
 
-            
-        }
-
-		protected void CloseScriptingConsoleCommandHandler  (CloseScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CloseScriptingConsoleCommand");
-#endif
-        _service.CloseScriptingConsole();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CloseScriptingConsoleCommand");
-#endif
-        }
+//		protected void CloseScriptingConsoleCommandHandler  (CloseScriptingConsoleCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CloseScriptingConsoleCommand");
+//#endif
+//        _service.CloseScriptingConsole();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CloseScriptingConsoleCommand");
+//#endif
+//        }
         
 
         
@@ -345,22 +345,22 @@ namespace Service.DevUIService{
         /// Toggle the console visibility
         /// </summary>
         
-        public class ToggleScriptingConsoleCommand  {
+//        public class ToggleScriptingConsoleCommand  {
+//
+//            
+//        }
 
-            
-        }
-
-		protected void ToggleScriptingConsoleCommandHandler  (ToggleScriptingConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("ToggleScriptingConsoleCommand");
-#endif
-        _service.ToggleScriptingConsole();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("ToggleScriptingConsoleCommand");
-#endif
-        }
+//		protected void ToggleScriptingConsoleCommandHandler  (ToggleScriptingConsoleCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("ToggleScriptingConsoleCommand");
+//#endif
+//        _service.ToggleScriptingConsole();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("ToggleScriptingConsoleCommand");
+//#endif
+//        }
         
 
         
@@ -368,24 +368,24 @@ namespace Service.DevUIService{
         /// Check if console is visible at the moment
         /// </summary>
         
-        public class IsScriptingConsoleVisibleCommand  {
-            public bool result;
-            
-            
-        }
+//        public class IsScriptingConsoleVisibleCommand  {
+//            public bool result;
+//            
+//            
+//        }
 
-		protected void IsScriptingConsoleVisibleCommandHandler  (IsScriptingConsoleVisibleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("IsScriptingConsoleVisibleCommand");
-#endif
-        
-            cmd.result = _service.IsScriptingConsoleVisible();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("IsScriptingConsoleVisibleCommand");
-#endif
-        }
+//		protected void IsScriptingConsoleVisibleCommandHandler  (IsScriptingConsoleVisibleCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("IsScriptingConsoleVisibleCommand");
+//#endif
+//        
+//            cmd.result = _service.IsScriptingConsoleVisible();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("IsScriptingConsoleVisibleCommand");
+//#endif
+//        }
         
 
         
@@ -393,49 +393,22 @@ namespace Service.DevUIService{
         /// Start entity picking mode
         /// </summary>
         
-        public class StartPickingEntityCommand  {
+//        public class StartPickingEntityCommand  {
+//
+//            
+//        }
 
-            
-        }
-
-		protected void StartPickingEntityCommandHandler  (StartPickingEntityCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("StartPickingEntityCommand");
-#endif
-        _service.StartPickingEntity();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("StartPickingEntityCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class CreateViewFromEntityCommand  {
-            public DevUIView result;
-                        public UID entity;
-                        public string name="";
-            
-            
-        }
-
-		protected void CreateViewFromEntityCommandHandler  (CreateViewFromEntityCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CreateViewFromEntityCommand");
-#endif
-        
-            cmd.result = _service.CreateViewFromEntity(cmd.entity,cmd.name);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CreateViewFromEntityCommand");
-#endif
-        }
+//		protected void StartPickingEntityCommandHandler  (StartPickingEntityCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("StartPickingEntityCommand");
+//#endif
+//        _service.StartPickingEntity();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("StartPickingEntityCommand");
+//#endif
+//        }
         
 
         
@@ -443,51 +416,26 @@ namespace Service.DevUIService{
         /// 
         /// </summary>
         
-        public class CreateViewFromPOCOCommand  {
-            public DevUIView result;
-                        public object entity;
-                        public string name;
-            
-            
-        }
+//        public class CreateViewFromEntityCommand  {
+//            public DevUIView result;
+//                        public UID entity;
+//                        public string name="";
+//            
+//            
+//        }
 
-		protected void CreateViewFromPOCOCommandHandler  (CreateViewFromPOCOCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CreateViewFromPOCOCommand");
-#endif
-        
-            cmd.result = _service.CreateViewFromPOCO(cmd.entity,cmd.name);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CreateViewFromPOCOCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class CreateDataBrowserTopLevelElementCommand  {
-            public string name;
-                        public System.Collections.IList objectList;
-            
-            
-        }
-
-		protected void CreateDataBrowserTopLevelElementCommandHandler  (CreateDataBrowserTopLevelElementCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CreateDataBrowserTopLevelElementCommand");
-#endif
-        _service.CreateDataBrowserTopLevelElement(cmd.name,cmd.objectList);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CreateDataBrowserTopLevelElementCommand");
-#endif
-        }
+//		protected void CreateViewFromEntityCommandHandler  (CreateViewFromEntityCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CreateViewFromEntityCommand");
+//#endif
+//        
+//            cmd.result = _service.CreateViewFromEntity(cmd.entity,cmd.name);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CreateViewFromEntityCommand");
+//#endif
+//        }
         
 
         
@@ -495,24 +443,76 @@ namespace Service.DevUIService{
         /// 
         /// </summary>
         
-        public class GetDataBrowserTopLevelElementsCommand  {
-            public List<DataBrowserTopLevel> result;
-            
-            
-        }
+//        public class CreateViewFromPOCOCommand  {
+//            public DevUIView result;
+//                        public object entity;
+//                        public string name;
+//            
+//            
+//        }
 
-		protected void GetDataBrowserTopLevelElementsCommandHandler  (GetDataBrowserTopLevelElementsCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("GetDataBrowserTopLevelElementsCommand");
-#endif
+//		protected void CreateViewFromPOCOCommandHandler  (CreateViewFromPOCOCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CreateViewFromPOCOCommand");
+//#endif
+//        
+//            cmd.result = _service.CreateViewFromPOCO(cmd.entity,cmd.name);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CreateViewFromPOCOCommand");
+//#endif
+//        }
         
-            cmd.result = _service.GetDataBrowserTopLevelElements();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("GetDataBrowserTopLevelElementsCommand");
-#endif
-        }
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class CreateDataBrowserTopLevelElementCommand  {
+//            public string name;
+//                        public System.Collections.IList objectList;
+//            
+//            
+//        }
+
+//		protected void CreateDataBrowserTopLevelElementCommandHandler  (CreateDataBrowserTopLevelElementCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CreateDataBrowserTopLevelElementCommand");
+//#endif
+//        _service.CreateDataBrowserTopLevelElement(cmd.name,cmd.objectList);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CreateDataBrowserTopLevelElementCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class GetDataBrowserTopLevelElementsCommand  {
+//            public List<DataBrowserTopLevel> result;
+//            
+//            
+//        }
+
+//		protected void GetDataBrowserTopLevelElementsCommandHandler  (GetDataBrowserTopLevelElementsCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetDataBrowserTopLevelElementsCommand");
+//#endif
+//        
+//            cmd.result = _service.GetDataBrowserTopLevelElements();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetDataBrowserTopLevelElementsCommand");
+//#endif
+//        }
         
 
         
@@ -520,24 +520,24 @@ namespace Service.DevUIService{
         /// map one object type to another
         /// </summary>
         
-        public class AddDataBrowserObjectConverterCommand  {
-            public Type objType;
-                        public Func<object,object> converter;
-            
-            
-        }
+//        public class AddDataBrowserObjectConverterCommand  {
+//            public Type objType;
+//                        public Func<object,object> converter;
+//            
+//            
+//        }
 
-		protected void AddDataBrowserObjectConverterCommandHandler  (AddDataBrowserObjectConverterCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("AddDataBrowserObjectConverterCommand");
-#endif
-        _service.AddDataBrowserObjectConverter(cmd.objType,cmd.converter);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("AddDataBrowserObjectConverterCommand");
-#endif
-        }
+//		protected void AddDataBrowserObjectConverterCommandHandler  (AddDataBrowserObjectConverterCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("AddDataBrowserObjectConverterCommand");
+//#endif
+//        _service.AddDataBrowserObjectConverter(cmd.objType,cmd.converter);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("AddDataBrowserObjectConverterCommand");
+//#endif
+//        }
         
 
         
@@ -545,25 +545,25 @@ namespace Service.DevUIService{
         /// try to convert the inObject, if no conversion is possible return the inObject
         /// </summary>
         
-        public class DataBrowserConvertObjectCommand  {
-            public object result;
-                        public object inObject;
-            
-            
-        }
+//        public class DataBrowserConvertObjectCommand  {
+//            public object result;
+//                        public object inObject;
+//            
+//            
+//        }
 
-		protected void DataBrowserConvertObjectCommandHandler  (DataBrowserConvertObjectCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("DataBrowserConvertObjectCommand");
-#endif
-        
-            cmd.result = _service.DataBrowserConvertObject(cmd.inObject);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("DataBrowserConvertObjectCommand");
-#endif
-        }
+//		protected void DataBrowserConvertObjectCommandHandler  (DataBrowserConvertObjectCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("DataBrowserConvertObjectCommand");
+//#endif
+//        
+//            cmd.result = _service.DataBrowserConvertObject(cmd.inObject);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("DataBrowserConvertObjectCommand");
+//#endif
+//        }
         
 
         
@@ -571,23 +571,23 @@ namespace Service.DevUIService{
         /// 
         /// </summary>
         
-        public class OutputGameInfoCommand  {
-            public float systemStartupTime;
-            
-            
-        }
+//        public class OutputGameInfoCommand  {
+//            public float systemStartupTime;
+//            
+//            
+//        }
 
-		protected void OutputGameInfoCommandHandler  (OutputGameInfoCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("OutputGameInfoCommand");
-#endif
-        _service.OutputGameInfo(cmd.systemStartupTime);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("OutputGameInfoCommand");
-#endif
-        }
+//		protected void OutputGameInfoCommandHandler  (OutputGameInfoCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("OutputGameInfoCommand");
+//#endif
+//        _service.OutputGameInfo(cmd.systemStartupTime);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("OutputGameInfoCommand");
+//#endif
+//        }
         
     }
 
@@ -595,7 +595,7 @@ namespace Service.DevUIService{
     public class CommandsInstaller : Installer<CommandsInstaller>{
         public override void InstallBindings()
         {
-            Commands cmds = Container.Instantiate<Commands>();
+//            Commands cmds = Container.Instantiate<Commands>();
             // commented out due to zenject update (26.06.18)
             //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }

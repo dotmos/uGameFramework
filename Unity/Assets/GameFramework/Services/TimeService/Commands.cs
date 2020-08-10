@@ -21,12 +21,12 @@ namespace Service.TimeService{
 
         [Inject]
         void Initialize([Inject] ITimeService service) {
-            _service = service;
-            
-            this.OnEvent<CreateGlobalTimerCommand>().Subscribe(e => CreateGlobalTimerCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<RemoveGlobalTimerCommand>().Subscribe(e => RemoveGlobalTimerCommandHandler(e)).AddTo(this);
-
+//            _service = service;
+//            
+//            this.OnEvent<CreateGlobalTimerCommand>().Subscribe(e => CreateGlobalTimerCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<RemoveGlobalTimerCommand>().Subscribe(e => RemoveGlobalTimerCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -35,28 +35,28 @@ namespace Service.TimeService{
         /// Adds a timer in the global update-method and calls the callback n-times (or infinite till application end)
         /// </summary>
         
-        public class CreateGlobalTimerCommand  {
-            public TimerElement result;
-                        public float interval;
-                        public Action callback;
-                        public int repeatTimes;
-                        public string info="";
-            
-            
-        }
+//        public class CreateGlobalTimerCommand  {
+//            public TimerElement result;
+//                        public float interval;
+//                        public Action callback;
+//                        public int repeatTimes;
+//                        public string info="";
+//            
+//            
+//        }
 
-		protected void CreateGlobalTimerCommandHandler  (CreateGlobalTimerCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("CreateGlobalTimerCommand");
-#endif
-        
-            cmd.result = _service.CreateGlobalTimer(cmd.interval,cmd.callback,cmd.repeatTimes,cmd.info);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("CreateGlobalTimerCommand");
-#endif
-        }
+//		protected void CreateGlobalTimerCommandHandler  (CreateGlobalTimerCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("CreateGlobalTimerCommand");
+//#endif
+//        
+//            cmd.result = _service.CreateGlobalTimer(cmd.interval,cmd.callback,cmd.repeatTimes,cmd.info);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("CreateGlobalTimerCommand");
+//#endif
+//        }
         
 
         
@@ -64,23 +64,23 @@ namespace Service.TimeService{
         /// 
         /// </summary>
         
-        public class RemoveGlobalTimerCommand  {
-            public TimerElement timer;
-            
-            
-        }
+//        public class RemoveGlobalTimerCommand  {
+//            public TimerElement timer;
+//            
+//            
+//        }
 
-		protected void RemoveGlobalTimerCommandHandler  (RemoveGlobalTimerCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("RemoveGlobalTimerCommand");
-#endif
-        _service.RemoveGlobalTimer(cmd.timer);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("RemoveGlobalTimerCommand");
-#endif
-        }
+//		protected void RemoveGlobalTimerCommandHandler  (RemoveGlobalTimerCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RemoveGlobalTimerCommand");
+//#endif
+//        _service.RemoveGlobalTimer(cmd.timer);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RemoveGlobalTimerCommand");
+//#endif
+//        }
         
     }
 
@@ -88,7 +88,7 @@ namespace Service.TimeService{
     public class CommandsInstaller : Installer<CommandsInstaller>{
         public override void InstallBindings()
         {
-            Commands cmds = Container.Instantiate<Commands>();
+//            Commands cmds = Container.Instantiate<Commands>();
             // commented out due to zenject update (26.06.18)
             //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }

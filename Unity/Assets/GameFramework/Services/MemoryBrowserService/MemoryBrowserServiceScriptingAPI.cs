@@ -70,16 +70,16 @@ namespace Service.MemoryBrowserService {
             ActivateDefaultScripting("MemoryBrowserService");
 
 
-            Scripting.Commands.GetMainScriptCommand cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-            Publish(cmdGetScript);
-            API api = new API(this);
-            Kernel.Instance.Inject(api);
-            cmdGetScript.result.Globals["MTest"] = new TestEnvironment();
-            cmdGetScript.result.Globals["TestListInt"] = new List<int>() { 1,2,3,4,5,6,7};
-            cmdGetScript.result.Globals["TestDictStringInt"] = new Dictionary<string, int>() { {"tom", 1 }, { "FORTUNA", 95 }, { "GHF", 11111 } };
-            cmdGetScript.result.Globals["TestDictStringObject"] = new Dictionary<string, TestEnvironment.Employee>() { { "tom", new TestEnvironment.Employee() }, { "tom2", new TestEnvironment.Employee() }, { "tom3", new TestEnvironment.Employee() }};
+            //
+            //
+            //API api = new API(this);
+            //Kernel.Instance.Inject(api);
+            //cmdGetScript.result.Globals["MTest"] = new TestEnvironment();
+            //cmdGetScript.result.Globals["TestListInt"] = new List<int>() { 1,2,3,4,5,6,7};
+            //cmdGetScript.result.Globals["TestDictStringInt"] = new Dictionary<string, int>() { {"tom", 1 }, { "FORTUNA", 95 }, { "GHF", 11111 } };
+            //cmdGetScript.result.Globals["TestDictStringObject"] = new Dictionary<string, TestEnvironment.Employee>() { { "tom", new TestEnvironment.Employee() }, { "tom2", new TestEnvironment.Employee() }, { "tom3", new TestEnvironment.Employee() }};
 
-            cmdGetScript.result.Globals["TestEmp"] = new List<TestEnvironment.Employee>() { new TestEnvironment.Employee() { name="tom" }, new TestEnvironment.Employee() { name = "Stephan" }, new TestEnvironment.Employee() { name = "Daniel" }, new TestEnvironment.Employee() { name = "Matthias" }, new TestEnvironment.Employee() { name = "Wolfgang" } };
+            //cmdGetScript.result.Globals["TestEmp"] = new List<TestEnvironment.Employee>() { new TestEnvironment.Employee() { name="tom" }, new TestEnvironment.Employee() { name = "Stephan" }, new TestEnvironment.Employee() { name = "Daniel" }, new TestEnvironment.Employee() { name = "Matthias" }, new TestEnvironment.Employee() { name = "Wolfgang" } };
         }
 
 

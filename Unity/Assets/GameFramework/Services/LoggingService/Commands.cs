@@ -21,20 +21,20 @@ namespace Service.LoggingService{
 
         [Inject]
         void Initialize([Inject] ILoggingService service) {
-            _service = service;
-            
-            this.OnEvent<AddLogCommand>().Subscribe(e => AddLogCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<InfoCommand>().Subscribe(e => InfoCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<WarnCommand>().Subscribe(e => WarnCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<ErrorCommand>().Subscribe(e => ErrorCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<SevereCommand>().Subscribe(e => SevereCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<GetRxOutputDataCommand>().Subscribe(e => GetRxOutputDataCommandHandler(e)).AddTo(this);
-
+//            _service = service;
+//            
+//            this.OnEvent<AddLogCommand>().Subscribe(e => AddLogCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<InfoCommand>().Subscribe(e => InfoCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<WarnCommand>().Subscribe(e => WarnCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<ErrorCommand>().Subscribe(e => ErrorCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<SevereCommand>().Subscribe(e => SevereCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetRxOutputDataCommand>().Subscribe(e => GetRxOutputDataCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -43,50 +43,25 @@ namespace Service.LoggingService{
         /// 
         /// </summary>
         
-        public class AddLogCommand  {
-            public DebugType debugType;
-                        public string message;
-                        public string domain="";
-            
-            
-        }
+//        public class AddLogCommand  {
+//            public DebugType debugType;
+//                        public string message;
+//                        public string domain="";
+//            
+//            
+//        }
 
-		protected void AddLogCommandHandler  (AddLogCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("AddLogCommand");
-#endif
-        _service.AddLog(cmd.debugType,cmd.message,cmd.domain);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("AddLogCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class InfoCommand  {
-            public string message;
-                        public string domain="";
-            
-            
-        }
-
-		protected void InfoCommandHandler  (InfoCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("InfoCommand");
-#endif
-        _service.Info(cmd.message,cmd.domain);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("InfoCommand");
-#endif
-        }
+//		protected void AddLogCommandHandler  (AddLogCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("AddLogCommand");
+//#endif
+//        _service.AddLog(cmd.debugType,cmd.message,cmd.domain);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("AddLogCommand");
+//#endif
+//        }
         
 
         
@@ -94,49 +69,24 @@ namespace Service.LoggingService{
         /// 
         /// </summary>
         
-        public class WarnCommand  {
-            public string message;
-                        public string domain="";
-            
-            
-        }
+//        public class InfoCommand  {
+//            public string message;
+//                        public string domain="";
+//            
+//            
+//        }
 
-		protected void WarnCommandHandler  (WarnCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("WarnCommand");
-#endif
-        _service.Warn(cmd.message,cmd.domain);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("WarnCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class ErrorCommand  {
-            public string message;
-                        public string domain="";
-            
-            
-        }
-
-		protected void ErrorCommandHandler  (ErrorCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("ErrorCommand");
-#endif
-        _service.Error(cmd.message,cmd.domain);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("ErrorCommand");
-#endif
-        }
+//		protected void InfoCommandHandler  (InfoCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("InfoCommand");
+//#endif
+//        _service.Info(cmd.message,cmd.domain);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("InfoCommand");
+//#endif
+//        }
         
 
         
@@ -144,24 +94,24 @@ namespace Service.LoggingService{
         /// 
         /// </summary>
         
-        public class SevereCommand  {
-            public string message;
-                        public string domain="";
-            
-            
-        }
+//        public class WarnCommand  {
+//            public string message;
+//                        public string domain="";
+//            
+//            
+//        }
 
-		protected void SevereCommandHandler  (SevereCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("SevereCommand");
-#endif
-        _service.Severe(cmd.message,cmd.domain);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("SevereCommand");
-#endif
-        }
+//		protected void WarnCommandHandler  (WarnCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("WarnCommand");
+//#endif
+//        _service.Warn(cmd.message,cmd.domain);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("WarnCommand");
+//#endif
+//        }
         
 
         
@@ -169,24 +119,74 @@ namespace Service.LoggingService{
         /// 
         /// </summary>
         
-        public class GetRxOutputDataCommand  {
-            public ReactiveCollection<LogData> result;
-            
-            
-        }
+//        public class ErrorCommand  {
+//            public string message;
+//                        public string domain="";
+//            
+//            
+//        }
 
-		protected void GetRxOutputDataCommandHandler  (GetRxOutputDataCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("GetRxOutputDataCommand");
-#endif
+//		protected void ErrorCommandHandler  (ErrorCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("ErrorCommand");
+//#endif
+//        _service.Error(cmd.message,cmd.domain);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("ErrorCommand");
+//#endif
+//        }
         
-            cmd.result = _service.GetRxOutputData();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("GetRxOutputDataCommand");
-#endif
-        }
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class SevereCommand  {
+//            public string message;
+//                        public string domain="";
+//            
+//            
+//        }
+
+//		protected void SevereCommandHandler  (SevereCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("SevereCommand");
+//#endif
+//        _service.Severe(cmd.message,cmd.domain);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("SevereCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class GetRxOutputDataCommand  {
+//            public ReactiveCollection<LogData> result;
+//            
+//            
+//        }
+
+//		protected void GetRxOutputDataCommandHandler  (GetRxOutputDataCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetRxOutputDataCommand");
+//#endif
+//        
+//            cmd.result = _service.GetRxOutputData();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetRxOutputDataCommand");
+//#endif
+//        }
         
     }
 
@@ -194,7 +194,7 @@ namespace Service.LoggingService{
     public class CommandsInstaller : Installer<CommandsInstaller>{
         public override void InstallBindings()
         {
-            Commands cmds = Container.Instantiate<Commands>();
+//            Commands cmds = Container.Instantiate<Commands>();
             // commented out due to zenject update (26.06.18)
             //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }

@@ -13,11 +13,7 @@ namespace Service.FileSystem {
     partial class FileSystemServiceImpl : FileSystemServiceBase
     {
         protected override void InitAPI() {
-            Scripting.Commands.GetMainScriptCommand cmdGetScript = new Service.Scripting.Commands.GetMainScriptCommand();
-            Publish(cmdGetScript);
-            API api = new API(this);
-            Kernel.Instance.Inject(api);
-            cmdGetScript.result.Globals["FileSystem"] = api;
+            ActivateDefaultScripting("FileSystem");
         }
 
 

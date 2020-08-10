@@ -20,18 +20,18 @@ namespace Service.PerformanceTest{
 
         [Inject]
         void Initialize([Inject] IPerformanceTestService service) {
-            _service = service;
-            
-            this.OnEvent<StartWatchCommand>().Subscribe(e => StartWatchCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<StopWatchCommand>().Subscribe(e => StopWatchCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<PerfTestOutputToConsoleCommand>().Subscribe(e => PerfTestOutputToConsoleCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<PerfTestOutputAsStringCommand>().Subscribe(e => PerfTestOutputAsStringCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<ClearCommand>().Subscribe(e => ClearCommandHandler(e)).AddTo(this);
-
+//            _service = service;
+//            
+//            this.OnEvent<StartWatchCommand>().Subscribe(e => StartWatchCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<StopWatchCommand>().Subscribe(e => StopWatchCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<PerfTestOutputToConsoleCommand>().Subscribe(e => PerfTestOutputToConsoleCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<PerfTestOutputAsStringCommand>().Subscribe(e => PerfTestOutputAsStringCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<ClearCommand>().Subscribe(e => ClearCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -40,47 +40,23 @@ namespace Service.PerformanceTest{
         /// 
         /// </summary>
         
-        public class StartWatchCommand  {
-            public string t;
-            
-            
-        }
+//        public class StartWatchCommand  {
+//            public string t;
+//            
+//            
+//        }
 
-		protected void StartWatchCommandHandler  (StartWatchCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("StartWatchCommand");
-#endif
-        _service.StartWatch(cmd.t);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("StartWatchCommand");
-#endif
-        }
-        
-
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        
-        public class StopWatchCommand  {
-            public string t;
-            
-            
-        }
-
-		protected void StopWatchCommandHandler  (StopWatchCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("StopWatchCommand");
-#endif
-        _service.StopWatch(cmd.t);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("StopWatchCommand");
-#endif
-        }
+//		protected void StartWatchCommandHandler  (StartWatchCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("StartWatchCommand");
+//#endif
+//        _service.StartWatch(cmd.t);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("StartWatchCommand");
+//#endif
+//        }
         
 
         
@@ -88,22 +64,23 @@ namespace Service.PerformanceTest{
         /// 
         /// </summary>
         
-        public class PerfTestOutputToConsoleCommand  {
+//        public class StopWatchCommand  {
+//            public string t;
+//            
+//            
+//        }
 
-            
-        }
-
-		protected void PerfTestOutputToConsoleCommandHandler  (PerfTestOutputToConsoleCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("PerfTestOutputToConsoleCommand");
-#endif
-        _service.PerfTestOutputToConsole();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("PerfTestOutputToConsoleCommand");
-#endif
-        }
+//		protected void StopWatchCommandHandler  (StopWatchCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("StopWatchCommand");
+//#endif
+//        _service.StopWatch(cmd.t);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("StopWatchCommand");
+//#endif
+//        }
         
 
         
@@ -111,24 +88,22 @@ namespace Service.PerformanceTest{
         /// 
         /// </summary>
         
-        public class PerfTestOutputAsStringCommand  {
-            public string result;
-            
-            
-        }
+//        public class PerfTestOutputToConsoleCommand  {
+//
+//            
+//        }
 
-		protected void PerfTestOutputAsStringCommandHandler  (PerfTestOutputAsStringCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("PerfTestOutputAsStringCommand");
-#endif
-        
-            cmd.result = _service.PerfTestOutputAsString();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("PerfTestOutputAsStringCommand");
-#endif
-        }
+//		protected void PerfTestOutputToConsoleCommandHandler  (PerfTestOutputToConsoleCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("PerfTestOutputToConsoleCommand");
+//#endif
+//        _service.PerfTestOutputToConsole();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("PerfTestOutputToConsoleCommand");
+//#endif
+//        }
         
 
         
@@ -136,22 +111,47 @@ namespace Service.PerformanceTest{
         /// 
         /// </summary>
         
-        public class ClearCommand  {
+//        public class PerfTestOutputAsStringCommand  {
+//            public string result;
+//            
+//            
+//        }
 
-            
-        }
+//		protected void PerfTestOutputAsStringCommandHandler  (PerfTestOutputAsStringCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("PerfTestOutputAsStringCommand");
+//#endif
+//        
+//            cmd.result = _service.PerfTestOutputAsString();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("PerfTestOutputAsStringCommand");
+//#endif
+//        }
+        
 
-		protected void ClearCommandHandler  (ClearCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("ClearCommand");
-#endif
-        _service.Clear();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("ClearCommand");
-#endif
-        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class ClearCommand  {
+//
+//            
+//        }
+
+//		protected void ClearCommandHandler  (ClearCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("ClearCommand");
+//#endif
+//        _service.Clear();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("ClearCommand");
+//#endif
+//        }
         
     }
 
@@ -159,7 +159,7 @@ namespace Service.PerformanceTest{
     public class CommandsInstaller : Installer<CommandsInstaller>{
         public override void InstallBindings()
         {
-            Commands cmds = Container.Instantiate<Commands>();
+//            Commands cmds = Container.Instantiate<Commands>();
             // commented out due to zenject update (26.06.18)
             //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }

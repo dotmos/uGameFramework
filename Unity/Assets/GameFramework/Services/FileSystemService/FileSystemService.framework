@@ -1,7 +1,7 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-         
+          
 namespace Service.FileSystem {            
     public interface IFileSystemService {  
 		## "Get path as string for given domain"
@@ -34,7 +34,7 @@ namespace Service.FileSystem {
 		bool FileExists(string pathToFile);
 		## "Check if a file exists in a domain(relative to domain-root)"
 		bool FileExistsInDomain(?FSDomain domain,string relativePath);
-    }      
+    }       
 }     
 ## model 
  

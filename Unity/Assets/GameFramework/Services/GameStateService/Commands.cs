@@ -20,22 +20,22 @@ namespace Service.GameStateService{
 
         [Inject]
         void Initialize([Inject] IGameStateService service) {
-            _service = service;
-            
-            this.OnEvent<RegisterGameStateCommand>().Subscribe(e => RegisterGameStateCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<GetCurrentGameStateCommand>().Subscribe(e => GetCurrentGameStateCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<IsInStateCommand>().Subscribe(e => IsInStateCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<StartGameStateCommand>().Subscribe(e => StartGameStateCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<StopGameStateCommand>().Subscribe(e => StopGameStateCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<GetGameStateCommand>().Subscribe(e => GetGameStateCommandHandler(e)).AddTo(this);
-
-            this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
-
+//            _service = service;
+//            
+//            this.OnEvent<RegisterGameStateCommand>().Subscribe(e => RegisterGameStateCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetCurrentGameStateCommand>().Subscribe(e => GetCurrentGameStateCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<IsInStateCommand>().Subscribe(e => IsInStateCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<StartGameStateCommand>().Subscribe(e => StartGameStateCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<StopGameStateCommand>().Subscribe(e => StopGameStateCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetGameStateCommand>().Subscribe(e => GetGameStateCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<TickCommand>().Subscribe(e => TickCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -44,26 +44,26 @@ namespace Service.GameStateService{
         /// Register gamestate with its name. Optionally you can pass an overriden GameState-Classtype of your own
         /// </summary>
         
-        public class RegisterGameStateCommand  {
-            public GameState result;
-                        public string name;
-                        public GameState gamestate=null;
-            
-            
-        }
+//        public class RegisterGameStateCommand  {
+//            public GameState result;
+//                        public string name;
+//                        public GameState gamestate=null;
+//            
+//            
+//        }
 
-		protected void RegisterGameStateCommandHandler  (RegisterGameStateCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("RegisterGameStateCommand");
-#endif
-        
-            cmd.result = _service.RegisterGameState(cmd.name,cmd.gamestate);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("RegisterGameStateCommand");
-#endif
-        }
+//		protected void RegisterGameStateCommandHandler  (RegisterGameStateCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RegisterGameStateCommand");
+//#endif
+//        
+//            cmd.result = _service.RegisterGameState(cmd.name,cmd.gamestate);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RegisterGameStateCommand");
+//#endif
+//        }
         
 
         
@@ -71,24 +71,24 @@ namespace Service.GameStateService{
         /// Get the current gamestate. Alternatively use "[Inject] GameState current;"
         /// </summary>
         
-        public class GetCurrentGameStateCommand  {
-            public GameState result;
-            
-            
-        }
+//        public class GetCurrentGameStateCommand  {
+//            public GameState result;
+//            
+//            
+//        }
 
-		protected void GetCurrentGameStateCommandHandler  (GetCurrentGameStateCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("GetCurrentGameStateCommand");
-#endif
-        
-            cmd.result = _service.GetCurrentGameState();
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("GetCurrentGameStateCommand");
-#endif
-        }
+//		protected void GetCurrentGameStateCommandHandler  (GetCurrentGameStateCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetCurrentGameStateCommand");
+//#endif
+//        
+//            cmd.result = _service.GetCurrentGameState();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetCurrentGameStateCommand");
+//#endif
+//        }
         
 
         
@@ -96,25 +96,25 @@ namespace Service.GameStateService{
         /// Check if the current gamestate is the specified one
         /// </summary>
         
-        public class IsInStateCommand  {
-            public bool result;
-                        public GameState gs;
-            
-            
-        }
+//        public class IsInStateCommand  {
+//            public bool result;
+//                        public GameState gs;
+//            
+//            
+//        }
 
-		protected void IsInStateCommandHandler  (IsInStateCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("IsInStateCommand");
-#endif
-        
-            cmd.result = _service.IsInState(cmd.gs);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("IsInStateCommand");
-#endif
-        }
+//		protected void IsInStateCommandHandler  (IsInStateCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("IsInStateCommand");
+//#endif
+//        
+//            cmd.result = _service.IsInState(cmd.gs);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("IsInStateCommand");
+//#endif
+//        }
         
 
         
@@ -122,26 +122,26 @@ namespace Service.GameStateService{
         /// Start a new gamestate after stopping the current one (if present). Optionally pass a context in which you can e.g. set gamestate-flags
         /// </summary>
         
-        public class StartGameStateCommand  {
-            public IObservable<bool> result;
-                        public GameState gamestate;
-                        public GSContext ctx=null;
-            
-            
-        }
+//        public class StartGameStateCommand  {
+//            public IObservable<bool> result;
+//                        public GameState gamestate;
+//                        public GSContext ctx=null;
+//            
+//            
+//        }
 
-		protected void StartGameStateCommandHandler  (StartGameStateCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("StartGameStateCommand");
-#endif
-        
-            cmd.result = _service.StartGameState(cmd.gamestate,cmd.ctx);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("StartGameStateCommand");
-#endif
-        }
+//		protected void StartGameStateCommandHandler  (StartGameStateCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("StartGameStateCommand");
+//#endif
+//        
+//            cmd.result = _service.StartGameState(cmd.gamestate,cmd.ctx);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("StartGameStateCommand");
+//#endif
+//        }
         
 
         
@@ -149,25 +149,25 @@ namespace Service.GameStateService{
         /// 
         /// </summary>
         
-        public class StopGameStateCommand  {
-            public IObservable<bool> result;
-                        public GameState gamestate;
-            
-            
-        }
+//        public class StopGameStateCommand  {
+//            public IObservable<bool> result;
+//                        public GameState gamestate;
+//            
+//            
+//        }
 
-		protected void StopGameStateCommandHandler  (StopGameStateCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("StopGameStateCommand");
-#endif
-        
-            cmd.result = _service.StopGameState(cmd.gamestate);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("StopGameStateCommand");
-#endif
-        }
+//		protected void StopGameStateCommandHandler  (StopGameStateCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("StopGameStateCommand");
+//#endif
+//        
+//            cmd.result = _service.StopGameState(cmd.gamestate);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("StopGameStateCommand");
+//#endif
+//        }
         
 
         
@@ -175,25 +175,25 @@ namespace Service.GameStateService{
         /// Get gamestate by name
         /// </summary>
         
-        public class GetGameStateCommand  {
-            public GameState result;
-                        public string name;
-            
-            
-        }
+//        public class GetGameStateCommand  {
+//            public GameState result;
+//                        public string name;
+//            
+//            
+//        }
 
-		protected void GetGameStateCommandHandler  (GetGameStateCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("GetGameStateCommand");
-#endif
-        
-            cmd.result = _service.GetGameState(cmd.name);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("GetGameStateCommand");
-#endif
-        }
+//		protected void GetGameStateCommandHandler  (GetGameStateCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetGameStateCommand");
+//#endif
+//        
+//            cmd.result = _service.GetGameState(cmd.name);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetGameStateCommand");
+//#endif
+//        }
         
 
         
@@ -201,24 +201,24 @@ namespace Service.GameStateService{
         /// Tick the current gamestate.
         /// </summary>
         
-        public class TickCommand  {
-            public float deltaTime;
-                        public float unscaledDeltaTime;
-            
-            
-        }
+//        public class TickCommand  {
+//            public float deltaTime;
+//                        public float unscaledDeltaTime;
+//            
+//            
+//        }
 
-		protected void TickCommandHandler  (TickCommand cmd) {
-#if PERFORMANCE_TEST
-            var ptest=Service.Performance.PerformanceTest.Get();
-            ptest.Start("TickCommand");
-#endif
-        _service.Tick(cmd.deltaTime,cmd.unscaledDeltaTime);
-#if PERFORMANCE_TEST
-            // now stop the watches
-            ptest.Stop("TickCommand");
-#endif
-        }
+//		protected void TickCommandHandler  (TickCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("TickCommand");
+//#endif
+//        _service.Tick(cmd.deltaTime,cmd.unscaledDeltaTime);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("TickCommand");
+//#endif
+//        }
         
     }
 
@@ -226,7 +226,7 @@ namespace Service.GameStateService{
     public class CommandsInstaller : Installer<CommandsInstaller>{
         public override void InstallBindings()
         {
-            Commands cmds = Container.Instantiate<Commands>();
+//            Commands cmds = Container.Instantiate<Commands>();
             // commented out due to zenject update (26.06.18)
             //Container.BindAllInterfaces<Commands>().FromInstance(cmds);
         }

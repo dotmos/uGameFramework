@@ -24,8 +24,6 @@ namespace UserInterface {
         [Inject]
         private Service.DevUIService.IDevUIService _devUiService;
 
-        private Service.FileSystem.Commands.GetPathCommand getPath = new Service.FileSystem.Commands.GetPathCommand();
-
         private Dictionary<DevUIView, UIViewController> uiViews = new Dictionary<DevUIView, UIViewController>();
 
         protected override void AfterBind() {
@@ -109,11 +107,12 @@ namespace UserInterface {
         }
 
         void Browse() {
-            getPath.domain = Service.FileSystem.FSDomain.DevUIViewsArchieve;
-            this.Publish(getPath);
+            var filesystem = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
+            var path = filesystem.GetPath(Service.FileSystem.FSDomain.DevUIViewsArchieve);
+
             //TODO: This will not work in build! Try to use something like System.Diagnostics.Process.Start("explorer.exe","/select,"+path); instead
 #if UNITY_EDITOR
-            EditorUtility.RevealInFinder(getPath.result);
+            EditorUtility.RevealInFinder(path);
 #endif
         }
 
