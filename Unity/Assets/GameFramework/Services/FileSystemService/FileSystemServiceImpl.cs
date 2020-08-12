@@ -27,6 +27,7 @@ namespace Service.FileSystem {
         private string devUIViewsPath;
         private string localizationPath;
         private string debuggingPath;
+        private string moddingPath;
 
         protected override void AfterInitialize() {
             configPath = persistentDataPath + "/config";
@@ -34,6 +35,7 @@ namespace Service.FileSystem {
             scriptingPath = persistentDataPath + "/scripting";
             devUIViewsPath = persistentDataPath + "/dev-ui/views";
             debuggingPath = persistentDataPath + "/debugging";
+            moddingPath = persistentDataPath + "/modding";
 
             //Check if there are locas in streaming assets. If not, use game/Localization folder
             localizationPath = streamingAssetsPath + "/Localizations";
@@ -94,6 +96,7 @@ namespace Service.FileSystem {
                 case FSDomain.RuntimeAssets: path = streamingAssetsPath; break;
                 case FSDomain.Localizations: path = localizationPath; break;
                 case FSDomain.Debugging: path = debuggingPath; break;
+                case FSDomain.Modding: path = moddingPath; break;
 
 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;

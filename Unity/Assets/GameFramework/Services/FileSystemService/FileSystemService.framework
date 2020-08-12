@@ -46,7 +46,8 @@ public enum FSDomain {
 	ConfigFolder,
 	SaveGames,
 	Localizations,
-	Debugging
+	Debugging,
+	Modding
 }  
 
 ## events 
