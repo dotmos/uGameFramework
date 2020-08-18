@@ -240,8 +240,8 @@ namespace ECS {
                 */
             }
             else {
-                int _count = componentsToProcess.Count;
-                for (int i = 0; i < _count; ++i) {
+                //int _count = componentsToProcess.Count;
+                for (int i = 0; i < componentsToProcess.Count; ++i) {
                     ProcessAtIndex(i, deltaTime);
                 }
             }      
