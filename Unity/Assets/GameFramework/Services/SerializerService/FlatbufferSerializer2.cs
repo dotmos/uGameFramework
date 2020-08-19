@@ -98,6 +98,14 @@ namespace Service.Serializer
 
             foreach (var kv in id2typeAsString) {
                 Type type = Type.GetType(kv.Value);
+                if (type == null) {
+#if UNITY_EDITOR
+                    Debug.LogError($"Saved datatype:{kv.Value} does not exists");
+#else
+                    Debug.LogWarning($"Saved datatype:{kv.Value} does not exists");
+#endif
+                    continue;
+                }
                 id2type[kv.Key] = type;
                 type2id[type] = kv.Key;
             }
@@ -680,7 +688,7 @@ namespace Service.Serializer
             builder = new FlatBufferBuilder(initialBuilderCapacity);
 #if TESTING
             //perfTest = Kernel.Instance.Container.Resolve<Service.PerformanceTest.IPerformanceTestService>();
-#endif 
+#endif
             name = _name ?? "sctx-" + (name_counter++);
         }
 
@@ -1008,7 +1016,7 @@ namespace Service.Serializer
                     // ignore all types that are on the blacklist (if using blacklist)
 #if TESTING
                     //UnityEngine.Debug.Log($"[{name}] Ignore lateref of {lateReference.GetType()}|{lateReference.GetHashCode()}. Keeping it for later mapping");
-#endif                    
+#endif
                     tempReferenceQueue.Enqueue(lateReference);
                     continue;
                 }
