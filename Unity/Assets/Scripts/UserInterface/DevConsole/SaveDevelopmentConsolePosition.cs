@@ -19,8 +19,12 @@ namespace UserInterface {
             if (dragHandler == null) dragHandler = GetComponent<GMDraggableObject>();
 
             if (dragHandler != null) {
-                Vector2 restoredPosition = new Vector2(PlayerPrefs.GetFloat("DevelopmentConsole_PositionX"), PlayerPrefs.GetFloat("DevelopmentConsole_PositionY"));
-                dragHandler.SetTargetPosition(restoredPosition);
+                if (PlayerPrefs.HasKey("DevelopmentConsole_PositionX") && PlayerPrefs.HasKey("DevelopmentConsole_PositionY")) {
+                    Vector2 restoredPosition = new Vector2(PlayerPrefs.GetFloat("DevelopmentConsole_PositionX"), PlayerPrefs.GetFloat("DevelopmentConsole_PositionY"));
+                    dragHandler.SetTargetPosition(restoredPosition);
+                } else {
+                    dragHandler.SetTargetPosition(Vector2.zero);
+                }
             }
         }
 

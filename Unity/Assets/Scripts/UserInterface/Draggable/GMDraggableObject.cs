@@ -23,18 +23,12 @@ namespace UserInterface {
         }
 
         void Start() {
-            Debug.Log(GetDevConsoleSize());
-
             target.pivot = new Vector2(0, 1);
 
             eventTrigger = GetComponent<EventTrigger>();
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.Drag, OnDrag);
             EventUtility.CreateEventTriggerEntry(eventTrigger, EventTriggerType.EndDrag, OnEndDrag);
 
-            RestrictToScreen();
-        }
-
-        private void OnRectTransformDimensionsChange() {
             RestrictToScreen();
         }
 
@@ -59,31 +53,34 @@ namespace UserInterface {
             }
         }
 
+        private void OnRectTransformDimensionsChange() {
+            RestrictToScreen();
+        }
+
         void RestrictToScreen() {
             if (!target.gameObject.activeInHierarchy) return;
 
-            Vector2 devConsoleSize = GetDevConsoleSize();
+            Vector2 devConsoleSize = target.sizeDelta;
 
             if (devConsoleSize == Vector2.zero) {
                 devConsoleSize = new Vector2(target.sizeDelta.x, target.sizeDelta.y);
             }
 
-            float minY = -Screen.height + devConsoleSize.y;
-            float maxX = Screen.width - devConsoleSize.x;
+            float minY = -Screen.height / Canvas.scaleFactor + devConsoleSize.y;
+            float maxX = Screen.width / Canvas.scaleFactor - devConsoleSize.x;
 
             float clampedX = Mathf.Clamp(target.anchoredPosition.x, 0f, maxX);
             float clampedY = Mathf.Clamp(target.anchoredPosition.y, minY, 0f);
-            target.anchoredPosition = new Vector2(clampedX, clampedY);
+            Vector2 newPosition = new Vector2(clampedX, clampedY);
+            target.anchoredPosition = newPosition;
         }
 
         public void AlignTop() {
-            target.anchoredPosition = Vector3.zero;
-            RestrictToScreen();
+            SetTargetPosition(Vector2.zero);
         }
 
         public void AlignLeft() {
-            target.anchoredPosition = Vector3.zero;
-            RestrictToScreen();
+            SetTargetPosition(Vector2.zero);
         }
 
         public void SetTargetPosition(Vector2 position) {
