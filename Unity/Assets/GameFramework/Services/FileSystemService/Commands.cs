@@ -148,6 +148,7 @@ namespace Service.FileSystem{
 //            public bool result;
 //                        public string pathToFile;
 //                        public string thedata;
+//                        public bool append=false;
 //            
 //            
 //        }
@@ -158,7 +159,7 @@ namespace Service.FileSystem{
 //            ptest.Start("WriteStringToFileCommand");
 //#endif
 //        
-//            cmd.result = _service.WriteStringToFile(cmd.pathToFile,cmd.thedata);
+//            cmd.result = _service.WriteStringToFile(cmd.pathToFile,cmd.thedata,cmd.append);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("WriteStringToFileCommand");
@@ -176,6 +177,7 @@ namespace Service.FileSystem{
 //                        public FSDomain domain;
 //                        public string relativePathToFile;
 //                        public string thedata;
+//                        public bool append=false;
 //            
 //            
 //        }
@@ -186,7 +188,7 @@ namespace Service.FileSystem{
 //            ptest.Start("WriteStringToFileAtDomainCommand");
 //#endif
 //        
-//            cmd.result = _service.WriteStringToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.thedata);
+//            cmd.result = _service.WriteStringToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.thedata,cmd.append);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("WriteStringToFileAtDomainCommand");
@@ -314,6 +316,7 @@ namespace Service.FileSystem{
 //            public List<string> result;
 //                        public string absPath;
 //                        public string pattern="*.*";
+//                        public bool recursive=false;
 //            
 //            
 //        }
@@ -324,7 +327,7 @@ namespace Service.FileSystem{
 //            ptest.Start("GetFilesInAbsFolderCommand");
 //#endif
 //        
-//            cmd.result = _service.GetFilesInAbsFolder(cmd.absPath,cmd.pattern);
+//            cmd.result = _service.GetFilesInAbsFolder(cmd.absPath,cmd.pattern,cmd.recursive);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("GetFilesInAbsFolderCommand");
@@ -342,6 +345,7 @@ namespace Service.FileSystem{
 //                        public FSDomain domain;
 //                        public string innerDomainPath="";
 //                        public string filter="*.*";
+//                        public bool recursive=false;
 //            
 //            
 //        }
@@ -352,7 +356,7 @@ namespace Service.FileSystem{
 //            ptest.Start("GetFilesInDomainCommand");
 //#endif
 //        
-//            cmd.result = _service.GetFilesInDomain(cmd.domain,cmd.innerDomainPath,cmd.filter);
+//            cmd.result = _service.GetFilesInDomain(cmd.domain,cmd.innerDomainPath,cmd.filter,cmd.recursive);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("GetFilesInDomainCommand");

@@ -60,10 +60,11 @@ namespace Service.FileSystem {
         /// Write string to file 
                 /// <param name="pathToFile"></param>
                 /// <param name="thedata"></param>
+                /// <param name="append"></param>
          /// </summary>
         
         
-                    bool WriteStringToFile(string pathToFile,string thedata);
+                    bool WriteStringToFile(string pathToFile,string thedata,bool append=false);
         
                            
         
@@ -72,10 +73,11 @@ namespace Service.FileSystem {
                 /// <param name="domain"></param>
                 /// <param name="relativePathToFile"></param>
                 /// <param name="thedata"></param>
+                /// <param name="append"></param>
          /// </summary>
         
         
-                    bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
+                    bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata,bool append=false);
         
                            
         
@@ -130,10 +132,11 @@ namespace Service.FileSystem {
         /// Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks ) 
                 /// <param name="absPath"></param>
                 /// <param name="pattern"></param>
+                /// <param name="recursive"></param>
          /// </summary>
         
         
-                    List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
+                    List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*",bool recursive=false);
         
                            
         
@@ -142,10 +145,11 @@ namespace Service.FileSystem {
                 /// <param name="domain"></param>
                 /// <param name="innerDomainPath"></param>
                 /// <param name="filter"></param>
+                /// <param name="recursive"></param>
          /// </summary>
         
         
-                    List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*");
+                    List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*",bool recursive=false);
         
                            
         

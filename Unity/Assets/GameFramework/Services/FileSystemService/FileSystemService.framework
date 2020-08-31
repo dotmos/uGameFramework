@@ -11,9 +11,9 @@ namespace Service.FileSystem {
 		## "Write bytes to file at domain"
 		bool WriteBytesToFileAtDomain(?FSDomain domain, string relativePathToFile, ("byte[]") bytes,bool compress=False); 
 		## "Write string to file"
-		bool WriteStringToFile(string pathToFile, string thedata);
+		bool WriteStringToFile(string pathToFile, string thedata, bool append=False);
 		## "Write string to file at domain"
-		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string thedata); 
+		bool WriteStringToFileAtDomain(?FSDomain domain, string relativePathToFile, string thedata, bool append=False); 
 		## "Load file as string"
 		string LoadFileAsString(string pathToFile,bool compressed=False);
 		## "Load file as string from domain"     
@@ -23,9 +23,9 @@ namespace Service.FileSystem {
 		## "Load file as string from domain"
 		("byte[]") LoadFileAsBytesAtDomain(?FSDomain domain, string relativePathToFile,bool compressed=False, int estimatedUncompressedSize=0);
 		## "Get all absolute file-paths in specified path with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
-		List<string> GetFilesInAbsFolder(string absPath, string pattern="*.*");
+		List<string> GetFilesInAbsFolder(string absPath, string pattern="*.*",bool recursive=False);
 		## "Get all absolute file-paths in specified domain with optional filter (see https://msdn.microsoft.com/en-us/library/wz42302f(v=vs.110).aspx#Remarks )"
-		List<string> GetFilesInDomain(?FSDomain domain, string innerDomainPath="", string filter="*.*");
+		List<string> GetFilesInDomain(?FSDomain domain, string innerDomainPath="", string filter="*.*",bool recursive=False);
 		## "Remove file from filesystem"
 		void RemoveFile(string filePath);
 		## "Remove file in domain"

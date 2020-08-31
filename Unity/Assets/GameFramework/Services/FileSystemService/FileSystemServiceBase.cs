@@ -144,10 +144,10 @@ namespace Service.FileSystem
         public abstract             bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
 
         
-        public abstract             bool WriteStringToFile(string pathToFile,string thedata);
+        public abstract             bool WriteStringToFile(string pathToFile,string thedata,bool append=false);
 
         
-        public abstract             bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata);
+        public abstract             bool WriteStringToFileAtDomain(FSDomain domain,string relativePathToFile,string thedata,bool append=false);
 
         
         public abstract             string LoadFileAsString(string pathToFile,bool compressed=false);
@@ -162,10 +162,10 @@ namespace Service.FileSystem
         public abstract             byte[] LoadFileAsBytesAtDomain(FSDomain domain,string relativePathToFile,bool compressed=false,int estimatedUncompressedSize=0);
 
         
-        public abstract             List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*");
+        public abstract             List<string> GetFilesInAbsFolder(string absPath,string pattern="*.*",bool recursive=false);
 
         
-        public abstract             List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*");
+        public abstract             List<string> GetFilesInDomain(FSDomain domain,string innerDomainPath="",string filter="*.*",bool recursive=false);
 
         
         public abstract             void RemoveFile(string filePath);

@@ -112,7 +112,7 @@ namespace Service.FileSystem {
             return EnsureDirectoryExistsAndReturn(path) + (!string.IsNullOrEmpty(relativePart) ? "/"+relativePart:"");
         }
 
-        public override bool WriteStringToFile(string pathToFile, string data) {
+        public override bool WriteStringToFile(string pathToFile, string data, bool append=false) {
             // TODO: Ensure Directory?
             // TODO: Use the PC3-bulletproof writing version
             try {
@@ -121,12 +121,18 @@ namespace Service.FileSystem {
                 if (File.Exists(tempPath)) {
                     File.Delete(tempPath);
                 }
-                if (File.Exists(pathToFile)) {
-                    File.Delete(pathToFile);
-                }
-                File.WriteAllText(tempPath, data);
 
-                File.Move(tempPath, pathToFile);
+                if (!append) {
+                    if (File.Exists(pathToFile)) {
+                        File.Delete(pathToFile);
+                    }
+                    File.WriteAllText(tempPath, data);
+                    File.Move(tempPath, pathToFile);
+                } else {
+                    // TODO: This is not bulletproof as !append (not sure about a good way!? move twice?)
+                    File.AppendAllText(pathToFile, data);
+                }
+
                 return true;
             }
             catch (Exception e) {
@@ -136,8 +142,8 @@ namespace Service.FileSystem {
             }
         }
 
-        public override bool WriteStringToFileAtDomain(FSDomain domain, string relativePathToFile, string data) {
-            return WriteStringToFile(GetPath(domain, relativePathToFile), data);
+        public override bool WriteStringToFileAtDomain(FSDomain domain, string relativePathToFile, string data,bool append=false) {
+            return WriteStringToFile(GetPath(domain, relativePathToFile), data,append);
         }
 
         public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
@@ -268,16 +274,16 @@ namespace Service.FileSystem {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
 
-        public override List<string> GetFilesInAbsFolder(string absPath, string pattern = "*.*") {
+        public override List<string> GetFilesInAbsFolder(string absPath, string pattern = "*.*",bool recursive=false) {
             List<string> result = new List<string>();
-            foreach (string path in Directory.GetFiles(absPath, pattern, SearchOption.TopDirectoryOnly)) {
+            foreach (string path in Directory.GetFiles(absPath, pattern, recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)) {
                 result.Add(path.Replace('\\', '/'));
             }
             return result;
         }
 
-        public override List<string> GetFilesInDomain(FSDomain domain, string innerDomainPath="",string filter = "*.*") {
-            return GetFilesInAbsFolder(GetPath(domain,innerDomainPath), filter);
+        public override List<string> GetFilesInDomain(FSDomain domain, string innerDomainPath="",string filter = "*.*",bool recursive=false) {
+            return GetFilesInAbsFolder(GetPath(domain,innerDomainPath), filter, recursive);
         }
 
         public override void RemoveFile(string filePath) {
