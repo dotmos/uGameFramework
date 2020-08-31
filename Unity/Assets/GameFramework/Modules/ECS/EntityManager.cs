@@ -24,7 +24,7 @@ namespace ECS {
         /// <summary>
         /// List of all registered systems
         /// </summary>
-        private readonly List<ISystem> _systems;
+        protected readonly List<ISystem> _systems;
 #if ECS_PROFILING && UNITY_EDITOR
         /// <summary>
         /// Stops the time for all services per frame
@@ -50,7 +50,7 @@ namespace ECS {
 
         bool applicationIsQuitting = false;
 
-        bool isInitialized = false;
+        protected bool isInitialized = false;
 
         /// <summary>
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
@@ -129,7 +129,6 @@ namespace ECS {
                     mediumTicks++;
                 }
                 if (showLog) {
-                    logTxtBuilder.Clear();
                     logTxtBuilder.Append("------").Append(deltaTime).Append("-----\nECS-Tick:").Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
                         .Append("|>1.0:").Append(veryhighTicks).Append("] System:");
                     UnityEngine.Debug.Log(logTxtBuilder.ToString());
