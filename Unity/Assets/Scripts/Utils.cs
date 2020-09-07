@@ -564,6 +564,12 @@ public class PoolList<T> where T : new()
         get => innerList.Count;
     }
 
+    public bool Remove(T obj) {
+        bool found = innerList.Remove(obj);
+        if (found && pool.Count < maxPoolSize) pool.Add(obj);
+        return found;
+    }
+
     /// <summary>
     /// Get one element. CAUTION: This data needs to be overwritten completely!!!!
     /// </summary>
@@ -607,7 +613,7 @@ public class GenericPool {
     }
 
     public Dictionary<Type, Func<object>> customCreators = new Dictionary<Type, Func<object>>();
-
+    
     public void RegisterCustomCreator<T>(Func<object> createFunc) where T : new() {
         customCreators[typeof(T)] = createFunc;
     }
@@ -642,6 +648,15 @@ public class GenericPool {
             pools[typeof(T)] = newPool;
             object newObj = newPool.Acquire();
             return (T)newObj;
+        }
+    }
+
+    public void ClearAndRelease<T>(List<T> clearReleaseList) {
+        if (pools.TryGetValue(typeof(T), out SimplePool<object> pool)) {
+            for (int i = clearReleaseList.Count - 1; i >= 0; i--) {
+                pool.Release(clearReleaseList[i]);
+            }
+            clearReleaseList.Clear();
         }
     }
 
@@ -767,7 +782,24 @@ public class ListPool<T>  {
     }
 }
 
-public class SimplePool<T>  where T : class {
+
+public abstract class SimplePoolDisposable {
+    public enum KeepTrackMode : int {
+        None = 0, RefCounted = 1, WeakReferenced = 2
+    }
+
+    public abstract void Dispose(bool includingAcquiredObjects);
+};
+public class SimplePool<T> : SimplePoolDisposable where T : class {
+
+    public static List<SimplePoolDisposable> allPools = new List<SimplePoolDisposable>();
+
+    public static void DisposeAll() {
+        for (int i = allPools.Count - 1; i >= 0; i--) {
+            allPools[i].Dispose(true);
+        }
+    }
+
     // keep the available objects in a stack
     readonly Stack<T> _stack = new Stack<T>();
     public Func<T> createFunc;
@@ -778,8 +810,12 @@ public class SimplePool<T>  where T : class {
     /// <summary>
     /// Objects that are acquired by the user
     /// </summary>
-    readonly List<WeakReference<T>> acquiredObjects = new List<WeakReference<T>>();
-    readonly bool keepTrackOfAcquired;
+    readonly List<WeakReference<T>> acquiredObjectsWeak;
+    readonly SimplePool<WeakReference<T>> weakRefPool;
+
+    readonly List<T> acquiredObjectsRef;
+
+    readonly KeepTrackMode keepTrackMode;
 
     int discardObjectCount = -1;
 
@@ -793,13 +829,22 @@ public class SimplePool<T>  where T : class {
     /// <param name="onAcquire">function called when acquire is called and the object is passed to the user</param>
     /// <param name="onRelease">function called after release</param>
     /// <param name="onDispose">function called to dispose the object</param>
-    public SimplePool(Func<T> createFunc,int maxObjectsOnStack=-1,bool keepTrackOfAquiredObjects=false,Action<T> onAcquire=null,Action<T> onRelease = null,Action<T> onDispose=null) {
+    public SimplePool(Func<T> createFunc,int maxObjectsOnStack=-1, KeepTrackMode keepTrackMode = KeepTrackMode.None,Action<T> onAcquire=null,Action<T> onRelease = null,Action<T> onDispose=null) {
+        allPools.Add(this);
+
         this.createFunc = createFunc;
         this.onAcquire = onAcquire;
         this.onRelease = onRelease;
         this.onDispose = onDispose;
         SetDiscardObjectCount(maxObjectsOnStack);
-        this.keepTrackOfAcquired = keepTrackOfAquiredObjects;
+        this.keepTrackMode = keepTrackMode;
+        if (keepTrackMode == KeepTrackMode.WeakReferenced) {
+            acquiredObjectsWeak = new List<WeakReference<T>>();
+            weakRefPool = new SimplePool<WeakReference<T>>(()=> { return new WeakReference<T>(null); });
+        }
+        else if (keepTrackMode == KeepTrackMode.RefCounted) {
+            acquiredObjectsRef = new List<T>();
+        }
     }
 
     /// <summary>
@@ -837,14 +882,22 @@ public class SimplePool<T>  where T : class {
         if (onAcquire != null) {
             onAcquire(obj);
         }
-        if (keepTrackOfAcquired) {
-            acquiredObjects.Add(new WeakReference<T>(obj));
+        if (keepTrackMode > 0) {
+            if (keepTrackMode == KeepTrackMode.WeakReferenced) {
+                WeakReference<T> wr = weakRefPool.Acquire();
+                wr.SetTarget(obj);
+                acquiredObjectsWeak.Add(wr);
+            } else if (keepTrackMode == KeepTrackMode.RefCounted) {
+                acquiredObjectsRef.Add(obj);
+            }
         }
+
         return obj;
     }
 
     /// <summary>
     /// Release the object to the pool again so that is can be reused
+    /// CAUTIOUS: make sure no reference to this object remain. using released objects will lead to severe problems
     /// </summary>
     /// <param name="obj"></param>
     public void Release(T obj) {
@@ -856,13 +909,27 @@ public class SimplePool<T>  where T : class {
             }
         }
 
-
-        if (keepTrackOfAcquired) {
+        if (keepTrackMode == KeepTrackMode.RefCounted) {
+            acquiredObjectsRef.Remove(obj);
+        }
+        else if (keepTrackMode == KeepTrackMode.WeakReferenced) {
             // remove the current and all weak pointers which got invalid
-            acquiredObjects.RemoveAll(o => !o.TryGetTarget(out T target) || target == o);
+            for (int i = acquiredObjectsWeak.Count - 1; i >= 0; i--) {
+                WeakReference<T> wr = acquiredObjectsWeak[i];
+                if (wr.TryGetTarget(out T target) && target == obj) {
+                    wr.SetTarget(null);
+                    weakRefPool.Release(wr);
+                    acquiredObjectsRef.RemoveAt(i);
+                    break;
+                }
+            }
         }
 
-        if (discardObjectCount==-1 || _stack.Count < discardObjectCount) {
+        _Release(obj);
+    }
+
+    private void _Release(T obj) {
+        if (discardObjectCount == -1 || _stack.Count < discardObjectCount) {
             _stack.Push(obj);
         } else if (onDispose != null) {
             // we exceeded the stack amount therefore let the GC do what it have to do
@@ -870,20 +937,65 @@ public class SimplePool<T>  where T : class {
         }
     }
 
+    
+    /// <summary>
+    /// Release all acquired objects. 
+    /// CAUTIOUS: make sure no reference to this objects remain. using released objects will lead to severe problems
+    /// </summary>
+    public void ReleaseAcquired() {
+        if (keepTrackMode == KeepTrackMode.None) {
+            Debug.LogError("Using release acquired! But using this pool in keepingTrack-Mode!");
+            return;
+        }
+#if UNITY_EDITOR
+        int releasedObjectsCount = 0;
+#endif        
+        if (keepTrackMode == KeepTrackMode.RefCounted) {
+            for (int i = acquiredObjectsRef.Count - 1; i >= 0; i--) {
+                T obj = acquiredObjectsRef[i];
+                if (onRelease != null) {
+                    onRelease(obj);
+                }
+                _Release(obj);
+#if UNITY_EDITOR
+                releasedObjectsCount++;
+#endif
+            }
+            acquiredObjectsRef.Clear();
+        } else if (keepTrackMode == KeepTrackMode.WeakReferenced) {
+            for (int i = acquiredObjectsWeak.Count - 1; i >= 0; i--) {
+                WeakReference<T> wr = acquiredObjectsWeak[i];
+                if (wr.TryGetTarget(out T target)) {
+                    _Release(target);
+                }
+                wr.SetTarget(null);
+                weakRefPool.Release(wr);
+#if UNITY_EDITOR
+                releasedObjectsCount++;
+#endif
+            }
+            acquiredObjectsRef.Clear();
+        }
+#if UNITY_EDITOR
+        //Debug.Log("ReleaseAcquired:" + releasedObjectsCount);
+#endif
+
+    }
+
     /// <summary>
     /// Call the onDispose action on all objects still in the stack
     /// 
     /// </summary>
     /// <param name="includingAcquiredObjects"></param>
-    public void Dispose(bool includingAcquiredObjects) {
+    public override void Dispose(bool includingAcquiredObjects) {
         if (onDispose != null) {
             while (_stack.Count > 0) {
                 T obj = _stack.Pop();
                 onDispose(obj);
             }
 
-            if (includingAcquiredObjects) {
-                foreach (WeakReference<T> weakRef in acquiredObjects) {
+            if (keepTrackMode == KeepTrackMode.WeakReferenced) {
+                foreach (WeakReference<T> weakRef in acquiredObjectsWeak) {
                     if (weakRef.TryGetTarget(out T obj)){
                         onDispose(obj);
                     }
@@ -893,6 +1005,15 @@ public class SimplePool<T>  where T : class {
                     onDispose(obj);
                 }
 
+            }
+            else if (keepTrackMode == KeepTrackMode.WeakReferenced) {
+                foreach (T obj in acquiredObjectsRef) {
+                    onDispose(obj);
+                }
+                while (_stack.Count > 0) {
+                    T obj = _stack.Pop();
+                    onDispose(obj);
+                }
             }
 
         }
