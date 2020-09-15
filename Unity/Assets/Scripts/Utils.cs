@@ -819,6 +819,8 @@ public class SimplePool<T> : SimplePoolDisposable where T : class {
 
     int discardObjectCount = -1;
 
+    Func<T> _defaultCreate = null;
+
     /// <summary>
     /// Create a pool for any reference-type. you need to provide at least a createFunction that will create an object for the pool
     /// if no object can be acquired from the stack
@@ -829,10 +831,18 @@ public class SimplePool<T> : SimplePoolDisposable where T : class {
     /// <param name="onAcquire">function called when acquire is called and the object is passed to the user</param>
     /// <param name="onRelease">function called after release</param>
     /// <param name="onDispose">function called to dispose the object</param>
-    public SimplePool(Func<T> createFunc,int maxObjectsOnStack=-1, KeepTrackMode keepTrackMode = KeepTrackMode.None,Action<T> onAcquire=null,Action<T> onRelease = null,Action<T> onDispose=null) {
+    public SimplePool(Func<T> createFunc=null,int maxObjectsOnStack=-1, KeepTrackMode keepTrackMode = KeepTrackMode.None,Action<T> onAcquire=null,Action<T> onRelease = null,Action<T> onDispose=null) {
         allPools.Add(this);
 
-        this.createFunc = createFunc;
+        if (createFunc == null) {
+            if (_defaultCreate == null) {
+                _defaultCreate = () => {
+                    return (T)Activator.CreateInstance(typeof(T));
+                };
+            }
+        } else {
+            this.createFunc = createFunc;
+        }
         this.onAcquire = onAcquire;
         this.onRelease = onRelease;
         this.onDispose = onDispose;
