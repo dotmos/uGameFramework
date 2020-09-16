@@ -188,7 +188,12 @@ namespace Service.Serializer
             return vec2;
         }
         public void GetVector2(int fbPos, ref Vector2 vec2) {
-            int vec_pos = __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4);
+            int offset = __tbl.__offset(fbPos * 2 + 4);
+            if (offset == 0) {
+                vec2 = default;
+                return;
+            }
+            int vec_pos = __tbl.bb_pos + offset;
             GetVector2FromOffset(vec_pos, ref vec2);
         }
         public void GetVector2FromOffset(int vec_pos, ref Vector2 vec2) {
@@ -219,7 +224,12 @@ namespace Service.Serializer
         }
 
         public void GetVector3(int o, ref Vector3 vec) {
-            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+            int offset = __tbl.__offset(o * 2 + 4);
+            if (offset == 0) {
+                vec = default;
+                return;
+            }
+            int vec_pos = __tbl.bb_pos + offset;
             GetVector3FromOffset(vec_pos, ref vec);
         }
         public void GetVector3FromOffset(int vec_pos, ref Vector3 vec) {
@@ -250,7 +260,12 @@ namespace Service.Serializer
         }
 
         public void GetVector4(int o, ref Vector4 vec) {
-            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+            int offset = __tbl.__offset(o * 2 + 4);
+            if (offset == 0) {
+                vec = default;
+                return;
+            }
+            int vec_pos = __tbl.bb_pos + offset;
             GetVector4FromOffset(vec_pos, ref vec);
         }
         public void GetVector4FromOffset(int vec_pos, ref Vector4 vec) {
@@ -282,7 +297,13 @@ namespace Service.Serializer
         }
 
         public void GetQuaternion(int o, ref Quaternion quat) {
-            int vec_pos = __tbl.bb_pos + __tbl.__offset(o * 2 + 4);
+            int offset = __tbl.__offset(o * 2 + 4);
+            if (offset == 0) {
+                quat = default;
+                return;
+            }
+
+            int vec_pos = __tbl.bb_pos + offset;
             GetQuaternionFromOffset(vec_pos, ref quat);
         }
 
@@ -309,7 +330,12 @@ namespace Service.Serializer
         }
 
         public void GetUID(int fbPos, ref ECS.UID uid) {
-            int vec_pos = __tbl.bb_pos + __tbl.__offset(fbPos * 2 + 4);
+            int offset = __tbl.__offset(fbPos * 2 + 4);
+            if (offset == 0) {
+                uid = default;
+                return;
+            }
+            int vec_pos = __tbl.bb_pos + offset;
             GetUIDFromOffset(vec_pos, ref uid);
         }
 
