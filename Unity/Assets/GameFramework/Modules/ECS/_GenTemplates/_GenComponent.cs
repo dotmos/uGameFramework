@@ -140,9 +140,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             }
             /*name:mergeDataInheritance*/ // /*endname*/ base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
-            /*block:MergeField*//*name:copyNonPersisted*/
-            if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
+            /*block:MergeField*//*name:copyNonPersisted*/if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
             /*endblock:MergeField*/
+
         }
 
         /*name:classSerialization*/
