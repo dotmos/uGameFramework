@@ -47,7 +47,8 @@ public enum FSDomain {
 	SaveGames,
 	Localizations,
 	Debugging,
-	Modding
+	Modding,
+	SteamingAssets
 }  
 
 ## events 

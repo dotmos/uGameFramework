@@ -97,6 +97,7 @@ namespace Service.FileSystem {
                 case FSDomain.Localizations: path = localizationPath; break;
                 case FSDomain.Debugging: path = debuggingPath; break;
                 case FSDomain.Modding: path = moddingPath; break;
+                case FSDomain.SteamingAssets: path = streamingAssetsPath; break;
 
 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
