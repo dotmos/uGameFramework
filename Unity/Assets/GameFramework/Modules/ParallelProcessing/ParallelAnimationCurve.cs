@@ -21,6 +21,14 @@ namespace ParallelProcessing {
         public float Evaluate(float t) {
             return lut[Mathf.Clamp(Mathf.RoundToInt(t * res), 0, res)];
         }
+
+        public float EvaluateLerp(float t) {
+            float tScaled = t * res;
+            int lower = Mathf.Clamp(Mathf.FloorToInt(tScaled), 0, res);
+            int upper = Mathf.Min(lower + 1, res);
+            float localT = Mathf.Min(1.0f, tScaled - lower);
+            return Mathf.Lerp(lut[lower], lut[upper], localT);
+        }
     }
 
     /*
