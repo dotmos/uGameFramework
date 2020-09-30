@@ -840,6 +840,7 @@ public class SimplePool<T> : SimplePoolDisposable where T : class {
                     return (T)Activator.CreateInstance(typeof(T));
                 };
             }
+            this.createFunc = _defaultCreate;
         } else {
             this.createFunc = createFunc;
         }

@@ -1,7 +1,7 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-          
+           
 namespace Service.FileSystem {            
     public interface IFileSystemService {  
 		## "Get path as string for given domain"
@@ -47,7 +47,8 @@ public enum FSDomain {
 	SaveGames,
 	Localizations,
 	Debugging,
-	Modding
+	Modding,
+	SteamingAssets
 }  
 
 ## events 

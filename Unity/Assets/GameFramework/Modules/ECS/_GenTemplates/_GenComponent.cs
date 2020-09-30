@@ -140,9 +140,9 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             }
             /*name:mergeDataInheritance*/ // /*endname*/ base.MergeDataFrom(incoming, onlyCopyPersistedData);
 
-            /*block:MergeField*//*name:copyNonPersisted*/
-            if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
+            /*block:MergeField*//*name:copyNonPersisted*/if (!onlyCopyPersistedData)/*endname*/ this./*name:name*/MaxSoundChannels/*endname*/ = incoming./*name:name*/MaxSoundChannels/*endname*/;
             /*endblock:MergeField*/
+
         }
 
         /*name:classSerialization*/
@@ -634,7 +634,7 @@ public class SomeClazz2 : DefaultSerializable2
         /*endblock:d_enum*/
         /*block:d_enum_nullable*//*name:name*/nullState/*endname*/ = (/*name:type*/State/*endname*/?)ser2table.GetNullableInt(/*name:fieldid*/0/*endname*/);
         /*endblock:d_enum_nullable*/
-        /*block:d_primitive*//*name:name*/intValue/*endname*/ = ser2table./*name:getPrimitive*/GetInt/*endname*/(/*name:fieldid*/0/*endname*/);
+        /*block:d_primitive*//*name:name*/intValue/*endname*/ = ser2table./*name:getPrimitive*/GetInt/*endname*/(/*name:fieldid*/0/*endname*//*name:defaultvalue*//*endname*/);
         /*endblock:d_primitive*/
         /*block:d_string*//*name:name*/testName/*endname*/ = ser2table.GetString(/*name:fieldid*/0/*endname*/);
         /*endblock:d_string*/

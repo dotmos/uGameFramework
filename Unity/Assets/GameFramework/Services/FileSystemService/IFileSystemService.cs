@@ -199,7 +199,7 @@ namespace Service.FileSystem {
 
     
     public enum FSDomain {
-        Scripting,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder,SaveGames,Localizations,Debugging,Modding
+        Scripting,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder,SaveGames,Localizations,Debugging,Modding,SteamingAssets
         
     }
     
