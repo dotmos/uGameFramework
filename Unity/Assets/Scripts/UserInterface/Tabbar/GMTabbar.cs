@@ -17,6 +17,7 @@ namespace UserInterface {
         public GMTab defaultTab;
 
         private List<GMTab> tabs = new List<GMTab>();
+        public List<GMTab> Tabs => tabs;
 
         private GMTab activeTab;
 
