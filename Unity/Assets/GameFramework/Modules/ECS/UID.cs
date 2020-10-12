@@ -42,6 +42,10 @@ namespace ECS {
             return ID == 0;
         }
 
+        public bool IsNotNull() {
+            return ID != 0;
+        }
+
         public void SetNull() {
             ID = 0;
             revision = -1;
