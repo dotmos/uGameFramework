@@ -184,6 +184,7 @@ namespace Service.Serializer
         int ByteSize { get; }
     }
 
+    
     public class DefaultSerializable2 : IFBSerializable2
     {
         [JsonIgnore]
@@ -203,15 +204,17 @@ namespace Service.Serializer
 
         [JsonIgnore]
         int IFBSerializable2.Ser2Flags { get; set; }
+
+
+
         [JsonIgnore]
-        public IFB2Context Ser2Context { get; set; }
+        public IFB2Context Ser2Context {get;set; }
         
         [JsonIgnore]
         public bool Ser2HasValidContext => Ser2Context != null && Ser2Context.IsValid();
 
         [JsonIgnore]
         private object lock_state = new object();
-
 
         public virtual int Ser2Serialize(SerializationContext ctx) {
 #if TESTING
@@ -249,6 +252,7 @@ namespace Service.Serializer
 
         public virtual void Ser2Clear() {
             ser2table = ExtendedTable.NULL;
+            Ser2Context = null;
         }
     }
 
@@ -281,6 +285,7 @@ namespace Service.Serializer
 
         public void Invalidate() {
             isValid = false;
+            bb.Clear();
         }
 
         public DeserializationContext(ByteBuffer bb) {
@@ -652,10 +657,8 @@ namespace Service.Serializer
 
         public string name = ""; // optional just for debugging purpose
         public static int name_counter = 1;
-        /// <summary>
-        /// If merged into another context this becomes the parent
-        /// </summary>
-        public SerializationContext parentContext = null; 
+        public static int created = 0;
+        public static int destroyed = 0;
 
         public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
         //public readonly List<object> lateReferenceList = new List<object>();
@@ -669,6 +672,7 @@ namespace Service.Serializer
         private Func<object, bool> customFilter = null;
         private Dictionary<object, int> obj2offsetMapping = new Dictionary<object, int>(); // mapping to offset of objects != ifbserializable2
 
+        private List<SerializationContext> mergedContexts = new List<SerializationContext>();
         /// <summary>
         /// The amount of bytes to add to the offset of those bytebuffers
         /// </summary>
@@ -682,15 +686,25 @@ namespace Service.Serializer
 
         public void Invalidate() {
             isValid = false;
+            builder.Clear();
         }
 
         public SerializationContext(int initialBuilderCapacity,string _name=null) {
+            created++;
             builder = new FlatBufferBuilder(initialBuilderCapacity);
 #if TESTING
             //perfTest = Kernel.Instance.Container.Resolve<Service.PerformanceTest.IPerformanceTestService>();
 #endif
             name = _name ?? "sctx-" + (name_counter++);
+            Debug.Log($"SCTX: Created nr:{created}[{name}] => ({created - destroyed} SCTXs allocated)");
         }
+
+        ~SerializationContext() {
+            destroyed++;
+            //Debug.Log($"Destroying SerializerContext: {name} still allocated:{created - destroyed}");
+            Cleanup(); // just to be sure 
+        }
+
 
         public SerializationContext(ByteBuffer bb, string _name = null) {
             builder = new FlatBufferBuilder(bb);
@@ -958,11 +972,13 @@ namespace Service.Serializer
                     }
                 }
 
+                mergedContexts.Add(mergeCtx);
+                mergedContexts.AddRange(mergeCtx.mergedContexts);
 #if TESTING
                 debugOutput += mergeCtx.debugOutput;
 #endif
             }
-
+            
             
 
             whiteList = null;
@@ -1094,10 +1110,17 @@ namespace Service.Serializer
                 foreach (var ctx in offsetMapping.Keys) {
                     ctx.Invalidate();
                 }
+                offsetMapping.Clear();
+                offsetMapping = null;
             }
             foreach (IFB2Context ctx in contexts) {
                 ctx.Invalidate();
             }
+
+            foreach (SerializationContext mergedCTX in mergedContexts) {
+                mergedCTX.Cleanup();
+            }
+            mergedContexts.Clear();
 
         }
 

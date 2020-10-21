@@ -137,8 +137,8 @@ namespace FlatBuffers
         /// Reset the FlatBufferBuilder by purging all data that it holds.
         /// </summary>
         public void Clear() {
-            _space = _bb.Length;
-            _bb.Reset();
+            _space = 0;
+            _bb.Clear();
             _minAlign = 1;
             while (_vtableSize > 0) _vtable[--_vtableSize] = 0;
             _vtableSize = -1;
