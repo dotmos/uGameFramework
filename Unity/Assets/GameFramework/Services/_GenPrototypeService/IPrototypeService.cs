@@ -168,6 +168,10 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
 
+
+
+        /*endblock:constructor*/
+
 #if LEAK_DETECTION
         ~/*name:className*/SomeModel/*endname*/ () {
             if (leakDetectionCounted) {
@@ -175,12 +179,9 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
                 leakDetectionCounted = false;
             }
         }
-    
+
 
 #endif
-
-        /*endblock:constructor*/
-
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

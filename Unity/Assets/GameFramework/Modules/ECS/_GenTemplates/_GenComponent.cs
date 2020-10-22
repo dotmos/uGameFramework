@@ -166,18 +166,17 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
 
-#if LEAK_DETECTION
-    ~/*name:className*/SomeModel/*endname*/ () {
-            if (leakDetectionCounted) {
-                    PerformanceTestServiceImpl.instance.RemoveInstance(this);
-                    leakDetectionCounted = false;
-            }
-        }
-    
-#endif
-
         /*endblock:constructor*/
 
+#if LEAK_DETECTION
+        ~/*name:className*/SomeModel/*endname*/ () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

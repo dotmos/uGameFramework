@@ -250,6 +250,16 @@ namespace Service.DevUIService {
 
         
 
+#if LEAK_DETECTION
+        ~DataBrowserTopLevel () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>
@@ -321,6 +331,16 @@ namespace Service.DevUIService {
 
         
 
+#if LEAK_DETECTION
+        ~HistoryElement () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

@@ -132,6 +132,16 @@ namespace Service.GameStateService {
 
         
 
+#if LEAK_DETECTION
+        ~GSContext () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

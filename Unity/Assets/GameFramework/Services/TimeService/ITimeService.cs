@@ -109,6 +109,16 @@ namespace Service.TimeService {
 
         
 
+#if LEAK_DETECTION
+        ~TimerElement () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

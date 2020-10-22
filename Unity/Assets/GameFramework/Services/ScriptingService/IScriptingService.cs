@@ -260,6 +260,16 @@ namespace Service.Scripting {
 
         
 
+#if LEAK_DETECTION
+        ~ScriptingServiceData () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>
@@ -350,6 +360,16 @@ namespace Service.Scripting {
 
         
 
+#if LEAK_DETECTION
+        ~LuaCoroutine () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>
