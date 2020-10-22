@@ -15,6 +15,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace Service.DevUIService {
     public interface IDevUIService : IFBSerializable2, IFBSerializable, IService {
@@ -204,9 +205,33 @@ namespace Service.DevUIService {
     [System.Serializable]
     public partial class DataBrowserTopLevel: DefaultSerializable2
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         
 
-        public DataBrowserTopLevel() { }
+        public DataBrowserTopLevel() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         
         /// <summary>
         /// 
@@ -221,6 +246,8 @@ namespace Service.DevUIService {
         public System.Collections.IList objectList ;
         
         
+
+
         
 
         /// <summary>
@@ -249,9 +276,33 @@ namespace Service.DevUIService {
     [System.Serializable]
     public partial class HistoryElement: DefaultSerializable2
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         
 
-        public HistoryElement() { }
+        public HistoryElement() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         
         /// <summary>
         /// 
@@ -266,6 +317,8 @@ namespace Service.DevUIService {
         public string historyTitle ;
         
         
+
+
         
 
         /// <summary>

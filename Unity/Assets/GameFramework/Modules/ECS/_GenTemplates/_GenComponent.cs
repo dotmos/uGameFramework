@@ -2,9 +2,11 @@
 using ECS;
 using FlatBuffers;
 using ModestTree;
+using Service.PerformanceTest;
 using Service.Serializer;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using UnityEngine;
 /*name:using*/ /*endname*/
 
@@ -13,10 +15,11 @@ using UnityEngine;
 /// </summary>
 [System.Serializable]
 public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS.Component {
+
     /*block:enum*/
     /// <summary>
     /*name:comment*//*endname*/
-                    /// </summary>
+    /// </summary>
     public enum /*name:enumName*/State/*endname*/ : int {
         /*block:entry*//*block:comment*/
                        /// <summary>
@@ -44,6 +47,15 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     [System.Serializable]
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         /*block:ser2_header*/
         private /*name:newkeyword*/new/*endname*/ ExtendedTable ser2table = ExtendedTable.NULL;
 
@@ -96,7 +108,22 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         }
         /*endblock:ser2_header*/
 
-        public /*name:className*/SomeModel/*endname*/() { }
+        public /*name:className*/SomeModel/*endname*/() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
+
         /*block:field*/
         /// <summary>
         /// /*name:documentation*//*endname*/
@@ -122,9 +149,32 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
             /*block:constructorSet*/
             this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
             /*endblock:constructorSet*/
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
             /*block:rip*/
             this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
+
+#if LEAK_DETECTION
+    ~/*name:className*/SomeModel/*endname*/ () {
+            if (leakDetectionCounted) {
+                    PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                    leakDetectionCounted = false;
+            }
+        }
+    
+#endif
 
         /*endblock:constructor*/
 
@@ -207,7 +257,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     public class SomeStruct : IFBSerializable2Struct
     {
         public int ByteSize => throw new System.NotImplementedException();
-        #region nonimportant_default_implementation
+#region nonimportant_default_implementation
         public void Get(ExtendedTable table, int fbPos) {
             throw new System.NotImplementedException();
         }
@@ -216,12 +266,12 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         public int Put(FlatBufferBuilder builder,bool prep=true) {
             throw new System.NotImplementedException();
         }
-        #endregion
+#endregion
     }
 
     public class SomeClazz1 : DefaultSerializable2
 {
-    #region nonimportant_default_implementation
+#region nonimportant_default_implementation
     public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
@@ -230,12 +280,12 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         throw new System.NotImplementedException();
     }
 
-    #endregion
+#endregion
 
 }
 public class SomeClazz2 : DefaultSerializable2
 {
-    #region nonimportant_default_implementation
+#region nonimportant_default_implementation
     public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
         throw new System.NotImplementedException();
     }
@@ -244,7 +294,7 @@ public class SomeClazz2 : DefaultSerializable2
         throw new System.NotImplementedException();
     }
 
-    #endregion
+#endregion
 
 }
 
@@ -283,10 +333,41 @@ public class SomeClazz2 : DefaultSerializable2
 
     /*endblock:rip*/
 
+
+#if LEAK_DETECTION
+    /// <summary>
+    /// Did be put this instance into the leak-detection? 
+    /// TODO: necessary?
+    /// </summary>
+    [System.NonSerialized]
+    [Newtonsoft.Json.JsonIgnore]
+    private bool leakDetectionCounted;
+
+    ~/*name:ComponentName*/GenTemplateComponent/*endname*/ () {
+        if (leakDetectionCounted) {
+            PerformanceTestServiceImpl.instance.RemoveInstance(this);
+            leakDetectionCounted = false;
+        }
+    }
+
+#endif
+
     protected override void OnConstruct() {
         base.OnConstruct();
-
-/*block:newInstance*/        this./*name:name*/state/*endname*/ = new /*name:type*/State()/*endname*/;
+#if LEAK_DETECTION
+        try {
+            if (PerformanceTestServiceImpl.instance != null) {
+                PerformanceTestServiceImpl.instance.AddInstance(this);
+                leakDetectionCounted = true;
+            }
+        }
+        catch (System.Exception e) {
+            UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+            UnityEngine.Debug.LogException(e);
+        }
+#endif
+        /*block:newInstance*/
+        this./*name:name*/state/*endname*/ = new /*name:type*/State()/*endname*/;
 /*endblock:newInstance*/
 
     }
@@ -347,7 +428,7 @@ public class SomeClazz2 : DefaultSerializable2
         return (T)Clone(cloneFromPrefab);
     }
 /*block:serialization*/
-    #region serialization
+#region serialization
     public /*name:override*/override/*endname*/ int Serialize(FlatBuffers.FlatBufferBuilder builder) {
 /*block:inheritanceSer*/        var baseData = base.Serialize(builder);
 /*endblock:inheritanceSer*/
@@ -502,12 +583,12 @@ public class SomeClazz2 : DefaultSerializable2
         var fbSettlerDataComponent = Serial./*name|pre#FB:ComponentName*/FBGenTemplateComponent/*endname*/./*name|pre#GetRootAsFB:ComponentName*/GetRootAsFBGenTemplateComponent/*endname*/(buf);
         Deserialize(fbSettlerDataComponent);
     }
-    #endregion
+#endregion
     /*endblock:serialization*/
 
 
     /*block:serialization2*/
-    #region serialization2
+#region serialization2
     public  override void Ser2CreateTable(SerializationContext ctx, FlatBuffers.FlatBufferBuilder builder) {
         /*block:s_inheritance_offset*/
         base.Ser2CreateTable(ctx, builder);
@@ -742,7 +823,7 @@ public class SomeClazz2 : DefaultSerializable2
 
 
 
-    #endregion
+#endregion
     /*endblock:serialization2*/
 
 }

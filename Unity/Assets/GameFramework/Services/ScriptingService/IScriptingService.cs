@@ -16,6 +16,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace Service.Scripting {
     public interface IScriptingService : IFBSerializable2, IFBSerializable, IService {
@@ -208,9 +209,33 @@ namespace Service.Scripting {
     [System.Serializable]
     public partial class ScriptingServiceData: DefaultSerializable2
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         
 
-        public ScriptingServiceData() { }
+        public ScriptingServiceData() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         
         /// <summary>
         /// 
@@ -231,6 +256,8 @@ namespace Service.Scripting {
         public Dictionary<UID,int> uid2persistedId = new Dictionary<UID, int>();
         
         
+
+
         
 
         /// <summary>
@@ -260,9 +287,33 @@ namespace Service.Scripting {
     [System.Serializable]
     public partial class LuaCoroutine: DefaultSerializable2
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         
 
-        public LuaCoroutine() { }
+        public LuaCoroutine() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         
         /// <summary>
         /// 
@@ -295,6 +346,8 @@ namespace Service.Scripting {
         public Dictionary<string,object> context ;
         
         
+
+
         
 
         /// <summary>

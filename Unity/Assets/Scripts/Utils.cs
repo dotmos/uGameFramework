@@ -74,12 +74,17 @@ public class UtilsObservable
 
     public static IObservable<bool> UnloadScene(string sceneName) {
         return Observable.Create<bool>((observer) => {
-            int idx = SceneManager.GetSceneByName(sceneName).buildIndex;
-            AsyncOperation async = SceneManager.UnloadSceneAsync(idx);
-            async.completed += (val) => {
+            var scene = SceneManager.GetSceneByName(sceneName);
+            if (scene.isLoaded) {
+                AsyncOperation async = SceneManager.UnloadSceneAsync(scene.buildIndex);
+                async.completed += (val) => {
+                    observer.OnNext(true);
+                    observer.OnCompleted();
+                };
+            } else {
                 observer.OnNext(true);
                 observer.OnCompleted();
-            };
+            }
             return null;
         });
     }
