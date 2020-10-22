@@ -163,7 +163,10 @@ namespace Service.PerformanceTest
         public abstract             int GetInstanceCount(System.Type instanceType);
 
         
-        public abstract             void OutputInstanceViewToLog(bool gccollect=true);
+        public abstract             void OutputInstanceViewToLog(bool gccollect=true,bool compare=true);
+
+        
+        public abstract             void StoreCurrentView();
 
         
 

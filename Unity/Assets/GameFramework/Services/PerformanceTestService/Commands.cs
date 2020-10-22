@@ -43,6 +43,8 @@ namespace Service.PerformanceTest{
 //
 //            this.OnEvent<OutputInstanceViewToLogCommand>().Subscribe(e => OutputInstanceViewToLogCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<StoreCurrentViewCommand>().Subscribe(e => StoreCurrentViewCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -271,6 +273,7 @@ namespace Service.PerformanceTest{
         
 //        public class OutputInstanceViewToLogCommand  {
 //            public bool gccollect=true;
+//                        public bool compare=true;
 //            
 //            
 //        }
@@ -280,10 +283,33 @@ namespace Service.PerformanceTest{
 //            var ptest=Service.Performance.PerformanceTest.Get();
 //            ptest.Start("OutputInstanceViewToLogCommand");
 //#endif
-//        _service.OutputInstanceViewToLog(cmd.gccollect);
+//        _service.OutputInstanceViewToLog(cmd.gccollect,cmd.compare);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("OutputInstanceViewToLogCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Stores the current view-data for later comparison
+        /// </summary>
+        
+//        public class StoreCurrentViewCommand  {
+//
+//            
+//        }
+
+//		protected void StoreCurrentViewCommandHandler  (StoreCurrentViewCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("StoreCurrentViewCommand");
+//#endif
+//        _service.StoreCurrentView();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("StoreCurrentViewCommand");
 //#endif
 //        }
         

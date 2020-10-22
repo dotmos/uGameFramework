@@ -84,10 +84,20 @@ namespace Service.PerformanceTest {
         /// <summary>
         /// Output instance-view to log 
                 /// <param name="gccollect"></param>
+                /// <param name="compare"></param>
          /// </summary>
         
         
-                    void OutputInstanceViewToLog(bool gccollect=true);
+                    void OutputInstanceViewToLog(bool gccollect=true,bool compare=true);
+        
+                           
+        
+        /// <summary>
+        /// Stores the current view-data for later comparison 
+         /// </summary>
+        
+        
+                    void StoreCurrentView();
         
                            
 

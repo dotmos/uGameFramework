@@ -20,7 +20,10 @@ namespace Service.PerformanceTest {
         ## "Get the instance-count for a specific type"
         int GetInstanceCount(("System.Type") instanceType);
         ## "Output instance-view to log"
-        void OutputInstanceViewToLog(bool gccollect=True);
+        void OutputInstanceViewToLog(bool gccollect=True, bool compare=True);
+        
+        ## "Stores the current view-data for later comparison"
+        void StoreCurrentView();
     }      
 }                      
 ## model 

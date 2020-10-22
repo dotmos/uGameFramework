@@ -16,8 +16,13 @@ namespace Service.PerformanceTest {
         // sry for this hack, but I need to bypass Zenject in this case
         public static PerformanceTestServiceImpl instance;
 
+        [Inject]
+        private Service.FileSystem.IFileSystemService filesystem;
 
-        private static ConcurrentDictionary<Type, int> instanceCount = new ConcurrentDictionary<Type, int>();
+        private ConcurrentDictionary<Type, int> instanceCount = new ConcurrentDictionary<Type, int>();
+        private ConcurrentDictionary<Type, int> storedInstanceCount = new ConcurrentDictionary<Type, int>();
+        private Dictionary<Type, List<KeyValuePair<int, int>>> watchedTypes = new Dictionary<Type, List<KeyValuePair<int, int>>>();
+
 
         public class PerfTestData {
             public System.Diagnostics.Stopwatch watch;
@@ -124,7 +129,14 @@ namespace Service.PerformanceTest {
             return instanceCount;
         }
 
-        public override void OutputInstanceViewToLog(bool gccollect=true) {
+        public override void StoreCurrentView() {
+            storedInstanceCount.Clear();
+            foreach (var kv in instanceCount) {
+                storedInstanceCount[kv.Key] = kv.Value;
+            }
+        }
+
+        public override void OutputInstanceViewToLog(bool gccollect=true,bool compare=true) {
             if (gccollect) {
                 System.Runtime.GCSettings.LargeObjectHeapCompactionMode = System.Runtime.GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
@@ -133,9 +145,42 @@ namespace Service.PerformanceTest {
             StringBuilder stb = new StringBuilder("LEAK_INSTANCE_CHECK: ");
             stb.Append("GC-Total-Memory:").Append(GC.GetTotalMemory(false)).Append("\n\n");
             foreach (var kv in instanceCount.OrderByDescending(data => data.Value)) {
-                stb.Append(kv.Key).Append(" : ").Append(kv.Value).Append('\n');
+                stb.Append(kv.Key).Append(" : ").Append(kv.Value);
+                if (compare && storedInstanceCount.TryGetValue(kv.Key,out int storedAmount)) {
+                    var delta = kv.Value - storedAmount;
+                    watchedTypes.TryGetValue(kv.Key, out List<KeyValuePair<int, int>> watchedData);
+                    stb.Append(" ").Append(delta > 0 ? ("+" + delta) : delta.ToString());
+                    if (delta > 0) {// growing 
+                        if (watchedData!=null){
+                            watchedData.Add(new KeyValuePair<int, int>(kv.Value, delta));
+                        } else {
+                            watchedTypes[kv.Key] = new List<KeyValuePair<int, int>>() { new KeyValuePair<int, int>(kv.Value,delta) };
+                        }
+                    } else {
+                        watchedTypes.Remove(kv.Key);
+                    }
+                } else {
+                    stb.Append(" new");
+                }
+                stb.Append('\n');
             }
+
+            stb.Append("\n\nGrowing DELTAS:\n\n");
+            foreach (var elems in watchedTypes.OrderByDescending(data => data.Value[data.Value.Count - 1].Value)) {
+                stb.Append(elems.Key.ToString()).Append(" ");
+               
+                stb.Append("[");
+                foreach (KeyValuePair<int, int> wD in elems.Value) {
+                    stb.Append(wD.Key).Append(' ').Append(wD.Value > 0 ? ("+" + wD.Value) : wD.Value.ToString()).Append(" | ");
+                }
+                stb.Append("]\n");
+
+            }
+            stb.Append("\n");
             UnityEngine.Debug.LogWarning(stb.ToString());
+            if (filesystem != null) {
+                filesystem.WriteStringToFileAtDomain(FileSystem.FSDomain.Debugging, "leak_check.txt", stb.ToString());
+            }
         }
 
     }
