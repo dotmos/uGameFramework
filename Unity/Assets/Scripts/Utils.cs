@@ -719,11 +719,6 @@ public class ArrayPool<T> where T : struct {
     public void Release(params T[][] releasedArray) {
         lock (pool) {
             for (int i = releasedArray.Length - 1; i >= 0; i--) {
-#if UNITY_EDITOR
-                if (releasedArray[i] == null) {
-                    int a = 0;
-                }
-#endif
                 pool.Add(releasedArray[i]);
             }
             pool.Sort((x, y) => {
