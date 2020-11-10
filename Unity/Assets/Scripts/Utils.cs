@@ -78,8 +78,12 @@ public class UtilsObservable
             if (scene.isLoaded) {
                 AsyncOperation async = SceneManager.UnloadSceneAsync(scene.buildIndex);
                 async.completed += (val) => {
-                    observer.OnNext(true);
-                    observer.OnCompleted();
+                    Debug.LogWarning("Unload Scene Progress:" + val.progress);
+                    if (val.isDone) {
+                        observer.OnNext(true);
+                        observer.OnCompleted();
+                    }
+
                 };
             } else {
                 observer.OnNext(true);
