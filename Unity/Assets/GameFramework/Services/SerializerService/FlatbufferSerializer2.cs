@@ -776,6 +776,7 @@ namespace Service.Serializer
                     }
                     int newOffset = iFBSer2Obj.Ser2Serialize(this);
                     iFBSer2Obj.Ser2Context = this;
+                    iFBSer2Obj.Ser2Offset = newOffset;
                     obj2offsetMapping[obj] = newOffset;
                     return newOffset;
                 } else if (obj is IList) {
