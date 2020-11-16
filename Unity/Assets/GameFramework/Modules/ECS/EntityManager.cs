@@ -482,9 +482,10 @@ namespace ECS {
             if (EntityExists(entity)) {
                 List<IComponent> components = _entities[entity];
                 int _componentsCount = components.Count;
+                Type t = typeof(T);
                 for(int i=0; i< _componentsCount; ++i){
                     IComponent comp = components[i];
-                    if (comp.GetType() == typeof(T)) {
+                    if (comp.GetType() == t) {
                         return (T)comp;
                     }
                 }
@@ -498,11 +499,12 @@ namespace ECS {
                 List<IComponent> components = _entities[entity];
 
                 int _componentsCount = components.Count;
+                Type t = typeof(T);
                 for (int i = 0; i < _componentsCount; ++i) {
 
                     IComponent comp = components[i];
                     // ~3 ms
-                    if (comp.GetType() == typeof(T)) {
+                    if (comp.GetType() == t) {
                         return (T)comp;
                     }
                     
@@ -597,9 +599,10 @@ namespace ECS {
                 IComponent c = null;// 
                 List<IComponent> components = _entities[entity];
                 int _componentsCount = components.Count;
+                Type t = typeof(T);
                 for (int i=0; i<_componentsCount; ++i){
                     IComponent comp = components[i];
-                    if (comp.GetType() == typeof(T)) {
+                    if (comp.GetType() == t) {
                         c = (T)comp;
                         break;
                     }
