@@ -395,7 +395,8 @@ namespace ECS {
         void UpdateEntity(UID entity) {
             TComponents entityComponents = GetSystemComponentsForEntity(entity);
             GetEntityComponents(entityComponents, entity);
-            if (!updatedComponents.Contains(entityComponents)) {
+
+            if (entityComponents!=null && !updatedComponents.Contains(entityComponents)) {
                 updatedComponents.Add(entityComponents);
             }
         }
