@@ -258,7 +258,7 @@ namespace Service.Serializer
 
     public class DeserializationContext : IFB2Context
     {
-        public static int current_savegame_dataformat = 0;
+        public static int currentSavegameDataformat = 0;
 
 
         /// <summary>
