@@ -258,7 +258,10 @@ namespace Service.Serializer
 
     public class DeserializationContext : IFB2Context
     {
-        public static int current_savegame_dataformat = 0;
+        /// <summary>
+        /// The current version of the serializer that was used for the last loaded savegame. If a new game is started, this variable is set to the current serialization version ( Globals.Data.Serialization.dataFormatVersion )
+        /// </summary>
+        public static int currentSavegameDataformat = 0;
 
 
         /// <summary>
