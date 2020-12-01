@@ -370,5 +370,40 @@ namespace PhysicsHelper{
             return mesh.ClosestPointOnSurface(point);
         }
 
+
+        /// <summary>
+        /// Finds the closest point on an infinite line to a given point
+        /// </summary>
+        /// <param name="lineOrigin"></param>
+        /// <param name="lineDirection"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public static Vector3 ClosestPointOnLine(Vector3 lineOrigin, Vector3 lineDirection, Vector3 point) {
+            lineDirection.Normalize();
+            Vector3 lhs = point - lineOrigin;
+
+            float dotP = Vector3.Dot(lhs, lineDirection);
+            return lineOrigin + lineDirection * dotP;
+        }
+
+        /// <summary>
+        /// Finds the closest point on a line segment to a given point
+        /// </summary>
+        /// <param name="lineStart"></param>
+        /// <param name="lineEnd"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public static Vector3 ClosestPointOnLineSegment(Vector3 lineStart, Vector3 lineEnd, Vector3 point) {
+            //Get heading
+            Vector3 heading = (lineEnd - lineStart);
+            float magnitudeMax = heading.magnitude;
+            heading.Normalize();
+
+            //Do projection from the point but clamp it
+            Vector3 lhs = point - lineStart;
+            float dotP = Vector3.Dot(lhs, heading);
+            dotP = Mathf.Clamp(dotP, 0f, magnitudeMax);
+            return lineStart + heading * dotP;
+        }
     }
 }
