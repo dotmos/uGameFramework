@@ -444,7 +444,22 @@ namespace Service.DevUIService {
             return resultView;
         }
 
+        private DataBrowserTopLevel GetTopLevelObjectWithName(string name) {
+            for (int i = dataBrowserTopLevelElements.Count - 1; i >= 0; i--) {
+                var topLevelElement = dataBrowserTopLevelElements[i];
+                if (topLevelElement.topLevelName=="name") {
+                    return topLevelElement;
+                }
+            }
+            return null;
+        }
+
         public override void CreateDataBrowserTopLevelElement(string name, IList objectList) {
+            var checkForToplevelElement = GetTopLevelObjectWithName(name);
+            if (checkForToplevelElement != null) {
+                
+                return;
+            }
             dataBrowserTopLevelElements.Add(new DataBrowserTopLevel() {
                 topLevelName = name,
                 objectList = objectList
