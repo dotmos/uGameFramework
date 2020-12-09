@@ -87,7 +87,8 @@ namespace UserInterface {
             // fake-headers-row:
             List<DataCellObject> header = new List<DataCellObject>();
             dataTable.rows.Add(header);
-            for (int rowNr=0; rowNr < list.Count; rowNr++) {
+            int rowAmount = Mathf.Min(list.Count, 50);
+            for (int rowNr=0; rowNr < rowAmount; rowNr++) {
                 object rowObject = list[rowNr];
                 // try to convert this object if there is an converter registered(e.g. UID)
                 rowObject = devui.DataBrowserConvertObject(rowObject);
@@ -97,7 +98,7 @@ namespace UserInterface {
                 traverseObj = (rowObj,rowData) => {
                     DataBrowser.Traverse(rowObj, (varName, varObj, type, meta) => {
 #if UNITY_EDITOR
-                        Debug.Log(varName + " : " + varObj);
+                        //Debug.Log(varName + " : " + varObj);
 #endif
                         if (rowNr == 0) {
                             // define the columns in the first row
@@ -148,7 +149,7 @@ namespace UserInterface {
                                     // try to set the value of this field/property
                                     bool successful = DataBrowser.SetValue(rowObj, varName, newVal);
 #if UNITY_EDITOR
-                                    Debug.Log("Setting var " + varName + " to new Value:" + newVal + " [" + (successful ? "success" : "fail") + "]");
+                                   // Debug.Log("Setting var " + varName + " to new Value:" + newVal + " [" + (successful ? "success" : "fail") + "]");
 #endif
                                 }
 
