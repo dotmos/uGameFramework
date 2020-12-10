@@ -188,6 +188,14 @@ namespace ECS {
             return 0; 
         }
 
+        /// <summary>
+        /// Calls the system according to at fixed realtime(unscaled) rate like specified in SystemUpdateRate() or scales with the delta-time
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool SystemFixedRate() {
+            return true;
+        }
+
 
         protected abstract bool UseParallelSystemComponentsProcessing();
 
@@ -288,7 +296,7 @@ namespace ECS {
 #if ECS_PROFILING && UNITY_EDITOR
                 watchService.Restart();
 #endif
-                currentTimer += unscaled;
+                currentTimer += SystemFixedRate() ? unscaled : deltaTime;
                 currentUpdateDeltaTime += deltaTime;
                 //Process system components
                 if (currentTimer >= SystemUpdateRate()) {
