@@ -20,13 +20,12 @@ namespace ECS {
         /// </summary>
         /// <param name="entity"></param>
         void EntityModified(UID entity);
-        
-        void ProcessSystem(float deltaTime);
 
-        /// <summary>
-        /// Remove all entities from the system
-        /// </summary>
+        void ProcessSystem(float deltaTime, float unscaled);
+
+            /// <summary>
+            /// Remove all entities from the system
+            /// </summary>
         void RemoveAllEntities();
     }
 }
-

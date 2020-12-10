@@ -12,7 +12,7 @@ namespace ECS {
     {
         public enum CallbackState { start, end };
         public ISystem system;
-        public CallbackState state;
+        public CallbackState state; 
         public object componentsToProcess; // rethink this
     }
 #endif
@@ -84,6 +84,7 @@ namespace ECS {
         /// The delta time, that will be used for the next legit ProcessAll call. Once this value reaches a value that is higher or equal to SystemUpdateRate(), ProcessAll() call is valid.
         /// </summary>
         float currentUpdateDeltaTime = 0;
+        float currentTimer = 0;
 
         protected ParallelProcessor parallelSystemComponentProcessor;
 
@@ -184,7 +185,7 @@ namespace ECS {
         /// </summary>
         /// <returns></returns>
         protected virtual float SystemUpdateRate() {
-            return 0;
+            return 0; 
         }
 
 
@@ -251,7 +252,7 @@ namespace ECS {
 
 
 
-        public void ProcessSystem(float deltaTime) {
+        public void ProcessSystem(float deltaTime,float unscaled) {
 #if TESTING
             //tempStart.system = this;
             //tempStart.componentsToProcess = componentsToProcess;
@@ -287,12 +288,14 @@ namespace ECS {
 #if ECS_PROFILING && UNITY_EDITOR
                 watchService.Restart();
 #endif
+                currentTimer += unscaled;
                 currentUpdateDeltaTime += deltaTime;
                 //Process system components
-                if (currentUpdateDeltaTime >= SystemUpdateRate()) {
+                if (currentTimer >= SystemUpdateRate()) {
                     //Regular tick
                     ProcessAll(currentUpdateDeltaTime);
                     currentUpdateDeltaTime = 0;
+                    currentTimer = 0;
                 } else if(deltaTime == 0 && ForceTickOnDeltaZero()) {
                     //Force tick with deltaTime 0
                     ProcessAll(0);
