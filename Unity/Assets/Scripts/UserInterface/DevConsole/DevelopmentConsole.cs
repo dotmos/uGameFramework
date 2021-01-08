@@ -47,11 +47,11 @@ namespace UserInterface {
             }).AddTo(this);
 
             Observable.EveryUpdate().Subscribe(_ => {
-                if (Input.GetKeyDown(KeyCode.LeftControl)) {
+                if (Input.GetKeyDown(KeyCode.LeftControl) && !Input.GetKeyDown(KeyCode.AltGr)) {
                     consoleInput.readOnly = true;
                 }
 
-                if (Input.GetKeyUp(KeyCode.LeftControl)) {
+                if (Input.GetKeyUp(KeyCode.LeftControl) && !Input.GetKeyDown(KeyCode.AltGr)) {
                     consoleInput.readOnly = false;
                 }
 
