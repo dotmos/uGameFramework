@@ -296,7 +296,12 @@ namespace ECS {
 #if ECS_PROFILING && UNITY_EDITOR
                 watchService.Restart();
 #endif
+
+#if SYSTEMS_LEGACY
+                currentTimer += deltaTime;
+#else
                 currentTimer += SystemFixedRate() ? unscaled : deltaTime;
+#endif
                 currentUpdateDeltaTime += deltaTime;
                 //Process system components
                 if (currentTimer >= SystemUpdateRate()) {
