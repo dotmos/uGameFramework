@@ -1,27 +1,31 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UniRx;
-using System.Linq;
-using FlatBuffers;
-using System.Text;
-using Zenject;
+﻿using FlatBuffers;
 using Service.Serializer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UniRx;
+using Zenject;
 
 namespace ECS {
-    public class EntityManagerTest : DefaultSerializable2,IEntityManager {
+    public class EntityManagerArrayBased : DefaultSerializable2, IEntityManager {
+
+        const int initialArrayCapacity = 5;
 
         /// <summary>
         /// Holds components of entities
         /// </summary>
         //This is super cache unfriendly.
         //TODO: Make cache friendly and do not use a list of components, but use a list of ids, targeting component arrays of same component type. I.e. one array per component type
-        protected readonly Dictionary<UID, Dictionary<Type,IComponent>> _entities;
+        protected Dictionary<UID, IComponent[]> _entities;
+        protected Dictionary<UID, Dictionary<Type, int>> _entityComponentTypes;
+
+        // TODO: do we need this? this hashset-functionality can be replaced by _entities.ContainsKey(...). Performance is the same (see UnitTestPerformance.cs TestCompareHashsetWithDictKey-Testcase)
+        // private readonly HashSet<UID> _entityIDs;
 
         /// <summary>
         /// List of all registered systems
         /// </summary>
-        private readonly List<ISystem> _systems;
+        protected readonly List<ISystem> _systems;
 #if ECS_PROFILING && UNITY_EDITOR
         /// <summary>
         /// Stops the time for all services per frame
@@ -47,32 +51,19 @@ namespace ECS {
 
         bool applicationIsQuitting = false;
 
-        bool isInitialized = false;
+        protected bool isInitialized = false;
 
         /// <summary>
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
         /// </summary>
         public bool AutoCallEntityModified { get; set; } = true;
-        public bool Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public ExtendedTable Ser2Table => throw new NotImplementedException();
-
-        public bool Ser2HasOffset => throw new NotImplementedException();
-
-        public int Ser2Offset => throw new NotImplementedException();
-
-        int IFBSerializable2.Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public object Ser2Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public bool Ser2HasValidContext => throw new NotImplementedException();
-
-        IFB2Context IFBSerializable2.Ser2Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        int IFBSerializable2.Ser2Offset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         [Inject] DisposableManager dManager;
 
-        public EntityManagerTest() {
-            _entities = new Dictionary<UID, Dictionary<Type,IComponent>>();
+        public EntityManagerArrayBased() {
+            _entities = new Dictionary<UID, IComponent[]>();
+            _entityComponentTypes = new Dictionary<UID, Dictionary<Type, int>>();
+            //_entityIDs = new HashSet<UID>();
             _systems = new List<ISystem>();
             _recycledEntityIds = new Queue<UID>();
             _recycledComponentIds = new Queue<UID>();
@@ -112,7 +103,7 @@ namespace ECS {
         /// Updates all systems for this frame
         /// </summary>
         /// <param name="deltaTime"></param>
-        public virtual void Tick(float deltaTime,float unscaled) {
+        public virtual void Tick(float deltaTime, float unscaledTime) {
             if (isInitialized) {
 #if ECS_PROFILING && UNITY_EDITOR
                 timer -= UnityEngine.Time.deltaTime;
@@ -122,8 +113,9 @@ namespace ECS {
                 }
                 watchOverall.Restart();
 #endif
-                for (int i = 0; i < _systems.Count; ++i) {
-                    try { _systems[i].ProcessSystem(deltaTime,unscaled); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
+                int _systemCount = _systems.Count;
+                for (int i = 0; i < _systemCount; ++i) {
+                    try { _systems[i].ProcessSystem(deltaTime, unscaledTime); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
                 }
 #if ECS_PROFILING && UNITY_EDITOR
                 watchOverall.Stop();
@@ -139,7 +131,6 @@ namespace ECS {
                     mediumTicks++;
                 }
                 if (showLog) {
-                    logTxtBuilder.Clear();
                     logTxtBuilder.Append("------").Append(deltaTime).Append("-----\nECS-Tick:").Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
                         .Append("|>1.0:").Append(veryhighTicks).Append("] System:");
                     UnityEngine.Debug.Log(logTxtBuilder.ToString());
@@ -172,10 +163,10 @@ namespace ECS {
             }
 
             if (_recycledEntityIds.Count > 0) {
-                UID  uid = _recycledEntityIds.Dequeue();
+                UID uid = _recycledEntityIds.Dequeue();
                 id = uid.ID;
                 revision = uid.Revision;
-                if(revision+1 >= int.MaxValue) {
+                if (revision + 1 >= int.MaxValue) {
                     revision = 0;
                 }
                 revision++;
@@ -194,7 +185,9 @@ namespace ECS {
             UID uid = new UID(id, revision);
             //UnityEngine.Debug.Log(uid.ID);
 
-            _entities.Add(uid, new Dictionary<Type,IComponent>());
+            _entities.Add(uid, new IComponent[initialArrayCapacity]);
+            _entityComponentTypes[uid] = new Dictionary<Type, int>();
+            //_entityIDs.Add(uid);
 
             return uid;
         }
@@ -207,8 +200,15 @@ namespace ECS {
             //UnityEngine.Debug.Log(uid.ID);
             lock (_entities) {
                 UID uid = new UID(id, revision);
-                _entities.Add(uid, new Dictionary<Type,IComponent>());
+                _entities.Add(uid, new IComponent[initialArrayCapacity]);
+                //_entityIDs.Add(uid);
                 return uid;
+            }
+        }
+
+        private void ClearComponents(IComponent[] components) {
+            for (int i = 0, end = components.Length; i < end; i++) {
+                components[i] = null;
             }
         }
 
@@ -219,19 +219,21 @@ namespace ECS {
         public void DestroyEntity(ref UID entity) {
             if (applicationIsQuitting) return;
 
-            if (_entities.TryGetValue(entity,out Dictionary<Type,IComponent> components)) {
-                foreach (var component in components.Values) {
-                    _recycledComponentIds.Enqueue(component.ID);
-                    component.Dispose();
-                    component.ID.SetNull();
+            if (_entities.TryGetValue(entity, out IComponent[] entityComponents)) {
+                //Dispose entity components
+                for (int i = 0, end = entityComponents.Length; i < end; i++) {
+                    DisposeComponent(entityComponents[i]);
                 }
-                components.Clear();
+
+                ClearComponents(entityComponents);
+                //_entities[entity].Clear();
+                //_entityIDs.Remove(entity);
+                _EntityModified(entity);
+                _entities[entity] = null;
+                _entities.Remove(entity);
+                _recycledEntityIds.Enqueue(entity);
+                entity.SetNull(); // make it NULL
             }
-            _EntityModified(entity);
-            _entities[entity] = null;
-            _entities.Remove(entity);
-            _recycledEntityIds.Enqueue(entity);
-            entity.SetNull(); // make it NULL
         }
 
         ///// <summary>
@@ -249,6 +251,7 @@ namespace ECS {
         //}
 
         public int EntityCount() {
+            //            return _entityIDs.Count;
             return _entities.Count;
         }
 
@@ -261,6 +264,7 @@ namespace ECS {
             //return _entities.ContainsKey(entity);
             if (entity.ID == 0) return false;
 
+            //            return _entityIDs.Contains(entity);
             return _entities.ContainsKey(entity);
         }
 
@@ -270,6 +274,10 @@ namespace ECS {
         /// <param name="id"></param>
         /// <returns></returns>
         public UID? GetEntityForID_SLOW(int id) {
+            //            foreach (UID uid in _entityIDs) {
+            foreach (UID uid in _entities.Keys) {
+                if (uid.ID == id) return uid;
+            }
             return null;
         }
 
@@ -292,12 +300,11 @@ namespace ECS {
                     UID uid = _recycledComponentIds.Dequeue();
                     id = uid.ID;
                     revision = uid.Revision;
-                    if(revision+1 > int.MaxValue) {
+                    if (revision + 1 > int.MaxValue) {
                         revision = 0;
                     }
                     revision++;
-                }
-                else {
+                } else {
                     id = _lastComponentId;
                     _lastComponentId++;
                 }
@@ -314,15 +321,11 @@ namespace ECS {
         /// <param name="entity"></param>
         public T AddComponent<T>(UID entity) where T : IComponent, new() {
             //UnityEngine.Debug.Log("Adding component "+typeof(T)+" to entity:" + entity.ID);
-            if (_entities.TryGetValue(entity,out Dictionary<Type,IComponent> components)) {
-
-            }
-            if (EntityExists(entity)) {
+            if (_entities.TryGetValue(entity, out IComponent[] entityComponents)) {
                 if (!HasComponent<T>(entity)) {
                     IComponent component = new T();
                     return (T)AddComponent(entity, component);
-                }
-                else {
+                } else {
                     return GetComponent<T>(entity);
                 }
             }
@@ -330,11 +333,29 @@ namespace ECS {
         }
 
         public IComponent AddComponent(UID entity, IComponent component) {
-            if (EntityExists(entity) && !HasComponent(entity, component.GetType())) {
+            if (_entities.TryGetValue(entity, out IComponent[] entityComponents) && !HasComponent(entity, component.GetType())) {
                 //component.Entity.SetID(entity.ID);
                 component.Entity = entity;
                 SetupComponentID(component);
-                _entities[entity].Add(component.GetType(),component);
+
+                int idx = -1;
+                for (int i = 0, end = entityComponents.Length; i < end; i++) {
+                    if (entityComponents[i] == null) {
+                        idx = i;
+                        break;
+                    }
+                }
+                if (idx == -1) {
+                    idx = entityComponents.Length;
+                    // resize
+                    int hashBefore = entityComponents.GetHashCode();
+                    Array.Resize<IComponent>(ref entityComponents, entityComponents.Length * 2);
+                    int hashAfter = entityComponents.GetHashCode();
+                    _entities[entity] = entityComponents;
+                }
+
+                entityComponents[idx] = component;
+                _entityComponentTypes[entity][component.GetType()] = idx;
                 _EntityModified(entity);
                 //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
                 return component;
@@ -343,11 +364,9 @@ namespace ECS {
         }
 
         public IComponent AddComponent(UID entity, Type componentType) {
-            if (EntityExists(entity)) {
-                if (!HasComponent(entity, componentType)) {
-                    IComponent component = CreateComponentFromType(componentType);
-                    return AddComponent(entity, component);
-                }
+            if (!HasComponent(entity, componentType)) {
+                IComponent component = CreateComponentFromType(componentType);
+                return AddComponent(entity, component);
             }
             return null;
         }
@@ -360,32 +379,43 @@ namespace ECS {
         /// <param name="component"></param>
         /// <returns></returns>
         public IComponent SetComponent(UID entity, IComponent component) {
-            if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
-                RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
-            }
+            _entities.TryGetValue(entity, out IComponent[] entityComponents);
+            // remove component
+            RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
 
-                //component.Entity.SetID(entity.ID);
+            //component.Entity.SetID(entity.ID);
             component.Entity = entity;
-            SetupComponentID(component);
-            _entities[entity].Add(component.GetType(),component);
-            _EntityModified(entity);
+            //SetupComponentID(component);
+            AddComponent(entity, component);
+            //_EntityModified(entity);
             //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
             return component;
         }
 
+        public IComponent SetComponent<T>(UID entity, T component) where T : IComponent {
+            RemoveComponent(entity, (IComponent)GetComponent(entity, typeof(T)));
+
+            if (component != null) {
+                component.Entity = entity;
+                //SetupComponentID(component);
+                AddComponent(entity, component);
+            }
+            //component.Entity.SetID(entity.ID);
+            //_EntityModified(entity);
+            //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
+            return component;
+        }
+
+
         public IComponent ThreadSafeSetComponent(UID entity, IComponent component) {
             lock (_entities) {
-                if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
-                    RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
-                }
+                RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
 
                 //component.Entity.SetID(entity.ID);
                 component.Entity = entity;
-                SetupComponentID(component);
-                _entities[entity].Add(component.GetType(),component);
+                AddComponent(entity, component);
             }
 
-            _EntityModified(entity);
             //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
             return component;
         }
@@ -397,7 +427,7 @@ namespace ECS {
         /// </summary>
         /// <param name="componentToClone"></param>
         /// <returns></returns>
-        public IComponent CloneComponent(IComponent componentToClone) { 
+        public IComponent CloneComponent(IComponent componentToClone) {
             /*
             ConstructorInfo ctor = componentToClone.GetType().GetConstructor(System.Type.EmptyTypes);
             if (ctor != null) {
@@ -410,9 +440,9 @@ namespace ECS {
                 return component;
             }
             */
-            if(componentToClone != null) {
+            if (componentToClone != null) {
                 IComponent newComponent = CreateComponentFromType(componentToClone.GetType());
-                newComponent.CopyValues(componentToClone,true);
+                newComponent.CopyValues(componentToClone, true);
                 newComponent.ID = new UID();
                 SetupComponentID(newComponent);
                 return newComponent;
@@ -434,26 +464,33 @@ namespace ECS {
         public void RemoveComponent<T>(UID entity) where T : IComponent {
             if (applicationIsQuitting) return;
 
-            RemoveComponent(entity, GetComponent<T>(entity));
+            RemoveComponent(entity, typeof(T));
         }
         public void RemoveComponent(UID entity, IComponent component) {
             if (applicationIsQuitting) return;
 
-            if (component != null
-                && !entity.IsNull()
-                && _entities.TryGetValue(entity, out Dictionary<Type, IComponent> components)
-            ){
-                components.Remove(component.GetType());
-                _EntityModified(entity);
+            if (component != null) {
+                RemoveComponent(entity, component.GetType());
             }
         }
-        
-        /// <summary>
-        /// Disposes the component, freeing it's ID and calling Dispose()
-        /// </summary>
-        /// <param name="component"></param>
-        public void DisposeComponent(IComponent component) {
-            if (applicationIsQuitting) return;
+
+        public void RemoveComponent(UID entity, Type componentType) {
+            if (_entityComponentTypes.TryGetValue(entity, out Dictionary<Type, int> compIdxMap)) {
+                if (compIdxMap.TryGetValue(componentType, out int compIdx)) {
+                    compIdxMap.Remove(componentType);
+                    _entities[entity][compIdx] = null;
+                    _EntityModified(entity);
+                }
+            }
+        }
+
+
+            /// <summary>
+            /// Disposes the component, freeing it's ID and calling Dispose()
+            /// </summary>
+            /// <param name="component"></param>
+            public void DisposeComponent(IComponent component) {
+            if (applicationIsQuitting || component == null) return;
 
             RemoveComponent(component.Entity, component);
             _recycledComponentIds.Enqueue(component.ID);
@@ -468,14 +505,10 @@ namespace ECS {
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public T GetComponent<T>(UID entity) where T : IComponent{
-            if (_entities.TryGetValue(entity,out Dictionary<Type,IComponent> components)) {
-                components.TryGetValue(typeof(T), out IComponent result);
-                return (T)result;
-            }
-
-            return default;
+        public T GetComponent<T>(UID entity) where T : IComponent {
+            return (T)GetComponent(entity, typeof(T));
         }
+
 
         /// <summary>
         /// Get component for this entity by type
@@ -483,24 +516,22 @@ namespace ECS {
         /// <param name="entity"></param>
         /// <param name="componentType"></param>
         /// <returns></returns>
-        public object GetComponent(UID entity,Type componentType) {
-            if (_entities.TryGetValue(entity, out Dictionary<Type, IComponent> components)) {
-                components.TryGetValue(componentType, out IComponent result);
-                return result;
+        public IComponent GetComponent(UID entity, Type componentType) {
+            if (_entities.TryGetValue(entity, out IComponent[] components)) {
+                for (int i = components.Length - 1; i >= 0; i--) {
+                    var currentComponent = components[i];
+                    if (currentComponent!=null && currentComponent.GetType() == componentType) {
+                        return currentComponent;
+                    }
+                }
             }
-
-            return default;
+            return null;
         }
 
         public object ThreadSafeGetComponent(UID entity, Type componentType) {
             lock (_entities) {
-                if (_entities.TryGetValue(entity, out Dictionary<Type, IComponent> components)) {
-                    components.TryGetValue(componentType, out IComponent result);
-                    return result;
-                }
+                return GetComponent(entity, componentType);
             }
-
-            return default;
         }
 
         /// <summary>
@@ -510,7 +541,7 @@ namespace ECS {
         /// <returns></returns>
         public List<IComponent> GetAllComponents(UID entity) {
             if (EntityExists(entity)) {
-                return _entities[entity].Values.ToList();
+                return _entities[entity].ToList();
             } else {
                 return null;
             }
@@ -522,27 +553,18 @@ namespace ECS {
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public bool HasComponent<T>(UID entity) where T: IComponent {
-            if (_entities.TryGetValue(entity, out Dictionary<Type, IComponent> components)) {
-                return components.ContainsKey(typeof(T));
-            }
-
-            return false;
+        public bool HasComponent<T>(UID entity) where T : IComponent {
+            return HasComponent(entity, typeof(T));
         }
 
         public bool HasComponent(UID entity, IComponent component) {
-            if (_entities.TryGetValue(entity, out Dictionary<Type, IComponent> components)) {
-                return components.ContainsKey(component.GetType());
-            }
-
-            return false;
+            return HasComponent(entity, component.GetType());
         }
 
         public bool HasComponent(UID entity, Type componentType) {
-            if (_entities.TryGetValue(entity, out Dictionary<Type, IComponent> components)) {
-                return components.ContainsKey(componentType);
+            if (_entityComponentTypes.TryGetValue(entity, out Dictionary<Type, int> componentTypes)) {
+                return componentTypes.ContainsKey(componentType);
             }
-
             return false;
         }
 
@@ -554,7 +576,7 @@ namespace ECS {
             if (system.entityManager == null && !_systems.Contains(system)) {
                 system.SetEntityManager(this);
                 _systems.Add(system);
-                foreach(UID e in _entities.Keys) {
+                foreach (UID e in _entities.Keys) {
                     system.EntityModified(e);
                 }
             }
@@ -597,7 +619,8 @@ namespace ECS {
         /// </summary>
         /// <param name="entities"></param>
         public virtual void EntitiesModified(List<UID> entities) {
-            for(int i=0; i<entities.Count; ++i) {
+            int _entityCount = entities.Count;
+            for (int i = 0; i < _entityCount; ++i) {
                 EntityModified(entities[i]);
             }
         }
@@ -615,13 +638,44 @@ namespace ECS {
             builder.AddOffset(3, _recycledUIDOffset.Value, 0);
             builder.AddInt(4, _recycledComponentIds.Count, 0);
             builder.AddOffset(5, _recycledComponentIDOffset.Value, 0);
-            
+
 
             return builder.EndTable();
         }
 
+        public override void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+            base.Ser2CreateTable(ctx, builder);
+            builder.StartTable(4);
+            builder.AddInt(0, _lastEntityId, 0);
+            builder.AddInt(1, _lastComponentId, 0);
+            ctx.AddReferenceOffset(2, new List<UID>(_recycledEntityIds));
+            ctx.AddReferenceOffset(3, new List<UID>(_recycledComponentIds));
+            int tblPos = builder.EndTable();
+            ser2table = new ExtendedTable(tblPos, builder);
+        }
+
+        public override void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
+            base.Ser2Deserialize(tblOffset, ctx);
+
+            _lastEntityId = ser2table.GetInt(0);
+            _lastComponentId = ser2table.GetInt(1);
+            UID[] tempUIDs = null;
+            ser2table.GetStructArray<UID>(2, ref tempUIDs);
+            if (tempUIDs != null) {
+                for (int i = 0; i < tempUIDs.Length; i++) {
+                    _recycledEntityIds.Enqueue(tempUIDs[i]);
+                }
+            }
+            ser2table.GetStructArray<UID>(3, ref tempUIDs);
+            if (tempUIDs != null) {
+                for (int i = 0; i < tempUIDs.Length; i++) {
+                    _recycledComponentIds.Enqueue(tempUIDs[i]);
+                }
+            }
+        }
+
         public virtual void Deserialize(object incoming) {
-            if (incoming == null){
+            if (incoming == null) {
                 return;
             }
 
@@ -636,7 +690,7 @@ namespace ECS {
             //((List<UID>)recycledIds).ForEach(o => _recycledEntityIds.Enqueue(o));
             int recycledIdsCount = manual.GetInt(2);
             List<object> tempList = FlatBufferSerializer.poolListObject.GetList(recycledIdsCount);
-            for (int i = 0; i < recycledIdsCount; i++) tempList.Add(manual.GetListElemAt<Serial.FBUID>(3,i));
+            for (int i = 0; i < recycledIdsCount; i++) tempList.Add(manual.GetListElemAt<Serial.FBUID>(3, i));
             List<UID> recycledIds = (List<UID>)FlatBufferSerializer.DeserializeList<UID, Serial.FBUID>(3, recycledIdsCount, tempList, null, false);
             recycledIds.ForEach(o => _recycledEntityIds.Enqueue(o));
             FlatBufferSerializer.poolListObject.Release(tempList);
@@ -648,7 +702,7 @@ namespace ECS {
             tempList = FlatBufferSerializer.poolListObject.GetList(recycledIdsCount);
             int listLength = manual.GetListLength(5);
             for (int i = 0; i < recycledIdsCount; i++) tempList.Add(manual.GetListElemAt<Serial.FBUID>(5, i));
-            
+
             recycledIds = (List<UID>)FlatBufferSerializer.DeserializeList<UID, Serial.FBUID>(5, recycledIdsCount, tempList, null, false);
             recycledIds.ForEach(o => _recycledComponentIds.Enqueue(o));
             FlatBufferSerializer.poolListObject.Release(tempList);
@@ -665,198 +719,20 @@ namespace ECS {
 
         public void Clear() {
             List<ISystem> systemsToRemove = new List<ISystem>(_systems);
-            foreach(ISystem s in systemsToRemove) {
+            foreach (ISystem s in systemsToRemove) {
                 UnregisterSystem(s);
                 s.Dispose();
             }
             _systems.Clear();
 
-            foreach(KeyValuePair<UID, Dictionary<Type,IComponent>> kv in _entities) {
-                kv.Value.Clear();
-            }
             _entities.Clear();
+            _entityComponentTypes.Clear();
+            //_entityIDs.Clear();
             _lastComponentId = _startComponentID;
             _lastEntityId = _startEntityID;
             _recycledEntityIds.Clear();
             _recycledComponentIds.Clear();
         }
 
-        public IComponent SetComponent<T>(UID entity, T component) where T : IComponent {
-            throw new NotImplementedException();
-        }
-
-        IComponent IEntityManager.GetComponent(UID entity, Type componentType) {
-            throw new NotImplementedException();
-        }
-
- 
-
-        //void IEntityManager.Initialize() {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.Tick(float deltaTime,float unscaled) {
-        //    throw new NotImplementedException();
-        //}
-
-        //UID IEntityManager.CreateEntity() {
-        //    throw new NotImplementedException();
-        //}
-
-        //bool IEntityManager.EntityExists(UID entity) {
-        //    return _entities.ContainsKey(entity);
-        //}
-
-        //void IEntityManager.DestroyEntity(ref UID entity) {
-        //    throw new NotImplementedException();
-        //}
-
-        //T IEntityManager.AddComponent<T>(UID entity) {
-        //    if (EntityExists(entity)) {
-        //        if (!HasComponent<T>(entity)) {
-        //            IComponent component = new T();
-        //            return (T)AddComponent(entity, component);
-        //        } else {
-        //            return GetComponent<T>(entity);
-        //        }
-        //    }
-        //    return default(T);
-        //}
-
-        //IComponent IEntityManager.AddComponent(UID entity, IComponent component) {
-        //    throw new NotImplementedException();
-        //}
-
-        //IComponent IEntityManager.AddComponent(UID entity, Type componentType) {
-        //    throw new NotImplementedException();
-        //}
-
-        //IComponent IEntityManager.SetComponent(UID entity, IComponent component) {
-        //    throw new NotImplementedException();
-        //}
-
-        //IComponent IEntityManager.SetComponent<T>(UID entity, T component) {
-        //    throw new NotImplementedException();
-        //}
-
-        //IComponent IEntityManager.CloneComponent(IComponent componentToClone) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.RemoveComponent<T>(UID entity) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.RemoveComponent(UID entity, IComponent component) {
-        //    throw new NotImplementedException();
-        //}
-
-        //T IEntityManager.GetComponent<T>(UID entity) {
-        //    if (!EntityExists(entity)) {
-        //        return default(T);
-        //    }
-
-        //    return GetComponent(entity, typeof(T));          
-        //}
-
-        //IComponent IEntityManager.GetComponent(UID entity, Type componentType) {
-        //    if (!EntityExists(entity)) {
-        //        return null;
-        //    }
-        //    _entities[entity].TryGetValue(componentType, out IComponent comp);
-        //    return comp;
-        //}
-
-        //List<IComponent> IEntityManager.GetAllComponents(UID entity) {
-        //    throw new NotImplementedException();
-        //}
-
-        //bool IEntityManager.HasComponent<T>(UID entity) {
-        //    throw new NotImplementedException();
-        //}
-
-        //bool IEntityManager.HasComponent(UID entity, IComponent component) {
-        //    throw new NotImplementedException();
-        //}
-
-        //bool IEntityManager.HasComponent(UID entity, Type componentType) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.SetupComponentID(IComponent component) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.DisposeComponent(IComponent component) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.RegisterSystem(ISystem system) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.UnregisterSystem(ISystem system) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.EntityModified(UID entity) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.EntitiesModified(List<UID> entity) {
-        //    throw new NotImplementedException();
-        //}
-
-        //int IEntityManager.EntityCount() {
-        //    throw new NotImplementedException();
-        //}
-
-        //UID? IEntityManager.GetEntityForID_SLOW(int id) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IEntityManager.Clear() {
-        //    throw new NotImplementedException();
-        //}
-
-        //int IFBSerializable.Serialize(FlatBufferBuilder builder) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IFBSerializable.Deserialize(object incoming) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IFBSerializable.Deserialize(ByteBuffer buf) {
-        //    throw new NotImplementedException();
-        //}
-
-        //void IDisposable.Dispose() {
-        //    throw new NotImplementedException();
-        //}
-
-        //public int Ser2Serialize(SerializationContext ctx) {
-        //    throw new NotImplementedException();
-        //}
-
-        //public void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
-        //    throw new NotImplementedException();
-        //}
-
-        //public void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
-        //    throw new NotImplementedException();
-        //}
-
-        //public void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
-        //    throw new NotImplementedException();
-        //}
-
-        //public void Ser2Deserialize(DeserializationContext ctx) {
-        //    throw new NotImplementedException();
-        //}
-
-        //public void Ser2Clear() {
-        //    throw new NotImplementedException();
-        //}
     }
 }

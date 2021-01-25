@@ -393,7 +393,7 @@ namespace Service.Serializer
             return newObject;
         }
 
-        private T _GetCachedObject<T>(int bufferOffset) {
+        public T _GetCachedObject<T>(int bufferOffset) {
             if (bufferOffset == 0) return default(T);
 
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
@@ -791,6 +791,8 @@ namespace Service.Serializer
                     int newOffset = builder.CreateString((string)obj).Value;
                     obj2offsetMapping[obj] = newOffset;
                     return newOffset;
+                } else {
+                    Debug.LogError($"Did not know how to serialize:{obj.GetType()}");
                 }
 #if TESTING
             }

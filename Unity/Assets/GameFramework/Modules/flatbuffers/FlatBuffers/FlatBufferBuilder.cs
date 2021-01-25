@@ -1104,7 +1104,13 @@ namespace FlatBuffers
 
 
         public int CreateList(IList list, SerializationContext sctx) {
-            Type innerType = list.GetType().GetGenericArguments()[0];
+            var genericArgs = list.GetType().GetGenericArguments();
+            if (genericArgs.Length == 0) {
+                int a = 0;
+            }
+            Type innerType = list is Array 
+                                ? list.GetType().GetElementType() 
+                                : list.GetType().GetGenericArguments()[0];
             
             if (innerType == typeString) {
                 return CreateStringList(list);

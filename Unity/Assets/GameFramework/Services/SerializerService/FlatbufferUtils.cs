@@ -466,6 +466,11 @@ namespace Service.Serializer
             int bufferPos = GetOffset(fbPos);
             if (bufferPos == 0) return default(T);
 
+            T cachedObject = dctx._GetCachedObject<T>(bufferPos);
+            if (cachedObject != null) {
+                return cachedObject;
+            }
+
             object obj = IsTypedObjectType(typeof(T)) ? CreateTypedObjectType(fbPos) : null;
             T result = dctx.GetReference<T>(bufferPos,obj);
             return result;
