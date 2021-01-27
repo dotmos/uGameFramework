@@ -39,6 +39,12 @@ namespace UserInterface
         [Serializable]
         public class GMButtonReleaseEvent : UnityEvent { }
 
+        [SerializeField]
+        GMButtonVisualsChangedEvent _onVisualsChanged = new GMButtonVisualsChangedEvent();
+
+        [Serializable]
+        public class GMButtonVisualsChangedEvent : UnityEvent { }
+
         protected GMButton() { }
 
         public override void OnPointerClick(PointerEventData eventData) {
@@ -64,6 +70,10 @@ namespace UserInterface
             set { _onRelease = value; }
         }
 
+        public GMButtonVisualsChangedEvent onVisualsChanged {
+            get { return _onVisualsChanged; }
+            set { _onVisualsChanged = value; }
+        }
 
 
         protected override void DoStateTransition(SelectionState state, bool instant)
@@ -75,18 +85,21 @@ namespace UserInterface
                 foreach (Graphic colorizeElement in colorizeElements)
                 {
                     colorizeElement.color = disabledColor;
+                    onVisualsChanged.Invoke();
                 }
             } else if (state == SelectionState.Highlighted)
             {
                 foreach (Graphic colorizeElement in colorizeElements)
                 {
                     colorizeElement.color = highlightColor;
+                    onVisualsChanged.Invoke();
                 }
             } else if (state == SelectionState.Normal)
             {
                 foreach (Graphic colorizeElement in colorizeElements)
                 {
                     colorizeElement.color = defaultColor;
+                    onVisualsChanged.Invoke();
                 }
             } else if (state == SelectionState.Pressed)
             {
@@ -95,6 +108,7 @@ namespace UserInterface
                 foreach (Graphic colorizeElement in colorizeElements)
                 {
                     colorizeElement.color = pressedColor;
+                    onVisualsChanged.Invoke();
                 }
             }
         }
