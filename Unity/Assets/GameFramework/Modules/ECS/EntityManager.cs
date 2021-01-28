@@ -479,8 +479,7 @@ namespace ECS {
         /// <param name="entity"></param>
         /// <returns></returns>
         public T GetComponent<T>(UID entity) where T : IComponent{
-            if (EntityExists(entity)) {
-                List<IComponent> components = _entities[entity];
+            if (_entities.TryGetValue(entity,out List<IComponent> components)) {
                 int _componentsCount = components.Count;
                 Type t = typeof(T);
                 for(int i=0; i< _componentsCount; ++i){
