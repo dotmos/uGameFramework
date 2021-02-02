@@ -1410,6 +1410,12 @@ namespace FlatBuffers
             int elementSize = keySize + valueSize;
             int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 
+            if (count == 0) {
+                Prep(4, 0);
+                PutInt(0);
+                return Offset;
+            }
+
             // prepare space
             Prep(4,overallSize-4);
 
