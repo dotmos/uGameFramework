@@ -355,28 +355,38 @@ namespace ECS {
         /// <param name="component"></param>
         /// <returns></returns>
         public IComponent SetComponent(UID entity, IComponent component) {
-            if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
-                RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
-            }
+            if (_entities.TryGetValue(entity, out List<IComponent> comps)) {
+                RemoveComponent(entity,component);
 
-                //component.Entity.SetID(entity.ID);
-            component.Entity = entity;
-            SetupComponentID(component);
-            _entities[entity].Add(component);
+                if (component != null) {
+                    component.Entity = entity;
+                    SetupComponentID(component);
+                    comps.Add(component);
+                }
+            }
+            //component.Entity.SetID(entity.ID);
             _EntityModified(entity);
             //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
             return component;
         }
 
-        public IComponent SetComponent<T>(UID entity, T component) where T : IComponent  {
-            if (EntityExists(entity) && HasComponent(entity, typeof(T))) {
-                RemoveComponent(entity, (IComponent)GetComponent(entity, typeof(T)));
+        public IComponent ThreadSafeSetComponent(UID entity, IComponent component) {
+            lock (_entities) {
+                return SetComponent(entity, component);
             }
+        }
 
-            if (component != null) {
-                component.Entity = entity;
-                SetupComponentID(component);
-                _entities[entity].Add(component);
+
+        public IComponent SetComponent<T>(UID entity, T component) where T : IComponent  {
+            if (_entities.TryGetValue(entity, out List<IComponent> comps)) {
+                RemoveComponent<T>(entity);
+
+
+                if (component != null) {
+                    component.Entity = entity;
+                    SetupComponentID(component);
+                    comps.Add(component);
+                }
             }
             //component.Entity.SetID(entity.ID);
             _EntityModified(entity);
@@ -385,22 +395,6 @@ namespace ECS {
         }
 
 
-        public IComponent ThreadSafeSetComponent(UID entity, IComponent component) {
-            lock (_entities) {
-                if (EntityExists(entity) && HasComponent(entity, component.GetType())) {
-                    RemoveComponent(entity, (IComponent)GetComponent(entity, component.GetType()));
-                }
-
-                //component.Entity.SetID(entity.ID);
-                component.Entity = entity;
-                SetupComponentID(component);
-                _entities[entity].Add(component);
-            }
-
-            _EntityModified(entity);
-            //UnityEngine.Debug.Log("Added component " + component.GetType() + " to entity:" + entity.ID);
-            return component;
-        }
 
 
 
@@ -446,15 +440,26 @@ namespace ECS {
         public void RemoveComponent<T>(UID entity) where T : IComponent {
             if (applicationIsQuitting) return;
 
-            RemoveComponent(entity, GetComponent<T>(entity));
+            Type type = typeof(T);
+            RemoveComponent(entity, type);
         }
         public void RemoveComponent(UID entity, IComponent component) {
             if (applicationIsQuitting) return;
 
-            if (component != null && EntityExists(entity) && HasComponent(entity, component)) {
-                _entities[entity].Remove(component);
-                //component.Entity.SetID(-1);
-                _EntityModified(entity);
+            RemoveComponent(entity, component.GetType());
+        }
+
+        public void RemoveComponent(UID entity, Type componentType) {
+            if (applicationIsQuitting) return;
+
+            if (_entities.TryGetValue(entity,out List<IComponent> comps)) {
+                for (int i = comps.Count - 1; i >= 0; i--) {
+                    if (comps[i].GetType() == componentType) {
+                        comps.RemoveAt(i);
+                        _EntityModified(entity);
+                        return;
+                    }
+                }
             }
         }
         
@@ -535,16 +540,15 @@ namespace ECS {
         /// <param name="componentType"></param>
         /// <returns></returns>
         public IComponent GetComponent(UID entity,Type componentType) {
-            if (EntityExists(entity)) {
-                List<IComponent> components = _entities[entity];
-                int _componentsCount = components.Count;
-                for (int i=0; i< _componentsCount; ++i) {
+            if (_entities.TryGetValue(entity, out List<IComponent> components)) {
+                for (int i = 0, _componentsCount = components.Count; i < _componentsCount; ++i) {
                     IComponent comp = components[i];
-                    if (comp.GetType()==componentType) {
+                    if (comp.GetType() == componentType) {
                         return comp;
                     }
                 }
             }
+
             return null;
         }
 
@@ -575,8 +579,8 @@ namespace ECS {
         /// <param name="entity"></param>
         /// <returns></returns>
         public List<IComponent> GetAllComponents(UID entity) {
-            if (EntityExists(entity)) {
-                return _entities[entity].ToList();
+            if (_entities.TryGetValue(entity,out List<IComponent> comps)) {
+                return comps.ToList();
             } else {
                 return null;
             }
@@ -589,59 +593,20 @@ namespace ECS {
         /// <param name="entity"></param>
         /// <returns></returns>
         public bool HasComponent<T>(UID entity) where T: IComponent {
-            if (EntityExists(entity)) {
-                //TODO: This is "slow" and produces garbage. Rethink how entities/components are stored.
-                //IComponent c = _entities[entity].Find(o => o is T);
-
-                //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
-                //UPDATE: List version again as list content is relatively small and will not create garbage when iterating / does not need GetEnumarator()
-                IComponent c = null;// 
-                List<IComponent> components = _entities[entity];
-                int _componentsCount = components.Count;
-                Type t = typeof(T);
-                for (int i=0; i<_componentsCount; ++i){
-                    IComponent comp = components[i];
-                    if (comp.GetType() == t) {
-                        c = (T)comp;
-                        break;
-                    }
-                }
-                if (c != null) {
-                    return true;
-                }
-            }
-            return false;
+            return HasComponent(entity, typeof(T));
         }
 
         public bool HasComponent(UID entity, IComponent component) {
-            if (EntityExists(entity)) {
-                //TODO: This is "slow" and produces garbage. Rethink how entities/components are stored.
-                //IComponent c = _entities[entity].Find(o => o == component);
-                //if (c != null) {
-                //    return true;
-                //}
-
-                //Hashset version. More gc friendly and less laggy, especially when creating LOTS of entities in one frame
-                //UPDATE: List version again as list content is relatively small and will not create garbage when iterating/does not need GetEnumarator()
-                return _entities[entity].Contains(component);
-            }
-            return false;
+            return HasComponent(entity,component.GetType());
         }
 
         public bool HasComponent(UID entity, Type componentType) {
-            if (EntityExists(entity)) {
-                IComponent c = null;// 
-                List<IComponent> components = _entities[entity];
-                int _componentsCount = components.Count;
-                for (int i=0; i< _componentsCount; ++i) {
-                    IComponent comp = components[i];
-                    if (comp.GetType() == componentType) {
-                        c = comp;
-                        break;
+            // TODO: HashSet based, better?
+            if (_entities.TryGetValue(entity, out List<IComponent> comps)) {
+                for (int i = comps.Count - 1; i >= 0; i--) {
+                    if (comps[i].GetType() == componentType) {
+                        return true;
                     }
-                }
-                if (c != null) {
-                    return true;
                 }
             }
             return false;
