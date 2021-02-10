@@ -501,6 +501,19 @@ public class DebugUtils {
             Debug.Log(outputString);
         }
     }
+
+    /// <summary>
+    /// Logs Error in UNITY_EDITOR or Warning in BUILD
+    /// </summary>
+    /// <param name="output"></param>
+    /// <param name="prefixGameTime"></param>
+    public static void LogEditorErrBuildWarn(String output) {
+#if UNITY_EDITOR
+        Debug.LogError(output);
+#else
+        Debug.LogWarning(log);
+#endif
+    }
 }
 
 public class PoolList<T> where T : new()
