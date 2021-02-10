@@ -6,7 +6,7 @@ namespace ECS {
     public interface IEntityManager : IFBSerializable,IFBSerializable2, IDisposable {
         void Initialize();
 
-        void Tick(float deltaTime,float unscaledTime);
+        void Tick(float deltaTime,float unscaledTime,float systemScaled);
 
         bool AutoCallEntityModified { get; set; }
 

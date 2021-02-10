@@ -188,6 +188,7 @@ namespace ECS {
             return 0; 
         }
 
+
         /// <summary>
         /// Calls the system according to at fixed realtime(unscaled) rate like specified in SystemUpdateRate() or scales with the delta-time
         /// </summary>
@@ -260,7 +261,7 @@ namespace ECS {
 
 
 
-        public void ProcessSystem(float deltaTime,float unscaled) {
+        public void ProcessSystem(float deltaTime,float unscaled, float systemScaled) {
 #if TESTING
             //tempStart.system = this;
             //tempStart.componentsToProcess = componentsToProcess;
@@ -300,7 +301,7 @@ namespace ECS {
 #if SYSTEMS_LEGACY
                 currentTimer += deltaTime;
 #else
-                currentTimer += SystemFixedRate() ? unscaled : deltaTime;
+                currentTimer += SystemFixedRate() ? unscaled : systemScaled;
 #endif
                 currentUpdateDeltaTime += deltaTime;
                 //Process system components

@@ -112,7 +112,7 @@ namespace ECS {
         /// Updates all systems for this frame
         /// </summary>
         /// <param name="deltaTime"></param>
-        public virtual void Tick(float deltaTime,float unscaled) {
+        public virtual void Tick(float deltaTime,float unscaled,float systemScaled) {
             if (isInitialized) {
 #if ECS_PROFILING && UNITY_EDITOR
                 timer -= UnityEngine.Time.deltaTime;
@@ -123,7 +123,7 @@ namespace ECS {
                 watchOverall.Restart();
 #endif
                 for (int i = 0; i < _systems.Count; ++i) {
-                    try { _systems[i].ProcessSystem(deltaTime,unscaled); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
+                    try { _systems[i].ProcessSystem(deltaTime,unscaled,systemScaled); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
                 }
 #if ECS_PROFILING && UNITY_EDITOR
                 watchOverall.Stop();

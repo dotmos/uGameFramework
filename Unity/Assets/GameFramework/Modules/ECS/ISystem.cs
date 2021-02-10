@@ -21,7 +21,7 @@ namespace ECS {
         /// <param name="entity"></param>
         void EntityModified(UID entity);
 
-        void ProcessSystem(float deltaTime, float unscaled);
+        void ProcessSystem(float deltaTime, float unscaled, float systemScaled);
 
             /// <summary>
             /// Remove all entities from the system
