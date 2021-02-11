@@ -511,7 +511,7 @@ public class DebugUtils {
 #if UNITY_EDITOR
         Debug.LogError(output);
 #else
-        Debug.LogWarning(log);
+        Debug.LogWarning(output);
 #endif
     }
 }

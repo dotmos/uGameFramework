@@ -11,8 +11,6 @@ using Service.Serializer;
 namespace ECS {
     public class EntityManager : DefaultSerializable2, IEntityManager {
 
-        public static bool systemFixedRate = true;
-
         /// <summary>
         /// Holds components of entities
         /// </summary>
