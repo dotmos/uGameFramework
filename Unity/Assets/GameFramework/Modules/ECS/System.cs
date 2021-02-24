@@ -79,6 +79,10 @@ namespace ECS {
         /// Temporarily store updated components here and call EntityUpdated when the system is Ticked again.
         /// </summary>
         protected List<TComponents> updatedComponents;
+        /// <summary>
+        /// Lookuptable for fast check if this component is already added to updated components-list
+        /// </summary>
+        protected HashSet<TComponents> updatedComponentsLUT;
 
         /// <summary>
         /// The delta time, that will be used for the next legit ProcessAll call. Once this value reaches a value that is higher or equal to SystemUpdateRate(), ProcessAll() call is valid.
@@ -110,6 +114,7 @@ namespace ECS {
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
             updatedComponents = new List<TComponents>();
+            updatedComponentsLUT = new HashSet<TComponents>();
 
             SetEntityManager(entityManager);
 
@@ -285,6 +290,7 @@ namespace ECS {
                     EntityUpdated(ref components);
                 }
                 updatedComponents.Clear();
+                updatedComponentsLUT.Clear();
             }
             //Tell system that components were removed
             if (removedComponents.Count > 0)
@@ -413,8 +419,9 @@ namespace ECS {
             TComponents entityComponents = GetSystemComponentsForEntity(entity);
             GetEntityComponents(entityComponents, entity);
 
-            if (entityComponents!=null && !updatedComponents.Contains(entityComponents)) {
+            if (entityComponents!=null && !updatedComponentsLUT.Contains(entityComponents)) {
                 updatedComponents.Add(entityComponents);
+                updatedComponentsLUT.Add(entityComponents);
             }
         }
 
