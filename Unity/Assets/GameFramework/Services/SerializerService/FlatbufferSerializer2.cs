@@ -260,6 +260,15 @@ namespace Service.Serializer
     {
         public static int currentSavegameDataformat = 0;
 
+        public static T ReadFromDomain<T>(FileSystem.FSDomain domain, string filename, bool compressed = true) where T : class,IFBSerializable2, new(){
+            var fs = Kernel.Instance.Resolve<FileSystem.IFileSystemService>();
+            byte[] buf = fs.LoadFileAsBytesAtDomain(domain, filename, compressed);
+
+            DeserializationContext dctx = new DeserializationContext(buf);
+            var result = dctx.GetRoot<T>();
+            return result;
+        }
+
 
         /// <summary>
         /// Filter to postpone deserialization of this object. e.g. Tasks
@@ -592,6 +601,15 @@ namespace Service.Serializer
 
     public class SerializationContext : IFB2Context
     {
+        public static void SaveToDomain(FileSystem.FSDomain domain,string filename,IFBSerializable2 data,bool compressed=true,int initalBufferSize=100) {
+            SerializationContext sctx = new SerializationContext(initalBufferSize);
+            int pos = data.Ser2Serialize(sctx);
+            byte[] buf = sctx.CreateSizedByteArray(pos);
+            var fs = Kernel.Instance.Resolve<FileSystem.IFileSystemService>();
+            fs.WriteBytesToFileAtDomain(domain, filename, buf, compressed);
+        }
+
+
 #if TESTING
 //        Service.PerformanceTest.IPerformanceTestService perfTest;
         Dictionary<Type, int> lateRefCalls = new Dictionary<Type, int>();
@@ -1131,43 +1149,43 @@ namespace Service.Serializer
 
 
 
-    public class FlatBufferSerializer2
-    {
+    //public class FlatBufferSerializer2
+    //{
 
-        public static ListPool<int> poolListInt = new ListPool<int>(10, 10);
+    //    public static ListPool<int> poolListInt = new ListPool<int>(10, 10);
 
-        public enum Mode
-        {
-            serializing, deserializing
-        }
-
-
-        public static byte[] SerializeToBytes(IFBSerializable root, int initialBufferSize = 5000000) {
-            byte[] buf = null;
-
-            return buf;
-        }
-
-        public static T DeepCopy<T>(T original) where T : IFBSerializable, new() {
-            byte[] buf = SerializeToBytes(original, 2048);
-            T result = DeserializeFromBytes<T>(buf, default(T), original.GetType());
-            return result;
-        }
-
-        public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root) {
-            byte[] buf = SerializeToBytes(root);
-            FileSystem.IFileSystemService fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
-            fs.WriteBytesToFileAtDomain(domain, filename, buf);
-        }
-
-        public static T DeserializeFromBytes<T>(byte[] buf, T dataRoot = default(T), Type type = null) where T : IFBSerializable, new() {
-            return dataRoot;
-        }
+    //    public enum Mode
+    //    {
+    //        serializing, deserializing
+    //    }
 
 
+    //    public static byte[] SerializeToBytes(IFBSerializable root, int initialBufferSize = 5000000) {
+    //        byte[] buf = null;
+
+    //        return buf;
+    //    }
+
+    //    public static T DeepCopy<T>(T original) where T : IFBSerializable, new() {
+    //        byte[] buf = SerializeToBytes(original, 2048);
+    //        T result = DeserializeFromBytes<T>(buf, default(T), original.GetType());
+    //        return result;
+    //    }
+
+    //    public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root) {
+    //        byte[] buf = SerializeToBytes(root);
+    //        FileSystem.IFileSystemService fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
+    //        fs.WriteBytesToFileAtDomain(domain, filename, buf);
+    //    }
+
+    //    public static T DeserializeFromBytes<T>(byte[] buf, T dataRoot = default(T), Type type = null) where T : IFBSerializable, new() {
+    //        return dataRoot;
+    //    }
 
 
-    }
+
+
+    //}
 
 
 }
