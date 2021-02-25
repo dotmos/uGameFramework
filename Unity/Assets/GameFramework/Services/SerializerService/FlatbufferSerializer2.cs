@@ -264,6 +264,8 @@ namespace Service.Serializer
             var fs = Kernel.Instance.Resolve<FileSystem.IFileSystemService>();
             byte[] buf = fs.LoadFileAsBytesAtDomain(domain, filename, compressed);
 
+            if (buf == null) return null;
+
             DeserializationContext dctx = new DeserializationContext(buf);
             var result = dctx.GetRoot<T>();
             return result;
