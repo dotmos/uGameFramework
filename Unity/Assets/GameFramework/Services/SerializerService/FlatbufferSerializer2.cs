@@ -89,9 +89,12 @@ namespace Service.Serializer
         //}
 
         public void DeserializeFromOffset(int offset, DeserializationContext dctx, bool isDirectBuffer = true) {
+            SetTable(offset, dctx);
+
             type2id = new Dictionary<Type, int>();
             id2type = new Dictionary<int, Type>();
-            
+            id2typeAsString = new Dictionary<int, string>();
+
             id2typeAsString = (Dictionary<int, String>)ser2table.GetDictionaryFromOffset(offset, id2typeAsString, dctx,true);
             // TODO: do this in postprocess
             if (id2typeAsString == null) return;
@@ -762,6 +765,9 @@ namespace Service.Serializer
             }
         }
 
+        // internal testing
+        private HashSet<Type> nestedTypes = new HashSet<Type>();
+
         public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
 
@@ -781,39 +787,45 @@ namespace Service.Serializer
             //perfTest.StartWatch(watchname);
             try {
 #endif
-                if (obj is IFBSerializable2 iFBSer2Obj) {
-                    if (iFBSer2Obj is IFBSerializeOnMainThread) {
-                    // serialize this on mainthread
-                        ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
-                            int _newOffset = iFBSer2Obj.Ser2Serialize(this);
-                            return _newOffset;
-                        });
-                        // wait for the result
-                        int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
-                        obj2offsetMapping[obj] = newOffsetFromMainThread;
-                        iFBSer2Obj.Ser2Context = this;
-                        return newOffsetFromMainThread;
-                    }
-                    int newOffset = iFBSer2Obj.Ser2Serialize(this);
+            if (obj is IFBSerializable2 iFBSer2Obj) {
+                if (iFBSer2Obj is IFBSerializeOnMainThread) {
+                // serialize this on mainthread
+                    ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
+                        int _newOffset = iFBSer2Obj.Ser2Serialize(this);
+                        return _newOffset;
+                    }); 
+                    // wait for the result
+                    int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
+                    obj2offsetMapping[obj] = newOffsetFromMainThread;
                     iFBSer2Obj.Ser2Context = this;
-                    iFBSer2Obj.Ser2Offset = newOffset;
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
-                } else if (obj is IList) {
-                    int newOffset = builder.CreateList((IList)obj, this);
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
-                } else if (obj is IDictionary) {
-                    int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
-                } else if (obj is String) {
-                    int newOffset = builder.CreateString((string)obj).Value;
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
-                } else {
-                    Debug.LogError($"Did not know how to serialize:{obj.GetType()}");
+                    return newOffsetFromMainThread;
                 }
+                //--- testing---
+                if (obj.GetType().DeclaringType != null && !nestedTypes.Contains(obj.GetType())) {
+                    nestedTypes.Add(obj.GetType());                        
+                    int a = 0;
+                }
+                //----
+                int newOffset = iFBSer2Obj.Ser2Serialize(this);
+                iFBSer2Obj.Ser2Context = this;
+                iFBSer2Obj.Ser2Offset = newOffset;
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else if (obj is IList) {
+                int newOffset = builder.CreateList((IList)obj, this);
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else if (obj is IDictionary) {
+                int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else if (obj is String) {
+                int newOffset = builder.CreateString((string)obj).Value;
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else {
+                Debug.LogError($"Did not know how to serialize:{obj.GetType()}");
+            }
 #if TESTING
             }
             finally {
