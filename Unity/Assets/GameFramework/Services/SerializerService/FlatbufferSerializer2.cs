@@ -20,8 +20,13 @@ namespace Service.Serializer
     }
     public class Type2IntMapper : DefaultSerializable2
     {
-        public static Type2IntMapper instance=new Type2IntMapper();
-        
+        public static Type2IntMapper _instance=new Type2IntMapper();
+        public static Type2IntMapper instance {
+            get {
+                return _instance;
+            }
+        }
+            
         private StringBuilder stb = new StringBuilder();
 
         private String GetTypeName(Type type) {
@@ -89,8 +94,6 @@ namespace Service.Serializer
         //}
 
         public void DeserializeFromOffset(int offset, DeserializationContext dctx, bool isDirectBuffer = true) {
-            SetTable(offset, dctx);
-
             type2id = new Dictionary<Type, int>();
             id2type = new Dictionary<int, Type>();
             id2typeAsString = new Dictionary<int, string>();
@@ -375,7 +378,6 @@ namespace Service.Serializer
                 Type2IntMapper.instance.ser2table = new ExtendedTable(4, bb);
                 int typeDataAddress = Type2IntMapper.instance.ser2table.__tbl.__indirect(4);
                 Type2IntMapper.instance.DeserializeFromOffset(typeDataAddress, this, true);
-
             }
         }
 
@@ -612,6 +614,7 @@ namespace Service.Serializer
             byte[] buf = sctx.CreateSizedByteArray(pos);
             var fs = Kernel.Instance.Resolve<FileSystem.IFileSystemService>();
             fs.WriteBytesToFileAtDomain(domain, filename, buf, compressed);
+            sctx.Cleanup();
         }
 
 
@@ -722,11 +725,11 @@ namespace Service.Serializer
             Debug.Log($"SCTX: Created nr:{created}[{name}] => ({created - destroyed} SCTXs allocated)");
         }
 
-        ~SerializationContext() {
-            destroyed++;
-            //Debug.Log($"Destroying SerializerContext: {name} still allocated:{created - destroyed}");
-            Cleanup(); // just to be sure 
-        }
+        //~SerializationContext() {
+        //    destroyed++;
+        //    //Debug.Log($"Destroying SerializerContext: {name} still allocated:{created - destroyed}");
+        //    Cleanup(); // just to be sure 
+        //}
 
 
         public SerializationContext(ByteBuffer bb, string _name = null) {
