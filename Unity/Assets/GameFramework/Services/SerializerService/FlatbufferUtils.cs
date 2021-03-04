@@ -477,9 +477,15 @@ namespace Service.Serializer
         }
 
         public T GetReference<T>(int fbPos, ref T obj, DeserializationContext dctx) where T : new() {
-            int bufferPos = GetOffset(fbPos);
-            T result = dctx.GetReference<T>(bufferPos,ref obj);
-            return result;
+            try {
+                int bufferPos = GetOffset(fbPos);
+                T result = dctx.GetReference<T>(bufferPos, ref obj);
+                return result;
+            }
+            catch (Exception e) {
+                Debug.LogError(e);
+                return obj;
+            }
         }
 
         public ObservableList<T> GetReference<T>(int fbPos, ref ObservableList<T> obj, DeserializationContext dctx) {
