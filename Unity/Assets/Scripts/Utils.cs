@@ -506,7 +506,6 @@ public class DebugUtils {
     /// Logs Error in UNITY_EDITOR or Warning in BUILD
     /// </summary>
     /// <param name="output"></param>
-    /// <param name="prefixGameTime"></param>
     public static void LogEditorErrBuildWarn(String output) {
 #if UNITY_EDITOR
         Debug.LogError(output);
@@ -514,7 +513,20 @@ public class DebugUtils {
         Debug.LogWarning(output);
 #endif
     }
+    /// <summary>
+    /// Logs Error in UNITY_EDITOR or Warning in BUILD
+    /// </summary>
+    /// <param name="output"></param>
+    public static void LogEditorErrBuildWarn(Exception e) {
+#if UNITY_EDITOR
+        Debug.LogException(e);
+#else
+        Debug.LogWarning($"Exception:{e.Message}\nStacktrace:{e.StackTrace}");
+#endif
+    }
 }
+
+
 
 public class PoolList<T> where T : new()
 {

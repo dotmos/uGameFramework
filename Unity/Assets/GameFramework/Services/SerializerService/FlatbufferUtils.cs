@@ -483,7 +483,7 @@ namespace Service.Serializer
                 return result;
             }
             catch (Exception e) {
-                Debug.LogError(e);
+                DebugUtils.LogEditorErrBuildWarn(e);
                 return obj;
             }
         }
