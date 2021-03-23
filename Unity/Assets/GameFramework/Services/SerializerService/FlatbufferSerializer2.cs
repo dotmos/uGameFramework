@@ -402,6 +402,7 @@ namespace Service.Serializer
         
         public object GetOrCreate(int bufferOffset, Type objectType,object obj=null) {
             object cachedObject = _GetCachedObject(bufferOffset,objectType);
+            
             if (cachedObject != null) {
                 return cachedObject;
             }
@@ -413,7 +414,14 @@ namespace Service.Serializer
             if (bufferOffset == 0) return default(T);
 
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
-                return (T)result;
+                try {
+                    return (T)result;
+                }
+                catch (Exception e) {
+                    Debug.LogError($"Could not cast cached object(bufferpos:{bufferOffset}). In cache type:{result.GetType()} expected: {typeof(T)}");
+                    Debug.LogException(e);
+                    return default(T);
+                }
             }
             return default(T);
         }
@@ -423,9 +431,11 @@ namespace Service.Serializer
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
 #if FLATBUFFER_CHECK_TYPES
                 if (objType!=typeObject && result.GetType() != objType && !ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
-                    UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()} at offset:{bufferOffset}");
-                }                
+                    //UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()} at offset:{bufferOffset}");
+                    throw new Exception($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()} at offset:{bufferOffset}");
+                }
 #endif
+
                 return result;
             }
             return null;
@@ -568,8 +578,16 @@ namespace Service.Serializer
                 return default;
             }
 
-            T result = (T)GetOrCreate(bufferOffset, typeof(T), obj);
-            return result;
+            object result = null;
+            try {
+                result = GetOrCreate(bufferOffset, typeof(T), obj);
+                return (T)result;
+            }
+            catch (Exception e) {
+                Debug.LogError($"GetReference: Could not cast obj: expected:{typeof(T)} got {(result == null ? "Null-Object" : result.GetType().ToString())} ");
+                Debug.LogException(e);
+                return default;
+            }
         }
 
          
