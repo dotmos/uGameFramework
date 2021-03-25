@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace ECS {
 
     public class FutureProcessor {
+        private Random random = new Random();
         private ParallelProcessor parallelQueue;
         private ConcurrentQueue<Future> parallelQueueActions = new ConcurrentQueue<Future>();
         private ConcurrentQueue<Future> mainThreadActions = new ConcurrentQueue<Future>();
@@ -63,18 +64,17 @@ namespace ECS {
             } else if (f.ExecutionMode == FutureExecutionMode.onParallelQueue) {
                 parallelQueueActions.Enqueue(f);
             } else if (f.ExecutionMode == FutureExecutionMode.onOwnTask) {
-                f.task = new Task(() => {
-                    Thread.CurrentThread.Name = "future";
-                    try
-                    {
+                f.thread = new Thread(() => {
+                    try {
                         f.execute();
                     }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         UnityEngine.Debug.LogException(e);
                     }
                 });
-                f.task.Start();
+                f.thread.Name = "future-thread-"+random.Next();
+                f.thread.IsBackground = true;
+                f.thread.Start();
             }
         }
     }
@@ -106,7 +106,7 @@ namespace ECS {
         private object result;
         private bool finished = false;
         public FutureState state = FutureState.none;
-        public Task task = null; 
+        public Thread thread = null; 
 
         private FutureExecutionMode executionMode;
         public FutureExecutionMode ExecutionMode { get => executionMode; }
