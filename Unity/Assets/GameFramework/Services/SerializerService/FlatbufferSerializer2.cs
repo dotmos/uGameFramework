@@ -703,6 +703,7 @@ namespace Service.Serializer
         public static int name_counter = 1;
         public static int created = 0;
         public static int destroyed = 0;
+        public static bool ERRORS = false;
 
         public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
         //public readonly List<object> lateReferenceList = new List<object>();

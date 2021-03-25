@@ -63,7 +63,7 @@ namespace ECS {
             } else if (f.ExecutionMode == FutureExecutionMode.onParallelQueue) {
                 parallelQueueActions.Enqueue(f);
             } else if (f.ExecutionMode == FutureExecutionMode.onOwnTask) {
-                Task t = new Task(() => {
+                f.task = new Task(() => {
                     Thread.CurrentThread.Name = "future";
                     try
                     {
@@ -74,8 +74,7 @@ namespace ECS {
                         UnityEngine.Debug.LogException(e);
                     }
                 });
-                
-                t.Start();
+                f.task.Start();
             }
         }
     }
@@ -97,15 +96,23 @@ namespace ECS {
 
     public class Future {
 
+        public enum FutureState {
+            none,created,executed,finished,error,running
+        }
+
         private Semaphore semaphore = new Semaphore(0, 1);
 
         private Func<object> logic;
         private object result;
         private bool finished = false;
+        public FutureState state = FutureState.none;
+        public Task task = null; 
+
         private FutureExecutionMode executionMode;
         public FutureExecutionMode ExecutionMode { get => executionMode; }
 
         public Future(FutureExecutionMode executionMode, Func<object> logic, bool addToFutureProcessor = true, bool forceEnqueue=false) {
+            state = FutureState.created;
             this.logic = logic;
             this.executionMode = executionMode;
 
@@ -117,7 +124,16 @@ namespace ECS {
         }
 
         public void execute() {
-            result = logic();
+            try {
+                state = FutureState.running;
+                result = logic();
+                state = FutureState.finished;
+            }
+            catch (Exception e) {
+                UnityEngine.Debug.LogError("Crashed future!");
+                UnityEngine.Debug.LogException(e);
+                state = FutureState.error;
+            }
             finished = true;
             semaphore.Release();
         }
@@ -126,7 +142,7 @@ namespace ECS {
             WaitForResult<object>();
         }
 
-        public T WaitForResult<T>() {
+        public T WaitForResult<T>(int timeout=-1) {
             if (!finished) {
                 if (executionMode == FutureExecutionMode.onParallelQueue) {
                     // waiting on main thread flushes/executes the current registered futures
@@ -139,7 +155,11 @@ namespace ECS {
                         UnityEngine.Debug.LogError("No result but on mainthread! future should have already been executed");
                     } else {
                         // the futures are executed on the 
-                        semaphore.WaitOne();
+                        if (timeout == -1) {
+                            semaphore.WaitOne();
+                        } else {
+                            semaphore.WaitOne(timeout);
+                        }
                     }
                 }
             }
