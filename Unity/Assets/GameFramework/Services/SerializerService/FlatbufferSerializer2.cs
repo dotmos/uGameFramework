@@ -450,34 +450,41 @@ namespace Service.Serializer
             if (obj != null) {
                 objType = obj.GetType();
             }
-            if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
-                //if (ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
-                //    int typeId = bb.GetInt(bufferOffset + 4);
-                //    objType = Type2IntMapper.instance.GetTypeFromId(typeId);
-                //}
-                var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
-                pos2obj[bufferOffset] = newIFBSer2obj;
-                newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
-                if (newIFBSer2obj is IFBPostDeserialization) {
-                    AddOnPostDeserializationObject((IFBPostDeserialization)newIFBSer2obj);
+            try {
+                if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
+                    //if (ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
+                    //    int typeId = bb.GetInt(bufferOffset + 4);
+                    //    objType = Type2IntMapper.instance.GetTypeFromId(typeId);
+                    //}
+                    var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
+                    pos2obj[bufferOffset] = newIFBSer2obj;
+                    newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
+                    if (newIFBSer2obj is IFBPostDeserialization) {
+                        AddOnPostDeserializationObject((IFBPostDeserialization)newIFBSer2obj);
+                    }
+                    return newIFBSer2obj;
+                } else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
+                    var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
+                    pos2obj[bufferOffset] = newList;
+                    newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
+                    return newList;
+                } else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
+                    var newDict = (IDictionary)obj ?? (IDictionary)Activator.CreateInstance(objType);
+                    pos2obj[bufferOffset] = newDict;
+                    newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
+                    return newDict;
+                } else if (objType == ExtendedTable.typeString) {
+                    string stringData = extTbl.GetStringFromOffset(bufferOffset);
+                    pos2obj[bufferOffset] = stringData;
+                    return stringData;
+                } else {
+                    UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
+                    return null;
                 }
-                return newIFBSer2obj;
-            } else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
-                var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
-                pos2obj[bufferOffset] = newList;
-                newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
-                return newList;
-            } else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
-                var newDict = (IDictionary)obj ?? (IDictionary)Activator.CreateInstance(objType);
-                pos2obj[bufferOffset] = newDict;
-                newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
-                return newDict;
-            } else if (objType == ExtendedTable.typeString) {
-                string stringData = extTbl.GetStringFromOffset(bufferOffset);
-                pos2obj[bufferOffset] = stringData;
-                return stringData;
-            } else {
-                UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
+            }
+            catch (Exception e) {
+                Debug.LogError($"Catched exception Deserializing object-type:{objType} at position:{bufferOffset}. Returning null");
+                Debug.LogException(e);
                 return null;
             }
 
@@ -809,6 +816,9 @@ namespace Service.Serializer
             //perfTest.StartWatch(watchname);
             try {
 #endif
+            if (obj.GetType().ToString().Contains("RaiderWarningData")) {
+                int a = 0;
+            }
             if (obj is IFBSerializable2 iFBSer2Obj) {
                 if (iFBSer2Obj is IFBSerializeOnMainThread) {
                 // serialize this on mainthread
