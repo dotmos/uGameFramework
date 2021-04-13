@@ -95,8 +95,8 @@ namespace Service.Scripting {
                 // TODO: get rid of nextframe
                 Observable.NextFrame().Subscribe(_ => ActivateDefaultScripting("script")).AddTo(disposables);
 
-                RegisterCallback(LuaCallback); 
-                RegisterCallback(LuaCoroutineCallback);
+                //RegisterCallback(LuaCallback); 
+                //RegisterCallback(LuaCoroutineCallback);
             }
             catch (Exception e) {
                 Debug.LogError("COULD NOT START SCRIPTINGCONSOLE SERVICE!");

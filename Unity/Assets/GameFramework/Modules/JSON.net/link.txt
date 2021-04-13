@@ -1,0 +1,1 @@
+https://github.com/jilleJr/Newtonsoft.Json-for-Unity/releases/tag/13.0.102
