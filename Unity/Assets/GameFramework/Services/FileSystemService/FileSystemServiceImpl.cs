@@ -12,7 +12,7 @@ using System.IO.Compression;
 namespace Service.FileSystem {
     partial class FileSystemServiceImpl : FileSystemServiceBase {
 
-        public readonly string MISC_PATH = Application.persistentDataPath + "/default";
+        private readonly string MISC_PATH = Application.persistentDataPath + "/default";
 
         /// <summary>
         /// cache the unity-paths here since you cannot use those in a thread
