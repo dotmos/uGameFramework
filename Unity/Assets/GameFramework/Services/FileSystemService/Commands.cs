@@ -52,6 +52,8 @@ namespace Service.FileSystem{
 //
 //            this.OnEvent<FileExistsInDomainCommand>().Subscribe(e => FileExistsInDomainCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<SetPersistentRootCommand>().Subscribe(e => SetPersistentRootCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -462,6 +464,30 @@ namespace Service.FileSystem{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("FileExistsInDomainCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Set the persistent root-path
+        /// </summary>
+        
+//        public class SetPersistentRootCommand  {
+//            public string root;
+//            
+//            
+//        }
+
+//		protected void SetPersistentRootCommandHandler  (SetPersistentRootCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("SetPersistentRootCommand");
+//#endif
+//        _service.SetPersistentRoot(cmd.root);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("SetPersistentRootCommand");
 //#endif
 //        }
         

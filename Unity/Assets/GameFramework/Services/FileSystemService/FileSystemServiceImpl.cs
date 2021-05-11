@@ -10,15 +10,14 @@ using Service.Scripting;
 using System.IO.Compression;
 
 namespace Service.FileSystem {
-    partial class FileSystemServiceImpl : FileSystemServiceBase {
+    public partial class FileSystemServiceImpl : FileSystemServiceBase {
 
-        private readonly string MISC_PATH = Application.persistentDataPath + "/default";
 
         /// <summary>
         /// cache the unity-paths here since you cannot use those in a thread
         /// </summary>
         private readonly string streamingAssetsPath = Application.streamingAssetsPath;
-        private readonly string persistentDataPath = Application.persistentDataPath;
+        private string persistentDataPath = Application.persistentDataPath;
         private readonly string gamePath =  Application.dataPath.Remove(Application.dataPath.LastIndexOf("/"));
 
         private string configPath;
@@ -28,14 +27,10 @@ namespace Service.FileSystem {
         private string localizationPath;
         private string debuggingPath;
         private string moddingPath;
+        private string defaultDataPath;
 
         protected override void AfterInitialize() {
-            configPath = persistentDataPath + "/config";
-            savegamePath = persistentDataPath + "/savegame";
-            scriptingPath = persistentDataPath + "/scripting";
-            devUIViewsPath = persistentDataPath + "/dev-ui/views";
-            debuggingPath = persistentDataPath + "/debugging";
-            moddingPath = persistentDataPath + "/modding";
+            RefreshDataPath();
 
             //Check if there are locas in streaming assets. If not, use game/Localization folder
             localizationPath = streamingAssetsPath + "/Localizations";
@@ -43,6 +38,15 @@ namespace Service.FileSystem {
             if (!Directory.Exists(localizationPath) || Directory.GetFiles(localizationPath, "*.json").Length == 0) {
                 localizationPath = gamePath + "/Localizations";
             }
+        }
+        private void RefreshDataPath() {
+            configPath = persistentDataPath + "/config";
+            savegamePath = persistentDataPath + "/savegame";
+            scriptingPath = persistentDataPath + "/scripting";
+            devUIViewsPath = persistentDataPath + "/dev-ui/views";
+            debuggingPath = persistentDataPath + "/debugging";
+            moddingPath = persistentDataPath + "/modding";
+            defaultDataPath = persistentDataPath + "/default";
         }
 
         public static byte[] Compress(byte[] data, System.IO.Compression.CompressionLevel compressionLevel = System.IO.Compression.CompressionLevel.Optimal) {
@@ -86,7 +90,7 @@ namespace Service.FileSystem {
         }
 
         public override string GetPath(FSDomain domain,string relativePart="") {
-            string path = MISC_PATH;
+            string path = defaultDataPath;
             switch (domain) {
                 case FSDomain.ConfigFolder: path = configPath; break;
                 case FSDomain.SaveGames: path = savegamePath; break;
@@ -270,6 +274,12 @@ namespace Service.FileSystem {
             }
         }
 
+
+        public override void SetPersistentRoot(string root) {
+            persistentDataPath = root;
+            RefreshDataPath();
+
+        }
 
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed

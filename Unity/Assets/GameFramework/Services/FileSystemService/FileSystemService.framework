@@ -34,6 +34,8 @@ namespace Service.FileSystem {
 		bool FileExists(string pathToFile);
 		## "Check if a file exists in a domain(relative to domain-root)"
 		bool FileExistsInDomain(?FSDomain domain,string relativePath);
+		## "Set the persistent root-path"
+		void SetPersistentRoot(string root);
     }       
 }     
 ## model 

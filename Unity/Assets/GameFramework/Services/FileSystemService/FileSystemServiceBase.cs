@@ -180,6 +180,9 @@ namespace Service.FileSystem
         public abstract             bool FileExistsInDomain(FSDomain domain,string relativePath);
 
         
+        public abstract             void SetPersistentRoot(string root);
+
+        
 
 
         

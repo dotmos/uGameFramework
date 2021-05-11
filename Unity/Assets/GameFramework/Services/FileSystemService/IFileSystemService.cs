@@ -195,6 +195,16 @@ namespace Service.FileSystem {
                     bool FileExistsInDomain(FSDomain domain,string relativePath);
         
                            
+        
+        /// <summary>
+        /// Set the persistent root-path 
+                /// <param name="root"></param>
+         /// </summary>
+        
+        
+                    void SetPersistentRoot(string root);
+        
+                           
 
     }
 
