@@ -1,6 +1,9 @@
 {
-    "name": "uGameFramework",
-    "references": [],
+    "name": "uGameFramework_with_addressables",
+    "references": [
+        "Unity.ResourceManager",
+        "Unity.Addressables"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -8,7 +11,7 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "!ADDRESSABLES"
+        "ADDRESSABLES"
     ],
     "versionDefines": [],
     "noEngineReferences": false

@@ -46,7 +46,11 @@ public partial class Kernel : SceneContext {
                 Debug.Log("kernel is null! Calling script:"+ frame.GetFileName() +" in scene: "+ SceneManager.GetActiveScene().name + " calling method name: "+ name);
 
                 loadingKernelScene = true;
+#if ADDRESSABLES
+                LoadSceneFromAddressables("Kernel");
+#else
                 SceneManager.LoadScene("Kernel");
+#endif
             }
 
             return InstanceProperty.Value;
@@ -55,6 +59,14 @@ public partial class Kernel : SceneContext {
             InstanceProperty.Value = value;
         }
     }
+
+#if ADDRESSABLES
+    async static void LoadSceneFromAddressables(string scene) {
+
+        UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance> asyncOp = UnityEngine.AddressableAssets.Addressables.LoadSceneAsync(scene);
+        await asyncOp.Task;
+    }
+#endif
 
     private static int MAINTHREAD_ID;
     private static Thread mainThread;
