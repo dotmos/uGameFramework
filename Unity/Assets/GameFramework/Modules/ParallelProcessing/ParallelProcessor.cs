@@ -1,6 +1,9 @@
-﻿using System;
+﻿#define METHOD3
+
+using System;
 using System.Collections;
 using System.Threading;
+
 
 namespace ParallelProcessing {
     public class ParallelProcessor : IDisposable /*where T : ISystemComponents*/ {
@@ -28,6 +31,7 @@ namespace ParallelProcessing {
         /// The total item count. If currentItemIndex >= itemCount, all work has been processed
         /// </summary>
         int totalItemCount;
+        int currentFrameStartIdx;
 
         int chunkSize;
         int currentChunkIndex;
@@ -82,8 +86,8 @@ namespace ParallelProcessing {
                             int _chunkIndex = Interlocked.Increment(ref currentChunkIndex)-1;
                             int startIndex = _chunkIndex * chunkSize;
                             if (startIndex < totalItemCount) {
-                                int endIndex = Math.Min(startIndex + chunkSize, totalItemCount);
-                                for (int componentIndex = startIndex; componentIndex < endIndex; ++componentIndex) {
+                                int endIndex = Math.Min(startIndex + chunkSize, totalItemCount) + currentFrameStartIdx;
+                                for (int componentIndex = startIndex + currentFrameStartIdx; componentIndex < endIndex; ++componentIndex) {
                                     componentAction(componentIndex, processData.deltaTime);
                                 }
                             } else {
@@ -130,7 +134,7 @@ namespace ParallelProcessing {
             Process(componentsToProcess.Count, deltaTime, maxChunkSize);
         }
 
-        public void Process(int componentsToProcessCount, float deltaTime, int maxChunkSize = 9999999) {
+        public void Process(int componentsToProcessCount, float deltaTime, int maxChunkSize = 9999999, int startIDX = 0) {
             //Stop here if there are no components to process
             if (componentsToProcessCount == 0) return;
 
@@ -170,7 +174,7 @@ namespace ParallelProcessing {
                 processActionData[workerID].startIndex = startComponentIndex;
                 processActionData[workerID].endIndex = endComponentIndex;
                 */
-                
+
 
                 /*
                 //Method 2: Non-locking linear index with static offset
@@ -180,8 +184,11 @@ namespace ParallelProcessing {
                 processActionData[workerID].indexIncrease = workersToUse;
                 */
 
+#if METHOD3
                 //Method 3: Get next linear index. Locking.
+                currentFrameStartIdx = startIDX;
                 processActionData[workerID].deltaTime = deltaTime;
+#endif
 
                 //Process action on worker
                 ParallelProcessorWorkers.EnqueueItem(processActions[workerID]);

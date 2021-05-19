@@ -5,6 +5,7 @@ using System.Text;
 using Zenject;
 using UniRx;
 using ParallelProcessing;
+using UnityEngine;
 
 namespace ECS {
 #if TESTING
@@ -67,10 +68,23 @@ namespace ECS {
         /// </summary>
         protected int SystemComponentCount { get { return componentCount; } }
 
+        protected HashSet<TComponents> pendingRemovalComponentsCheck;
+        protected List<TComponents> pendingRemovalComponents; //a list of components that needs to be removed after the cycle
         /// <summary>
         /// LUT for quick TComponent access
         /// </summary>
         Dictionary<int, TComponents> componentsToProcessLUT;
+
+
+        /// <summary>
+        /// Cyclic execution distributes execution on multiple frames
+        /// </summary>
+        protected bool useCyclicExecution = false;
+
+        /// <summary>
+        /// Data about the current execution cycle (if enabled)
+        /// </summary>
+        protected CyclicExecutionData cyclicExecutionData = null;
 
         /// <summary>
         /// Temporarily store newly registered Component(packs) here, when a new entity got valid
@@ -117,6 +131,9 @@ namespace ECS {
             validEntities = new HashSet<UID>();
             componentsToProcess = new TComponents[2048];
             componentsToProcessLUT = new Dictionary<int, TComponents>();
+            pendingRemovalComponents = new List<TComponents>();
+            pendingRemovalComponentsCheck = new HashSet<TComponents>();
+
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
             updatedComponents = new List<TComponents>();
@@ -221,6 +238,11 @@ namespace ECS {
             return false;
         }
 
+        protected void EnableCyclicProcess(int amountWorkers, int minElementAmounts) {
+            useCyclicExecution = true;
+            cyclicExecutionData = new CyclicExecutionData(amountWorkers,minElementAmounts);
+        }
+
         /// <summary>
         /// The maximum chunk size per thread when using parallel processing
         /// </summary>
@@ -243,9 +265,50 @@ namespace ECS {
 #endif
                 */
 
+                if (useCyclicExecution) {
+                    float cyclicDt = 0;
+                    if (cyclicExecutionData.cyclicExecutionFinished) {
+                        if (componentCount < cyclicExecutionData.cyclicExecutionMinAmount) {
+                            // too less elements for the cycle to be used => default way
+                            parallelSystemComponentProcessor.Process(componentCount, deltaTime,MaxParallelChunkSize());
+                            return; // finish here
+                        } else {
+                            // start a new cycle and get the deltaTime for the current cycle-frame
+                            cyclicDt = cyclicExecutionData.SetStartCycleData(componentCount, deltaTime);
+                        }
+                    } else {
+                        cyclicDt = cyclicExecutionData.NextCycleData(deltaTime);
+                    }
+                    if (cyclicExecutionData.currentCycleFrame == 0) {
+                        CycleBeforeFirstCycle();
+                    }
+                    parallelSystemComponentProcessor.Process(cyclicExecutionData.nextAmountElements, cyclicDt, MaxParallelChunkSize(), cyclicExecutionData.nextStartElement);
+                    CycleFrameFinished(cyclicExecutionData.currentCycleFrame);
+                    if (cyclicExecutionData.cyclicExecutionFinished) {
+                        // now is the time to apply pending removals
+                        int pendingRemovalAmount = pendingRemovalComponents.Count;
+
+                        if (pendingRemovalAmount > 0) {
+                            for (int i = -1; i >= 0; i--) {
+                                var _removeComps = pendingRemovalComponents[i];
+                                for (int idx = 0; idx < componentCount; ++idx) {
+                                    if (componentsToProcess[idx].Entity.ID == _removeComps.Entity.ID) {
+                                        componentsToProcess[idx] = componentsToProcess[componentCount - 1]; //Put last item in array to position of item that should be deleted, overwriting (and therefore deleting) it
+                                    }
+                                }
+                                componentsToProcessLUT.Remove(_removeComps.Entity.ID);
+                            }
+                            pendingRemovalComponents.Clear();
+                            pendingRemovalComponentsCheck.Clear();
+                        }
+                        CycleCompleted();
+                    }
 
 
-                parallelSystemComponentProcessor.Process(componentCount, deltaTime, MaxParallelChunkSize());
+                } else {
+                    // default way
+                    parallelSystemComponentProcessor.Process(componentCount, deltaTime,MaxParallelChunkSize());
+                }
 
                 /*
                 //Workaround for broken parallelSystemComponentProcessor. Produces garbage.
@@ -414,6 +477,22 @@ namespace ECS {
         }
 
         /// <summary>
+        /// getting called just before the first cycle-frame
+        /// </summary>
+        protected virtual void CycleBeforeFirstCycle() { }
+        
+        /// <summary>
+        /// Called after another batch is finished
+        /// </summary>
+        /// <param name="cycleFrame"></param>
+        protected virtual void CycleFrameFinished(int cycleFrame) { 
+        }
+        /// <summary>
+        /// getting called just after the cycle finished with pendingRemoval-Entities already applied
+        /// </summary>
+        protected virtual void CycleCompleted() { }
+
+        /// <summary>
         /// Get components for entity
         /// </summary>
         /// <param name="entity"></param>
@@ -458,7 +537,6 @@ namespace ECS {
             componentsToProcess[componentCount]=components;
             componentCount++;
             componentsToProcessLUT.Add(entity.ID, components);
-
             newComponents.Add(components);
         }
 
@@ -474,16 +552,20 @@ namespace ECS {
             //TODO: Find a faster way to remove the components.
             TComponents components = GetSystemComponentsForEntity(entity);
             if (components != null) {
-                for(int i=0; i< componentCount; ++i) {
-                    if(componentsToProcess[i].Entity.ID == components.Entity.ID) {
-                        componentsToProcess[i] = componentsToProcess[componentCount - 1]; //Put last item in array to position of item that should be deleted, overwriting (and therefore deleting) it
+                if (!useCyclicExecution) {
+                    for(int i=0; i< componentCount; ++i) {
+                        if(componentsToProcess[i].Entity.ID == components.Entity.ID) {
+                            componentsToProcess[i] = componentsToProcess[componentCount - 1]; //Put last item in array to position of item that should be deleted, overwriting (and therefore deleting) it
+                        }
                     }
+                    //componentsToProcess.Remove(components);
+                    componentCount--;
+                    componentsToProcessLUT.Remove(components.Entity.ID);
+                } else {
+                    pendingRemovalComponents.Add(components);
                 }
-                //componentsToProcess.Remove(components);
-                componentCount--;
-                componentsToProcessLUT.Remove(components.Entity.ID);
             }
-            
+
             //componentsToProcess.RemoveWhere(v => v.Entity.ID == _entityID);
             validEntities.Remove(entity);
 
@@ -539,6 +621,119 @@ namespace ECS {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             UnityEngine.Debug.Log("System("+this.GetType().Name+") disposed");
 #endif
+        }
+
+        protected class CyclicExecutionData {
+            /// <summary>
+            /// Is a cyclic execution running
+            /// </summary>
+            public bool cyclicExecutionFinished = true;
+
+            /// <summary>
+            /// Minium amount of elements for cyclic execution to take place
+            /// </summary>
+            public int cyclicExecutionMinAmount = 1000;
+
+            /// <summary>
+            ///  amount of frames to distribute the complete element amount on
+            /// </summary>
+            public int amountFrames = 0;
+
+
+            /// <summary>
+            /// Each cycle needs to maintain its deltatime until it is triggered next
+            /// </summary>
+            float[] deltaTimesPerCycle;
+
+            /// <summary>
+            /// Amount of elements to process by the cycle 
+            /// </summary>
+            public int processElementsPerCycle = 0;
+            /// <summary>
+            /// current cycle frame
+            /// </summary>
+            public int currentCycleFrame = 0;
+            /// <summary>
+            /// amount elements left
+            /// </summary>
+            public int amountElements = 0;
+            /// <summary>
+            /// start elementIdx for the next cycle-frame
+            /// </summary>
+            public int nextStartElement = 0;
+            /// <summary>
+            /// amount of elements to be processed next cycle frame
+            /// </summary>
+            public int nextAmountElements = 0;
+
+            public CyclicExecutionData(int amountWorkers,int cyclicExecutionMinAmount=1000) {
+                this.amountFrames = amountWorkers;
+                this.cyclicExecutionMinAmount = 1000;
+                deltaTimesPerCycle = new float[amountWorkers];
+            }
+
+
+            /// <summary>
+            /// Start a cycle by specifiying the amount of element in the system
+            /// </summary>
+            /// <param name="amountElements"></param>
+            public float SetStartCycleData(int amountElements,float dt) {
+                if (!cyclicExecutionFinished) {
+                    throw new Exception("Tried to start cycle, but cycle-execution is already executing!");
+                } 
+
+                cyclicExecutionFinished = false;
+                this.amountElements = amountElements;
+                processElementsPerCycle = (int)Mathf.Ceil(amountElements / amountFrames) + amountFrames;
+                nextStartElement = 0;
+                nextAmountElements = Mathf.Min(processElementsPerCycle,amountElements);
+                this.amountElements -= nextAmountElements;
+                currentCycleFrame = 0;
+                float _dt = AddAndGetDeltaTimeForCycle(0, dt);
+                return _dt;
+            }
+
+
+            public float NextCycleData(float dt) {
+                currentCycleFrame++;
+                nextStartElement += nextAmountElements;
+                nextAmountElements = Mathf.Min(processElementsPerCycle,amountElements);
+                amountElements -= nextAmountElements;
+                if (amountElements == 0) {
+                    cyclicExecutionFinished = true; // finished
+                }
+
+                float _dt = AddAndGetDeltaTimeForCycle(currentCycleFrame, dt);
+                return _dt;
+            }
+
+
+            /// <summary>
+            /// Add deltatime to all deltaTimeCycles and get and clear deltaTime for specified cycle 
+            /// </summary>
+            /// <param name="cycle"></param>
+            /// <param name="dt"></param>
+            /// <returns></returns>
+//            StringBuilder stb = new StringBuilder();
+            public float AddAndGetDeltaTimeForCycle(int cycle, float dt) {
+                float result=0;
+  //              stb.Clear();
+                for (int i = 0; i < amountFrames; i++) {
+                    if (i == cycle) {
+                        result = deltaTimesPerCycle[i] + dt;
+                        deltaTimesPerCycle[i] = 0;
+                    } else {
+                        deltaTimesPerCycle[i] += dt;
+                    }
+
+    //                stb.Append(deltaTimesPerCycle[i]).Append(" | ");
+                }
+      //          stb.Append("  ## current: ").Append(result);
+        //        Debug.Log(stb.ToString());
+                return result;
+            }
+
+
         }
     }
 }
