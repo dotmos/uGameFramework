@@ -101,7 +101,8 @@ namespace Systems {
         /// </summary>
         /// <param name="index"></param>
         /// <param name="deltaTime"></param>
-        protected override void ProcessAtIndex(int index, float deltaTime) {
+        /// <param name="workerID"></param>
+        protected override void ProcessAtIndex(int index, float deltaTime, int workerID) {
             /*name:systemComponentsName*/ GenTemplateSystemComponents/*endname*/ components = componentsToProcess[index];
 
             // add the system-logic here

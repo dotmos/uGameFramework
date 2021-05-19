@@ -36,7 +36,7 @@ namespace ParallelProcessing {
         int chunkSize;
         int currentChunkIndex;
 
-        public ParallelProcessor(Action<int, float> componentAction) {
+        public ParallelProcessor(Action<int, float, int> componentAction) {
             ParallelProcessorWorkers.Setup();
             ParallelProcessorWorkers._processorInstanceCount++;
 
@@ -88,7 +88,7 @@ namespace ParallelProcessing {
                             if (startIndex < totalItemCount) {
                                 int endIndex = Math.Min(startIndex + chunkSize, totalItemCount) + currentFrameStartIdx;
                                 for (int componentIndex = startIndex + currentFrameStartIdx; componentIndex < endIndex; ++componentIndex) {
-                                    componentAction(componentIndex, processData.deltaTime);
+                                    componentAction(componentIndex, processData.deltaTime, threadID);
                                 }
                             } else {
                                 break;

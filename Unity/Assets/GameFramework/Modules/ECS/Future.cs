@@ -27,7 +27,7 @@ namespace ECS {
             timePerMainframe = maxMsPerMainThread;
         }
 
-        private void ProcessParallelQueueItem(int idx, float dt) {
+        private void ProcessParallelQueueItem(int idx, float dt, int workerID) {
             if (parallelQueueActions.TryDequeue(out Future action)) {
                 action.execute();
             }

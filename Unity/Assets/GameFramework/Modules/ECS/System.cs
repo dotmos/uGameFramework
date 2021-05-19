@@ -334,12 +334,12 @@ namespace ECS {
             else {
                 //int _count = componentsToProcess.Count;
                 for (int i = 0; i < componentCount; ++i) {
-                    ProcessAtIndex(i, deltaTime);
+                    ProcessAtIndex(i, deltaTime, -1);
                 }
             }      
         }
 
-        protected abstract void ProcessAtIndex(int componentIndex, float deltaTime);
+        protected abstract void ProcessAtIndex(int componentIndex, float deltaTime, int workerID);
 
 
 
