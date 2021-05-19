@@ -60,7 +60,13 @@ namespace ECS {
 
         //protected List<UID> validEntities;
         protected HashSet<UID> validEntities;
-        protected List<TComponents> componentsToProcess; //Was hashset in the past, but hashsets were super slow when multithreading systems. Testcase showed 28ms (hashset) vs 14ms (list)!
+        protected TComponents[] componentsToProcess; //Was hashset in the past, but hashsets were super slow when multithreading systems. Testcase showed 28ms (hashset) vs 14ms (list)!
+        int componentCount;
+        /// <summary>
+        /// The total count of entities/systemComponents that are being processed by the system
+        /// </summary>
+        protected int SystemComponentCount { get { return componentCount; } }
+
         /// <summary>
         /// LUT for quick TComponent access
         /// </summary>
@@ -109,7 +115,7 @@ namespace ECS {
 
         public System(IEntityManager entityManager) {
             validEntities = new HashSet<UID>();
-            componentsToProcess = new List<TComponents>();
+            componentsToProcess = new TComponents[2048];
             componentsToProcessLUT = new Dictionary<int, TComponents>();
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
@@ -216,6 +222,14 @@ namespace ECS {
         }
 
         /// <summary>
+        /// The maximum chunk size per thread when using parallel processing
+        /// </summary>
+        /// <returns></returns>
+        protected virtual int MaxParallelChunkSize() {
+            return 9999999;
+        }
+
+        /// <summary>
         /// Process all entities. Will add deltaTime to an internal counter and then update entities based on SystemUpdateRate()
         /// </summary>
         protected virtual void ProcessAll(float deltaTime) {
@@ -231,7 +245,7 @@ namespace ECS {
 
 
 
-                parallelSystemComponentProcessor.Process(componentsToProcess, deltaTime);
+                parallelSystemComponentProcessor.Process(componentCount, deltaTime, MaxParallelChunkSize());
 
                 /*
                 //Workaround for broken parallelSystemComponentProcessor. Produces garbage.
@@ -256,7 +270,7 @@ namespace ECS {
             }
             else {
                 //int _count = componentsToProcess.Count;
-                for (int i = 0; i < componentsToProcess.Count; ++i) {
+                for (int i = 0; i < componentCount; ++i) {
                     ProcessAtIndex(i, deltaTime);
                 }
             }      
@@ -436,7 +450,13 @@ namespace ECS {
             validEntities.Add(entity);
             //Add components to process
             TComponents components = _CreateSystemComponentsForEntity(entity);
-            componentsToProcess.Add(components);
+            if(componentCount == componentsToProcess.Length) {
+                //TComponents[] newComponentsToProcess = new TComponents[componentsToProcess.Length * 2];
+                //componentsToProcess.CopyTo(newComponentsToProcess, 0);
+                Array.Resize(ref componentsToProcess, componentsToProcess.Length * 2);
+            }
+            componentsToProcess[componentCount]=components;
+            componentCount++;
             componentsToProcessLUT.Add(entity.ID, components);
 
             newComponents.Add(components);
@@ -454,7 +474,13 @@ namespace ECS {
             //TODO: Find a faster way to remove the components.
             TComponents components = GetSystemComponentsForEntity(entity);
             if (components != null) {
-                componentsToProcess.Remove(components);
+                for(int i=0; i< componentCount; ++i) {
+                    if(componentsToProcess[i].Entity.ID == components.Entity.ID) {
+                        componentsToProcess[i] = componentsToProcess[componentCount - 1]; //Put last item in array to position of item that should be deleted, overwriting (and therefore deleting) it
+                    }
+                }
+                //componentsToProcess.Remove(components);
+                componentCount--;
                 componentsToProcessLUT.Remove(components.Entity.ID);
             }
             
@@ -488,10 +514,14 @@ namespace ECS {
         /// Remove all entities from the system
         /// </summary>
         public virtual void RemoveAllEntities() {
-            OnUnregistered(componentsToProcess);
+            List<TComponents> _allComponents = new List<TComponents>(componentsToProcess);
+            OnUnregistered(_allComponents);
+            _allComponents.Clear();
             
             validEntities.Clear();
-            componentsToProcess.Clear();
+            //componentsToProcess.Clear();
+            componentsToProcess = new TComponents[2048];
+            componentCount = 0;
             componentsToProcessLUT.Clear();
         }
 
@@ -501,7 +531,9 @@ namespace ECS {
             entityManager = null;
 
             validEntities.Clear();
-            componentsToProcess.Clear();
+            //componentsToProcess.Clear();
+            componentsToProcess = new TComponents[1];
+            componentCount = 0;
             componentsToProcessLUT.Clear();
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

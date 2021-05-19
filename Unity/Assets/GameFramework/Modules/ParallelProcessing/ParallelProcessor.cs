@@ -9,8 +9,10 @@ namespace ParallelProcessing {
         /// </summary>
         Action[] processActions;
         class ProcessActionData {
-            public int startComponentIndex;
-            public int endComponentIndex;
+            public int startIndex;
+            public int endIndex;
+            public int indexIncrease = 1;
+
             public float deltaTime;
         }
         /// <summary>
@@ -18,6 +20,17 @@ namespace ParallelProcessing {
         /// </summary>
         ProcessActionData[] processActionData;
 
+        /// <summary>
+        /// The current index that a thread will use 
+        /// </summary>
+        int currentItemIndex;
+        /// <summary>
+        /// The total item count. If currentItemIndex >= itemCount, all work has been processed
+        /// </summary>
+        int totalItemCount;
+
+        int chunkSize;
+        int currentChunkIndex;
 
         public ParallelProcessor(Action<int, float> componentAction) {
             ParallelProcessorWorkers.Setup();
@@ -32,9 +45,52 @@ namespace ParallelProcessing {
                     //Thread.MemoryBarrier();
                     try {
                         ProcessActionData processData = processActionData[threadID];
-                        for (int componentIndex = processData.startComponentIndex; componentIndex <= processData.endComponentIndex; ++componentIndex) {
+                        //Work on linear range of indices. Problem: Might get indices that are very heavy to compute, while others threads are idling
+                        //~10ms
+                        /*
+                        for (int componentIndex = processData.startIndex; componentIndex < processData.endIndex; ++componentIndex) {
                             componentAction(componentIndex, processData.deltaTime);
                         }
+                        */
+                        
+                        //Work on range of indices, using static offset: Might geht indices that are very heavy to compute, but less likely than the above version
+                        //~11ms
+                        /*
+                        for (int index = processData.startIndex; index < processData.endIndex; index += processData.indexIncrease) {
+                            componentAction(index, processData.deltaTime);
+                        }
+                        */
+                        
+
+                        //Get next index and work on it. Problem: Locking
+                        //~14ms
+                        /*
+                        int _index;
+                        //while(currentItemIndex < itemCount) {
+                        // Update: Not using a while loop, as it might stall the app if something bad happens inside the loop
+                        for(int dummy=0; dummy < totalItemCount; ++dummy) {
+                            _index = Interlocked.Increment(ref currentItemIndex)-1;
+                            if(_index < totalItemCount) {
+                                componentAction(_index, processData.deltaTime);
+                            } else {
+                                break;
+                            }
+                        }
+                        */
+                        
+                        for(int dummy=0; dummy< totalItemCount; ++dummy) {
+                            int _chunkIndex = Interlocked.Increment(ref currentChunkIndex)-1;
+                            int startIndex = _chunkIndex * chunkSize;
+                            if (startIndex < totalItemCount) {
+                                int endIndex = Math.Min(startIndex + chunkSize, totalItemCount);
+                                for (int componentIndex = startIndex; componentIndex < endIndex; ++componentIndex) {
+                                    componentAction(componentIndex, processData.deltaTime);
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                        
                     }
                     catch (Exception e) {
                         Console.WriteLine("Error in ParallelSystemComponentsProcessor: "+e.Message);
@@ -70,38 +126,62 @@ namespace ParallelProcessing {
                     worker.Join();
         }
         
-        public void Process(ICollection componentsToProcess, float deltaTime) {
-            Process(componentsToProcess.Count, deltaTime);
+        public void Process(ICollection componentsToProcess, float deltaTime, int maxChunkSize = 9999999) {
+            Process(componentsToProcess.Count, deltaTime, maxChunkSize);
         }
 
-        public void Process(int componentsToProcessCount, float deltaTime) {
+        public void Process(int componentsToProcessCount, float deltaTime, int maxChunkSize = 9999999) {
             //Stop here if there are no components to process
             if (componentsToProcessCount == 0) return;
 
             //Make sure we are not using more threads than components
             int workersToUse = Math.Min(ParallelProcessorWorkers.MaxWorkerCount, componentsToProcessCount);
+            //Make sure chunk size is small enough so all threads have work to do
+            maxChunkSize = Math.Max(maxChunkSize, 1);
+            maxChunkSize = Math.Min(maxChunkSize, (int)((float)componentsToProcessCount / workersToUse));
 
             Interlocked.Exchange(ref ParallelProcessorWorkers._workingCount, workersToUse);
 
             int componentChunk = (int)Math.Floor((float)componentsToProcessCount / (float)workersToUse);
+
+            totalItemCount = componentsToProcessCount;
+            currentItemIndex = 0;
+            currentChunkIndex = 0;
+            chunkSize = maxChunkSize;
+
             for (int i = 0; i < workersToUse; ++i) {
                 int workerID = i;
 
+                /*
+                //Method 1: One chunk per thread
                 //Setup worker tasks
                 int startComponentIndex = workerID * componentChunk;
                 int endComponentIndex = 0;
                 if (workerID != workersToUse - 1) {
-                    endComponentIndex = (workerID * componentChunk) + componentChunk - 1;
+                    endComponentIndex = (workerID * componentChunk) + componentChunk;
                 }
                 //Work on last chunk. Last chunk has more elements than other chunks if (this.systemComponents.Count % this.maxThreads != 0)
                 else {
-                    endComponentIndex = componentsToProcessCount - 1;
+                    endComponentIndex = componentsToProcessCount;
                 }
                 
                 //Set process action data
                 processActionData[workerID].deltaTime = deltaTime;
-                processActionData[workerID].startComponentIndex = startComponentIndex;
-                processActionData[workerID].endComponentIndex = endComponentIndex;
+                processActionData[workerID].startIndex = startComponentIndex;
+                processActionData[workerID].endIndex = endComponentIndex;
+                */
+                
+
+                /*
+                //Method 2: Non-locking linear index with static offset
+                processActionData[workerID].deltaTime = deltaTime;
+                processActionData[workerID].startIndex = workerID;
+                processActionData[workerID].endIndex = componentsToProcessCount;
+                processActionData[workerID].indexIncrease = workersToUse;
+                */
+
+                //Method 3: Get next linear index. Locking.
+                processActionData[workerID].deltaTime = deltaTime;
 
                 //Process action on worker
                 ParallelProcessorWorkers.EnqueueItem(processActions[workerID]);
