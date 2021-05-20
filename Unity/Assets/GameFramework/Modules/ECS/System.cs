@@ -305,7 +305,7 @@ namespace ECS {
                         int pendingRemovalAmount = pendingRemovalComponents.Count;
 
                         if (pendingRemovalAmount > 0) {
-                            for (int i = -1; i >= 0; i--) {
+                            for (int i = pendingRemovalAmount - 1; i >= 0; i--) {
                                 var _removeComps = pendingRemovalComponents[i];
                                 for (int idx = 0; idx < componentCount; ++idx) {
                                     if (componentsToProcess[idx].Entity.ID == _removeComps.Entity.ID) {
@@ -366,7 +366,7 @@ namespace ECS {
             //ScriptingService.Callback("system", GetType(), tempStart);
 #endif
             //Tell system there are new components
-            if (newComponents.Count > 0) {
+            if (newComponents.Count > 0 && (!useCyclicExecution || cyclicExecutionData.cyclicExecutionFinished)) {
                 OnRegistered(newComponents);
                 int _count = newComponents.Count;
                 for(int i=0; i< _count; ++i) {
@@ -376,7 +376,7 @@ namespace ECS {
                 newComponents.Clear();
             }
             //Tell system components were updated
-            if(updatedComponents.Count > 0) {
+            if(updatedComponents.Count > 0 && (!useCyclicExecution || cyclicExecutionData.cyclicExecutionFinished)) {
                 int _count = updatedComponents.Count;
                 for(int i=0; i< _count; ++i) {
                     TComponents components = updatedComponents[i];
@@ -386,7 +386,7 @@ namespace ECS {
                 updatedComponentsLUT.Clear();
             }
             //Tell system that components were removed
-            if (removedComponents.Count > 0)
+            if (removedComponents.Count > 0 && (!useCyclicExecution || cyclicExecutionData.cyclicExecutionFinished))
             {
                 OnUnregistered(removedComponents);
                 removedComponents.Clear();
