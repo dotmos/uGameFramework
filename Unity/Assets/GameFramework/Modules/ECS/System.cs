@@ -596,13 +596,18 @@ namespace ECS {
         /// Remove all entities from the system
         /// </summary>
         public virtual void RemoveAllEntities() {
-            List<TComponents> _allComponents = new List<TComponents>(componentsToProcess);
+            TComponents[] allValidComponents = new TComponents[componentCount];
+            Array.Copy(componentsToProcess, allValidComponents, componentCount);
+            List<TComponents> _allComponents = new List<TComponents>(allValidComponents);
+
             OnUnregistered(_allComponents);
             _allComponents.Clear();
-            
+            allValidComponents = null;
+
+
             validEntities.Clear();
             //componentsToProcess.Clear();
-            componentsToProcess = new TComponents[2048];
+            componentsToProcess = new TComponents[1];
             componentCount = 0;
             componentsToProcessLUT.Clear();
         }
