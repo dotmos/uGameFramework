@@ -254,9 +254,9 @@ namespace ECS {
             return false;
         }
 
-        protected void EnableCyclicProcess(int amountWorkers, int minElementAmounts) {
+        protected void EnableCyclicProcess(int ticksPerCycle, int minElementAmounts) {
             useCyclicExecution = true;
-            cyclicExecutionData = new CyclicExecutionData(amountWorkers,minElementAmounts);
+            cyclicExecutionData = new CyclicExecutionData(ticksPerCycle,minElementAmounts);
         }
 
         /// <summary>
@@ -289,17 +289,17 @@ namespace ECS {
                             parallelSystemComponentProcessor.Process(componentCount, deltaTime,MaxParallelChunkSize());
                             return; // finish here
                         } else {
-                            // start a new cycle and get the deltaTime for the current cycle-frame
+                            // start a new cycle and get the deltaTime for the current cycle-tick
                             cyclicDt = cyclicExecutionData.SetStartCycleData(componentCount, deltaTime);
                         }
                     } else {
                         cyclicDt = cyclicExecutionData.NextCycleData(deltaTime);
                     }
-                    if (cyclicExecutionData.currentCycleFrame == 0) {
+                    if (cyclicExecutionData.currentCycleTick == 0) {
                         CycleBeforeFirstCycle();
                     }
                     parallelSystemComponentProcessor.Process(cyclicExecutionData.nextAmountElements, cyclicDt, MaxParallelChunkSize(), cyclicExecutionData.nextStartElement);
-                    CycleFrameFinished(cyclicExecutionData.currentCycleFrame);
+                    CycleTickFinished(cyclicExecutionData.currentCycleTick);
                     if (cyclicExecutionData.cyclicExecutionFinished) {
                         // now is the time to apply pending removals
                         int pendingRemovalAmount = pendingRemovalComponents.Count;
@@ -554,15 +554,15 @@ namespace ECS {
         }
 
         /// <summary>
-        /// getting called just before the first cycle-frame
+        /// getting called just before the first cycle-tick
         /// </summary>
         protected virtual void CycleBeforeFirstCycle() { }
         
         /// <summary>
         /// Called after another batch is finished
         /// </summary>
-        /// <param name="cycleFrame"></param>
-        protected virtual void CycleFrameFinished(int cycleFrame) { 
+        /// <param name="currentTick"></param>
+        protected virtual void CycleTickFinished(int currentTick) { 
         }
         /// <summary>
         /// getting called just after the cycle finished with pendingRemoval-Entities already applied
@@ -717,9 +717,9 @@ namespace ECS {
             public int cyclicExecutionMinAmount = 1000;
 
             /// <summary>
-            ///  amount of frames to distribute the complete element amount on
+            ///  amount of ticks to distribute the complete element amount on
             /// </summary>
-            public int amountFrames = 0;
+            public int ticksPerCycle = 0;
 
 
             /// <summary>
@@ -732,26 +732,26 @@ namespace ECS {
             /// </summary>
             public int processElementsPerCycle = 0;
             /// <summary>
-            /// current cycle frame
+            /// current cycle tick
             /// </summary>
-            public int currentCycleFrame = 0;
+            public int currentCycleTick = 0;
             /// <summary>
             /// amount elements left
             /// </summary>
             public int amountElements = 0;
             /// <summary>
-            /// start elementIdx for the next cycle-frame
+            /// start elementIdx for the next cycle-tick
             /// </summary>
             public int nextStartElement = 0;
             /// <summary>
-            /// amount of elements to be processed next cycle frame
+            /// amount of elements to be processed next cycle tick
             /// </summary>
             public int nextAmountElements = 0;
 
-            public CyclicExecutionData(int amountWorkers,int cyclicExecutionMinAmount=1000) {
-                this.amountFrames = amountWorkers;
-                this.cyclicExecutionMinAmount = 1000;
-                deltaTimesPerCycle = new float[amountWorkers];
+            public CyclicExecutionData(int ticksPerCycle,int cyclicExecutionMinAmount=1000) {
+                this.ticksPerCycle = ticksPerCycle;
+                this.cyclicExecutionMinAmount = cyclicExecutionMinAmount;
+                deltaTimesPerCycle = new float[ticksPerCycle];
             }
 
 
@@ -766,18 +766,18 @@ namespace ECS {
 
                 cyclicExecutionFinished = false;
                 this.amountElements = amountElements;
-                processElementsPerCycle = (int)Mathf.Ceil(amountElements / amountFrames) + amountFrames;
+                processElementsPerCycle = (int)Mathf.Ceil(amountElements / ticksPerCycle) + ticksPerCycle;
                 nextStartElement = 0;
                 nextAmountElements = Mathf.Min(processElementsPerCycle,amountElements);
                 this.amountElements -= nextAmountElements;
-                currentCycleFrame = 0;
+                currentCycleTick = 0;
                 float _dt = AddAndGetDeltaTimeForCycle(0, dt);
                 return _dt;
             }
 
 
             public float NextCycleData(float dt) {
-                currentCycleFrame++;
+                currentCycleTick++;
                 nextStartElement += nextAmountElements;
                 nextAmountElements = Mathf.Min(processElementsPerCycle,amountElements);
                 amountElements -= nextAmountElements;
@@ -785,7 +785,7 @@ namespace ECS {
                     cyclicExecutionFinished = true; // finished
                 }
 
-                float _dt = AddAndGetDeltaTimeForCycle(currentCycleFrame, dt);
+                float _dt = AddAndGetDeltaTimeForCycle(currentCycleTick, dt);
                 return _dt;
             }
 
@@ -800,7 +800,7 @@ namespace ECS {
             public float AddAndGetDeltaTimeForCycle(int cycle, float dt) {
                 float result=0;
   //              stb.Clear();
-                for (int i = 0; i < amountFrames; i++) {
+                for (int i = 0; i < ticksPerCycle; i++) {
                     if (i == cycle) {
                         result = deltaTimesPerCycle[i] + dt;
                         deltaTimesPerCycle[i] = 0;
