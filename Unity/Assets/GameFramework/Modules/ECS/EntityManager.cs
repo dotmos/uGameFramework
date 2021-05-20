@@ -25,19 +25,25 @@ namespace ECS {
         /// List of all registered systems
         /// </summary>
         protected readonly List<ISystem> _systems;
-#if ECS_PROFILING && UNITY_EDITOR
+#if ECS_PROFILING
         /// <summary>
         /// Stops the time for all services per frame
         /// </summary>
         private StringBuilder logTxtBuilder = new StringBuilder();
         private readonly System.Diagnostics.Stopwatch watchOverall = new System.Diagnostics.Stopwatch();
-        private float timer = 0;
-        private readonly float timerInterval = 1.0f;
+        private readonly System.Diagnostics.Stopwatch secondWatch = new System.Diagnostics.Stopwatch();
+
         private double maxElapsedTime = 0;
+        private int tickCounts = 0;
+        private double avgElapsedTime = 0;
+        private double avgSecond = 0;
+        private int tickCountSecond = 0;
+        private double _secondData = 0;
         private int mediumTicks = 0;
         private int highTicks = 0;
         private int veryhighTicks = 0;
-        public static bool showLog = false;
+        public static bool logEntityManager = false;
+
 #endif
 
         private readonly Queue<UID> _recycledEntityIds;
@@ -103,41 +109,89 @@ namespace ECS {
         /// <param name="deltaTime"></param>
         public virtual void Tick(float deltaTime,float unscaledTime,float systemScaled) {
             if (isInitialized) {
-#if ECS_PROFILING && UNITY_EDITOR
-                timer -= UnityEngine.Time.deltaTime;
-                if (timer <= 0) {
-                    timer = timerInterval;
-                    showLog = true;
-                }
+#if ECS_PROFILING
                 watchOverall.Restart();
 #endif
                 int _systemCount = _systems.Count;
                 for (int i = 0; i < _systemCount; ++i) {
                     try { _systems[i].ProcessSystem(deltaTime,unscaledTime,systemScaled); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
                 }
-#if ECS_PROFILING && UNITY_EDITOR
+#if ECS_PROFILING
                 watchOverall.Stop();
-                var elapsedTime = watchOverall.Elapsed.TotalSeconds;
-                if (elapsedTime > maxElapsedTime) {
-                    maxElapsedTime = elapsedTime;
+                if (logEntityManager) {
+
+                    var elapsedTime = watchOverall.Elapsed.TotalMilliseconds;
+                    _secondData += elapsedTime;
+                    if (elapsedTime > maxElapsedTime) {
+                        maxElapsedTime = elapsedTime;
+                    }
+                    if (tickCounts == 0) {
+                        avgElapsedTime = elapsedTime;
+                        tickCounts++;
+                    } else {
+                        avgElapsedTime = (avgElapsedTime * tickCounts + elapsedTime) / (tickCounts + 1);
+                        tickCounts++;
+                    }
+                    if (elapsedTime > 1) {
+                        veryhighTicks++;
+                    } else if (elapsedTime > 0.1) {
+                        highTicks++;
+                    } else if (elapsedTime > 0.016666) {
+                        mediumTicks++;
+                    }
+
+                    if (secondWatch.Elapsed.TotalSeconds > 1.0) {
+                        if (tickCountSecond == 0) {
+                            avgSecond = _secondData;
+                        } else {
+                            avgSecond = (avgSecond * tickCountSecond + _secondData) / (tickCountSecond+1);
+                        }
+                        tickCountSecond++;
+                        _secondData = 0;
+                        secondWatch.Restart();
+                    }
+                    if (!secondWatch.IsRunning) {
+                        secondWatch.Restart();
+                    }
                 }
-                if (elapsedTime > 1) {
-                    veryhighTicks++;
-                } else if (elapsedTime > 0.1) {
-                    highTicks++;
-                } else if (elapsedTime > 0.016666) {
-                    mediumTicks++;
-                }
-                if (showLog) {
-                    logTxtBuilder.Append("------").Append(deltaTime).Append("-----\nECS-Tick:").Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
-                        .Append("|>1.0:").Append(veryhighTicks).Append("] System:");
-                    UnityEngine.Debug.Log(logTxtBuilder.ToString());
-                    showLog = false;
-                };
-                
 #endif
             }
         }
+
+#if ECS_PROFILING
+        public void ShowLog(bool showOnDevUIConsole = false) {
+
+            foreach (var system in _systems.OrderByDescending(system => system.AvgElapsedTime)) {
+                system.ShowLog(showOnDevUIConsole);
+            }
+            logTxtBuilder.Append("[calls:").Append(tickCounts).Append("]")
+                .Append(" avg(sec):").Append(avgSecond)
+                .Append(" avg(single):").Append(avgElapsedTime).Append(" max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
+                .Append("|>1.0:").Append(veryhighTicks).Append("] EntityManager").Append("\n\n");
+
+            UnityEngine.Debug.Log(logTxtBuilder.ToString());
+            if (showOnDevUIConsole) {
+                Kernel.Instance.Resolve<Service.DevUIService.IDevUIService>().WriteToScriptingConsole(logTxtBuilder.ToString());
+            }
+            logTxtBuilder.Clear();
+
+        }
+
+        public void ResetLog() {
+            avgElapsedTime = 0;
+            maxElapsedTime = 0;
+            mediumTicks = 0;
+            highTicks = 0;
+            veryhighTicks = 0;
+            tickCounts = 0;
+            avgElapsedTime = 0;
+
+            foreach (var system in _systems) {
+                system.ResetLog();
+            }
+        }
+
+#endif
 
         /// <summary>
         /// Overwrite to register these systems when this instance is created

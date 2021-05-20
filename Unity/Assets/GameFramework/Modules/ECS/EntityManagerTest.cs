@@ -689,7 +689,16 @@ namespace ECS {
             throw new NotImplementedException();
         }
 
- 
+#if ECS_PROFILING
+        public void ShowLog(bool showOnDevUIConsole = false) {
+            throw new NotImplementedException();
+        }
+
+        public void ResetLog() {
+            throw new NotImplementedException();
+        }
+#endif
+
 
         //void IEntityManager.Initialize() {
         //    throw new NotImplementedException();

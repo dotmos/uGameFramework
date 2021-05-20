@@ -54,5 +54,10 @@ namespace ECS {
         UID? GetEntityForID_SLOW(int id);
 
         void Clear();
+
+#if ECS_PROFILING
+        void ShowLog(bool showOnDevUIConsole = false);
+        void ResetLog();
+#endif
     }
 }

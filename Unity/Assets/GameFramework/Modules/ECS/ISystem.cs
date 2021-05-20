@@ -15,6 +15,12 @@ namespace ECS {
         /// </summary>
         IEntityManager entityManager { get; }
 
+#if ECS_PROFILING
+        double AvgElapsedTime { get; }
+        void ShowLog(bool showInUIConsole = false,bool forceAll=false);
+        void ResetLog();
+#endif
+
         /// <summary>
         /// Call whenever an entity is modified
         /// </summary>

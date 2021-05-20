@@ -28,14 +28,30 @@ namespace ECS {
         /// 
         /// </summary>
         /// 
-#if ECS_PROFILING && UNITY_EDITOR
-        private readonly System.Diagnostics.Stopwatch watchService = new System.Diagnostics.Stopwatch();
+#if ECS_PROFILING
+        private readonly System.Diagnostics.Stopwatch frameWatch = new System.Diagnostics.Stopwatch();
+        public  readonly System.Diagnostics.Stopwatch secondWatch = new System.Diagnostics.Stopwatch();
+
+
+        private int tickCounts = 0;
+        public double avgElapsedTime = 0;
+
+        public double AvgElapsedTime => avgSecond;
+        public double _secondData = 0;
+        public double lastFPS = 0;
+
+        public double avgSecond = 0;
+        public int avgSecondCount = 0;
+        
         private double maxElapsedTime = 0;
+
         private int mediumTicks = 0;
         private int highTicks = 0;
         private int veryhighTicks = 0;
         StringBuilder logTxtBuilder = new StringBuilder();
         private string systemType = "";
+
+
 #endif
 
 #if TESTING
@@ -145,7 +161,7 @@ namespace ECS {
 
             Kernel.Instance.Inject(this);
 
-#if ECS_PROFILING && UNITY_EDITOR
+#if ECS_PROFILING 
             systemType = GetType().ToString();
 #endif
             AfterBind();
@@ -377,10 +393,6 @@ namespace ECS {
             }
             try
             {
-#if ECS_PROFILING && UNITY_EDITOR
-                watchService.Restart();
-#endif
-
 #if SYSTEMS_LEGACY
                 currentTimer += deltaTime;
 #else
@@ -389,36 +401,64 @@ namespace ECS {
                 currentUpdateDeltaTime += deltaTime;
                 //Process system components
                 if (currentTimer >= SystemUpdateRate()) {
+#if ECS_PROFILING
+                    frameWatch.Restart();
+#endif
+
                     //Regular tick
                     ProcessAll(currentUpdateDeltaTime);
                     currentUpdateDeltaTime = 0;
                     currentTimer = 0;
+#if ECS_PROFILING
+                    frameWatch.Stop();
+
+                    if (EntityManager.logEntityManager) {
+                        var elapsedTime = frameWatch.Elapsed.TotalMilliseconds;
+
+                        _secondData += elapsedTime;
+                        if (!secondWatch.IsRunning) {
+                            secondWatch.Restart();
+                        }
+
+                        if (elapsedTime > maxElapsedTime) {
+                            maxElapsedTime = elapsedTime;
+                        }
+                        if (tickCounts == 0) {
+                            avgElapsedTime = elapsedTime;
+                            tickCounts++;
+                        } else {
+                            avgElapsedTime = (avgElapsedTime * tickCounts + elapsedTime) / (tickCounts + 1);
+                            tickCounts++;
+                        }
+                        if (elapsedTime > 5) {
+                            veryhighTicks++;
+                        } else if (elapsedTime > 3) {
+                            highTicks++;
+                        } else if (elapsedTime > 1) {
+                            mediumTicks++;
+                        }
+                    }
+
+#endif
+
                 } else if(deltaTime == 0 && ForceTickOnDeltaZero()) {
                     //Force tick with deltaTime 0
                     ProcessAll(0);
                 }
-#if ECS_PROFILING && UNITY_EDITOR
-                watchService.Stop();
-                var elapsedTime = watchService.Elapsed.TotalSeconds;
-                if (elapsedTime > maxElapsedTime) {
-                    maxElapsedTime = elapsedTime;
+#if ECS_PROFILING
+                if (secondWatch.Elapsed.TotalSeconds > 1.0) {
+                    if (avgSecondCount == 0) {
+                        avgSecond = _secondData;
+                    } else {
+                        avgSecond = (avgSecond * avgSecondCount + _secondData) / (avgSecondCount + 1);
+                    }
+                    avgSecondCount++;
+                    lastFPS = _secondData;
+                    _secondData = 0;
+                    secondWatch.Restart();
                 }
-                if (elapsedTime > 1) {
-                    veryhighTicks++;
-                } 
-                else if (elapsedTime > 0.1) {
-                    highTicks++;
-                } else if (elapsedTime > 0.016666){
-                    mediumTicks++;
-                }
-                if (EntityManager.showLog) {
-                    logTxtBuilder.Clear();
-                    logTxtBuilder.Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
-                        .Append("|>1.0:").Append(veryhighTicks).Append("] System:").Append(systemType);
-                    UnityEngine.Debug.Log(logTxtBuilder.ToString());
-                };
-
 #endif
+
             }
             catch (Exception e)
             {
@@ -434,6 +474,43 @@ namespace ECS {
 
         }
 
+#if ECS_PROFILING
+        public void ShowLog(bool showOnDevUIConsole=false,bool forceAll=true) {
+            logTxtBuilder.Clear();
+            if (!forceAll && avgElapsedTime < 0.005) {
+                return;
+            }
+
+            
+            logTxtBuilder.Append("calls:")
+                .Append(tickCounts).Append(" avg(sec):").Append(avgSecond.ToString("F5").TrimEnd('0'))
+                .Append(" avg(single):").Append(avgElapsedTime.ToString("F5").TrimEnd('0'))
+                .Append("] max:").Append(maxElapsedTime)
+                .Append(" [>1ms:").Append(mediumTicks)
+                .Append("|>3ms:").Append(highTicks)
+                .Append("|>5ms:").Append(veryhighTicks)
+                .Append("] System:").Append(GetType().Name);
+
+            UnityEngine.Debug.Log(logTxtBuilder.ToString());
+            if (showOnDevUIConsole) {
+                Kernel.Instance.Resolve<Service.DevUIService.IDevUIService>().WriteToScriptingConsole(logTxtBuilder.ToString());
+            }
+        }
+
+        public void ResetLog() {
+            avgElapsedTime = 0;
+            maxElapsedTime = 0;
+            mediumTicks = 0;
+            highTicks = 0;
+            veryhighTicks = 0;
+            tickCounts = 0;
+            avgElapsedTime = 0;
+            avgSecond = 0;
+            avgSecondCount = 0;
+            _secondData = 0;
+        }
+
+#endif
 
 
         /// <summary>

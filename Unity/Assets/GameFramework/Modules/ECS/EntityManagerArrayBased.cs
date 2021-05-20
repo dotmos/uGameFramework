@@ -30,7 +30,7 @@ namespace ECS {
         /// <summary>
         /// Stops the time for all services per frame
         /// </summary>
-        private StringBuilder logTxtBuilder = new StringBuilder();
+        private System.Text.StringBuilder logTxtBuilder = new System.Text.StringBuilder();
         private readonly System.Diagnostics.Stopwatch watchOverall = new System.Diagnostics.Stopwatch();
         private float timer = 0;
         private readonly float timerInterval = 1.0f;
@@ -734,5 +734,14 @@ namespace ECS {
             _recycledComponentIds.Clear();
         }
 
+#if ECS_PROFILING
+        public void ShowLog(bool showOnDevUIConsole = false) {
+            throw new NotImplementedException();
+        }
+
+        public void ResetLog() {
+            throw new NotImplementedException();
+        }
+#endif
     }
 }
