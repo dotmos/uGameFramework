@@ -28,14 +28,30 @@ namespace ECS {
         /// 
         /// </summary>
         /// 
-#if ECS_PROFILING && UNITY_EDITOR
-        private readonly System.Diagnostics.Stopwatch watchService = new System.Diagnostics.Stopwatch();
+#if ECS_PROFILING
+        private readonly System.Diagnostics.Stopwatch frameWatch = new System.Diagnostics.Stopwatch();
+        public  readonly System.Diagnostics.Stopwatch secondWatch = new System.Diagnostics.Stopwatch();
+
+
+        private int tickCounts = 0;
+        public double avgElapsedTime = 0;
+
+        public double AvgElapsedTime => avgSecond;
+        public double _secondData = 0;
+        public double lastFPS = 0;
+
+        public double avgSecond = 0;
+        public int avgSecondCount = 0;
+        
         private double maxElapsedTime = 0;
+
         private int mediumTicks = 0;
         private int highTicks = 0;
         private int veryhighTicks = 0;
         StringBuilder logTxtBuilder = new StringBuilder();
         private string systemType = "";
+
+
 #endif
 
 #if TESTING
@@ -145,7 +161,7 @@ namespace ECS {
 
             Kernel.Instance.Inject(this);
 
-#if ECS_PROFILING && UNITY_EDITOR
+#if ECS_PROFILING 
             systemType = GetType().ToString();
 #endif
             AfterBind();
@@ -238,9 +254,9 @@ namespace ECS {
             return false;
         }
 
-        protected void EnableCyclicProcess(int amountWorkers, int minElementAmounts) {
+        protected void EnableCyclicProcess(int ticksPerCycle, int minElementAmounts) {
             useCyclicExecution = true;
-            cyclicExecutionData = new CyclicExecutionData(amountWorkers,minElementAmounts);
+            cyclicExecutionData = new CyclicExecutionData(ticksPerCycle,minElementAmounts);
         }
 
         /// <summary>
@@ -273,23 +289,23 @@ namespace ECS {
                             parallelSystemComponentProcessor.Process(componentCount, deltaTime,MaxParallelChunkSize());
                             return; // finish here
                         } else {
-                            // start a new cycle and get the deltaTime for the current cycle-frame
+                            // start a new cycle and get the deltaTime for the current cycle-tick
                             cyclicDt = cyclicExecutionData.SetStartCycleData(componentCount, deltaTime);
                         }
                     } else {
                         cyclicDt = cyclicExecutionData.NextCycleData(deltaTime);
                     }
-                    if (cyclicExecutionData.currentCycleFrame == 0) {
+                    if (cyclicExecutionData.currentCycleTick == 0) {
                         CycleBeforeFirstCycle();
                     }
                     parallelSystemComponentProcessor.Process(cyclicExecutionData.nextAmountElements, cyclicDt, MaxParallelChunkSize(), cyclicExecutionData.nextStartElement);
-                    CycleFrameFinished(cyclicExecutionData.currentCycleFrame);
+                    CycleTickFinished(cyclicExecutionData.currentCycleTick);
                     if (cyclicExecutionData.cyclicExecutionFinished) {
                         // now is the time to apply pending removals
                         int pendingRemovalAmount = pendingRemovalComponents.Count;
 
                         if (pendingRemovalAmount > 0) {
-                            for (int i = -1; i >= 0; i--) {
+                            for (int i = pendingRemovalAmount - 1; i >= 0; i--) {
                                 var _removeComps = pendingRemovalComponents[i];
                                 for (int idx = 0; idx < componentCount; ++idx) {
                                     if (componentsToProcess[idx].Entity.ID == _removeComps.Entity.ID) {
@@ -350,7 +366,7 @@ namespace ECS {
             //ScriptingService.Callback("system", GetType(), tempStart);
 #endif
             //Tell system there are new components
-            if (newComponents.Count > 0) {
+            if (newComponents.Count > 0 && (!useCyclicExecution || cyclicExecutionData.cyclicExecutionFinished)) {
                 OnRegistered(newComponents);
                 int _count = newComponents.Count;
                 for(int i=0; i< _count; ++i) {
@@ -360,7 +376,7 @@ namespace ECS {
                 newComponents.Clear();
             }
             //Tell system components were updated
-            if(updatedComponents.Count > 0) {
+            if(updatedComponents.Count > 0 && (!useCyclicExecution || cyclicExecutionData.cyclicExecutionFinished)) {
                 int _count = updatedComponents.Count;
                 for(int i=0; i< _count; ++i) {
                     TComponents components = updatedComponents[i];
@@ -370,17 +386,13 @@ namespace ECS {
                 updatedComponentsLUT.Clear();
             }
             //Tell system that components were removed
-            if (removedComponents.Count > 0)
+            if (removedComponents.Count > 0 && (!useCyclicExecution || cyclicExecutionData.cyclicExecutionFinished))
             {
                 OnUnregistered(removedComponents);
                 removedComponents.Clear();
             }
             try
             {
-#if ECS_PROFILING && UNITY_EDITOR
-                watchService.Restart();
-#endif
-
 #if SYSTEMS_LEGACY
                 currentTimer += deltaTime;
 #else
@@ -389,36 +401,64 @@ namespace ECS {
                 currentUpdateDeltaTime += deltaTime;
                 //Process system components
                 if (currentTimer >= SystemUpdateRate()) {
+#if ECS_PROFILING
+                    frameWatch.Restart();
+#endif
+
                     //Regular tick
                     ProcessAll(currentUpdateDeltaTime);
                     currentUpdateDeltaTime = 0;
                     currentTimer = 0;
+#if ECS_PROFILING
+                    frameWatch.Stop();
+
+                    if (EntityManager.logEntityManager) {
+                        var elapsedTime = frameWatch.Elapsed.TotalMilliseconds;
+
+                        _secondData += elapsedTime;
+                        if (!secondWatch.IsRunning) {
+                            secondWatch.Restart();
+                        }
+
+                        if (elapsedTime > maxElapsedTime) {
+                            maxElapsedTime = elapsedTime;
+                        }
+                        if (tickCounts == 0) {
+                            avgElapsedTime = elapsedTime;
+                            tickCounts++;
+                        } else {
+                            avgElapsedTime = (avgElapsedTime * tickCounts + elapsedTime) / (tickCounts + 1);
+                            tickCounts++;
+                        }
+                        if (elapsedTime > 5) {
+                            veryhighTicks++;
+                        } else if (elapsedTime > 3) {
+                            highTicks++;
+                        } else if (elapsedTime > 1) {
+                            mediumTicks++;
+                        }
+                    }
+
+#endif
+
                 } else if(deltaTime == 0 && ForceTickOnDeltaZero()) {
                     //Force tick with deltaTime 0
                     ProcessAll(0);
                 }
-#if ECS_PROFILING && UNITY_EDITOR
-                watchService.Stop();
-                var elapsedTime = watchService.Elapsed.TotalSeconds;
-                if (elapsedTime > maxElapsedTime) {
-                    maxElapsedTime = elapsedTime;
+#if ECS_PROFILING
+                if (secondWatch.Elapsed.TotalSeconds > 1.0) {
+                    if (avgSecondCount == 0) {
+                        avgSecond = _secondData;
+                    } else {
+                        avgSecond = (avgSecond * avgSecondCount + _secondData) / (avgSecondCount + 1);
+                    }
+                    avgSecondCount++;
+                    lastFPS = _secondData;
+                    _secondData = 0;
+                    secondWatch.Restart();
                 }
-                if (elapsedTime > 1) {
-                    veryhighTicks++;
-                } 
-                else if (elapsedTime > 0.1) {
-                    highTicks++;
-                } else if (elapsedTime > 0.016666){
-                    mediumTicks++;
-                }
-                if (EntityManager.showLog) {
-                    logTxtBuilder.Clear();
-                    logTxtBuilder.Append(elapsedTime).Append("(max:").Append(maxElapsedTime).Append(" [>0.0166:").Append(mediumTicks).Append("|>0.1:").Append(highTicks)
-                        .Append("|>1.0:").Append(veryhighTicks).Append("] System:").Append(systemType);
-                    UnityEngine.Debug.Log(logTxtBuilder.ToString());
-                };
-
 #endif
+
             }
             catch (Exception e)
             {
@@ -434,6 +474,43 @@ namespace ECS {
 
         }
 
+#if ECS_PROFILING
+        public void ShowLog(bool showOnDevUIConsole=false,bool forceAll=true) {
+            logTxtBuilder.Clear();
+            if (!forceAll && avgElapsedTime < 0.005) {
+                return;
+            }
+
+            
+            logTxtBuilder.Append("calls:")
+                .Append(tickCounts).Append(" avg(sec):").Append(avgSecond.ToString("F5").TrimEnd('0'))
+                .Append(" avg(single):").Append(avgElapsedTime.ToString("F5").TrimEnd('0'))
+                .Append("] max:").Append(maxElapsedTime)
+                .Append(" [>1ms:").Append(mediumTicks)
+                .Append("|>3ms:").Append(highTicks)
+                .Append("|>5ms:").Append(veryhighTicks)
+                .Append("] System:").Append(GetType().Name);
+
+            UnityEngine.Debug.Log(logTxtBuilder.ToString());
+            if (showOnDevUIConsole) {
+                Kernel.Instance.Resolve<Service.DevUIService.IDevUIService>().WriteToScriptingConsole(logTxtBuilder.ToString());
+            }
+        }
+
+        public void ResetLog() {
+            avgElapsedTime = 0;
+            maxElapsedTime = 0;
+            mediumTicks = 0;
+            highTicks = 0;
+            veryhighTicks = 0;
+            tickCounts = 0;
+            avgElapsedTime = 0;
+            avgSecond = 0;
+            avgSecondCount = 0;
+            _secondData = 0;
+        }
+
+#endif
 
 
         /// <summary>
@@ -477,15 +554,15 @@ namespace ECS {
         }
 
         /// <summary>
-        /// getting called just before the first cycle-frame
+        /// getting called just before the first cycle-tick
         /// </summary>
         protected virtual void CycleBeforeFirstCycle() { }
         
         /// <summary>
         /// Called after another batch is finished
         /// </summary>
-        /// <param name="cycleFrame"></param>
-        protected virtual void CycleFrameFinished(int cycleFrame) { 
+        /// <param name="currentTick"></param>
+        protected virtual void CycleTickFinished(int currentTick) { 
         }
         /// <summary>
         /// getting called just after the cycle finished with pendingRemoval-Entities already applied
@@ -640,9 +717,9 @@ namespace ECS {
             public int cyclicExecutionMinAmount = 1000;
 
             /// <summary>
-            ///  amount of frames to distribute the complete element amount on
+            ///  amount of ticks to distribute the complete element amount on
             /// </summary>
-            public int amountFrames = 0;
+            public int ticksPerCycle = 0;
 
 
             /// <summary>
@@ -655,26 +732,26 @@ namespace ECS {
             /// </summary>
             public int processElementsPerCycle = 0;
             /// <summary>
-            /// current cycle frame
+            /// current cycle tick
             /// </summary>
-            public int currentCycleFrame = 0;
+            public int currentCycleTick = 0;
             /// <summary>
             /// amount elements left
             /// </summary>
             public int amountElements = 0;
             /// <summary>
-            /// start elementIdx for the next cycle-frame
+            /// start elementIdx for the next cycle-tick
             /// </summary>
             public int nextStartElement = 0;
             /// <summary>
-            /// amount of elements to be processed next cycle frame
+            /// amount of elements to be processed next cycle tick
             /// </summary>
             public int nextAmountElements = 0;
 
-            public CyclicExecutionData(int amountWorkers,int cyclicExecutionMinAmount=1000) {
-                this.amountFrames = amountWorkers;
-                this.cyclicExecutionMinAmount = 1000;
-                deltaTimesPerCycle = new float[amountWorkers];
+            public CyclicExecutionData(int ticksPerCycle,int cyclicExecutionMinAmount=1000) {
+                this.ticksPerCycle = ticksPerCycle;
+                this.cyclicExecutionMinAmount = cyclicExecutionMinAmount;
+                deltaTimesPerCycle = new float[ticksPerCycle];
             }
 
 
@@ -689,18 +766,18 @@ namespace ECS {
 
                 cyclicExecutionFinished = false;
                 this.amountElements = amountElements;
-                processElementsPerCycle = (int)Mathf.Ceil(amountElements / amountFrames) + amountFrames;
+                processElementsPerCycle = (int)Mathf.Ceil(amountElements / ticksPerCycle) + ticksPerCycle;
                 nextStartElement = 0;
                 nextAmountElements = Mathf.Min(processElementsPerCycle,amountElements);
                 this.amountElements -= nextAmountElements;
-                currentCycleFrame = 0;
+                currentCycleTick = 0;
                 float _dt = AddAndGetDeltaTimeForCycle(0, dt);
                 return _dt;
             }
 
 
             public float NextCycleData(float dt) {
-                currentCycleFrame++;
+                currentCycleTick++;
                 nextStartElement += nextAmountElements;
                 nextAmountElements = Mathf.Min(processElementsPerCycle,amountElements);
                 amountElements -= nextAmountElements;
@@ -708,7 +785,7 @@ namespace ECS {
                     cyclicExecutionFinished = true; // finished
                 }
 
-                float _dt = AddAndGetDeltaTimeForCycle(currentCycleFrame, dt);
+                float _dt = AddAndGetDeltaTimeForCycle(currentCycleTick, dt);
                 return _dt;
             }
 
@@ -723,7 +800,7 @@ namespace ECS {
             public float AddAndGetDeltaTimeForCycle(int cycle, float dt) {
                 float result=0;
   //              stb.Clear();
-                for (int i = 0; i < amountFrames; i++) {
+                for (int i = 0; i < ticksPerCycle; i++) {
                     if (i == cycle) {
                         result = deltaTimesPerCycle[i] + dt;
                         deltaTimesPerCycle[i] = 0;
