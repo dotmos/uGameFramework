@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace UserInterface
-{
+namespace UserInterface {
     [CustomEditor(typeof(GMButton)), CanEditMultipleObjects]
-    public class GMButtonEditor : UnityEditor.UI.ButtonEditor
-    {
+    public class GMButtonEditor : UnityEditor.UI.ButtonEditor {
 
         SerializedProperty colorizeElementsProp;
         SerializedProperty defaultColorProp;
         SerializedProperty highlightColorProp;
         SerializedProperty pressedColorProp;
+        SerializedProperty selectedColorProp;
         SerializedProperty disabledColorProp;
 
-        protected override void OnEnable()
-        {
+        protected override void OnEnable() {
             base.OnEnable();
 
             //Setup the SerializedProperties
@@ -24,11 +22,11 @@ namespace UserInterface
             defaultColorProp = serializedObject.FindProperty("defaultColor");
             highlightColorProp = serializedObject.FindProperty("highlightColor");
             pressedColorProp = serializedObject.FindProperty("pressedColor");
+            selectedColorProp = serializedObject.FindProperty("selectedColor");
             disabledColorProp = serializedObject.FindProperty("disabledColor");
         }
 
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             serializedObject.Update();
 
             base.OnInspectorGUI();
@@ -40,13 +38,13 @@ namespace UserInterface
             EditorGUILayout.PropertyField(defaultColorProp);
             EditorGUILayout.PropertyField(highlightColorProp);
             EditorGUILayout.PropertyField(pressedColorProp);
+            EditorGUILayout.PropertyField(selectedColorProp);
             EditorGUILayout.PropertyField(disabledColorProp);
             EditorGUILayout.EndVertical();
 
             serializedObject.ApplyModifiedProperties();
 
-            if (GUI.changed)
-            {
+            if (GUI.changed) {
                 EditorUtility.SetDirty(target);
             }
         }
