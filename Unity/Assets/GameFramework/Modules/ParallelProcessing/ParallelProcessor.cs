@@ -121,13 +121,18 @@ namespace ParallelProcessing {
         /// <param name="waitForWorkers"></param>
         void Shutdown(bool waitForWorkers) {
             // Enqueue one null item per worker to make each exit.
-            foreach (Thread worker in ParallelProcessorWorkers.Workers)
-                ParallelProcessorWorkers.EnqueueItem(null);
+            foreach (ParallelProcessorWorkers.Worker worker in ParallelProcessorWorkers.Workers) {
+                ParallelProcessorWorkers.EnqueueItem(worker.workerID, null);
+            }
+                
 
             // Wait for workers to finish
-            if (waitForWorkers)
-                foreach (Thread worker in ParallelProcessorWorkers.Workers)
+            if (waitForWorkers) {
+                foreach (ParallelProcessorWorkers.Worker worker in ParallelProcessorWorkers.Workers) {
                     worker.Join();
+                }
+            }
+                
         }
         
         public void Process(ICollection componentsToProcess, float deltaTime, int maxChunkSize = 9999999) {
@@ -191,7 +196,7 @@ namespace ParallelProcessing {
 #endif
 
                 //Process action on worker
-                ParallelProcessorWorkers.EnqueueItem(processActions[workerID]);
+                ParallelProcessorWorkers.EnqueueItem(workerID, processActions[workerID]);
             }
 
             /*
