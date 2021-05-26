@@ -16,6 +16,7 @@ namespace UserInterface
         public Color activeColor;
         public Color highlightColor;
         public Color pressedColor;
+        public Color selectedColor;
         public Color disabledColor;
 
         private GMTabbar myTabBar;
@@ -128,6 +129,8 @@ namespace UserInterface
                     ColorizeElements(pressedColor);
                 } else if (state == SelectionState.Highlighted) {
                     ColorizeElements(highlightColor);
+                } else if (state == SelectionState.Selected) {
+                    ColorizeElements(selectedColor);
                 } else {
                     Color color = isOn ? activeColor : defaultColor;
                     ColorizeElements(color);

@@ -17,6 +17,7 @@ namespace UserInterface
         SerializedProperty activeColorProp;
         SerializedProperty highlightColorProp;
         SerializedProperty pressedColorProp;
+        SerializedProperty selectedColorProp;
         SerializedProperty disabledColorProp;
 
         protected override void OnEnable()
@@ -30,6 +31,7 @@ namespace UserInterface
             activeColorProp = serializedObject.FindProperty("activeColor");
             highlightColorProp = serializedObject.FindProperty("highlightColor");
             pressedColorProp = serializedObject.FindProperty("pressedColor");
+            selectedColorProp = serializedObject.FindProperty("selectedColor");
             disabledColorProp = serializedObject.FindProperty("disabledColor");
             borderProp = serializedObject.FindProperty("border");
         }
@@ -47,6 +49,7 @@ namespace UserInterface
             EditorGUILayout.PropertyField(activeColorProp);
             EditorGUILayout.PropertyField(highlightColorProp);
             EditorGUILayout.PropertyField(pressedColorProp);
+            EditorGUILayout.PropertyField(selectedColorProp);
             EditorGUILayout.PropertyField(disabledColorProp);
 
             serializedObject.ApplyModifiedProperties();
