@@ -24,7 +24,15 @@ namespace ParallelProcessing {
 #else 
         readonly static int _workerCount = Environment.ProcessorCount;// Math.Max(1, Environment.ProcessorCount-1);
 #endif
-        public static int MaxWorkerCount { get { return _workerCount; }}
+
+        private static bool throttleWorkers = false;
+
+        public static void ThrottleWorkers(bool throttle,int throttleWorkerAmount = 1) {
+            throttleWorkers = throttle;
+            ThrottleWorkerAmount = throttleWorkerAmount;
+        }
+        public static int ThrottleWorkerAmount { get; set; } = 1;
+        public static int MaxWorkerCount { get { return throttleWorkers ? ThrottleWorkerAmount : _workerCount; }}
         public static readonly object _workingCountLocker = new object();
         public static long _workingCount = 0;
         
