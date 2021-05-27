@@ -151,6 +151,42 @@ namespace Service.FileSystem {
             return WriteStringToFile(GetPath(domain, relativePathToFile), data,append);
         }
 
+        //old File-Class-Based 
+        //public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
+        //    try {
+        //        UnityEngine.Profiling.Profiler.BeginSample("WriteBytesToFile");
+
+        //        // TODO: Ensure Directory?
+        //        // TODO: Use the PC3-bulletproof writing version
+        //        try {
+        //            string tempName = pathToFile + ".tmp";
+
+        //            if (File.Exists(tempName)) {
+        //                File.Delete(tempName);
+        //            }
+        //            if (File.Exists(pathToFile)) {
+        //                File.Delete(pathToFile);
+        //            }
+
+        //            if (compress) {
+        //                File.WriteAllBytes(tempName, Compress(bytes));
+        //            } else {
+        //                File.WriteAllBytes(tempName, bytes);
+        //            }
+        //            File.Move(tempName, pathToFile);
+        //            return true;
+        //        }
+        //        catch (Exception e) {
+        //            Debug.LogError("There was a problem using WriteBytesToFile with " + pathToFile + "=>DATA:\n" + bytes);
+        //            Debug.LogException(e);
+        //            return false;
+        //        }
+        //    }
+        //    finally {
+        //        UnityEngine.Profiling.Profiler.EndSample();
+        //    }
+        //}
+
         public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("WriteBytesToFile");
@@ -158,21 +194,26 @@ namespace Service.FileSystem {
                 // TODO: Ensure Directory?
                 // TODO: Use the PC3-bulletproof writing version
                 try {
-                    string tempName = pathToFile + ".tmp";
-
-                    if (File.Exists(tempName)) {
-                        File.Delete(tempName);
-                    }
                     if (File.Exists(pathToFile)) {
                         File.Delete(pathToFile);
                     }
 
                     if (compress) {
-                        File.WriteAllBytes(tempName, Compress(bytes));
-                    } else {
-                        File.WriteAllBytes(tempName, bytes);
+                        bytes = Compress(bytes);
                     }
-                    File.Move(tempName, pathToFile);
+
+                    int size = bytes.Length;
+                    int chunkSize = size / 20;
+                    int totalWritten = 0;
+                    using (FileStream fs = new FileStream(pathToFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 1024 * 1024 * 5)) {
+                        // Add some information to the file.
+                        while (totalWritten < bytes.Length) {
+                            int writeSize = Math.Min(size - totalWritten, chunkSize);
+                            fs.Write(bytes, totalWritten, writeSize);
+                            totalWritten += writeSize;
+                        }
+                    }
+
                     return true;
                 }
                 catch (Exception e) {
