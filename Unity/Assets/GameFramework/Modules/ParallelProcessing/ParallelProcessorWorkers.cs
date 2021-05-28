@@ -25,14 +25,21 @@ namespace ParallelProcessing {
         readonly static int _workerCount = Environment.ProcessorCount;// Math.Max(1, Environment.ProcessorCount-1);
 #endif
 
-        private static bool throttleWorkers = false;
-
+        /// <summary>
+        /// Tell the system to use only throttleWorkerAmount number of workers. The function makes sure, that throttleWorkerAmount will never be higher than the actual available worker count. If throttle == false, the system will use all available workers.
+        /// </summary>
+        /// <param name="throttle"></param>
+        /// <param name="throttleWorkerAmount"></param>
         public static void ThrottleWorkers(bool throttle,int throttleWorkerAmount = 1) {
-            throttleWorkers = throttle;
-            ThrottleWorkerAmount = throttleWorkerAmount;
+            if (throttle) {
+                MaxWorkerCount = System.Math.Min(_workerCount, throttleWorkerAmount);
+            } else {
+                MaxWorkerCount = _workerCount;
+            }
+            
         }
-        public static int ThrottleWorkerAmount { get; set; } = 1;
-        public static int MaxWorkerCount { get { return throttleWorkers ? ThrottleWorkerAmount : _workerCount; }}
+        static int _maxWorkerCount = _workerCount;
+        public static int MaxWorkerCount { get { return _maxWorkerCount; } private set { _maxWorkerCount = value; } }
         public static readonly object _workingCountLocker = new object();
         public static long _workingCount = 0;
         
@@ -43,9 +50,10 @@ namespace ParallelProcessing {
 
         public static void Setup() {
             if (_workers == null) {
-                _workers = new Worker[MaxWorkerCount];
+                MaxWorkerCount = _workerCount;
+                _workers = new Worker[_workerCount];
                 // Create and start a separate thread for each worker
-                for (int i = 0; i < MaxWorkerCount; i++) {
+                for (int i = 0; i < _workerCount; i++) {
                     int workerID = i;
                     Worker worker = new Worker();
 
