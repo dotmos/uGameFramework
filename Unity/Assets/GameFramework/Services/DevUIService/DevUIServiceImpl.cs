@@ -100,6 +100,15 @@ namespace Service.DevUIService {
             ReactivePriorityExecutionList rxStartup = Kernel.Instance.rxStartup;
 
             rxStartup.Add(UtilsObservable.LoadScene(developmentSceneID),Priorities.PRIORITY_EARLY);
+            
+            if (TouchScreenKeyboard.isSupported) {
+                rxStartup.Add(()=> {
+                    var uiView = CreateView("UI-Options");
+                    uiView.AddElement(new DevUIToggle("VirtualKeyboard active", (newValue) => {
+                        UserInterface.GMInputField.VirtualKeyboardActive = newValue;
+                    }, UserInterface.GMInputField.VirtualKeyboardActive));
+                }, Priorities.PRIORITY_DEFAULT);
+            }
 
             //TODO: This is a workaround to close the dev console on start. Usually the loadDevelopmentConsole command published above should load the scene deactivated (makeActive set to false) which doesn't seem to work.
             // To Ensure that the 
