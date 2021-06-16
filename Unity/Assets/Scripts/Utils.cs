@@ -60,11 +60,60 @@ public class DirtyFlag : IDirtyFlagable
 }
 public class UtilsObservable
 {
+#if ADDRESSABLES
+    public static Dictionary<string, UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance>> asyncHandlesForSceneNames
+        = new Dictionary<string, UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance>>();
+
+    public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
+        return Observable.Create<bool>((observer) => {
+            UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance> async;
+            async = UnityEngine.AddressableAssets.Addressables.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+            async.Completed += (val) => {
+                asyncHandlesForSceneNames.Add(sceneName, async);
+                if (makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+                observer.OnNext(true);
+                observer.OnCompleted();
+            };
+            return null;
+        });
+    }
+
+    public static IObservable<bool> UnloadScene(string sceneName) {
+        return Observable.Create<bool>((observer) => {
+
+            var scene = SceneManager.GetSceneByName(sceneName);
+
+            if (scene.isLoaded) {
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance> handle, result;
+                if (asyncHandlesForSceneNames.TryGetValue(sceneName, out handle)) {
+
+                    asyncHandlesForSceneNames.Remove(sceneName);
+                    result = UnityEngine.AddressableAssets.Addressables.UnloadSceneAsync(handle);
+                    result.Completed += (val) => {
+
+                        Debug.LogWarning("Unload Scene Progress:" + val.PercentComplete);
+                        if (val.IsDone) {
+                            observer.OnNext(true);
+                            observer.OnCompleted();
+                        }
+                    };
+                }
+
+            } else {
+                observer.OnNext(true);
+                observer.OnCompleted();
+            }
+            return null;
+        });
+    }
+}
+
+#else
     public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
         return Observable.Create<bool>((observer) => {
             AsyncOperation async = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             async.completed += (val) => {
-                if(makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+                if (makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 observer.OnNext(true);
                 observer.OnCompleted();
             };
@@ -83,9 +132,9 @@ public class UtilsObservable
                         observer.OnNext(true);
                         observer.OnCompleted();
                     }
-
                 };
-            } else {
+            }
+            else {
                 observer.OnNext(true);
                 observer.OnCompleted();
             }
@@ -94,6 +143,8 @@ public class UtilsObservable
     }
 
 }
+
+#endif
 
 public class DefaultExecutionWrapper : IExecutionWrapper
 {
@@ -989,7 +1040,7 @@ public class SimplePool<T> : SimplePoolDisposable where T : class {
         }
 #if UNITY_EDITOR
         int releasedObjectsCount = 0;
-#endif        
+#endif
         if (keepTrackMode == KeepTrackMode.RefCounted) {
             for (int i = acquiredObjectsRef.Count - 1; i >= 0; i--) {
                 T obj = acquiredObjectsRef[i];

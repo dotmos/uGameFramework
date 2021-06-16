@@ -9,7 +9,7 @@ namespace ECS {
     /// <summary>
     /// Unique ID
     /// </summary>
-    public struct UID : IFBSerializable, IEquatable<UID>, IEqualityComparer<UID> {
+    public struct UID : IFBSerializable, IEquatable<UID>, IEqualityComparer<UID>, IComparable<UID> {
 
         public int ID;
         private int revision;
@@ -131,7 +131,17 @@ namespace ECS {
         public override string ToString() {
             return $"UID:{ID} Rev:{revision}";
         }
-        
-    }
 
+        public int CompareTo(UID other) {
+            if (this.ID < other.ID) {
+                return 1;
+            }
+            else if (this.ID > other.ID) {
+                return -1;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
 }
