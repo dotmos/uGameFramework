@@ -86,6 +86,7 @@ namespace ECS {
 
         protected HashSet<TComponents> pendingRemovalComponentsCheck;
         protected List<TComponents> pendingRemovalComponents; //a list of components that needs to be removed after the cycle
+        protected List<UID> pendingNewEntities; //a list of components that needs to be added after the cycle
         /// <summary>
         /// LUT for quick TComponent access
         /// </summary>
@@ -149,6 +150,7 @@ namespace ECS {
             componentsToProcessLUT = new Dictionary<int, TComponents>();
             pendingRemovalComponents = new List<TComponents>();
             pendingRemovalComponentsCheck = new HashSet<TComponents>();
+            pendingNewEntities = new List<UID>();
 
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
@@ -267,6 +269,17 @@ namespace ECS {
             return 9999999;
         }
 
+        private void ProcessPendingNewEntities() {
+            int pendingNewAmount = pendingNewEntities.Count;
+            if (pendingNewAmount > 0) {
+                for (int i = pendingNewAmount - 1; i >= 0; i--) {
+                    UID newEntity = pendingNewEntities[i];
+                    _RegisterEntity(newEntity);
+                }
+                pendingNewEntities.Clear();
+            }
+        }
+
         /// <summary>
         /// Process all entities. Will add deltaTime to an internal counter and then update entities based on SystemUpdateRate()
         /// </summary>
@@ -285,6 +298,9 @@ namespace ECS {
                     float cyclicDt = 0;
                     if (cyclicExecutionData.cyclicExecutionFinished) {
                         if (componentCount < cyclicExecutionData.cyclicExecutionMinAmount) {
+                            if (pendingNewEntities.Count > 0) {
+                                ProcessPendingNewEntities();
+                            }
                             // too less elements for the cycle to be used => default way
                             parallelSystemComponentProcessor.Process(componentCount, deltaTime,MaxParallelChunkSize());
                             return; // finish here
@@ -317,6 +333,10 @@ namespace ECS {
                             pendingRemovalComponents.Clear();
                             pendingRemovalComponentsCheck.Clear();
                         }
+
+                        ProcessPendingNewEntities();
+
+
                         CycleCompleted();
                     }
 
@@ -601,20 +621,35 @@ namespace ECS {
         /// <param name="components"></param>
         protected virtual void EntityUpdated(ref TComponents components) { }
 
-        void RegisterEntity(UID entity) {
+        void _RegisterEntity(UID entity) {
             //UnityEngine.Debug.Log(entity.ID + "valid! Adding to system!");
             validEntities.Add(entity);
             //Add components to process
             TComponents components = _CreateSystemComponentsForEntity(entity);
-            if(componentCount == componentsToProcess.Length) {
+            if (componentCount == componentsToProcess.Length) {
                 //TComponents[] newComponentsToProcess = new TComponents[componentsToProcess.Length * 2];
                 //componentsToProcess.CopyTo(newComponentsToProcess, 0);
                 Array.Resize(ref componentsToProcess, componentsToProcess.Length * 2);
             }
-            componentsToProcess[componentCount]=components;
+            componentsToProcess[componentCount] = components;
             componentCount++;
+#if UNITY_EDITOR
+            if (componentsToProcessLUT.ContainsKey(entity.ID)) {
+                var comps = entityManager.GetAllComponents(entity);
+            }
+#endif
             componentsToProcessLUT.Add(entity.ID, components);
             newComponents.Add(components);
+        }
+
+        void RegisterEntity(UID entity) {
+            if (!useCyclicExecution) {
+                // immediately register entity
+                _RegisterEntity(entity);
+            } else {
+                // in cyclic execution, we need to wait for a full cycle to end to register
+                pendingNewEntities.Add(entity);
+            }
         }
 
         /// <summary>
@@ -639,6 +674,7 @@ namespace ECS {
                     componentCount--;
                     componentsToProcessLUT.Remove(components.Entity.ID);
                 } else {
+                    pendingRemovalComponentsCheck.Add(components);
                     pendingRemovalComponents.Add(components);
                 }
             }
