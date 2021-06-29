@@ -86,8 +86,8 @@ namespace ECS {
 
         protected HashSet<TComponents> pendingRemovalComponentsCheck;
         protected List<TComponents> pendingRemovalComponents; //a list of components that needs to be removed after the cycle
-        protected List<UID> pendingNewEntities; //a list of components that needs to be added after the cycle
-        protected HashSet<UID> pendingNewEntitiesCheck; //check if this entity is marked as new already
+        protected List<UID> pendingRegisterEntities; //a list of components that needs to be added after the cycle
+        protected HashSet<UID> pendingRegisterEntitiesCheck; //check if this entity is marked as new already
         /// <summary>
         /// LUT for quick TComponent access
         /// </summary>
@@ -151,8 +151,8 @@ namespace ECS {
             componentsToProcessLUT = new Dictionary<int, TComponents>();
             pendingRemovalComponents = new List<TComponents>();
             pendingRemovalComponentsCheck = new HashSet<TComponents>();
-            pendingNewEntities = new List<UID>();
-            pendingNewEntitiesCheck = new HashSet<UID>();
+            pendingRegisterEntities = new List<UID>();
+            pendingRegisterEntitiesCheck = new HashSet<UID>();
 
             newComponents = new List<TComponents>();
             removedComponents = new List<TComponents>();
@@ -271,15 +271,15 @@ namespace ECS {
             return 9999999;
         }
 
-        private void ProcessPendingNewEntities() {
-            int pendingNewAmount = pendingNewEntities.Count;
-            if (pendingNewAmount > 0) {
-                for (int i = pendingNewAmount - 1; i >= 0; i--) {
-                    UID newEntity = pendingNewEntities[i];
+        private void ProcessPendingRegisterEntities() {
+            int pendingRegisterAmount = pendingRegisterEntities.Count;
+            if (pendingRegisterAmount > 0) {
+                for (int i = pendingRegisterAmount - 1; i >= 0; i--) {
+                    UID newEntity = pendingRegisterEntities[i];
                     _RegisterEntity(newEntity);
                 }
-                pendingNewEntities.Clear(); 
-                pendingNewEntitiesCheck.Clear();
+                pendingRegisterEntities.Clear(); 
+                pendingRegisterEntitiesCheck.Clear();
             }
         }
 
@@ -301,8 +301,8 @@ namespace ECS {
                     float cyclicDt = 0;
                     if (cyclicExecutionData.cyclicExecutionFinished) {
                         if (componentCount < cyclicExecutionData.cyclicExecutionMinAmount) {
-                            if (pendingNewEntities.Count > 0) {
-                                ProcessPendingNewEntities();
+                            if (pendingRegisterEntities.Count > 0) {
+                                ProcessPendingRegisterEntities();
                             }
                             // too less elements for the cycle to be used => default way
                             parallelSystemComponentProcessor.Process(componentCount, deltaTime,MaxParallelChunkSize());
@@ -338,7 +338,7 @@ namespace ECS {
                             pendingRemovalComponentsCheck.Clear();
                         }
 
-                        ProcessPendingNewEntities();
+                        ProcessPendingRegisterEntities();
 
 
                         CycleCompleted();
@@ -570,7 +570,7 @@ namespace ECS {
                 UpdateEntity(entity);
             }
             else if (valid && !wasValid) {
-                if (!pendingNewEntitiesCheck.Contains(entity)) {
+                if (!pendingRegisterEntitiesCheck.Contains(entity)) {
                     RegisterEntity(entity);
                 }
             }
@@ -660,13 +660,20 @@ namespace ECS {
                 // immediately register entity
                 _RegisterEntity(entity);
             } else {
-                if (!pendingNewEntitiesCheck.Contains(entity)) {
+                if (!pendingRegisterEntitiesCheck.Contains(entity)) {
                     // in cyclic execution, we need to wait for a full cycle to end to register
-                    pendingNewEntities.Add(entity);
-                    pendingNewEntitiesCheck.Add(entity);
+                    pendingRegisterEntities.Add(entity);
+                    pendingRegisterEntitiesCheck.Add(entity);
+                    OnPendingRegisterEntity(entity);
                 }
             }
         }
+
+        /// <summary>
+        /// Callback called once an entity is marked as pending and will be registered after current cycle
+        /// </summary>
+        /// <param name="entity"></param>
+        protected virtual void OnPendingRegisterEntity(UID entity) { }
 
         /// <summary>
         /// 
@@ -739,8 +746,8 @@ namespace ECS {
             componentsToProcess = new TComponents[1];
             componentCount = 0;
             componentsToProcessLUT.Clear();
-            pendingNewEntities.Clear();
-            pendingNewEntitiesCheck.Clear();
+            pendingRegisterEntities.Clear();
+            pendingRegisterEntitiesCheck.Clear();
             pendingRemovalComponents.Clear();
             pendingRemovalComponentsCheck.Clear();
         }
@@ -755,8 +762,8 @@ namespace ECS {
             componentsToProcess = new TComponents[1];
             componentCount = 0;
             componentsToProcessLUT.Clear();
-            pendingNewEntities.Clear();
-            pendingNewEntitiesCheck.Clear();
+            pendingRegisterEntities.Clear();
+            pendingRegisterEntitiesCheck.Clear();
             pendingRemovalComponents.Clear();
             pendingRemovalComponentsCheck.Clear();
 
