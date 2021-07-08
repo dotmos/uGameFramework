@@ -101,6 +101,8 @@ namespace UserInterface {
                 } else {
                     _tab.isOn = false;
                 }
+
+                _tab.UpdateColors();
             }
         }
 
