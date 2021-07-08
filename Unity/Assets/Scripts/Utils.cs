@@ -377,6 +377,19 @@ public class Utils {
         if (result >= except) result += 1;
         return result;
     }
+
+    /// <summary>
+    /// Create a valid pathname
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="replacement"></param>
+    /// <returns></returns>
+    public static string CreateValidFilename(string input, char replacement = '_') {
+        foreach (char c in System.IO.Path.GetInvalidFileNameChars()) {
+            input = input.Replace(c, replacement);
+        }
+        return input;
+    }
 }
 
 public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDirtyFlagable, IObservableDictionary {
