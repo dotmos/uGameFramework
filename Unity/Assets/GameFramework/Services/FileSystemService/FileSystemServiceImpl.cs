@@ -120,9 +120,9 @@ namespace Service.FileSystem {
         public override bool WriteStringToFile(string pathToFile, string data, bool append=false) {
             // TODO: Ensure Directory?
             // TODO: Use the PC3-bulletproof writing version
-            try {
-                string tempPath = pathToFile + ".tmp";
+            string tempPath = pathToFile + ".tmp";
 
+            try {
                 if (File.Exists(tempPath)) {
                     File.Delete(tempPath);
                 }
@@ -141,13 +141,14 @@ namespace Service.FileSystem {
                 return true;
             }
             catch (Exception e) {
-                Debug.LogError("There was a problem using SaveStringToFile with "+pathToFile+"=>DATA:\n"+data);
+                Debug.LogError("There was a problem using WriteStringToFile with "+pathToFile+"=>DATA:\n"+data);
                 Debug.LogException(e);
                 return false;
             }
         }
 
         public override bool WriteStringToFileAtDomain(FSDomain domain, string relativePathToFile, string data,bool append=false) {
+            relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
             return WriteStringToFile(GetPath(domain, relativePathToFile), data,append);
         }
 
@@ -228,6 +229,7 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false) {
+            relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
             return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes,compress);
         }
 

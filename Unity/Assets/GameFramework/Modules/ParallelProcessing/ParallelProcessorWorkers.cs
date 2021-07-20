@@ -19,11 +19,9 @@ namespace ParallelProcessing {
         public static Worker[] Workers {
             get { return _workers; }
         }
-#if UNITY_PS5 && (!UNITY_EDITOR)
-        readonly static int _workerCount = System.Math.Min(Environment.ProcessorCount * 2, 10);// Math.Max(1, Environment.ProcessorCount-1);
-#else 
+
         readonly static int _workerCount = Environment.ProcessorCount;// Math.Max(1, Environment.ProcessorCount-1);
-#endif
+
 
         /// <summary>
         /// Tell the system to use only throttleWorkerAmount number of workers. The function makes sure, that throttleWorkerAmount will never be higher than the actual available worker count. If throttle == false, the system will use all available workers.
