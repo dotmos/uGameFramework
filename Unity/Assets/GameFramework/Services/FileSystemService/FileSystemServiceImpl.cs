@@ -38,10 +38,15 @@ namespace Service.FileSystem {
             moddingPath = persistentDataPath + "/modding";
 
             //Check if there are locas in streaming assets. If not, use game/Localization folder
-            localizationPath = streamingAssetsPath + "/Localizations";
-            
+            localizationPath = streamingAssetsPath + "/Localizations"; 
+
             if (!Directory.Exists(localizationPath) || Directory.GetFiles(localizationPath, "*.json").Length == 0) {
-                localizationPath = gamePath + "/Localizations";
+                localizationPath = gamePath;
+#if !UNITY_EDITOR && UNITY_STANDALONE_OSX
+                //on mac we need to go one folder up
+                localizationPath += "/..";         
+#endif
+                localizationPath += "/Localizations";
             }
         }
 
