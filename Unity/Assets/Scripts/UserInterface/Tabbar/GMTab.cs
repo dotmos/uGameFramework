@@ -52,7 +52,7 @@ namespace UserInterface
             group = _tabbar;
             myTabBar = _tabbar;
             this.onValueChanged.AddListener(ToggleTab);
-            targetGraphic = GetComponent<Image>();
+            if (targetGraphic == null) targetGraphic = GetComponent<Image>();
 
             //Toggle tab correctly
             ToggleTab(isOn);
