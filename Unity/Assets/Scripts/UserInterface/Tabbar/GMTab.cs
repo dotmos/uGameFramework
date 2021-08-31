@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UserInterface
@@ -52,7 +53,7 @@ namespace UserInterface
             group = _tabbar;
             myTabBar = _tabbar;
             this.onValueChanged.AddListener(ToggleTab);
-            targetGraphic = GetComponent<Image>();
+            if (targetGraphic == null) targetGraphic = GetComponent<Image>();
 
             //Toggle tab correctly
             ToggleTab(isOn);
@@ -96,26 +97,6 @@ namespace UserInterface
                 content.SetActive(false);
         }
 
-        public override void OnPointerEnter(UnityEngine.EventSystems.PointerEventData eventData)
-        {
-            base.OnPointerEnter(eventData);
-
-            if (interactable && !isOn)
-            {
-                ColorizeElements(highlightColor);
-            }
-        }
-
-        public override void OnPointerExit(UnityEngine.EventSystems.PointerEventData eventData)
-        {
-            base.OnPointerExit(eventData);
-
-            if (interactable && !isOn)
-            {
-                ColorizeElements(defaultColor);
-            }
-        }
-
         public GMTabbar GetTabBar()
         {
             return myTabBar;
@@ -127,13 +108,14 @@ namespace UserInterface
             if (IsInteractable()) {
                 if (state == SelectionState.Pressed) {
                     ColorizeElements(pressedColor);
+                } else if (isOn) {
+                    ColorizeElements(activeColor);
                 } else if (state == SelectionState.Highlighted) {
                     ColorizeElements(highlightColor);
                 } else if (state == SelectionState.Selected) {
                     ColorizeElements(selectedColor);
                 } else {
-                    Color color = isOn ? activeColor : defaultColor;
-                    ColorizeElements(color);
+                    ColorizeElements(defaultColor);
                 }
 
                 if (border != null) border.SetActive(isOn);
