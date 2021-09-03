@@ -107,7 +107,7 @@ namespace Service.FileSystem {
                 case FSDomain.Debugging: path = debuggingPath; break;
                 case FSDomain.Modding: path = moddingPath; break;
                 case FSDomain.SteamingAssets: path = streamingAssetsPath; break;
-
+                case FSDomain.Addressables: path = "Assets"; break;
 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
@@ -153,6 +153,7 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteStringToFileAtDomain(FSDomain domain, string relativePathToFile, string data,bool append=false) {
+            if (domain == FSDomain.Addressables) return false;
             relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
             return WriteStringToFile(GetPath(domain, relativePathToFile), data,append);
         }
@@ -234,6 +235,7 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false) {
+            if (domain == FSDomain.Addressables) return false;
             relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
             return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes,compress);
         }
@@ -258,7 +260,22 @@ namespace Service.FileSystem {
         }
 
         public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile, bool compressed = false, int estimatedUncompressedSize = 0) {            
-            return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed,estimatedUncompressedSize);
+
+            if (domain != FSDomain.Addressables) {
+                return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed,estimatedUncompressedSize);
+            }
+            else {
+
+                string path = GetPath(domain, relativePathToFile);
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<TextAsset> h = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<TextAsset>(path);
+                h.WaitForCompletion();
+                byte[] bytes = h.Result.bytes;
+                if (compressed) {
+
+                    return Decompress(bytes);
+                }
+                return bytes;
+            }
         }
 
         public override byte[] LoadFileAsBytes(string pathToFile, bool compressed = false, int estimatedUncompressedSize=0) {
@@ -290,7 +307,17 @@ namespace Service.FileSystem {
         }
 
         public override string LoadFileAsStringAtDomain(FSDomain domain, string relativePathToFile) {
-            return LoadFileAsString(GetPath(domain) + "/" + relativePathToFile);
+
+            if (domain != FSDomain.Addressables) {
+                return LoadFileAsString(GetPath(domain) + "/" + relativePathToFile);
+            }
+            else {
+
+                string path = GetPath(domain, relativePathToFile);
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<TextAsset> h = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<TextAsset>(path);
+                h.WaitForCompletion();
+                return h.Result.text;
+            }
         }
 
         public override bool FileExists(string pathToFile) {
@@ -304,8 +331,18 @@ namespace Service.FileSystem {
         }
 
         public override bool FileExistsInDomain(FSDomain domain, string relativePath) {
+
             string absPath = GetPath(domain, relativePath);
-            return FileExists(absPath);
+            if (domain != FSDomain.Addressables) {
+
+                return FileExists(absPath);
+            }
+            else {
+
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<IList<UnityEngine.ResourceManagement.ResourceLocations.IResourceLocation>> h = UnityEngine.AddressableAssets.Addressables.LoadResourceLocationsAsync(absPath);
+                h.WaitForCompletion();
+                return h.Result.Count > 0;
+            }
         }
 
         private string EnsureDirectoryExistsAndReturn(string path) {
@@ -342,7 +379,14 @@ namespace Service.FileSystem {
         }
 
         public override List<string> GetFilesInDomain(FSDomain domain, string innerDomainPath="",string filter = "*.*",bool recursive=false) {
-            return GetFilesInAbsFolder(GetPath(domain,innerDomainPath), filter, recursive);
+            if (domain != FSDomain.Addressables) {
+
+                return GetFilesInAbsFolder(GetPath(domain,innerDomainPath), filter, recursive);
+            }
+            else {
+                Debug.LogError(typeof(FileSystemServiceImpl).Name + "GetFilesInDomain() is not implemented for domain " + FSDomain.Addressables.ToString());
+                return null;
+            }
         }
 
         public override void RemoveFile(string filePath) {
@@ -357,6 +401,7 @@ namespace Service.FileSystem {
         }
 
         public override void RemoveFileInDomain(FSDomain domain, string relativePath) {
+            if (domain == FSDomain.Addressables) return;
             string path = GetPath(domain,relativePath);
             RemoveFile(path);
         }
