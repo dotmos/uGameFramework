@@ -404,8 +404,13 @@ namespace Service.Serializer
             object cachedObject = _GetCachedObject(bufferOffset,objectType);
             
             if (cachedObject != null) {
-                return cachedObject;
-            }
+                if (!objectType.IsAssignableFrom(cachedObject.GetType())){
+                    // cache mismatch! There is something saved for this address with different type!? Ignore this one and get new data
+                    Debug.LogError($"cache mismatch! There is something saved for this address[{bufferOffset}] with different type[cache:{cachedObject.GetType().Name}] expected: {objectType.Name}!? Ignore this one and get new data!");
+                } else {
+                    return cachedObject;
+                }
+            } 
             object newObject = _GetOrCreate(bufferOffset, objectType, obj);
             return newObject;
         }
