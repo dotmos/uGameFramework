@@ -55,6 +55,16 @@ namespace Service.DevUIService {
                            
         
         /// <summary>
+        /// Returns the view if it already exists or creates a new one if not 
+                /// <param name="viewName"></param>
+         /// </summary>
+        
+        
+                    DevUIView GetOrCreateView(string viewName);
+        
+                           
+        
+        /// <summary>
         /// Check if view already exists 
                 /// <param name="viewName"></param>
          /// </summary>

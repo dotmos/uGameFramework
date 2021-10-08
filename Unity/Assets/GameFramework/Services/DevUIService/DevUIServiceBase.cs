@@ -146,6 +146,9 @@ namespace Service.DevUIService
         public abstract             DevUIView GetView(string viewName);
 
         
+        public abstract             DevUIView GetOrCreateView(string viewName);
+
+        
         public abstract             bool ViewNameExists(string viewName);
 
         

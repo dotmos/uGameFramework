@@ -212,7 +212,15 @@ namespace Service.DevUIService {
             return newView;
         }
 
+        public override DevUIView GetOrCreateView(string viewName) {
 
+            DevUIView view = GetView(viewName);
+            if (view == null) {
+
+                view = CreateView(viewName);
+            }
+            return view;
+        }
 
 
 
