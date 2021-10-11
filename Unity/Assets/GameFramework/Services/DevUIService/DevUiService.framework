@@ -14,6 +14,8 @@ namespace Service.DevUIService {
 		("DevUIView") CreateView(string viewName,bool dynamicallyCreated=False, bool extensionAllowed=True);
 		## "Get a view by name"
 		("DevUIView") GetView(string viewName);
+		## "Returns the view if it already exists or creates a new one if not"
+		("DevUIView") GetOrCreateView(string viewName);
 		## "Check if view already exists"
 		bool ViewNameExists(string viewName);
 		## "Remove View from data model"

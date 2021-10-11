@@ -30,6 +30,8 @@ namespace Service.DevUIService{
 //
 //            this.OnEvent<GetViewCommand>().Subscribe(e => GetViewCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<GetOrCreateViewCommand>().Subscribe(e => GetOrCreateViewCommandHandler(e)).AddTo(this);
+//
 //            this.OnEvent<ViewNameExistsCommand>().Subscribe(e => ViewNameExistsCommandHandler(e)).AddTo(this);
 //
 //            this.OnEvent<RemoveViewFromModelCommand>().Subscribe(e => RemoveViewFromModelCommandHandler(e)).AddTo(this);
@@ -144,6 +146,32 @@ namespace Service.DevUIService{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("GetViewCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Returns the view if it already exists or creates a new one if not
+        /// </summary>
+        
+//        public class GetOrCreateViewCommand  {
+//            public DevUIView result;
+//                        public string viewName;
+//            
+//            
+//        }
+
+//		protected void GetOrCreateViewCommandHandler  (GetOrCreateViewCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetOrCreateViewCommand");
+//#endif
+//        
+//            cmd.result = _service.GetOrCreateView(cmd.viewName);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetOrCreateViewCommand");
 //#endif
 //        }
         
