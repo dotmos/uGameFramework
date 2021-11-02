@@ -14,6 +14,7 @@ namespace UserInterface {
         /// </summary>
         public bool deactivateDefaultOnEnableBehaviour;
         public bool activateNewTabsOnAdd = true;
+        public bool registerInactiveTabsOnStart = true;
         public GMTab defaultTab;
 
         private List<GMTab> tabs = new List<GMTab>();
@@ -27,7 +28,7 @@ namespace UserInterface {
             base.Start();
 
             //Register all tabs that are children of this tabbar
-            GMTab[] tabs = GetComponentsInChildren<GMTab>();
+            GMTab[] tabs = GetComponentsInChildren<GMTab>(registerInactiveTabsOnStart);
 
             foreach (GMTab tab in tabs) {
                 //Only register Tabs that are not child to another tab
