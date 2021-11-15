@@ -183,6 +183,12 @@ namespace Service.FileSystem
         public abstract             void SetPersistentRoot(string root);
 
         
+        public abstract             long GetMaxAvailableSavegameStorage();
+
+        
+        public abstract             long GetCurrentlyUsedSavegameStorage();
+
+        
 
 
         

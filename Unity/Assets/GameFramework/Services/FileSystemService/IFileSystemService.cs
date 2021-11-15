@@ -205,6 +205,24 @@ namespace Service.FileSystem {
                     void SetPersistentRoot(string root);
         
                            
+        
+        /// <summary>
+        /// Get max available storage 
+         /// </summary>
+        
+        
+                    long GetMaxAvailableSavegameStorage();
+        
+                           
+        
+        /// <summary>
+        /// Get max available storage 
+         /// </summary>
+        
+        
+                    long GetCurrentlyUsedSavegameStorage();
+        
+                           
 
     }
 

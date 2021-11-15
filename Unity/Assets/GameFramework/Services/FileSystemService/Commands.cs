@@ -54,6 +54,10 @@ namespace Service.FileSystem{
 //
 //            this.OnEvent<SetPersistentRootCommand>().Subscribe(e => SetPersistentRootCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<GetMaxAvailableSavegameStorageCommand>().Subscribe(e => GetMaxAvailableSavegameStorageCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetCurrentlyUsedSavegameStorageCommand>().Subscribe(e => GetCurrentlyUsedSavegameStorageCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -488,6 +492,56 @@ namespace Service.FileSystem{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("SetPersistentRootCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get max available storage
+        /// </summary>
+        
+//        public class GetMaxAvailableSavegameStorageCommand  {
+//            public long result;
+//            
+//            
+//        }
+
+//		protected void GetMaxAvailableSavegameStorageCommandHandler  (GetMaxAvailableSavegameStorageCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetMaxAvailableSavegameStorageCommand");
+//#endif
+//        
+//            cmd.result = _service.GetMaxAvailableSavegameStorage();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetMaxAvailableSavegameStorageCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get max available storage
+        /// </summary>
+        
+//        public class GetCurrentlyUsedSavegameStorageCommand  {
+//            public long result;
+//            
+//            
+//        }
+
+//		protected void GetCurrentlyUsedSavegameStorageCommandHandler  (GetCurrentlyUsedSavegameStorageCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetCurrentlyUsedSavegameStorageCommand");
+//#endif
+//        
+//            cmd.result = _service.GetCurrentlyUsedSavegameStorage();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetCurrentlyUsedSavegameStorageCommand");
 //#endif
 //        }
         

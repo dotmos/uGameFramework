@@ -43,6 +43,9 @@ namespace Service.FileSystem {
 #endif
                 localizationPath += "/Localizations";
             }
+
+            Debug.Log($"Diskspace: savegame-used:{GetCurrentlyUsedSavegameStorage()} space available:{GetMaxAvailableSavegameStorage()}");
+            int a = 0;
         }
         private void RefreshDataPath() {
             configPath = persistentDataPath + "/config";
@@ -404,6 +407,34 @@ namespace Service.FileSystem {
             if (domain == FSDomain.Addressables) return;
             string path = GetPath(domain,relativePath);
             RemoveFile(path);
+        }
+
+        public override long GetCurrentlyUsedSavegameStorage() {
+            return 1000;
+            //long result = DirSize(new DirectoryInfo(savegamePath));
+            //return result;
+        }
+
+        public override long GetMaxAvailableSavegameStorage() {
+            //FileInfo file = new FileInfo(configPath);
+            //DriveInfo drive = new DriveInfo(file.Directory.Root.FullName);
+            //return drive.AvailableFreeSpace;
+            return 20000;
+        }
+
+        public static long DirSize(DirectoryInfo d) {
+            long size = 0;
+            // Add file sizes.
+            FileInfo[] fis = d.GetFiles();
+            foreach (FileInfo fi in fis) {
+                size += fi.Length;
+            }
+            // Add subdirectory sizes.
+            DirectoryInfo[] dis = d.GetDirectories();
+            foreach (DirectoryInfo di in dis) {
+                size += DirSize(di);
+            }
+            return size;
         }
     }
 }
