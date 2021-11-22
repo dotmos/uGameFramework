@@ -1,11 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 using UniRx;
 using Service.DevUIService;
-using System.Linq;
 using UnityEditor;
 
 namespace UserInterface {
@@ -22,7 +19,7 @@ namespace UserInterface {
         public GMButton refreshViewsButton;
 
         [Inject]
-        private Service.DevUIService.IDevUIService _devUiService;
+        private IDevUIService _devUiService;
 
         private Dictionary<DevUIView, UIViewController> uiViews = new Dictionary<DevUIView, UIViewController>();
 
@@ -115,6 +112,36 @@ namespace UserInterface {
             EditorUtility.RevealInFinder(path);
 #endif
         }
+
+#if ENABLE_CONSOLE_UI
+        bool hasChangedTab = false;
+        GMScrollRect scrollRect;
+
+        private void Update() {
+            float hAxis = Input.GetAxis("HorizontalGamepad");
+
+            if (!hasChangedTab && hAxis > 0f) {
+                GMTab currentTab = uiViewTabbar.GetActiveTab();
+                int nextTabIndex = (uiViewTabbar.GetIndexOfTab(currentTab) + 1) % uiViewTabbar.Tabs.Count;
+                uiViewTabbar.ActivateTabByIndex(nextTabIndex);
+                hasChangedTab = true;
+            } else if (!hasChangedTab && hAxis < 0f) {
+                GMTab currentTab = uiViewTabbar.GetActiveTab();
+                int nextTabIndex = (uiViewTabbar.GetIndexOfTab(currentTab) - 1);
+                if (nextTabIndex < 0) nextTabIndex = uiViewTabbar.Tabs.Count - 1;
+                uiViewTabbar.ActivateTabByIndex(nextTabIndex);
+                hasChangedTab = true;
+            } else {
+                hasChangedTab = false;
+            }
+
+            if (scrollRect == null) scrollRect = uiViewTabbar.GetComponentInParent<GMScrollRect>();
+            else {
+                scrollRect.content.localPosition = UIViewController.GetSnapToPositionToBringChildIntoView(scrollRect, uiViewTabbar.GetActiveTab().transform as RectTransform);
+                scrollRect.content.offsetMax = scrollRect.content.offsetMin = Vector2.zero;
+            }
+        }
+#endif
 
         void Refresh() {
             // TODO show progress-thingy

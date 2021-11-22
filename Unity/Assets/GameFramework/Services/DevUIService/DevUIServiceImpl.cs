@@ -86,6 +86,14 @@ namespace Service.DevUIService {
                 }
             }).AddTo(disposables);
 
+#if ENABLE_CONSOLE_UI
+            Observable.EveryUpdate().Subscribe(_ => {
+                if (UnityEngine.Input.GetButton("ToggleConsole1") && UnityEngine.Input.GetButton("ToggleConsole2")) {
+                    ToggleScriptingConsole();
+                }
+            }).AddTo(disposables);
+#endif
+
             OnEvent<Events.UIViewRenamed>().Subscribe(evt => {
                 if (evt.view.currentFilename != null) {
                     // there is already an representation! delete it and create it new

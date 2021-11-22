@@ -410,7 +410,7 @@ namespace Service.FileSystem {
         }
 
         public override long GetCurrentlyUsedSavegameStorage() {
-            return 1000;
+            return 10485760; //10 MB in bytes
             //long result = DirSize(new DirectoryInfo(savegamePath));
             //return result;
         }
@@ -419,7 +419,7 @@ namespace Service.FileSystem {
             //FileInfo file = new FileInfo(configPath);
             //DriveInfo drive = new DriveInfo(file.Directory.Root.FullName);
             //return drive.AvailableFreeSpace;
-            return 20000;
+            return 1073741824; //1 GB in bytes
         }
 
         public static long DirSize(DirectoryInfo d) {
