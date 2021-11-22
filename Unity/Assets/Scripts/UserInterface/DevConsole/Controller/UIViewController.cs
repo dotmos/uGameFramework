@@ -243,7 +243,8 @@ namespace UserInterface {
                     if (scrollView == null) scrollView = transform.GetComponent<GMScrollRect>();
                     else {
                         scrollView.content.localPosition = GetSnapToPositionToBringChildIntoView(scrollView, currentSelection.transform as RectTransform);
-                        scrollView.content.offsetMax = scrollView.content.offsetMin = Vector2.zero;
+                        scrollView.content.offsetMax = new Vector2(0, scrollView.content.offsetMax.y);
+                        scrollView.content.offsetMin = new Vector2(0, scrollView.content.offsetMin.y);
                     }
                 }
             }

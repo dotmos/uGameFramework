@@ -138,7 +138,8 @@ namespace UserInterface {
             if (scrollRect == null) scrollRect = uiViewTabbar.GetComponentInParent<GMScrollRect>();
             else {
                 scrollRect.content.localPosition = UIViewController.GetSnapToPositionToBringChildIntoView(scrollRect, uiViewTabbar.GetActiveTab().transform as RectTransform);
-                scrollRect.content.offsetMax = scrollRect.content.offsetMin = Vector2.zero;
+                scrollRect.content.offsetMax = new Vector2(scrollRect.content.offsetMax.x, 0);
+                scrollRect.content.offsetMin = new Vector2(scrollRect.content.offsetMin.x, 0);
             }
         }
 #endif
