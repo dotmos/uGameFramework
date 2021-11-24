@@ -88,7 +88,7 @@ namespace Service.DevUIService {
 
 #if ENABLE_CONSOLE_UI
             Observable.EveryUpdate().Subscribe(_ => {
-                if (UnityEngine.Input.GetButton("ToggleConsole1") && UnityEngine.Input.GetButton("ToggleConsole2")) {
+                if (UnityEngine.Input.GetButton("ToggleConsole1") && UnityEngine.Input.GetButtonDown("ToggleConsole2")) {
                     ToggleScriptingConsole();
                 }
             }).AddTo(disposables);

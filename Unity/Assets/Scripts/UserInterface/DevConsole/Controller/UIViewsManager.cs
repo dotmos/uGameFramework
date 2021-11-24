@@ -115,23 +115,24 @@ namespace UserInterface {
 
 #if ENABLE_CONSOLE_UI
         bool hasChangedTab = false;
+        private float deadZone = 0.15f;
         GMScrollRect scrollRect;
 
         private void Update() {
             float hAxis = Input.GetAxis("HorizontalGamepad");
 
-            if (!hasChangedTab && hAxis > 0f) {
+            if (!hasChangedTab && hAxis > deadZone) {
                 GMTab currentTab = uiViewTabbar.GetActiveTab();
                 int nextTabIndex = (uiViewTabbar.GetIndexOfTab(currentTab) + 1) % uiViewTabbar.Tabs.Count;
                 uiViewTabbar.ActivateTabByIndex(nextTabIndex);
                 hasChangedTab = true;
-            } else if (!hasChangedTab && hAxis < 0f) {
+            } else if (!hasChangedTab && hAxis < -deadZone) {
                 GMTab currentTab = uiViewTabbar.GetActiveTab();
                 int nextTabIndex = (uiViewTabbar.GetIndexOfTab(currentTab) - 1);
                 if (nextTabIndex < 0) nextTabIndex = uiViewTabbar.Tabs.Count - 1;
                 uiViewTabbar.ActivateTabByIndex(nextTabIndex);
                 hasChangedTab = true;
-            } else {
+            } else if (hAxis > -deadZone && hAxis < deadZone) {
                 hasChangedTab = false;
             }
 
