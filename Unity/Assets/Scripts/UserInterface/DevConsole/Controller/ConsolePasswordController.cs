@@ -17,7 +17,7 @@ namespace UserInterface {
         }
 
         private void OnEnable() {
-#if UNITY_PS5
+#if UNITY_PS5 || UNITY_GAMECORE
             UnlockConsole();
 #else
             if (Application.isEditor || Application.isConsolePlatform) UnlockConsole();
