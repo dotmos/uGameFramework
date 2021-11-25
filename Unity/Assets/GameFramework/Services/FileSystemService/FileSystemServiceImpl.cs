@@ -410,9 +410,9 @@ namespace Service.FileSystem {
         }
 
         public override long GetCurrentlyUsedSavegameStorage() {
-            return 10485760; //10 MB in bytes
-            //long result = DirSize(new DirectoryInfo(savegamePath));
-            //return result;
+            //return 10485760; //10 MB in bytes
+            long result = DirSize(new DirectoryInfo(savegamePath));
+            return result;
         }
 
         public override long GetMaxAvailableSavegameStorage() {
