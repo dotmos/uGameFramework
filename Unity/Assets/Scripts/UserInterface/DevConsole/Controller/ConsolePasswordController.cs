@@ -102,7 +102,7 @@ namespace UserInterface {
             bool a = false;
             bool b = false;
 
-#if UNITY_WEBPLAYER || UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX
+#if UNITY_WEBPLAYER || UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_GAMECORE
             a = Input.GetKeyDown(KeyCode.Joystick1Button0);
             b = Input.GetKeyDown(KeyCode.Joystick1Button1);
 #elif UNITY_STANDALONE_OSX
