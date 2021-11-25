@@ -19,6 +19,7 @@ namespace UserInterface
         public Color pressedColor;
         public Color selectedColor;
         public Color disabledColor;
+        public bool surpressSubmitEvent = false;
 
         private GMTabbar myTabBar;
         bool isBeingDestroyed;
@@ -161,6 +162,12 @@ namespace UserInterface
             //This is used to avoid that it is considered for navigation creation
             //event though it has been returned (to root) by an object pool
             return base.IsInteractable() && transform.parent != null;
+        }
+
+        public override void OnSubmit(BaseEventData eventData) {
+            if (!surpressSubmitEvent) {
+                base.OnSubmit(eventData);
+            }
         }
     }
 }
