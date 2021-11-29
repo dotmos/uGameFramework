@@ -223,6 +223,15 @@ namespace Service.FileSystem {
                     long GetCurrentlyUsedSavegameStorage();
         
                            
+        
+        /// <summary>
+        /// Get free available storage 
+         /// </summary>
+        
+        
+                    long GetFreeSavegameStorage();
+        
+                           
 
     }
 

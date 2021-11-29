@@ -42,6 +42,9 @@ namespace Service.FileSystem {
 		
 		## "Get max available storage"
 		long GetCurrentlyUsedSavegameStorage();
+		
+		## "Get free available storage"
+		long GetFreeSavegameStorage();
     }       
 }     
 ## model 

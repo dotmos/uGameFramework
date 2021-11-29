@@ -252,7 +252,6 @@ namespace Service.FileSystem {
                     Debug.LogWarning("File " + pathToFile + " does not exist");
                     return null;
                 }
-                
             }
             catch (Exception e) {
                 Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
@@ -422,6 +421,9 @@ namespace Service.FileSystem {
             return 1073741824; //1 GB in bytes
         }
 
+        public override long GetFreeSavegameStorage() {
+            return GetMaxAvailableSavegameStorage() - GetCurrentlyUsedSavegameStorage();
+        }
         public static long DirSize(DirectoryInfo d) {
             long size = 0;
             // Add file sizes.

@@ -58,6 +58,8 @@ namespace Service.FileSystem{
 //
 //            this.OnEvent<GetCurrentlyUsedSavegameStorageCommand>().Subscribe(e => GetCurrentlyUsedSavegameStorageCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<GetFreeSavegameStorageCommand>().Subscribe(e => GetFreeSavegameStorageCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -542,6 +544,31 @@ namespace Service.FileSystem{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("GetCurrentlyUsedSavegameStorageCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get free available storage
+        /// </summary>
+        
+//        public class GetFreeSavegameStorageCommand  {
+//            public long result;
+//            
+//            
+//        }
+
+//		protected void GetFreeSavegameStorageCommandHandler  (GetFreeSavegameStorageCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetFreeSavegameStorageCommand");
+//#endif
+//        
+//            cmd.result = _service.GetFreeSavegameStorage();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetFreeSavegameStorageCommand");
 //#endif
 //        }
         

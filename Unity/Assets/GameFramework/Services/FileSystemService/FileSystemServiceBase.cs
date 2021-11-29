@@ -189,6 +189,9 @@ namespace Service.FileSystem
         public abstract             long GetCurrentlyUsedSavegameStorage();
 
         
+        public abstract             long GetFreeSavegameStorage();
+
+        
 
 
         
