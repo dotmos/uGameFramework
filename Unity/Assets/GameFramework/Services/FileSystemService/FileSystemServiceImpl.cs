@@ -29,6 +29,9 @@ namespace Service.FileSystem {
         private string moddingPath;
         private string defaultDataPath;
 
+        private long totalSpace;
+        private long usedSpace;
+
         protected override void AfterInitialize() {
             RefreshDataPath();
 
@@ -45,7 +48,7 @@ namespace Service.FileSystem {
             }
 
             Debug.Log($"Diskspace: savegame-used:{GetCurrentlyUsedSavegameStorage()} space available:{GetMaxAvailableSavegameStorage()}");
-            int a = 0;
+            UpdateSavegameStorage();
         }
         private void RefreshDataPath() {
             configPath = persistentDataPath + "/config";
@@ -145,6 +148,7 @@ namespace Service.FileSystem {
                     // TODO: This is not bulletproof as !append (not sure about a good way!? move twice?)
                     File.AppendAllText(pathToFile, data);
                 }
+                UpdateSavegameStorage();
 
                 return true;
             }
@@ -223,6 +227,7 @@ namespace Service.FileSystem {
                             totalWritten += writeSize;
                         }
                     }
+                    UpdateSavegameStorage();
 
                     return true;
                 }
@@ -396,6 +401,7 @@ namespace Service.FileSystem {
                 if (FileExists(filePath)) {
                     File.Delete(filePath);
                 }
+                UpdateSavegameStorage();
             }
             catch (Exception e) {
                 Debug.LogException(e);
@@ -410,12 +416,13 @@ namespace Service.FileSystem {
 
         public override long GetCurrentlyUsedSavegameStorage() {
 #if ENABLE_CONSOLE_UI
-            long result = DirSize(new DirectoryInfo(savegamePath));
-            return result;
+            return usedSpace;
 #else
             return 10485760; //10 MB in bytes
 #endif
         }
+
+
 
         public override long GetMaxAvailableSavegameStorage() {
 #if ENABLE_CONSOLE_UI
@@ -425,6 +432,12 @@ namespace Service.FileSystem {
             //DriveInfo drive = new DriveInfo(file.Directory.Root.FullName);
             //return drive.AvailableFreeSpace;
             return 1073741824; //1 GB in bytes
+#endif
+        }
+
+        private void UpdateSavegameStorage() {
+#if ENABLE_CONSOLE_UI
+            usedSpace = DirSize(new DirectoryInfo(savegamePath));
 #endif
         }
 
