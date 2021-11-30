@@ -409,16 +409,23 @@ namespace Service.FileSystem {
         }
 
         public override long GetCurrentlyUsedSavegameStorage() {
-            //return 10485760; //10 MB in bytes
+#if ENABLE_CONSOLE_UI
             long result = DirSize(new DirectoryInfo(savegamePath));
             return result;
+#else
+            return 10485760; //10 MB in bytes
+#endif
         }
 
         public override long GetMaxAvailableSavegameStorage() {
+#if ENABLE_CONSOLE_UI
+            return (long)(GetCurrentlyUsedSavegameStorage()*1.25f);
+#else
             //FileInfo file = new FileInfo(configPath);
             //DriveInfo drive = new DriveInfo(file.Directory.Root.FullName);
             //return drive.AvailableFreeSpace;
             return 1073741824; //1 GB in bytes
+#endif
         }
 
         public override long GetFreeSavegameStorage() {
