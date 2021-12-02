@@ -436,7 +436,7 @@ namespace Service.FileSystem {
         }
 
         private void UpdateSavegameStorage() {
-#if ENABLE_CONSOLE_UI
+#if ENABLE_CONSOLE_UI && !BUILD_CONSOLE
             usedSpace = DirSize(new DirectoryInfo(savegamePath));
 #endif
         }
