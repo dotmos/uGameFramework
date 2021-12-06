@@ -125,7 +125,9 @@ namespace Service.FileSystem {
                 }
             }
 
-            return EnsureDirectoryExistsAndReturn(path) + (!string.IsNullOrEmpty(relativePart) ? "/"+relativePart:"");
+            var dir = domain!=FSDomain.Addressables ? EnsureDirectoryExistsAndReturn(path) : path;
+
+            return dir + (!string.IsNullOrEmpty(relativePart) ? "/"+relativePart:"");
         }
 
         public override bool WriteStringToFile(string pathToFile, string data, bool append=false) {
