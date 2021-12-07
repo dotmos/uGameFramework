@@ -428,7 +428,7 @@ namespace Service.FileSystem {
 
         public override long GetMaxAvailableSavegameStorage() {
 #if ENABLE_CONSOLE_UI
-            return (long)(GetCurrentlyUsedSavegameStorage()*1.25f);
+            return (long)Mathf.Max(104857600, (GetCurrentlyUsedSavegameStorage()*1.25f));
 #else
             //FileInfo file = new FileInfo(configPath);
             //DriveInfo drive = new DriveInfo(file.Directory.Root.FullName);
