@@ -66,10 +66,16 @@ public class UtilsObservable
 
     public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
         return Observable.Create<bool>((observer) => {
+            if (asyncHandlesForSceneNames.ContainsKey(sceneName)) {
+                if (makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+                observer.OnNext(true);
+                observer.OnCompleted();
+                return null;
+            }
             UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance> async;
             async = UnityEngine.AddressableAssets.Addressables.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             async.Completed += (val) => {
-                asyncHandlesForSceneNames.Add(sceneName, async);
+                asyncHandlesForSceneNames[sceneName]=async;
                 if (makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 observer.OnNext(true);
                 observer.OnCompleted();
