@@ -79,6 +79,7 @@ namespace Service.DevUIService {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
             rxViews = new ReactiveCollection<DevUIView>();
 
+#if !BUILD_CONSOLE || DEVELOPMENT_BUILD || UNITY_EDITOR
             // TODO: get rid of EveryUpdate
             Observable.EveryUpdate().Subscribe(_ => {
                 if (UnityEngine.Input.GetKeyDown(KeyCode.F8)) {
@@ -92,7 +93,8 @@ namespace Service.DevUIService {
                     ToggleScriptingConsole();
                 }
             }).AddTo(disposables);
-#endif
+#endif // ENABLE_CONSOLE_UI
+#endif // !BUILD_CONSOLE || (BUILD_CONSOLE && !DEBUG)
 
             OnEvent<Events.UIViewRenamed>().Subscribe(evt => {
                 if (evt.view.currentFilename != null) {
