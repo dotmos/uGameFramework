@@ -146,6 +146,7 @@ namespace Service.GameStateService {
             startupSequence.Add(Observable.Return(true).Do(_ => {
                 // make sure the new gamestate is set before OnEnter-calls are executed
                 CurrentGameState = gamestate;
+                CurrentGameState.SuccessfullyStarted = false;
             }));
             startupSequence.Add(gamestate.DoOnEnter(ctx));
 
