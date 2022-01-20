@@ -93,6 +93,7 @@ namespace Service.Serializer
         //    DeserializeFromOffset(base.ser2table.__tbl.bb_pos, dctx, true);
         //}
 
+        List<int> removeTypes = new List<int>();
         public void DeserializeFromOffset(int offset, DeserializationContext dctx, bool isDirectBuffer = true) {
             type2id = new Dictionary<Type, int>();
             id2type = new Dictionary<int, Type>();
@@ -102,18 +103,25 @@ namespace Service.Serializer
             // TODO: do this in postprocess
             if (id2typeAsString == null) return;
 
+            removeTypes.Clear();
             foreach (var kv in id2typeAsString) {
                 Type type = Type.GetType(kv.Value);
                 if (type == null) {
+                    removeTypes.Add(kv.Key);
 #if UNITY_EDITOR
-                    Debug.LogError($"Saved datatype:{kv.Value} does not exists");
+                    Debug.LogError($"Saved datatype:{kv.Value}[{kv.Key}] does not exists");
 #else
                     Debug.LogWarning($"Saved datatype:{kv.Value} does not exists");
 #endif
+                    
                     continue;
                 }
                 id2type[kv.Key] = type;
                 type2id[type] = kv.Key;
+            }
+            for (int i = 0, count = removeTypes.Count; i < count; i++) {
+                int typeId = removeTypes[i];
+                id2typeAsString.Remove(typeId);
             }
             idCounter = id2typeAsString.Count + 100;
         }
