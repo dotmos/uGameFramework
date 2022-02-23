@@ -49,7 +49,6 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
     {
 #if LEAK_DETECTION
         /// <summary>
-        /// Did be put this instance into the leak-detection? 
         /// TODO: necessary?
         /// </summary>
         [System.NonSerialized]
@@ -73,8 +72,7 @@ public partial class /*name:ComponentName*/GenTemplateComponent/*endname*/ : ECS
         [Newtonsoft.Json.JsonIgnore]
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset { get => ser2table.offset; set => ser2table.offset = value; }
 
-        [Newtonsoft.Json.JsonIgnore]
-        public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
+
         [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 

@@ -14,6 +14,19 @@ namespace Service.Serializer
 {
     
     public interface IFBSerializeAsTypedObject { }
+    
+    public class ContextProxy {
+        public IFB2Context CTX { get; private set; }
+
+        public ContextProxy(IFB2Context ctx) {
+            CTX = ctx;
+        }
+
+        public void Clear() {
+            CTX = null;
+        }
+    }
+
     public interface IFB2Context { 
         bool IsValid();
         void Invalidate();
@@ -169,10 +182,12 @@ namespace Service.Serializer
         /// </summary>
         int Ser2Flags { get; set; }
 
+
+        void SetContextProxy(ContextProxy proxy);
         /// <summary>
         /// Context (Serialization/Deserialization) this object was processed with (needed especially for multithreads serialization)
         /// </summary>
-        IFB2Context Ser2Context { get; set; }
+        IFB2Context Ser2Context { get; }
         /// <summary>
         /// Check for valid context. Contexts gets invalidated after loading/saving
         /// </summary>
@@ -219,10 +234,15 @@ namespace Service.Serializer
         [JsonIgnore]
         int IFBSerializable2.Ser2Flags { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
+        private ContextProxy ctxProxy;
 
+        public void SetContextProxy(ContextProxy proxy) {
+            this.ctxProxy = proxy;
+        }
 
         [JsonIgnore]
-        public IFB2Context Ser2Context {get;set; }
+        public IFB2Context Ser2Context => ctxProxy==null?null:ctxProxy.CTX;
         
         [JsonIgnore]
         public bool Ser2HasValidContext => Ser2Context != null && Ser2Context.IsValid();
@@ -266,7 +286,7 @@ namespace Service.Serializer
 
         public virtual void Ser2Clear() {
             ser2table = ExtendedTable.NULL;
-            Ser2Context = null;
+            ctxProxy = null;
         }
     }
 
@@ -725,6 +745,8 @@ namespace Service.Serializer
         public static int destroyed = 0;
         public static bool ERRORS = false;
 
+        private ContextProxy proxy;
+
         public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
         //public readonly List<object> lateReferenceList = new List<object>();
         public Queue<object> lateReferenceQueue = new Queue<object>();
@@ -755,6 +777,7 @@ namespace Service.Serializer
         }
 
         public SerializationContext(int initialBuilderCapacity,string _name=null) {
+            proxy = new ContextProxy(this);
             created++;
             builder = new FlatBufferBuilder(initialBuilderCapacity);
 #if TESTING
@@ -776,11 +799,18 @@ namespace Service.Serializer
             name = _name ?? "sctx-" + (name_counter++);
         }
 
+        private void ClearElement(object elem) {
+            if (elem is IFBSerializable2 ifb2) {
+                ifb2.Ser2Clear();
+            }
+        }
+
         private void ClearTables() {
             foreach (KeyValuePair<object, int> kv in obj2offsetMapping) {
-                if (kv.Key is IFBSerializable2) {
-                    ((IFBSerializable2)kv.Key).Ser2Clear();
-                }
+                ClearElement(kv.Key);
+            }
+            foreach (KeyValuePair<object, List<int>> kv in lateReferences) {
+                ClearElement(kv.Key);
             }
             Type2IntMapper.instance.Ser2Clear();
         }
@@ -842,7 +872,7 @@ namespace Service.Serializer
                     // wait for the result
                     int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
                     obj2offsetMapping[obj] = newOffsetFromMainThread;
-                    iFBSer2Obj.Ser2Context = this;
+                    iFBSer2Obj.SetContextProxy(proxy);
                     return newOffsetFromMainThread;
                 }
                 //--- testing---
@@ -852,7 +882,7 @@ namespace Service.Serializer
                 }
                 //----
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
-                iFBSer2Obj.Ser2Context = this;
+                iFBSer2Obj.SetContextProxy(proxy);
                 iFBSer2Obj.Ser2Offset = newOffset;
                 obj2offsetMapping[obj] = newOffset;
                 return newOffset;
@@ -922,7 +952,8 @@ namespace Service.Serializer
                         if (offsetMapping!=null && offsetMapping.TryGetValue(ifbObj.Ser2Context, out int bufOffset) ) {
                             // this object is merged into this serializer, so we can use this by adding the corresponding offset
                             // plus we will add it to our obj2offsetMapping
-                            ifbObj.Ser2Context = this;
+                            ifbObj.SetContextProxy(proxy);
+
                             int newOffset = ifbObj.Ser2Offset += bufOffset;
                             obj2offsetMapping[obj] = newOffset;
                             return newOffset;
@@ -1180,6 +1211,7 @@ namespace Service.Serializer
 #if TESTING
             OutputDebugInfo();
 #endif
+            proxy.Clear();
             ClearTables();
             lateReferences.Clear();
             builder.Clear();

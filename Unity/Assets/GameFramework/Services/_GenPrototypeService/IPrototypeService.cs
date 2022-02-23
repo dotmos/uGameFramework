@@ -79,7 +79,15 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset { get => ser2table.offset; set => ser2table.offset = value; }
 
         [Newtonsoft.Json.JsonIgnore]
-        public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
+        private ContextProxy ctxProxy;
+
+        public void SetProxy(ContextProxy proxy) {
+            this.ctxProxy = proxy;
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context => ctxProxy == null ? null : ctxProxy.CTX;
+
         [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
