@@ -176,6 +176,27 @@ namespace Service.FileSystem {
                            
         
         /// <summary>
+        /// Remove file in background-thread. 
+                /// <param name="filePath"></param>
+         /// </summary>
+        
+        
+                    void RemoveFileAsync(string filePath);
+        
+                           
+        
+        /// <summary>
+        /// Remove file from domain in background-thread 
+                /// <param name="domain"></param>
+                /// <param name="relativePath"></param>
+         /// </summary>
+        
+        
+                    void RemoveFileInDomainAsync(FSDomain domain,string relativePath);
+        
+                           
+        
+        /// <summary>
         /// Check if a file exists(absolute) 
                 /// <param name="pathToFile"></param>
          /// </summary>

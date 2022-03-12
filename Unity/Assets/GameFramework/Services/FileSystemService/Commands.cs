@@ -48,6 +48,10 @@ namespace Service.FileSystem{
 //
 //            this.OnEvent<RemoveFileInDomainCommand>().Subscribe(e => RemoveFileInDomainCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<RemoveFileAsyncCommand>().Subscribe(e => RemoveFileAsyncCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<RemoveFileInDomainAsyncCommand>().Subscribe(e => RemoveFileInDomainAsyncCommandHandler(e)).AddTo(this);
+//
 //            this.OnEvent<FileExistsCommand>().Subscribe(e => FileExistsCommandHandler(e)).AddTo(this);
 //
 //            this.OnEvent<FileExistsInDomainCommand>().Subscribe(e => FileExistsInDomainCommandHandler(e)).AddTo(this);
@@ -417,6 +421,55 @@ namespace Service.FileSystem{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("RemoveFileInDomainCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Remove file in background-thread.
+        /// </summary>
+        
+//        public class RemoveFileAsyncCommand  {
+//            public string filePath;
+//            
+//            
+//        }
+
+//		protected void RemoveFileAsyncCommandHandler  (RemoveFileAsyncCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RemoveFileAsyncCommand");
+//#endif
+//        _service.RemoveFileAsync(cmd.filePath);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RemoveFileAsyncCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Remove file from domain in background-thread
+        /// </summary>
+        
+//        public class RemoveFileInDomainAsyncCommand  {
+//            public FSDomain domain;
+//                        public string relativePath;
+//            
+//            
+//        }
+
+//		protected void RemoveFileInDomainAsyncCommandHandler  (RemoveFileInDomainAsyncCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RemoveFileInDomainAsyncCommand");
+//#endif
+//        _service.RemoveFileInDomainAsync(cmd.domain,cmd.relativePath);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RemoveFileInDomainAsyncCommand");
 //#endif
 //        }
         

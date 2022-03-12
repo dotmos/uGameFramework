@@ -174,6 +174,12 @@ namespace Service.FileSystem
         public abstract             void RemoveFileInDomain(FSDomain domain,string relativePath);
 
         
+        public abstract             void RemoveFileAsync(string filePath);
+
+        
+        public abstract             void RemoveFileInDomainAsync(FSDomain domain,string relativePath);
+
+        
         public abstract             bool FileExists(string pathToFile);
 
         

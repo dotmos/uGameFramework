@@ -8,6 +8,7 @@ using UnityEngine;
 using System.IO;
 using Service.Scripting;
 using System.IO.Compression;
+using System.Collections.Concurrent;
 
 namespace Service.FileSystem {
     public partial class FileSystemServiceImpl : FileSystemServiceBase {
@@ -403,7 +404,6 @@ namespace Service.FileSystem {
                 if (FileExists(filePath)) {
                     File.Delete(filePath);
                 }
-                UpdateSavegameStorage();
             }
             catch (Exception e) {
                 Debug.LogException(e);
@@ -414,6 +414,48 @@ namespace Service.FileSystem {
             if (domain == FSDomain.Addressables) return;
             string path = GetPath(domain,relativePath);
             RemoveFile(path);
+        }
+
+        protected ConcurrentQueue<string> fileRemovalQueue = new ConcurrentQueue<string>();
+        protected object lock_fileRemovalThread = new object();
+        protected System.Threading.Thread fileRemovalThread = null;
+        protected Action<string> afterRemovalCallback;
+
+        protected virtual void FileRemovalThreadLogic() {
+            while (fileRemovalQueue.TryDequeue(out string fileToRemove)) {
+                RemoveFile(fileToRemove);
+                if (afterRemovalCallback != null) {
+                    afterRemovalCallback(fileToRemove);
+                }
+            }
+            lock (lock_fileRemovalThread) {
+                fileRemovalThread = null;
+            }
+        }
+
+        /// <summary>
+        /// Ensures fileremovalthread is running
+        /// </summary>
+        private void EnsureFileRemovalThread() {
+            lock (lock_fileRemovalThread) {
+                if (fileRemovalThread != null) {
+                    return;
+                }
+                fileRemovalThread = new System.Threading.Thread(FileRemovalThreadLogic);
+                fileRemovalThread.IsBackground = true;
+                fileRemovalThread.Start();
+            }
+        }
+
+        public override void RemoveFileAsync(string filePath) {
+            fileRemovalQueue.Enqueue(filePath);
+            EnsureFileRemovalThread();
+        }
+
+        public override void RemoveFileInDomainAsync(FSDomain domain, string relativePath) {
+            if (domain == FSDomain.Addressables) return;
+            string path = GetPath(domain, relativePath);
+            RemoveFileAsync(path);
         }
 
         public override long GetCurrentlyUsedSavegameStorage() {

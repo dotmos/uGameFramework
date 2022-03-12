@@ -30,6 +30,10 @@ namespace Service.FileSystem {
 		void RemoveFile(string filePath);
 		## "Remove file in domain"
 		void RemoveFileInDomain(?FSDomain domain,string relativePath);
+		## "Remove file in background-thread."
+		void RemoveFileAsync(string filePath);
+		## "Remove file from domain in background-thread"
+		void RemoveFileInDomainAsync(?FSDomain domain,string relativePath);
 		## "Check if a file exists(absolute)"
 		bool FileExists(string pathToFile);
 		## "Check if a file exists in a domain(relative to domain-root)"
