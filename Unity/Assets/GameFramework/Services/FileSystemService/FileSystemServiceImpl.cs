@@ -33,6 +33,11 @@ namespace Service.FileSystem {
         private long totalSpace;
         private long usedSpace;
 
+        protected ConcurrentQueue<string> fileRemovalQueue = new ConcurrentQueue<string>();
+        protected object lock_fileRemovalThread = new object();
+        protected System.Threading.Thread fileRemovalThread = null;
+        protected Action<string> afterRemovalCallback;
+
         protected override void AfterInitialize() {
             RefreshDataPath();
 
@@ -415,11 +420,6 @@ namespace Service.FileSystem {
             string path = GetPath(domain,relativePath);
             RemoveFile(path);
         }
-
-        protected ConcurrentQueue<string> fileRemovalQueue = new ConcurrentQueue<string>();
-        protected object lock_fileRemovalThread = new object();
-        protected System.Threading.Thread fileRemovalThread = null;
-        protected Action<string> afterRemovalCallback;
 
         protected virtual void FileRemovalThreadLogic() {
             while (fileRemovalQueue.TryDequeue(out string fileToRemove)) {
