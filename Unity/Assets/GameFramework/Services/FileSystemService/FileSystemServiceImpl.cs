@@ -209,7 +209,7 @@ namespace Service.FileSystem {
         //    }
         //}
 
-        public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
+        public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false, int maxFileSize = int.MaxValue) {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("WriteBytesToFile");
 
@@ -227,12 +227,19 @@ namespace Service.FileSystem {
                     int size = bytes.Length;
                     int chunkSize = size / 20;
                     int totalWritten = 0;
-                    using (FileStream fs = new FileStream(pathToFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 1024 * 1024 * 5)) {
-                        // Add some information to the file.
-                        while (totalWritten < bytes.Length) {
-                            int writeSize = Math.Min(size - totalWritten, chunkSize);
-                            fs.Write(bytes, totalWritten, writeSize);
-                            totalWritten += writeSize;
+                    int fileNumber = 0;
+                    while (totalWritten < bytes.Length) {
+                        var fileName = fileNumber == 0 ? pathToFile : $"{pathToFile}.{fileNumber}";
+
+                        using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 1024 * 1024 * 5)) {
+                            // Add some information to the file.
+                            int writeBytesToFileLeft = Math.Min(maxFileSize, bytes.Length);
+                            while (writeBytesToFileLeft > 0) {
+                                int writeSize = Math.Min(writeBytesToFileLeft, chunkSize);
+                                fs.Write(bytes, totalWritten, writeSize);
+                                totalWritten += writeSize;
+                                writeBytesToFileLeft -= writeSize;
+                            }
                         }
                     }
                     UpdateSavegameStorage();
@@ -250,10 +257,10 @@ namespace Service.FileSystem {
             }
         }
 
-        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false) {
+        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false,int maxFileSize = int.MaxValue) {
             if (domain == FSDomain.Addressables) return false;
             relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
-            return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes,compress);
+            return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes,compress,maxFileSize);
         }
 
         public override string LoadFileAsString(string pathToFile, bool compressed = false) {
@@ -501,6 +508,20 @@ namespace Service.FileSystem {
                 size += DirSize(di);
             }
             return size;
+        }
+
+        public override long GetFileSize(FSDomain domain, string relativePathInDomain) {
+            return GetFileSize(GetPath(domain, relativePathInDomain));
+        }
+
+        public override long GetFileSize(string pathToFile) {
+            try {
+                var fi = new System.IO.FileInfo(pathToFile);
+                return fi.Length;
+            }
+            catch (Exception e) {
+                return 0;
+            }
         }
     }
 }

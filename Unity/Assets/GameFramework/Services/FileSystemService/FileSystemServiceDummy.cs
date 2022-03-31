@@ -81,11 +81,11 @@ namespace Service.FileSystem {
 
 
 
-        public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
+        public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false,int maxFileSize=int.MaxValue) {
             return true;
         }
 
-        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes, bool compress = false) {
+        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes, bool compress = false, int maxFileSize = int.MaxValue) {
             return true;
         }
 

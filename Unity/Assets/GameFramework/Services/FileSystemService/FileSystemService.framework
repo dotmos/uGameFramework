@@ -6,10 +6,10 @@ namespace Service.FileSystem {
     public interface IFileSystemService {  
 		## "Get path as string for given domain"
 		string GetPath(?FSDomain domain,string realtivePart="");
-		## "Write bytes to file"
-		bool WriteBytesToFile(string pathToFile, ("byte[]") bytes,bool compress=False);
-		## "Write bytes to file at domain"
-		bool WriteBytesToFileAtDomain(?FSDomain domain, string relativePathToFile, ("byte[]") bytes,bool compress=False); 
+		## "Write bytes to file. (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....)"
+		bool WriteBytesToFile(string pathToFile, ("byte[]") bytes,bool compress=False, int maxFileSize=("int.MaxValue"));
+		## "Write bytes to file at domain (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....)"
+		bool WriteBytesToFileAtDomain(?FSDomain domain, string relativePathToFile, ("byte[]") bytes,bool compress=False, int maxFileSize=("int.MaxValue")); 
 		## "Write string to file"
 		bool WriteStringToFile(string pathToFile, string thedata, bool append=False);
 		## "Write string to file at domain"
@@ -49,6 +49,11 @@ namespace Service.FileSystem {
 		
 		## "Get free available storage"
 		long GetFreeSavegameStorage();
+		
+		## "Get filesize with absolute path"
+		long GetFileSize(string pathToFile);
+		## "Get filesize in domain" 
+		long GetFileSize(?FSDomain domain, string relativePathInDomain);
     }       
 }     
 ## model 

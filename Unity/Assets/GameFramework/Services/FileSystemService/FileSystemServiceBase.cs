@@ -138,10 +138,10 @@ namespace Service.FileSystem
         public abstract             string GetPath(FSDomain domain,string realtivePart="");
 
         
-        public abstract             bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false);
+        public abstract             bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false,int maxFileSize=int.MaxValue);
 
         
-        public abstract             bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
+        public abstract             bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false,int maxFileSize=int.MaxValue);
 
         
         public abstract             bool WriteStringToFile(string pathToFile,string thedata,bool append=false);
@@ -196,6 +196,12 @@ namespace Service.FileSystem
 
         
         public abstract             long GetFreeSavegameStorage();
+
+        
+        public abstract             long GetFileSize(string pathToFile);
+
+        
+        public abstract             long GetFileSize(FSDomain domain,string relativePathInDomain);
 
         
 

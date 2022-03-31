@@ -64,6 +64,10 @@ namespace Service.FileSystem{
 //
 //            this.OnEvent<GetFreeSavegameStorageCommand>().Subscribe(e => GetFreeSavegameStorageCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<GetFileSizeCommand>().Subscribe(e => GetFileSizeCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetFileSizeCommand>().Subscribe(e => GetFileSizeCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -96,7 +100,7 @@ namespace Service.FileSystem{
 
         
         /// <summary>
-        /// Write bytes to file
+        /// Write bytes to file. (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....)
         /// </summary>
         
 //        public class WriteBytesToFileCommand  {
@@ -104,6 +108,7 @@ namespace Service.FileSystem{
 //                        public string pathToFile;
 //                        public byte[] bytes;
 //                        public bool compress=false;
+//                        public int maxFileSize=int.MaxValue;
 //            
 //            
 //        }
@@ -114,7 +119,7 @@ namespace Service.FileSystem{
 //            ptest.Start("WriteBytesToFileCommand");
 //#endif
 //        
-//            cmd.result = _service.WriteBytesToFile(cmd.pathToFile,cmd.bytes,cmd.compress);
+//            cmd.result = _service.WriteBytesToFile(cmd.pathToFile,cmd.bytes,cmd.compress,cmd.maxFileSize);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("WriteBytesToFileCommand");
@@ -124,7 +129,7 @@ namespace Service.FileSystem{
 
         
         /// <summary>
-        /// Write bytes to file at domain
+        /// Write bytes to file at domain (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....)
         /// </summary>
         
 //        public class WriteBytesToFileAtDomainCommand  {
@@ -133,6 +138,7 @@ namespace Service.FileSystem{
 //                        public string relativePathToFile;
 //                        public byte[] bytes;
 //                        public bool compress=false;
+//                        public int maxFileSize=int.MaxValue;
 //            
 //            
 //        }
@@ -143,7 +149,7 @@ namespace Service.FileSystem{
 //            ptest.Start("WriteBytesToFileAtDomainCommand");
 //#endif
 //        
-//            cmd.result = _service.WriteBytesToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.bytes,cmd.compress);
+//            cmd.result = _service.WriteBytesToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.bytes,cmd.compress,cmd.maxFileSize);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("WriteBytesToFileAtDomainCommand");
@@ -622,6 +628,59 @@ namespace Service.FileSystem{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("GetFreeSavegameStorageCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get filesize with absolute path
+        /// </summary>
+        
+//        public class GetFileSizeCommand  {
+//            public long result;
+//                        public string pathToFile;
+//            
+//            
+//        }
+
+//		protected void GetFileSizeCommandHandler  (GetFileSizeCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetFileSizeCommand");
+//#endif
+//        
+//            cmd.result = _service.GetFileSize(cmd.pathToFile);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetFileSizeCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get filesize in domain
+        /// </summary>
+        
+//        public class GetFileSizeCommand  {
+//            public long result;
+//                        public FSDomain domain;
+//                        public string relativePathInDomain;
+//            
+//            
+//        }
+
+//		protected void GetFileSizeCommandHandler  (GetFileSizeCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetFileSizeCommand");
+//#endif
+//        
+//            cmd.result = _service.GetFileSize(cmd.domain,cmd.relativePathInDomain);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetFileSizeCommand");
 //#endif
 //        }
         
