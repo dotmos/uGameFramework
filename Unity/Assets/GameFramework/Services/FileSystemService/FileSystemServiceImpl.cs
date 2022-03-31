@@ -241,6 +241,7 @@ namespace Service.FileSystem {
                                 writeBytesToFileLeft -= writeSize;
                             }
                         }
+                        fileNumber++;
                     }
                     UpdateSavegameStorage();
 
