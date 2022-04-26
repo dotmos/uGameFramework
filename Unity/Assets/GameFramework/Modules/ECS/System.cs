@@ -639,12 +639,7 @@ namespace ECS {
             }
             componentsToProcess[componentCount] = components;
             componentCount++;
-#if UNITY_EDITOR
-            if (componentsToProcessLUT.ContainsKey(entity.ID)) {
-                var newcomps = entityManager.GetAllComponents(entity);
-                var current = GetSystemComponentsForEntity(entity);
-            }
-#endif
+
             try {
                 componentsToProcessLUT.Add(entity.ID, components);
             }
