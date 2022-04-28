@@ -76,6 +76,17 @@ namespace Service.Serializer
             throw new ArgumentException($"no type with id:{id} assigned");
         }
 
+        /// <summary>
+        /// Don't use this! Only if you know what you are doing! And if you need to it is most likely to late anyway ;|
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        public void _OverrideType(int id,Type type) {
+            type2id[type] = id;
+            id2type[id] = type;
+            id2typeAsString[id] = GetTypeName(type);
+        }
+
         public int GetIdFromType(Type type) {
             if (type2id.TryGetValue(type, out int typeId)) { 
                 return typeId;
@@ -85,11 +96,17 @@ namespace Service.Serializer
                 if (type2id.TryGetValue(type, out typeId)) { // double check for case where while waiting from lock the wanted type was created.
                     return typeId;
                 }
-                int id = idCounter++;
-                type2id[type] = id;
-                id2type[id] = type;
-                id2typeAsString[id] = GetTypeName(type);
-                return id;
+                idCounter++;
+                if (id2type.ContainsKey(idCounter)) { 
+                    Debug.LogError($"TypeID[{idCounter}] already in use by {id2type[idCounter]}. Was about to be overwritten by {idCounter}");
+                    while (id2type.ContainsKey(idCounter)) {
+                        idCounter++;
+                    }
+                }
+                type2id[type] = idCounter;
+                id2type[idCounter] = type;
+                id2typeAsString[idCounter] = GetTypeName(type);
+                return idCounter;
             }
         }
 
@@ -117,6 +134,7 @@ namespace Service.Serializer
             if (id2typeAsString == null) return;
 
             removeTypes.Clear();
+            idCounter = 0;
             foreach (var kv in id2typeAsString) {
                 Type type = Type.GetType(kv.Value);
                 if (type == null) {
@@ -129,6 +147,7 @@ namespace Service.Serializer
                     
                     continue;
                 }
+                idCounter = Mathf.Max(idCounter, kv.Key+1);
                 id2type[kv.Key] = type;
                 type2id[type] = kv.Key;
             }
@@ -136,7 +155,6 @@ namespace Service.Serializer
                 int typeId = removeTypes[i];
                 id2typeAsString.Remove(typeId);
             }
-            idCounter = id2typeAsString.Count + 100;
         }
     }
 
