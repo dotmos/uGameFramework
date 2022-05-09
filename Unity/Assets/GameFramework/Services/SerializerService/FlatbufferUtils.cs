@@ -1341,6 +1341,16 @@ namespace Service.Serializer
 
             int keySize = keyPrimitiveOrStruct ? ByteBuffer.SizeOf(typeKey) : (isKeyTypedObject?8:4);
             int valueSize = valuePrimitiveOrStruct ? ByteBuffer.SizeOf(typeValue) : (isValueTypedObject ? 8 : 4);
+
+            if (DeserializationContext.currentSavegameDataformat > 120) {
+                if (keySize < 4) {
+                    keySize = 4;
+                }
+                if (valueSize < 4) {
+                    valueSize = 4;
+                }
+            }
+
             int elementSize = keySize + valueSize;
             //int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 

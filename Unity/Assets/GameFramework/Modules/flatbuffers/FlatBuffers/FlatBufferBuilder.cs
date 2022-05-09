@@ -1406,7 +1406,14 @@ namespace FlatBuffers
 
             int count = dict.Count;
             int keySize = (keyPrimitive || keyIsStruct) ? ByteBuffer.SizeOf(typeKey) : (IsKeyTypedObject?8:4);
+            // setting manually the size for the dictionaries as the ByteBuffer.SizeOf(type) values should stay sizeOf(type). Only make those values 4 byte wide in dictionaries
+            if (keySize < 4) {
+                keySize = 4;
+            }
             int valueSize = (valuePrimitive || valueIsStruct) ? ByteBuffer.SizeOf(typeValue) : (IsValueTypedObject ? 8 : 4);
+            if (valueSize < 4) {
+                valueSize = 4;
+            }
             int elementSize = keySize + valueSize;
             int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 
@@ -1452,17 +1459,17 @@ namespace FlatBuffers
                 } else if (type == typeBool) {
                     foreach (bool elem in data) {
                         _space = spaceTemp -= elementSize;
-                        _bb.Put(_space,((bool)(object)elem)?(byte)1:(byte)0); // I don't want to, but I really don't know how to prevent it
+                        _bb.PutInt(_space,((bool)(object)elem)?(byte)1:(byte)0); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeShort) {
                     foreach (short elem in data) {
                         _space = spaceTemp -= elementSize;
-                        _bb.PutShort(_space,(short)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.PutInt(_space,(short)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeByte) {
                     foreach (byte elem in data) {
                         _space = spaceTemp -= elementSize;
-                        _bb.Put(_space,(byte)(object)elem); // I don't want to, but I really don't know how to prevent it
+                        _bb.PutInt(_space,(byte)(object)elem); // I don't want to, but I really don't know how to prevent it
                     }
                 } else if (type == typeLong) {
                     foreach (long elem in data) {

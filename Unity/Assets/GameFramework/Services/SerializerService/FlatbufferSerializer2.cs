@@ -310,7 +310,7 @@ namespace Service.Serializer
 
     public class DeserializationContext : IFB2Context
     {
-        public static int currentSavegameDataformat = 0;
+        public static int currentSavegameDataformat = 121;
 
         public static T ReadFromDomain<T>(FileSystem.FSDomain domain, string filename, bool compressed = true) where T : class,IFBSerializable2, new(){
             var fs = Kernel.Instance.Resolve<FileSystem.IFileSystemService>();
