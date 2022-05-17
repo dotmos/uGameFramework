@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace Service.TimeService {
     public interface ITimeService : IFBSerializable2, IFBSerializable, IService {
@@ -45,9 +46,33 @@ namespace Service.TimeService {
     [System.Serializable]
     public partial class TimerElement: DefaultSerializable2
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         
 
-        public TimerElement() { }
+        public TimerElement() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         
         /// <summary>
         /// 
@@ -80,8 +105,20 @@ namespace Service.TimeService {
         public Action timerCallback ;
         
         
+
+
         
 
+#if LEAK_DETECTION
+        ~TimerElement () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

@@ -9,7 +9,7 @@ using Zenject;
 using Service.Serializer;
 
 namespace ECS {
-    public class EntityManagerTest : IEntityManager {
+    public class EntityManagerTest : DefaultSerializable2,IEntityManager {
 
         /// <summary>
         /// Holds components of entities
@@ -53,7 +53,6 @@ namespace ECS {
         /// If set to true, entities will auto register themselves to systems. If set to false, you have to manually call EntityModified/EntitiesModified
         /// </summary>
         public bool AutoCallEntityModified { get; set; } = true;
-        bool IEntityManager.AutoCallEntityModified { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool Ser2Flags { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public ExtendedTable Ser2Table => throw new NotImplementedException();
@@ -67,7 +66,7 @@ namespace ECS {
 
         public bool Ser2HasValidContext => throw new NotImplementedException();
 
-        IFB2Context IFBSerializable2.Ser2Context { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        IFB2Context IFBSerializable2.Ser2Context { get => throw new NotImplementedException();  }
         int IFBSerializable2.Ser2Offset { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         [Inject] DisposableManager dManager;
@@ -113,7 +112,7 @@ namespace ECS {
         /// Updates all systems for this frame
         /// </summary>
         /// <param name="deltaTime"></param>
-        public virtual void Tick(float deltaTime) {
+        public virtual void Tick(float deltaTime,float unscaled,float systemScaled) {
             if (isInitialized) {
 #if ECS_PROFILING && UNITY_EDITOR
                 timer -= UnityEngine.Time.deltaTime;
@@ -124,7 +123,7 @@ namespace ECS {
                 watchOverall.Restart();
 #endif
                 for (int i = 0; i < _systems.Count; ++i) {
-                    try { _systems[i].ProcessSystem(deltaTime); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
+                    try { _systems[i].ProcessSystem(deltaTime,unscaled,systemScaled); } catch (Exception e) { UnityEngine.Debug.LogException(e); }
                 }
 #if ECS_PROFILING && UNITY_EDITOR
                 watchOverall.Stop();
@@ -682,59 +681,7 @@ namespace ECS {
             _recycledComponentIds.Clear();
         }
 
-        void IEntityManager.Initialize() {
-            throw new NotImplementedException();
-        }
-
-        void IEntityManager.Tick(float deltaTime) {
-            throw new NotImplementedException();
-        }
-
-        UID IEntityManager.CreateEntity() {
-            throw new NotImplementedException();
-        }
-
-        bool IEntityManager.EntityExists(UID entity) {
-            throw new NotImplementedException();
-        }
-
-        void IEntityManager.DestroyEntity(ref UID entity) {
-            throw new NotImplementedException();
-        }
-
-        T IEntityManager.AddComponent<T>(UID entity) {
-            throw new NotImplementedException();
-        }
-
-        IComponent IEntityManager.AddComponent(UID entity, IComponent component) {
-            throw new NotImplementedException();
-        }
-
-        IComponent IEntityManager.AddComponent(UID entity, Type componentType) {
-            throw new NotImplementedException();
-        }
-
-        IComponent IEntityManager.SetComponent(UID entity, IComponent component) {
-            throw new NotImplementedException();
-        }
-
-        IComponent IEntityManager.SetComponent<T>(UID entity, T component) {
-            throw new NotImplementedException();
-        }
-
-        IComponent IEntityManager.CloneComponent(IComponent componentToClone) {
-            throw new NotImplementedException();
-        }
-
-        void IEntityManager.RemoveComponent<T>(UID entity) {
-            throw new NotImplementedException();
-        }
-
-        void IEntityManager.RemoveComponent(UID entity, IComponent component) {
-            throw new NotImplementedException();
-        }
-
-        T IEntityManager.GetComponent<T>(UID entity) {
+        public IComponent SetComponent<T>(UID entity, T component) where T : IComponent {
             throw new NotImplementedException();
         }
 
@@ -742,96 +689,183 @@ namespace ECS {
             throw new NotImplementedException();
         }
 
-        List<IComponent> IEntityManager.GetAllComponents(UID entity) {
+#if ECS_PROFILING
+        public void ShowLog(bool showOnDevUIConsole = false) {
             throw new NotImplementedException();
         }
 
-        bool IEntityManager.HasComponent<T>(UID entity) {
+        public void ResetLog() {
             throw new NotImplementedException();
         }
+#endif
 
-        bool IEntityManager.HasComponent(UID entity, IComponent component) {
-            throw new NotImplementedException();
-        }
 
-        bool IEntityManager.HasComponent(UID entity, Type componentType) {
-            throw new NotImplementedException();
-        }
+        //void IEntityManager.Initialize() {
+        //    throw new NotImplementedException();
+        //}
 
-        void IEntityManager.SetupComponentID(IComponent component) {
-            throw new NotImplementedException();
-        }
+        //void IEntityManager.Tick(float deltaTime,float unscaled) {
+        //    throw new NotImplementedException();
+        //}
 
-        void IEntityManager.DisposeComponent(IComponent component) {
-            throw new NotImplementedException();
-        }
+        //UID IEntityManager.CreateEntity() {
+        //    throw new NotImplementedException();
+        //}
 
-        void IEntityManager.RegisterSystem(ISystem system) {
-            throw new NotImplementedException();
-        }
+        //bool IEntityManager.EntityExists(UID entity) {
+        //    return _entities.ContainsKey(entity);
+        //}
 
-        void IEntityManager.UnregisterSystem(ISystem system) {
-            throw new NotImplementedException();
-        }
+        //void IEntityManager.DestroyEntity(ref UID entity) {
+        //    throw new NotImplementedException();
+        //}
 
-        void IEntityManager.EntityModified(UID entity) {
-            throw new NotImplementedException();
-        }
+        //T IEntityManager.AddComponent<T>(UID entity) {
+        //    if (EntityExists(entity)) {
+        //        if (!HasComponent<T>(entity)) {
+        //            IComponent component = new T();
+        //            return (T)AddComponent(entity, component);
+        //        } else {
+        //            return GetComponent<T>(entity);
+        //        }
+        //    }
+        //    return default(T);
+        //}
 
-        void IEntityManager.EntitiesModified(List<UID> entity) {
-            throw new NotImplementedException();
-        }
+        //IComponent IEntityManager.AddComponent(UID entity, IComponent component) {
+        //    throw new NotImplementedException();
+        //}
 
-        int IEntityManager.EntityCount() {
-            throw new NotImplementedException();
-        }
+        //IComponent IEntityManager.AddComponent(UID entity, Type componentType) {
+        //    throw new NotImplementedException();
+        //}
 
-        UID? IEntityManager.GetEntityForID_SLOW(int id) {
-            throw new NotImplementedException();
-        }
+        //IComponent IEntityManager.SetComponent(UID entity, IComponent component) {
+        //    throw new NotImplementedException();
+        //}
 
-        void IEntityManager.Clear() {
-            throw new NotImplementedException();
-        }
+        //IComponent IEntityManager.SetComponent<T>(UID entity, T component) {
+        //    throw new NotImplementedException();
+        //}
 
-        int IFBSerializable.Serialize(FlatBufferBuilder builder) {
-            throw new NotImplementedException();
-        }
+        //IComponent IEntityManager.CloneComponent(IComponent componentToClone) {
+        //    throw new NotImplementedException();
+        //}
 
-        void IFBSerializable.Deserialize(object incoming) {
-            throw new NotImplementedException();
-        }
+        //void IEntityManager.RemoveComponent<T>(UID entity) {
+        //    throw new NotImplementedException();
+        //}
 
-        void IFBSerializable.Deserialize(ByteBuffer buf) {
-            throw new NotImplementedException();
-        }
+        //void IEntityManager.RemoveComponent(UID entity, IComponent component) {
+        //    throw new NotImplementedException();
+        //}
 
-        void IDisposable.Dispose() {
-            throw new NotImplementedException();
-        }
+        //T IEntityManager.GetComponent<T>(UID entity) {
+        //    if (!EntityExists(entity)) {
+        //        return default(T);
+        //    }
 
-        public int Ser2Serialize(SerializationContext ctx) {
-            throw new NotImplementedException();
-        }
+        //    return GetComponent(entity, typeof(T));          
+        //}
 
-        public void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
-            throw new NotImplementedException();
-        }
+        //IComponent IEntityManager.GetComponent(UID entity, Type componentType) {
+        //    if (!EntityExists(entity)) {
+        //        return null;
+        //    }
+        //    _entities[entity].TryGetValue(componentType, out IComponent comp);
+        //    return comp;
+        //}
 
-        public void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
-            throw new NotImplementedException();
-        }
+        //List<IComponent> IEntityManager.GetAllComponents(UID entity) {
+        //    throw new NotImplementedException();
+        //}
 
-        public void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
-            throw new NotImplementedException();
-        }
+        //bool IEntityManager.HasComponent<T>(UID entity) {
+        //    throw new NotImplementedException();
+        //}
 
-        public void Ser2Deserialize(DeserializationContext ctx) {
-            throw new NotImplementedException();
-        }
+        //bool IEntityManager.HasComponent(UID entity, IComponent component) {
+        //    throw new NotImplementedException();
+        //}
 
-        public void Ser2Clear() {
-            throw new NotImplementedException();
-        }
+        //bool IEntityManager.HasComponent(UID entity, Type componentType) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IEntityManager.SetupComponentID(IComponent component) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IEntityManager.DisposeComponent(IComponent component) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IEntityManager.RegisterSystem(ISystem system) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IEntityManager.UnregisterSystem(ISystem system) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IEntityManager.EntityModified(UID entity) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IEntityManager.EntitiesModified(List<UID> entity) {
+        //    throw new NotImplementedException();
+        //}
+
+        //int IEntityManager.EntityCount() {
+        //    throw new NotImplementedException();
+        //}
+
+        //UID? IEntityManager.GetEntityForID_SLOW(int id) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IEntityManager.Clear() {
+        //    throw new NotImplementedException();
+        //}
+
+        //int IFBSerializable.Serialize(FlatBufferBuilder builder) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IFBSerializable.Deserialize(object incoming) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IFBSerializable.Deserialize(ByteBuffer buf) {
+        //    throw new NotImplementedException();
+        //}
+
+        //void IDisposable.Dispose() {
+        //    throw new NotImplementedException();
+        //}
+
+        //public int Ser2Serialize(SerializationContext ctx) {
+        //    throw new NotImplementedException();
+        //}
+
+        //public void Ser2CreateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+        //    throw new NotImplementedException();
+        //}
+
+        //public void Ser2UpdateTable(SerializationContext ctx, FlatBufferBuilder builder) {
+        //    throw new NotImplementedException();
+        //}
+
+        //public void Ser2Deserialize(int tblOffset, DeserializationContext ctx) {
+        //    throw new NotImplementedException();
+        //}
+
+        //public void Ser2Deserialize(DeserializationContext ctx) {
+        //    throw new NotImplementedException();
+        //}
+
+        //public void Ser2Clear() {
+        //    throw new NotImplementedException();
+        //}
     }
 }

@@ -23,24 +23,24 @@ namespace ECS {
         }
 
 
-        protected abstract void OnEnter(TSystemComponents components, TStates oldState, TStates newState, float deltaTime);
+        protected abstract void OnEnter(TSystemComponents components, TStates oldState, TStates newState, float deltaTime, int workerId = -1);
 
-        protected abstract void OnExit(TSystemComponents components, TStates oldState, TStates newState, float deltaTime);
+        protected abstract void OnExit(TSystemComponents components, TStates oldState, TStates newState, float deltaTime, int workerId = -1);
 
-        protected abstract TStates OnProcess(TSystemComponents components, TStates state, float deltaTime);
+        protected abstract TStates OnProcess(TSystemComponents components, TStates state, float deltaTime, int workerId = -1);
 
         protected abstract TStates GetState(TSystemComponents components);
         protected abstract void SetState(TSystemComponents components, TStates newState);
         protected abstract bool StateEqual(TStates stateA, TStates stateB);
 
-        public void Process(TSystemComponents components, float deltaTime) {
+        public void Process(TSystemComponents components, float deltaTime, int workerId = -1) {
             TStates state = GetState(components);
-            TStates newState = OnProcess(components, state, deltaTime);
+            TStates newState = OnProcess(components, state, deltaTime, workerId);
             
             if (!StateEqual(state, newState)) {
-                OnExit(components, state, newState, deltaTime);
+                OnExit(components, state, newState, deltaTime, workerId);
                 SetState(components, newState);
-                OnEnter(components, state, newState, deltaTime);
+                OnEnter(components, state, newState, deltaTime, workerId);
             }
             
         }

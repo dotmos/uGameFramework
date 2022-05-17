@@ -6,7 +6,7 @@ namespace ECS {
     public interface IEntityManager : IFBSerializable,IFBSerializable2, IDisposable {
         void Initialize();
 
-        void Tick(float deltaTime);
+        void Tick(float deltaTime,float unscaledTime,float systemScaled);
 
         bool AutoCallEntityModified { get; set; }
 
@@ -54,5 +54,10 @@ namespace ECS {
         UID? GetEntityForID_SLOW(int id);
 
         void Clear();
+
+#if ECS_PROFILING
+        void ShowLog(bool showOnDevUIConsole = false);
+        void ResetLog();
+#endif
     }
 }

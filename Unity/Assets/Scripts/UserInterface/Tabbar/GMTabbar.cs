@@ -14,6 +14,7 @@ namespace UserInterface {
         /// </summary>
         public bool deactivateDefaultOnEnableBehaviour;
         public bool activateNewTabsOnAdd = true;
+        public bool registerInactiveTabsOnStart = true;
         public GMTab defaultTab;
 
         private List<GMTab> tabs = new List<GMTab>();
@@ -27,9 +28,13 @@ namespace UserInterface {
             base.Start();
 
             //Register all tabs that are children of this tabbar
-            foreach (GMTab tab in GetComponentsInChildren<GMTab>(true))
-            {
-                RegisterTab(tab);
+            GMTab[] tabs = GetComponentsInChildren<GMTab>(registerInactiveTabsOnStart);
+
+            foreach (GMTab tab in tabs) {
+                //Only register Tabs that are not child to another tab
+                if (tab.transform.parent.GetComponentInParent<GMTab>() == null) {
+                    RegisterTab(tab);
+                }
             }
 
             if (!allowSwitchOff && !deactivateDefaultOnEnableBehaviour) ActivateCustomDefaultTab();
@@ -101,6 +106,8 @@ namespace UserInterface {
                 } else {
                     _tab.isOn = false;
                 }
+
+                _tab.UpdateColors();
             }
         }
 

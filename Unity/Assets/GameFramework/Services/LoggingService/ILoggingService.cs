@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace Service.LoggingService {
     public interface ILoggingService : IFBSerializable2, IFBSerializable, IService {

@@ -17,6 +17,10 @@ namespace UserInterface {
 
             toggle.isOn = initialValue;
             toggle.onValueChanged.AddListener(OnValueChanged);
+
+#if ENABLE_CONSOLE_UI
+            toggle.navigation = Navigation.defaultNavigation;
+#endif
         }
 
         void OnValueChanged(bool isOn) {

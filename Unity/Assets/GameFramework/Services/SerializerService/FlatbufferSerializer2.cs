@@ -14,14 +14,32 @@ namespace Service.Serializer
 {
     
     public interface IFBSerializeAsTypedObject { }
+    
+    public class ContextProxy {
+        public IFB2Context CTX { get; private set; }
+
+        public ContextProxy(IFB2Context ctx) {
+            CTX = ctx;
+        }
+
+        public void Clear() {
+            CTX = null;
+        }
+    }
+
     public interface IFB2Context { 
         bool IsValid();
         void Invalidate();
     }
     public class Type2IntMapper : DefaultSerializable2
     {
-        public static Type2IntMapper instance=new Type2IntMapper();
-        
+        public static Type2IntMapper _instance=new Type2IntMapper();
+        public static Type2IntMapper instance {
+            get {
+                return _instance;
+            }
+        }
+            
         private StringBuilder stb = new StringBuilder();
 
         private String GetTypeName(Type type) {
@@ -58,6 +76,17 @@ namespace Service.Serializer
             throw new ArgumentException($"no type with id:{id} assigned");
         }
 
+        /// <summary>
+        /// Don't use this! Only if you know what you are doing! And if you need to it is most likely to late anyway ;|
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        public void _OverrideType(int id,Type type) {
+            type2id[type] = id;
+            id2type[id] = type;
+            id2typeAsString[id] = GetTypeName(type);
+        }
+
         public int GetIdFromType(Type type) {
             if (type2id.TryGetValue(type, out int typeId)) { 
                 return typeId;
@@ -67,11 +96,17 @@ namespace Service.Serializer
                 if (type2id.TryGetValue(type, out typeId)) { // double check for case where while waiting from lock the wanted type was created.
                     return typeId;
                 }
-                int id = idCounter++;
-                type2id[type] = id;
-                id2type[id] = type;
-                id2typeAsString[id] = GetTypeName(type);
-                return id;
+                idCounter++;
+                if (id2type.ContainsKey(idCounter)) { 
+                    Debug.LogError($"TypeID[{idCounter}] already in use by {id2type[idCounter]}. Was about to be overwritten by {idCounter}");
+                    while (id2type.ContainsKey(idCounter)) {
+                        idCounter++;
+                    }
+                }
+                type2id[type] = idCounter;
+                id2type[idCounter] = type;
+                id2typeAsString[idCounter] = GetTypeName(type);
+                return idCounter;
             }
         }
 
@@ -88,28 +123,38 @@ namespace Service.Serializer
         //    DeserializeFromOffset(base.ser2table.__tbl.bb_pos, dctx, true);
         //}
 
+        List<int> removeTypes = new List<int>();
         public void DeserializeFromOffset(int offset, DeserializationContext dctx, bool isDirectBuffer = true) {
             type2id = new Dictionary<Type, int>();
             id2type = new Dictionary<int, Type>();
-            
+            id2typeAsString = new Dictionary<int, string>();
+
             id2typeAsString = (Dictionary<int, String>)ser2table.GetDictionaryFromOffset(offset, id2typeAsString, dctx,true);
             // TODO: do this in postprocess
             if (id2typeAsString == null) return;
 
+            removeTypes.Clear();
+            idCounter = 0;
             foreach (var kv in id2typeAsString) {
                 Type type = Type.GetType(kv.Value);
                 if (type == null) {
+                    removeTypes.Add(kv.Key);
 #if UNITY_EDITOR
-                    Debug.LogError($"Saved datatype:{kv.Value} does not exists");
+                    Debug.LogError($"Saved datatype:{kv.Value}[{kv.Key}] does not exists");
 #else
                     Debug.LogWarning($"Saved datatype:{kv.Value} does not exists");
 #endif
+                    
                     continue;
                 }
+                idCounter = Mathf.Max(idCounter, kv.Key+1);
                 id2type[kv.Key] = type;
                 type2id[type] = kv.Key;
             }
-            idCounter = id2typeAsString.Count + 100;
+            for (int i = 0, count = removeTypes.Count; i < count; i++) {
+                int typeId = removeTypes[i];
+                id2typeAsString.Remove(typeId);
+            }
         }
     }
 
@@ -155,10 +200,12 @@ namespace Service.Serializer
         /// </summary>
         int Ser2Flags { get; set; }
 
+
+        void SetContextProxy(ContextProxy proxy);
         /// <summary>
         /// Context (Serialization/Deserialization) this object was processed with (needed especially for multithreads serialization)
         /// </summary>
-        IFB2Context Ser2Context { get; set; }
+        IFB2Context Ser2Context { get; }
         /// <summary>
         /// Check for valid context. Contexts gets invalidated after loading/saving
         /// </summary>
@@ -184,6 +231,7 @@ namespace Service.Serializer
         int ByteSize { get; }
     }
 
+    
     public class DefaultSerializable2 : IFBSerializable2
     {
         [JsonIgnore]
@@ -203,15 +251,22 @@ namespace Service.Serializer
 
         [JsonIgnore]
         int IFBSerializable2.Ser2Flags { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
+        private ContextProxy ctxProxy;
+
+        public void SetContextProxy(ContextProxy proxy) {
+            this.ctxProxy = proxy;
+        }
+
         [JsonIgnore]
-        public IFB2Context Ser2Context { get; set; }
+        public IFB2Context Ser2Context => ctxProxy==null?null:ctxProxy.CTX;
         
         [JsonIgnore]
         public bool Ser2HasValidContext => Ser2Context != null && Ser2Context.IsValid();
 
         [JsonIgnore]
         private object lock_state = new object();
-
 
         public virtual int Ser2Serialize(SerializationContext ctx) {
 #if TESTING
@@ -249,12 +304,24 @@ namespace Service.Serializer
 
         public virtual void Ser2Clear() {
             ser2table = ExtendedTable.NULL;
+            ctxProxy = null;
         }
     }
 
     public class DeserializationContext : IFB2Context
     {
-        public static int current_savegame_dataformat = 0;
+        public static int currentSavegameDataformat = 121;
+
+        public static T ReadFromDomain<T>(FileSystem.FSDomain domain, string filename, bool compressed = true) where T : class,IFBSerializable2, new(){
+            var fs = Kernel.Instance.Resolve<FileSystem.IFileSystemService>();
+            byte[] buf = fs.LoadFileAsBytesAtDomain(domain, filename, compressed);
+
+            if (buf == null) return null;
+
+            DeserializationContext dctx = new DeserializationContext(buf);
+            var result = dctx.GetRoot<T>();
+            return result;
+        }
 
 
         /// <summary>
@@ -281,6 +348,7 @@ namespace Service.Serializer
 
         public void Invalidate() {
             isValid = false;
+            bb.Clear();
         }
 
         public DeserializationContext(ByteBuffer bb) {
@@ -356,7 +424,6 @@ namespace Service.Serializer
                 Type2IntMapper.instance.ser2table = new ExtendedTable(4, bb);
                 int typeDataAddress = Type2IntMapper.instance.ser2table.__tbl.__indirect(4);
                 Type2IntMapper.instance.DeserializeFromOffset(typeDataAddress, this, true);
-
             }
         }
 
@@ -381,18 +448,31 @@ namespace Service.Serializer
         
         public object GetOrCreate(int bufferOffset, Type objectType,object obj=null) {
             object cachedObject = _GetCachedObject(bufferOffset,objectType);
+            
             if (cachedObject != null) {
-                return cachedObject;
-            }
+                if (!objectType.IsAssignableFrom(cachedObject.GetType())){
+                    // cache mismatch! There is something saved for this address with different type!? Ignore this one and get new data
+                    Debug.LogError($"cache mismatch! There is something saved for this address[{bufferOffset}] with different type[cache:{cachedObject.GetType().Name}] expected: {objectType.Name}!? Ignore this one and get new data!");
+                } else {
+                    return cachedObject;
+                }
+            } 
             object newObject = _GetOrCreate(bufferOffset, objectType, obj);
             return newObject;
         }
 
-        private T _GetCachedObject<T>(int bufferOffset) {
+        public T _GetCachedObject<T>(int bufferOffset) {
             if (bufferOffset == 0) return default(T);
 
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
-                return (T)result;
+                try {
+                    return (T)result;
+                }
+                catch (Exception e) {
+                    Debug.LogError($"Could not cast cached object(bufferpos:{bufferOffset}). In cache type:{result.GetType()} expected: {typeof(T)}");
+                    Debug.LogException(e);
+                    return default(T);
+                }
             }
             return default(T);
         }
@@ -402,9 +482,11 @@ namespace Service.Serializer
             if (pos2obj.TryGetValue(bufferOffset, out object result)) {
 #if FLATBUFFER_CHECK_TYPES
                 if (objType!=typeObject && result.GetType() != objType && !ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
-                    UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()} at offset:{bufferOffset}");
-                }                
+                    //UnityEngine.Debug.LogError($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()} at offset:{bufferOffset}");
+                    throw new Exception($"Got unexpected type from cached object! expected:{objType} in_cache:{result.GetType()} at offset:{bufferOffset}");
+                }
 #endif
+
                 return result;
             }
             return null;
@@ -419,34 +501,41 @@ namespace Service.Serializer
             if (obj != null) {
                 objType = obj.GetType();
             }
-            if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
-                //if (ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
-                //    int typeId = bb.GetInt(bufferOffset + 4);
-                //    objType = Type2IntMapper.instance.GetTypeFromId(typeId);
-                //}
-                var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
-                pos2obj[bufferOffset] = newIFBSer2obj;
-                newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
-                if (newIFBSer2obj is IFBPostDeserialization) {
-                    AddOnPostDeserializationObject((IFBPostDeserialization)newIFBSer2obj);
+            try {
+                if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
+                    //if (ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
+                    //    int typeId = bb.GetInt(bufferOffset + 4);
+                    //    objType = Type2IntMapper.instance.GetTypeFromId(typeId);
+                    //}
+                    var newIFBSer2obj = (IFBSerializable2)obj ?? (IFBSerializable2)Activator.CreateInstance(objType);
+                    pos2obj[bufferOffset] = newIFBSer2obj;
+                    newIFBSer2obj.Ser2Deserialize(bufferOffset, this);
+                    if (newIFBSer2obj is IFBPostDeserialization) {
+                        AddOnPostDeserializationObject((IFBPostDeserialization)newIFBSer2obj);
+                    }
+                    return newIFBSer2obj;
+                } else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
+                    var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
+                    pos2obj[bufferOffset] = newList;
+                    newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
+                    return newList;
+                } else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
+                    var newDict = (IDictionary)obj ?? (IDictionary)Activator.CreateInstance(objType);
+                    pos2obj[bufferOffset] = newDict;
+                    newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
+                    return newDict;
+                } else if (objType == ExtendedTable.typeString) {
+                    string stringData = extTbl.GetStringFromOffset(bufferOffset);
+                    pos2obj[bufferOffset] = stringData;
+                    return stringData;
+                } else {
+                    UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
+                    return null;
                 }
-                return newIFBSer2obj;
-            } else if (ExtendedTable.typeIList.IsAssignableFrom(objType)) {
-                var newList = (IList)obj ?? (IList)Activator.CreateInstance(objType);
-                pos2obj[bufferOffset] = newList;
-                newList = extTbl.GetListFromOffset(bufferOffset, objType, this, newList, false);
-                return newList;
-            } else if (ExtendedTable.typeIDictionary.IsAssignableFrom(objType)) {
-                var newDict = (IDictionary)obj ?? (IDictionary)Activator.CreateInstance(objType);
-                pos2obj[bufferOffset] = newDict;
-                newDict = extTbl.GetDictionaryFromOffset(bufferOffset, newDict, this, false);
-                return newDict;
-            } else if (objType == ExtendedTable.typeString) {
-                string stringData = extTbl.GetStringFromOffset(bufferOffset);
-                pos2obj[bufferOffset] = stringData;
-                return stringData;
-            } else {
-                UnityEngine.Debug.LogError($"Deserializer: GetOrCreate of type({objType}) not supported!");
+            }
+            catch (Exception e) {
+                Debug.LogError($"Catched exception Deserializing object-type:{objType} at position:{bufferOffset}. Returning null");
+                Debug.LogException(e);
                 return null;
             }
 
@@ -547,8 +636,16 @@ namespace Service.Serializer
                 return default;
             }
 
-            T result = (T)GetOrCreate(bufferOffset, typeof(T), obj);
-            return result;
+            object result = null;
+            try {
+                result = GetOrCreate(bufferOffset, typeof(T), obj);
+                return (T)result;
+            }
+            catch (Exception e) {
+                Debug.LogError($"GetReference: Could not cast obj: expected:{typeof(T)} got {(result == null ? "Null-Object" : result.GetType().ToString())} ");
+                Debug.LogException(e);
+                return default;
+            }
         }
 
          
@@ -587,6 +684,16 @@ namespace Service.Serializer
 
     public class SerializationContext : IFB2Context
     {
+        public static void SaveToDomain(FileSystem.FSDomain domain,string filename,IFBSerializable2 data,bool compressed=true,int initalBufferSize=100) {
+            SerializationContext sctx = new SerializationContext(initalBufferSize);
+            int pos = data.Ser2Serialize(sctx);
+            byte[] buf = sctx.CreateSizedByteArray(pos);
+            var fs = Kernel.Instance.Resolve<FileSystem.IFileSystemService>();
+            fs.WriteBytesToFileAtDomain(domain, filename, buf, compressed);
+            sctx.Cleanup();
+        }
+
+
 #if TESTING
 //        Service.PerformanceTest.IPerformanceTestService perfTest;
         Dictionary<Type, int> lateRefCalls = new Dictionary<Type, int>();
@@ -652,10 +759,11 @@ namespace Service.Serializer
 
         public string name = ""; // optional just for debugging purpose
         public static int name_counter = 1;
-        /// <summary>
-        /// If merged into another context this becomes the parent
-        /// </summary>
-        public SerializationContext parentContext = null; 
+        public static int created = 0;
+        public static int destroyed = 0;
+        public static bool ERRORS = false;
+
+        private ContextProxy proxy;
 
         public readonly Dictionary<object, List<int>> lateReferences = new Dictionary<object, List<int>>();
         //public readonly List<object> lateReferenceList = new List<object>();
@@ -669,6 +777,7 @@ namespace Service.Serializer
         private Func<object, bool> customFilter = null;
         private Dictionary<object, int> obj2offsetMapping = new Dictionary<object, int>(); // mapping to offset of objects != ifbserializable2
 
+        private List<SerializationContext> mergedContexts = new List<SerializationContext>();
         /// <summary>
         /// The amount of bytes to add to the offset of those bytebuffers
         /// </summary>
@@ -682,26 +791,44 @@ namespace Service.Serializer
 
         public void Invalidate() {
             isValid = false;
+            builder.Clear();
         }
 
         public SerializationContext(int initialBuilderCapacity,string _name=null) {
+            proxy = new ContextProxy(this);
+            created++;
             builder = new FlatBufferBuilder(initialBuilderCapacity);
 #if TESTING
             //perfTest = Kernel.Instance.Container.Resolve<Service.PerformanceTest.IPerformanceTestService>();
 #endif
             name = _name ?? "sctx-" + (name_counter++);
+            Debug.Log($"SCTX: Created nr:{created}[{name}] => ({created - destroyed} SCTXs allocated)");
         }
+
+        //~SerializationContext() {
+        //    destroyed++;
+        //    //Debug.Log($"Destroying SerializerContext: {name} still allocated:{created - destroyed}");
+        //    Cleanup(); // just to be sure 
+        //}
+
 
         public SerializationContext(ByteBuffer bb, string _name = null) {
             builder = new FlatBufferBuilder(bb);
             name = _name ?? "sctx-" + (name_counter++);
         }
 
+        private void ClearElement(object elem) {
+            if (elem is IFBSerializable2 ifb2) {
+                ifb2.Ser2Clear();
+            }
+        }
+
         private void ClearTables() {
             foreach (KeyValuePair<object, int> kv in obj2offsetMapping) {
-                if (kv.Key is IFBSerializable2) {
-                    ((IFBSerializable2)kv.Key).Ser2Clear();
-                }
+                ClearElement(kv.Key);
+            }
+            foreach (KeyValuePair<object, List<int>> kv in lateReferences) {
+                ClearElement(kv.Key);
             }
             Type2IntMapper.instance.Ser2Clear();
         }
@@ -728,6 +855,9 @@ namespace Service.Serializer
             }
         }
 
+        // internal testing
+        private HashSet<Type> nestedTypes = new HashSet<Type>();
+
         public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
 
@@ -747,36 +877,48 @@ namespace Service.Serializer
             //perfTest.StartWatch(watchname);
             try {
 #endif
-                if (obj is IFBSerializable2 iFBSer2Obj) {
-                    if (iFBSer2Obj is IFBSerializeOnMainThread) {
-                    // serialize this on mainthread
-                        ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
-                            int _newOffset = iFBSer2Obj.Ser2Serialize(this);
-                            return _newOffset;
-                        });
-                        // wait for the result
-                        int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
-                        obj2offsetMapping[obj] = newOffsetFromMainThread;
-                        iFBSer2Obj.Ser2Context = this;
-                        return newOffsetFromMainThread;
-                    }
-                    int newOffset = iFBSer2Obj.Ser2Serialize(this);
-                    iFBSer2Obj.Ser2Context = this;
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
-                } else if (obj is IList) {
-                    int newOffset = builder.CreateList((IList)obj, this);
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
-                } else if (obj is IDictionary) {
-                    int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
-                } else if (obj is String) {
-                    int newOffset = builder.CreateString((string)obj).Value;
-                    obj2offsetMapping[obj] = newOffset;
-                    return newOffset;
+            if (obj.GetType().ToString().Contains("RaiderWarningData")) {
+                int a = 0;
+            }
+            if (obj is IFBSerializable2 iFBSer2Obj) {
+                if (iFBSer2Obj is IFBSerializeOnMainThread) {
+                // serialize this on mainthread
+                    ECS.Future serializeOnMain = new ECS.Future(ECS.FutureExecutionMode.onMainThread, () => {
+                        int _newOffset = iFBSer2Obj.Ser2Serialize(this);
+                        return _newOffset;
+                    }); 
+                    // wait for the result
+                    int newOffsetFromMainThread = serializeOnMain.WaitForResult<int>();
+                    obj2offsetMapping[obj] = newOffsetFromMainThread;
+                    iFBSer2Obj.SetContextProxy(proxy);
+                    return newOffsetFromMainThread;
                 }
+                //--- testing---
+                if (obj.GetType().DeclaringType != null && !nestedTypes.Contains(obj.GetType())) {
+                    nestedTypes.Add(obj.GetType());                        
+                    int a = 0;
+                }
+                //----
+                int newOffset = iFBSer2Obj.Ser2Serialize(this);
+                iFBSer2Obj.SetContextProxy(proxy);
+                iFBSer2Obj.Ser2Offset = newOffset;
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else if (obj is IList) {
+                int newOffset = builder.CreateList((IList)obj, this);
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else if (obj is IDictionary) {
+                int newOffset = builder.CreateIDictionary((IDictionary)obj, this);
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else if (obj is String) {
+                int newOffset = builder.CreateString((string)obj).Value;
+                obj2offsetMapping[obj] = newOffset;
+                return newOffset;
+            } else {
+                Debug.LogError($"Did not know how to serialize:{obj.GetType()}");
+            }
 #if TESTING
             }
             finally {
@@ -828,7 +970,8 @@ namespace Service.Serializer
                         if (offsetMapping!=null && offsetMapping.TryGetValue(ifbObj.Ser2Context, out int bufOffset) ) {
                             // this object is merged into this serializer, so we can use this by adding the corresponding offset
                             // plus we will add it to our obj2offsetMapping
-                            ifbObj.Ser2Context = this;
+                            ifbObj.SetContextProxy(proxy);
+
                             int newOffset = ifbObj.Ser2Offset += bufOffset;
                             obj2offsetMapping[obj] = newOffset;
                             return newOffset;
@@ -958,11 +1101,13 @@ namespace Service.Serializer
                     }
                 }
 
+                mergedContexts.Add(mergeCtx);
+                mergedContexts.AddRange(mergeCtx.mergedContexts);
 #if TESTING
                 debugOutput += mergeCtx.debugOutput;
 #endif
             }
-
+            
             
 
             whiteList = null;
@@ -1084,6 +1229,7 @@ namespace Service.Serializer
 #if TESTING
             OutputDebugInfo();
 #endif
+            proxy.Clear();
             ClearTables();
             lateReferences.Clear();
             builder.Clear();
@@ -1094,54 +1240,61 @@ namespace Service.Serializer
                 foreach (var ctx in offsetMapping.Keys) {
                     ctx.Invalidate();
                 }
+                offsetMapping.Clear();
+                offsetMapping = null;
             }
             foreach (IFB2Context ctx in contexts) {
                 ctx.Invalidate();
             }
 
+            foreach (SerializationContext mergedCTX in mergedContexts) {
+                mergedCTX.Cleanup();
+            }
+            mergedContexts.Clear();
+
         }
 
     }
 
 
 
-    public class FlatBufferSerializer2
-    {
+    //public class FlatBufferSerializer2
+    //{
 
-        public static ListPool<int> poolListInt = new ListPool<int>(10, 10);
+    //    public static ListPool<int> poolListInt = new ListPool<int>(10, 10);
 
-        public enum Mode
-        {
-            serializing, deserializing
-        }
-
-
-        public static byte[] SerializeToBytes(IFBSerializable root, int initialBufferSize = 5000000) {
-            byte[] buf = null;
-
-            return buf;
-        }
-
-        public static T DeepCopy<T>(T original) where T : IFBSerializable, new() {
-            byte[] buf = SerializeToBytes(original, 2048);
-            T result = DeserializeFromBytes<T>(buf, default(T), original.GetType());
-            return result;
-        }
-
-        public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root) {
-            byte[] buf = SerializeToBytes(root);
-            FileSystem.IFileSystemService fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
-            fs.WriteBytesToFileAtDomain(domain, filename, buf);
-        }
-
-        public static T DeserializeFromBytes<T>(byte[] buf, T dataRoot = default(T), Type type = null) where T : IFBSerializable, new() {
-            return dataRoot;
-        }
+    //    public enum Mode
+    //    {
+    //        serializing, deserializing
+    //    }
 
 
+    //    public static byte[] SerializeToBytes(IFBSerializable root, int initialBufferSize = 5000000) {
+    //        byte[] buf = null;
+
+    //        return buf;
+    //    }
+
+    //    public static T DeepCopy<T>(T original) where T : IFBSerializable, new() {
+    //        byte[] buf = SerializeToBytes(original, 2048);
+    //        T result = DeserializeFromBytes<T>(buf, default(T), original.GetType());
+    //        return result;
+    //    }
+
+    //    public static void SerializeToFileDomain(FileSystem.FSDomain domain, String filename, IFBSerializable root) {
+    //        byte[] buf = SerializeToBytes(root);
+    //        FileSystem.IFileSystemService fs = Kernel.Instance.Container.Resolve<Service.FileSystem.IFileSystemService>();
+    //        fs.WriteBytesToFileAtDomain(domain, filename, buf);
+    //    }
+
+    //    public static T DeserializeFromBytes<T>(byte[] buf, T dataRoot = default(T), Type type = null) where T : IFBSerializable, new() {
+    //        return dataRoot;
+    //    }
 
 
-    }
+
+
+    //}
 
 
 }

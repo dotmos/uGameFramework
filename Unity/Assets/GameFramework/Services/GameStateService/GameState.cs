@@ -74,6 +74,11 @@ namespace Service.GameStateService
         }
 
         /// <summary>
+        /// Did the current gamestate started without issues
+        /// </summary>
+        public bool SuccessfullyStarted { get; internal set; } = false;
+
+        /// <summary>
         /// PriorityList to be called when this gamestate is started
         /// </summary>
         public ReactivePriorityExecutionList OnEnter = new ReactivePriorityExecutionList();
@@ -206,6 +211,7 @@ namespace Service.GameStateService
         /// </summary>
         /// <returns></returns>
         public IObservable<bool> DoOnEnter(GSContext ctx=null) {
+            // mark the newly to be started gamestate as not (yet) successfully started
             if (entityManager == null) {
                 entityManager = Kernel.Instance.Container.Resolve<ECS.IEntityManager>();
             }
@@ -213,13 +219,15 @@ namespace Service.GameStateService
             this.currentContext = ctx==null ? CreateDefaultContext() : ctx;
 
             CurrentState = GSStatus.starting;
-
+            AllowedToTick = false;
             // fire hook
             _eventService.Publish(evtBeforeEnter);
 
             // if not overriden, exit immediately
             return OnEnter.RxExecute().Finally(()=> {
                 CurrentState = GSStatus.running;
+                // the execution-chain ran through till here=>no errors=>successfully started! :+1:
+                SuccessfullyStarted = true;
 
                 // fire hook
                 _eventService.Publish(evtAfterEnter);
@@ -250,6 +258,7 @@ namespace Service.GameStateService
         /// <returns></returns>
         public virtual IObservable<bool> DoOnExit() {
             CurrentState = GSStatus.closing;
+            AllowedToTick = false;
 
             _eventService.Publish(evtBeforeExit);
 

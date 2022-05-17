@@ -454,8 +454,7 @@ namespace FlatBuffers
         {
 #if !BYTEBUFFER_NO_BOUNDS_CHECK
             if (offset < 0 || offset > _buffer.Length - length) {
-                UnityEngine.Debug.LogError($"offset({offset}) > _buffer.Length({_buffer.Length}) - length({length}) ({_buffer.Length - length})");
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException($"offset({offset}) > _buffer.Length({_buffer.Length}) - length({length}) ({_buffer.Length - length})");
             }
 #endif
         }

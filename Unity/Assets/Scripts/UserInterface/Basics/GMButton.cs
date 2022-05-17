@@ -6,14 +6,14 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UserInterface
-{
+namespace UserInterface {
     [AddComponentMenu(NamingHelper.Button.Name, 0)]
     public class GMButton : Button {
         public List<Graphic> colorizeElements = new List<Graphic>();
         public Color defaultColor;
         public Color highlightColor;
         public Color pressedColor;
+        public Color selectedColor;
         public Color disabledColor;
 
         public bool isPressed {
@@ -38,6 +38,12 @@ namespace UserInterface
 
         [Serializable]
         public class GMButtonReleaseEvent : UnityEvent { }
+
+        [SerializeField]
+        GMButtonVisualsChangedEvent _onVisualsChanged = new GMButtonVisualsChangedEvent();
+
+        [Serializable]
+        public class GMButtonVisualsChangedEvent : UnityEvent { }
 
         protected GMButton() { }
 
@@ -64,38 +70,34 @@ namespace UserInterface
             set { _onRelease = value; }
         }
 
+        public GMButtonVisualsChangedEvent onVisualsChanged {
+            get { return _onVisualsChanged; }
+            set { _onVisualsChanged = value; }
+        }
 
 
-        protected override void DoStateTransition(SelectionState state, bool instant)
-        {
+        protected override void DoStateTransition(SelectionState state, bool instant) {
             base.DoStateTransition(state, instant);
 
-            if (state == SelectionState.Disabled)
-            {
-                foreach (Graphic colorizeElement in colorizeElements)
-                {
-                    colorizeElement.color = disabledColor;
-                }
-            } else if (state == SelectionState.Highlighted)
-            {
-                foreach (Graphic colorizeElement in colorizeElements)
-                {
-                    colorizeElement.color = highlightColor;
-                }
-            } else if (state == SelectionState.Normal)
-            {
-                foreach (Graphic colorizeElement in colorizeElements)
-                {
-                    colorizeElement.color = defaultColor;
-                }
-            } else if (state == SelectionState.Pressed)
-            {
+            if (state == SelectionState.Disabled) {
+                SetColor(disabledColor);
+            } else if (state == SelectionState.Highlighted) {
+                SetColor(highlightColor);
+            } else if (state == SelectionState.Normal) {
+                SetColor(defaultColor);
+            } else if (state == SelectionState.Pressed) {
                 isPressed = true;
 
-                foreach (Graphic colorizeElement in colorizeElements)
-                {
-                    colorizeElement.color = pressedColor;
-                }
+                SetColor(pressedColor);
+            } else if (state == SelectionState.Selected) {
+                SetColor(selectedColor);
+            }
+        }
+
+        void SetColor(Color color) {
+            foreach (Graphic colorizeElement in colorizeElements) {
+                colorizeElement.color = color;
+                onVisualsChanged.Invoke();
             }
         }
 

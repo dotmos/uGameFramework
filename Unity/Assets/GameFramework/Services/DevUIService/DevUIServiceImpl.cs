@@ -79,12 +79,22 @@ namespace Service.DevUIService {
             // this is called right after the Base-Classes Initialize-Method. _eventManager and disposableManager are set
             rxViews = new ReactiveCollection<DevUIView>();
 
+#if !BUILD_CONSOLE || DEVELOPMENT_BUILD || UNITY_EDITOR
             // TODO: get rid of EveryUpdate
             Observable.EveryUpdate().Subscribe(_ => {
                 if (UnityEngine.Input.GetKeyDown(KeyCode.F8)) {
                     ToggleScriptingConsole();
                 }
             }).AddTo(disposables);
+
+#if ENABLE_CONSOLE_UI
+            Observable.EveryUpdate().Subscribe(_ => {
+                if (UnityEngine.Input.GetButton("ToggleConsole1") && UnityEngine.Input.GetButtonDown("ToggleConsole2")) {
+                    ToggleScriptingConsole();
+                }
+            }).AddTo(disposables);
+#endif // ENABLE_CONSOLE_UI
+#endif // !BUILD_CONSOLE || (BUILD_CONSOLE && !DEBUG)
 
             OnEvent<Events.UIViewRenamed>().Subscribe(evt => {
                 if (evt.view.currentFilename != null) {
@@ -100,6 +110,15 @@ namespace Service.DevUIService {
             ReactivePriorityExecutionList rxStartup = Kernel.Instance.rxStartup;
 
             rxStartup.Add(UtilsObservable.LoadScene(developmentSceneID),Priorities.PRIORITY_EARLY);
+            
+            if (TouchScreenKeyboard.isSupported) {
+                rxStartup.Add(()=> {
+                    var uiView = CreateView("UI-Options");
+                    uiView.AddElement(new DevUIToggle("VirtualKeyboard active", (newValue) => {
+                        UserInterface.GMInputField.VirtualKeyboardActive = newValue;
+                    }, UserInterface.GMInputField.VirtualKeyboardActive));
+                }, Priorities.PRIORITY_DEFAULT);
+            }
 
             //TODO: This is a workaround to close the dev console on start. Usually the loadDevelopmentConsole command published above should load the scene deactivated (makeActive set to false) which doesn't seem to work.
             // To Ensure that the 
@@ -203,7 +222,15 @@ namespace Service.DevUIService {
             return newView;
         }
 
+        public override DevUIView GetOrCreateView(string viewName) {
 
+            DevUIView view = GetView(viewName);
+            if (view == null) {
+
+                view = CreateView(viewName);
+            }
+            return view;
+        }
 
 
 
@@ -444,7 +471,22 @@ namespace Service.DevUIService {
             return resultView;
         }
 
+        private DataBrowserTopLevel GetTopLevelObjectWithName(string name) {
+            for (int i = dataBrowserTopLevelElements.Count - 1; i >= 0; i--) {
+                var topLevelElement = dataBrowserTopLevelElements[i];
+                if (topLevelElement.topLevelName=="name") {
+                    return topLevelElement;
+                }
+            }
+            return null;
+        }
+
         public override void CreateDataBrowserTopLevelElement(string name, IList objectList) {
+            var checkForToplevelElement = GetTopLevelObjectWithName(name);
+            if (checkForToplevelElement != null) {
+                
+                return;
+            }
             dataBrowserTopLevelElements.Add(new DataBrowserTopLevel() {
                 topLevelName = name,
                 objectList = objectList

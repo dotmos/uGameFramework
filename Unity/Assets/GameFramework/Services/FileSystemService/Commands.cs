@@ -48,9 +48,25 @@ namespace Service.FileSystem{
 //
 //            this.OnEvent<RemoveFileInDomainCommand>().Subscribe(e => RemoveFileInDomainCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<RemoveFileAsyncCommand>().Subscribe(e => RemoveFileAsyncCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<RemoveFileInDomainAsyncCommand>().Subscribe(e => RemoveFileInDomainAsyncCommandHandler(e)).AddTo(this);
+//
 //            this.OnEvent<FileExistsCommand>().Subscribe(e => FileExistsCommandHandler(e)).AddTo(this);
 //
 //            this.OnEvent<FileExistsInDomainCommand>().Subscribe(e => FileExistsInDomainCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<SetPersistentRootCommand>().Subscribe(e => SetPersistentRootCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetMaxAvailableSavegameStorageCommand>().Subscribe(e => GetMaxAvailableSavegameStorageCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetCurrentlyUsedSavegameStorageCommand>().Subscribe(e => GetCurrentlyUsedSavegameStorageCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetFreeSavegameStorageCommand>().Subscribe(e => GetFreeSavegameStorageCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetFileSizeCommand>().Subscribe(e => GetFileSizeCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<GetFileSizeCommand>().Subscribe(e => GetFileSizeCommandHandler(e)).AddTo(this);
 //
         }
         
@@ -84,7 +100,7 @@ namespace Service.FileSystem{
 
         
         /// <summary>
-        /// Write bytes to file
+        /// Write bytes to file. (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....)
         /// </summary>
         
 //        public class WriteBytesToFileCommand  {
@@ -92,6 +108,7 @@ namespace Service.FileSystem{
 //                        public string pathToFile;
 //                        public byte[] bytes;
 //                        public bool compress=false;
+//                        public int maxFileSize=int.MaxValue;
 //            
 //            
 //        }
@@ -102,7 +119,7 @@ namespace Service.FileSystem{
 //            ptest.Start("WriteBytesToFileCommand");
 //#endif
 //        
-//            cmd.result = _service.WriteBytesToFile(cmd.pathToFile,cmd.bytes,cmd.compress);
+//            cmd.result = _service.WriteBytesToFile(cmd.pathToFile,cmd.bytes,cmd.compress,cmd.maxFileSize);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("WriteBytesToFileCommand");
@@ -112,7 +129,7 @@ namespace Service.FileSystem{
 
         
         /// <summary>
-        /// Write bytes to file at domain
+        /// Write bytes to file at domain (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....)
         /// </summary>
         
 //        public class WriteBytesToFileAtDomainCommand  {
@@ -121,6 +138,7 @@ namespace Service.FileSystem{
 //                        public string relativePathToFile;
 //                        public byte[] bytes;
 //                        public bool compress=false;
+//                        public int maxFileSize=int.MaxValue;
 //            
 //            
 //        }
@@ -131,7 +149,7 @@ namespace Service.FileSystem{
 //            ptest.Start("WriteBytesToFileAtDomainCommand");
 //#endif
 //        
-//            cmd.result = _service.WriteBytesToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.bytes,cmd.compress);
+//            cmd.result = _service.WriteBytesToFileAtDomain(cmd.domain,cmd.relativePathToFile,cmd.bytes,cmd.compress,cmd.maxFileSize);
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("WriteBytesToFileAtDomainCommand");
@@ -415,6 +433,55 @@ namespace Service.FileSystem{
 
         
         /// <summary>
+        /// Remove file in background-thread.
+        /// </summary>
+        
+//        public class RemoveFileAsyncCommand  {
+//            public string filePath;
+//            
+//            
+//        }
+
+//		protected void RemoveFileAsyncCommandHandler  (RemoveFileAsyncCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RemoveFileAsyncCommand");
+//#endif
+//        _service.RemoveFileAsync(cmd.filePath);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RemoveFileAsyncCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Remove file from domain in background-thread
+        /// </summary>
+        
+//        public class RemoveFileInDomainAsyncCommand  {
+//            public FSDomain domain;
+//                        public string relativePath;
+//            
+//            
+//        }
+
+//		protected void RemoveFileInDomainAsyncCommandHandler  (RemoveFileInDomainAsyncCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("RemoveFileInDomainAsyncCommand");
+//#endif
+//        _service.RemoveFileInDomainAsync(cmd.domain,cmd.relativePath);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("RemoveFileInDomainAsyncCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
         /// Check if a file exists(absolute)
         /// </summary>
         
@@ -462,6 +529,158 @@ namespace Service.FileSystem{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("FileExistsInDomainCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Set the persistent root-path
+        /// </summary>
+        
+//        public class SetPersistentRootCommand  {
+//            public string root;
+//            
+//            
+//        }
+
+//		protected void SetPersistentRootCommandHandler  (SetPersistentRootCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("SetPersistentRootCommand");
+//#endif
+//        _service.SetPersistentRoot(cmd.root);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("SetPersistentRootCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get max available storage
+        /// </summary>
+        
+//        public class GetMaxAvailableSavegameStorageCommand  {
+//            public long result;
+//            
+//            
+//        }
+
+//		protected void GetMaxAvailableSavegameStorageCommandHandler  (GetMaxAvailableSavegameStorageCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetMaxAvailableSavegameStorageCommand");
+//#endif
+//        
+//            cmd.result = _service.GetMaxAvailableSavegameStorage();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetMaxAvailableSavegameStorageCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get max available storage
+        /// </summary>
+        
+//        public class GetCurrentlyUsedSavegameStorageCommand  {
+//            public long result;
+//            
+//            
+//        }
+
+//		protected void GetCurrentlyUsedSavegameStorageCommandHandler  (GetCurrentlyUsedSavegameStorageCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetCurrentlyUsedSavegameStorageCommand");
+//#endif
+//        
+//            cmd.result = _service.GetCurrentlyUsedSavegameStorage();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetCurrentlyUsedSavegameStorageCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get free available storage
+        /// </summary>
+        
+//        public class GetFreeSavegameStorageCommand  {
+//            public long result;
+//            
+//            
+//        }
+
+//		protected void GetFreeSavegameStorageCommandHandler  (GetFreeSavegameStorageCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetFreeSavegameStorageCommand");
+//#endif
+//        
+//            cmd.result = _service.GetFreeSavegameStorage();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetFreeSavegameStorageCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get filesize with absolute path
+        /// </summary>
+        
+//        public class GetFileSizeCommand  {
+//            public long result;
+//                        public string pathToFile;
+//            
+//            
+//        }
+
+//		protected void GetFileSizeCommandHandler  (GetFileSizeCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetFileSizeCommand");
+//#endif
+//        
+//            cmd.result = _service.GetFileSize(cmd.pathToFile);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetFileSizeCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Get filesize in domain
+        /// </summary>
+        
+//        public class GetFileSizeCommand  {
+//            public long result;
+//                        public FSDomain domain;
+//                        public string relativePathInDomain;
+//            
+//            
+//        }
+
+//		protected void GetFileSizeCommandHandler  (GetFileSizeCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("GetFileSizeCommand");
+//#endif
+//        
+//            cmd.result = _service.GetFileSize(cmd.domain,cmd.relativePathInDomain);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("GetFileSizeCommand");
 //#endif
 //        }
         

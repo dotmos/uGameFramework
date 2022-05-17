@@ -11,6 +11,10 @@ namespace UserInterface {
         private void Awake() {
             button = gameObject.GetComponent<GMButton>();
             button.onClick.AddListener(OnClick);
+
+#if ENABLE_CONSOLE_UI
+            button.navigation = Navigation.defaultNavigation;
+#endif
         }
 
         protected virtual void OnClick() {}

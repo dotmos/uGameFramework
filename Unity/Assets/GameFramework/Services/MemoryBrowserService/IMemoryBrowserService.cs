@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace Service.MemoryBrowserService {
     public interface IMemoryBrowserService : IFBSerializable2, IFBSerializable, IService {

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using Zenject;
+using UnityEngine.EventSystems;
 
 namespace UserInterface {
     public class UIViewController : GameComponent {
@@ -227,5 +228,49 @@ namespace UserInterface {
             }
         }
         //********************************//
+
+#if ENABLE_CONSOLE_UI
+        GMScrollRect scrollView;
+
+        private void Update() {
+            GameObject currentSelection = EventSystem.current.currentSelectedGameObject;
+            if (currentSelection == null) {
+                UpdateSelection();
+            } else {
+                if (!currentSelection.transform.IsChildOf(transform)) {
+                    UpdateSelection();
+                } else {
+                    if (scrollView == null) scrollView = transform.GetComponent<GMScrollRect>();
+                    else {
+                        scrollView.content.localPosition = GetSnapToPositionToBringChildIntoView(scrollView, currentSelection.transform as RectTransform);
+                        scrollView.content.offsetMax = new Vector2(0, scrollView.content.offsetMax.y);
+                        scrollView.content.offsetMin = new Vector2(0, scrollView.content.offsetMin.y);
+                    }
+                }
+            }
+        }
+
+        void UpdateSelection() {
+            Selectable[] selectables = transform.GetComponentsInChildren<Selectable>();
+            for (int i = 0; i < selectables.Length; ++i) {
+                Selectable selectable = selectables[i];
+                if (selectable.interactable && selectable.navigation.mode == Navigation.Mode.Automatic) {
+                    selectable.Select();
+                    return;
+                }
+            }
+        }
+
+        public static Vector2 GetSnapToPositionToBringChildIntoView(GMScrollRect instance, RectTransform child) {
+            Canvas.ForceUpdateCanvases();
+            Vector2 viewportLocalPosition = instance.viewport.localPosition;
+            Vector2 childLocalPosition = child.localPosition;
+            Vector2 result = new Vector2(
+                0 - (viewportLocalPosition.x + childLocalPosition.x),
+                0 - (viewportLocalPosition.y + childLocalPosition.y)
+            );
+            return result;
+        }
+#endif
     }
 }

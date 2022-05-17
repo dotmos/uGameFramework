@@ -17,7 +17,9 @@ namespace UserInterface
         SerializedProperty activeColorProp;
         SerializedProperty highlightColorProp;
         SerializedProperty pressedColorProp;
+        SerializedProperty selectedColorProp;
         SerializedProperty disabledColorProp;
+        SerializedProperty surpressSubmitEventProp;
 
         protected override void OnEnable()
         {
@@ -30,8 +32,10 @@ namespace UserInterface
             activeColorProp = serializedObject.FindProperty("activeColor");
             highlightColorProp = serializedObject.FindProperty("highlightColor");
             pressedColorProp = serializedObject.FindProperty("pressedColor");
+            selectedColorProp = serializedObject.FindProperty("selectedColor");
             disabledColorProp = serializedObject.FindProperty("disabledColor");
             borderProp = serializedObject.FindProperty("border");
+            surpressSubmitEventProp = serializedObject.FindProperty("surpressSubmitEvent");
         }
 
         public override void OnInspectorGUI()
@@ -47,7 +51,9 @@ namespace UserInterface
             EditorGUILayout.PropertyField(activeColorProp);
             EditorGUILayout.PropertyField(highlightColorProp);
             EditorGUILayout.PropertyField(pressedColorProp);
+            EditorGUILayout.PropertyField(selectedColorProp);
             EditorGUILayout.PropertyField(disabledColorProp);
+            EditorGUILayout.PropertyField(surpressSubmitEventProp);
 
             serializedObject.ApplyModifiedProperties();
 

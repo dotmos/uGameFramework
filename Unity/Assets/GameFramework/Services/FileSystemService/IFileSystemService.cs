@@ -13,6 +13,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace Service.FileSystem {
     public interface IFileSystemService : IFBSerializable2, IFBSerializable, IService {
@@ -32,27 +33,29 @@ namespace Service.FileSystem {
                            
         
         /// <summary>
-        /// Write bytes to file 
+        /// Write bytes to file. (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....) 
                 /// <param name="pathToFile"></param>
                 /// <param name="bytes"></param>
                 /// <param name="compress"></param>
+                /// <param name="maxFileSize"></param>
          /// </summary>
         
         
-                    bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false);
+                    bool WriteBytesToFile(string pathToFile,byte[] bytes,bool compress=false,int maxFileSize=int.MaxValue);
         
                            
         
         /// <summary>
-        /// Write bytes to file at domain 
+        /// Write bytes to file at domain (if maxFileSize is small than the file, multiple files will be created postfixed with '.1','.2'....) 
                 /// <param name="domain"></param>
                 /// <param name="relativePathToFile"></param>
                 /// <param name="bytes"></param>
                 /// <param name="compress"></param>
+                /// <param name="maxFileSize"></param>
          /// </summary>
         
         
-                    bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false);
+                    bool WriteBytesToFileAtDomain(FSDomain domain,string relativePathToFile,byte[] bytes,bool compress=false,int maxFileSize=int.MaxValue);
         
                            
         
@@ -175,6 +178,27 @@ namespace Service.FileSystem {
                            
         
         /// <summary>
+        /// Remove file in background-thread. 
+                /// <param name="filePath"></param>
+         /// </summary>
+        
+        
+                    void RemoveFileAsync(string filePath);
+        
+                           
+        
+        /// <summary>
+        /// Remove file from domain in background-thread 
+                /// <param name="domain"></param>
+                /// <param name="relativePath"></param>
+         /// </summary>
+        
+        
+                    void RemoveFileInDomainAsync(FSDomain domain,string relativePath);
+        
+                           
+        
+        /// <summary>
         /// Check if a file exists(absolute) 
                 /// <param name="pathToFile"></param>
          /// </summary>
@@ -194,12 +218,70 @@ namespace Service.FileSystem {
                     bool FileExistsInDomain(FSDomain domain,string relativePath);
         
                            
+        
+        /// <summary>
+        /// Set the persistent root-path 
+                /// <param name="root"></param>
+         /// </summary>
+        
+        
+                    void SetPersistentRoot(string root);
+        
+                           
+        
+        /// <summary>
+        /// Get max available storage 
+         /// </summary>
+        
+        
+                    long GetMaxAvailableSavegameStorage();
+        
+                           
+        
+        /// <summary>
+        /// Get max available storage 
+         /// </summary>
+        
+        
+                    long GetCurrentlyUsedSavegameStorage();
+        
+                           
+        
+        /// <summary>
+        /// Get free available storage 
+         /// </summary>
+        
+        
+                    long GetFreeSavegameStorage();
+        
+                           
+        
+        /// <summary>
+        /// Get filesize with absolute path 
+                /// <param name="pathToFile"></param>
+         /// </summary>
+        
+        
+                    long GetFileSize(string pathToFile);
+        
+                           
+        
+        /// <summary>
+        /// Get filesize in domain 
+                /// <param name="domain"></param>
+                /// <param name="relativePathInDomain"></param>
+         /// </summary>
+        
+        
+                    long GetFileSize(FSDomain domain,string relativePathInDomain);
+        
+                           
 
     }
 
     
     public enum FSDomain {
-        Scripting,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder,SaveGames,Localizations,Debugging,Modding,SteamingAssets
+        Scripting,RuntimeAssets,DevUIViews,DevUIViewsArchieve,ConfigFolder,SaveGames,Localizations,Debugging,Modding,SteamingAssets,Addressables
         
     }
     

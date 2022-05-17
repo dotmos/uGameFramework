@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////////// 
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
+using System.Collections.Concurrent;
 
 
 using FlatBuffers;
@@ -148,6 +149,24 @@ namespace Service.PerformanceTest
 
         
         public abstract             void Clear();
+
+        
+        public abstract             void AddInstance(object o);
+
+        
+        public abstract             void RemoveInstance(object o);
+
+        
+        public abstract             ConcurrentDictionary<System.Type,int> GetInstanceView();
+
+        
+        public abstract             int GetInstanceCount(System.Type instanceType);
+
+        
+        public abstract             void OutputInstanceViewToLog(bool gccollect=true,bool compare=true);
+
+        
+        public abstract             void StoreCurrentView();
 
         
 

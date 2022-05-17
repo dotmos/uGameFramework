@@ -8,17 +8,17 @@ using UnityEngine;
 using System.IO;
 using Service.Scripting;
 using System.IO.Compression;
+using System.Collections.Concurrent;
 
 namespace Service.FileSystem {
-    partial class FileSystemServiceImpl : FileSystemServiceBase {
+    public partial class FileSystemServiceImpl : FileSystemServiceBase {
 
-        public readonly string MISC_PATH = Application.persistentDataPath + "/default";
 
         /// <summary>
         /// cache the unity-paths here since you cannot use those in a thread
         /// </summary>
         private readonly string streamingAssetsPath = Application.streamingAssetsPath;
-        private readonly string persistentDataPath = Application.persistentDataPath;
+        private string persistentDataPath = Application.persistentDataPath;
         private readonly string gamePath =  Application.dataPath.Remove(Application.dataPath.LastIndexOf("/"));
 
         private string configPath;
@@ -28,21 +28,42 @@ namespace Service.FileSystem {
         private string localizationPath;
         private string debuggingPath;
         private string moddingPath;
+        private string defaultDataPath;
+
+        private long totalSpace;
+        private long usedSpace;
+
+        protected ConcurrentQueue<string> fileRemovalQueue = new ConcurrentQueue<string>();
+        protected object lock_fileRemovalThread = new object();
+        protected System.Threading.Thread fileRemovalThread = null;
+        protected Action<string> afterRemovalCallback;
 
         protected override void AfterInitialize() {
+            RefreshDataPath();
+
+            //Check if there are locas in streaming assets. If not, use game/Localization folder
+            localizationPath = streamingAssetsPath + "/Localizations"; 
+
+            if (!Directory.Exists(localizationPath) || Directory.GetFiles(localizationPath, "*.json").Length == 0) {
+                localizationPath = gamePath;
+#if !UNITY_EDITOR && UNITY_STANDALONE_OSX
+                //on mac we need to go one folder up
+                localizationPath += "/..";         
+#endif
+                localizationPath += "/Localizations";
+            }
+
+            Debug.Log($"Diskspace: savegame-used:{GetCurrentlyUsedSavegameStorage()} space available:{GetMaxAvailableSavegameStorage()}");
+            UpdateSavegameStorage();
+        }
+        private void RefreshDataPath() {
             configPath = persistentDataPath + "/config";
             savegamePath = persistentDataPath + "/savegame";
             scriptingPath = persistentDataPath + "/scripting";
             devUIViewsPath = persistentDataPath + "/dev-ui/views";
             debuggingPath = persistentDataPath + "/debugging";
             moddingPath = persistentDataPath + "/modding";
-
-            //Check if there are locas in streaming assets. If not, use game/Localization folder
-            localizationPath = streamingAssetsPath + "/Localizations";
-            
-            if (!Directory.Exists(localizationPath) || Directory.GetFiles(localizationPath, "*.json").Length == 0) {
-                localizationPath = gamePath + "/Localizations";
-            }
+            defaultDataPath = persistentDataPath + "/default";
         }
 
         public static byte[] Compress(byte[] data, System.IO.Compression.CompressionLevel compressionLevel = System.IO.Compression.CompressionLevel.Optimal) {
@@ -86,7 +107,7 @@ namespace Service.FileSystem {
         }
 
         public override string GetPath(FSDomain domain,string relativePart="") {
-            string path = MISC_PATH;
+            string path = defaultDataPath;
             switch (domain) {
                 case FSDomain.ConfigFolder: path = configPath; break;
                 case FSDomain.SaveGames: path = savegamePath; break;
@@ -98,7 +119,7 @@ namespace Service.FileSystem {
                 case FSDomain.Debugging: path = debuggingPath; break;
                 case FSDomain.Modding: path = moddingPath; break;
                 case FSDomain.SteamingAssets: path = streamingAssetsPath; break;
-
+                case FSDomain.Addressables: path = "Assets"; break;
 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
@@ -110,15 +131,17 @@ namespace Service.FileSystem {
                 }
             }
 
-            return EnsureDirectoryExistsAndReturn(path) + (!string.IsNullOrEmpty(relativePart) ? "/"+relativePart:"");
+            var dir = domain!=FSDomain.Addressables ? EnsureDirectoryExistsAndReturn(path) : path;
+
+            return dir + (!string.IsNullOrEmpty(relativePart) ? "/"+relativePart:"");
         }
 
         public override bool WriteStringToFile(string pathToFile, string data, bool append=false) {
             // TODO: Ensure Directory?
             // TODO: Use the PC3-bulletproof writing version
-            try {
-                string tempPath = pathToFile + ".tmp";
+            string tempPath = pathToFile + ".tmp";
 
+            try {
                 if (File.Exists(tempPath)) {
                     File.Delete(tempPath);
                 }
@@ -133,42 +156,95 @@ namespace Service.FileSystem {
                     // TODO: This is not bulletproof as !append (not sure about a good way!? move twice?)
                     File.AppendAllText(pathToFile, data);
                 }
+                UpdateSavegameStorage();
 
                 return true;
             }
             catch (Exception e) {
-                Debug.LogError("There was a problem using SaveStringToFile with "+pathToFile+"=>DATA:\n"+data);
+                Debug.LogError("There was a problem using WriteStringToFile with "+pathToFile+"=>DATA:\n"+data);
                 Debug.LogException(e);
                 return false;
             }
         }
 
         public override bool WriteStringToFileAtDomain(FSDomain domain, string relativePathToFile, string data,bool append=false) {
+            if (domain == FSDomain.Addressables) return false;
+            relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
             return WriteStringToFile(GetPath(domain, relativePathToFile), data,append);
         }
 
-        public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
+        //old File-Class-Based 
+        //public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false) {
+        //    try {
+        //        UnityEngine.Profiling.Profiler.BeginSample("WriteBytesToFile");
+
+        //        // TODO: Ensure Directory?
+        //        // TODO: Use the PC3-bulletproof writing version
+        //        try {
+        //            string tempName = pathToFile + ".tmp";
+
+        //            if (File.Exists(tempName)) {
+        //                File.Delete(tempName);
+        //            }
+        //            if (File.Exists(pathToFile)) {
+        //                File.Delete(pathToFile);
+        //            }
+
+        //            if (compress) {
+        //                File.WriteAllBytes(tempName, Compress(bytes));
+        //            } else {
+        //                File.WriteAllBytes(tempName, bytes);
+        //            }
+        //            File.Move(tempName, pathToFile);
+        //            return true;
+        //        }
+        //        catch (Exception e) {
+        //            Debug.LogError("There was a problem using WriteBytesToFile with " + pathToFile + "=>DATA:\n" + bytes);
+        //            Debug.LogException(e);
+        //            return false;
+        //        }
+        //    }
+        //    finally {
+        //        UnityEngine.Profiling.Profiler.EndSample();
+        //    }
+        //}
+
+        public override bool WriteBytesToFile(string pathToFile, byte[] bytes, bool compress = false, int maxFileSize = int.MaxValue) {
             try {
                 UnityEngine.Profiling.Profiler.BeginSample("WriteBytesToFile");
 
                 // TODO: Ensure Directory?
                 // TODO: Use the PC3-bulletproof writing version
                 try {
-                    string tempName = pathToFile + ".tmp";
-
-                    if (File.Exists(tempName)) {
-                        File.Delete(tempName);
-                    }
                     if (File.Exists(pathToFile)) {
                         File.Delete(pathToFile);
                     }
 
                     if (compress) {
-                        File.WriteAllBytes(tempName, Compress(bytes));
-                    } else {
-                        File.WriteAllBytes(tempName, bytes);
+                        bytes = Compress(bytes);
                     }
-                    File.Move(tempName, pathToFile);
+
+                    int size = bytes.Length;
+                    int chunkSize = size / 20;
+                    int totalWritten = 0;
+                    int fileNumber = 0;
+                    while (totalWritten < bytes.Length) {
+                        var fileName = fileNumber == 0 ? pathToFile : $"{pathToFile}.{fileNumber}";
+
+                        using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 1024 * 1024 * 5)) {
+                            // Add some information to the file.
+                            int writeBytesToFileLeft = Math.Min(maxFileSize, bytes.Length);
+                            while (writeBytesToFileLeft > 0) {
+                                int writeSize = Math.Min(writeBytesToFileLeft, chunkSize);
+                                fs.Write(bytes, totalWritten, writeSize);
+                                totalWritten += writeSize;
+                                writeBytesToFileLeft -= writeSize;
+                            }
+                        }
+                        fileNumber++;
+                    }
+                    UpdateSavegameStorage();
+
                     return true;
                 }
                 catch (Exception e) {
@@ -182,8 +258,10 @@ namespace Service.FileSystem {
             }
         }
 
-        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false) {
-            return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes,compress);
+        public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false,int maxFileSize = int.MaxValue) {
+            if (domain == FSDomain.Addressables) return false;
+            relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
+            return WriteBytesToFile(GetPath(domain) + "/" + relativePathToFile, bytes,compress,maxFileSize);
         }
 
         public override string LoadFileAsString(string pathToFile, bool compressed = false) {
@@ -195,7 +273,6 @@ namespace Service.FileSystem {
                     Debug.LogWarning("File " + pathToFile + " does not exist");
                     return null;
                 }
-                
             }
             catch (Exception e) {
                 Debug.LogError("There was a problem using LoadFileAsString with " + pathToFile);
@@ -206,7 +283,22 @@ namespace Service.FileSystem {
         }
 
         public override byte[] LoadFileAsBytesAtDomain(FSDomain domain, string relativePathToFile, bool compressed = false, int estimatedUncompressedSize = 0) {            
-            return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed,estimatedUncompressedSize);
+
+            if (domain != FSDomain.Addressables) {
+                return LoadFileAsBytes(GetPath(domain) + "/" + relativePathToFile,compressed,estimatedUncompressedSize);
+            }
+            else {
+
+                string path = GetPath(domain, relativePathToFile);
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<TextAsset> h = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<TextAsset>(path);
+                h.WaitForCompletion();
+                byte[] bytes = h.Result.bytes;
+                if (compressed) {
+
+                    return Decompress(bytes);
+                }
+                return bytes;
+            }
         }
 
         public override byte[] LoadFileAsBytes(string pathToFile, bool compressed = false, int estimatedUncompressedSize=0) {
@@ -238,7 +330,17 @@ namespace Service.FileSystem {
         }
 
         public override string LoadFileAsStringAtDomain(FSDomain domain, string relativePathToFile) {
-            return LoadFileAsString(GetPath(domain) + "/" + relativePathToFile);
+
+            if (domain != FSDomain.Addressables) {
+                return LoadFileAsString(GetPath(domain) + "/" + relativePathToFile);
+            }
+            else {
+
+                string path = GetPath(domain, relativePathToFile);
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<TextAsset> h = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<TextAsset>(path);
+                h.WaitForCompletion();
+                return h.Result.text;
+            }
         }
 
         public override bool FileExists(string pathToFile) {
@@ -252,8 +354,18 @@ namespace Service.FileSystem {
         }
 
         public override bool FileExistsInDomain(FSDomain domain, string relativePath) {
+
             string absPath = GetPath(domain, relativePath);
-            return FileExists(absPath);
+            if (domain != FSDomain.Addressables) {
+
+                return FileExists(absPath);
+            }
+            else {
+
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<IList<UnityEngine.ResourceManagement.ResourceLocations.IResourceLocation>> h = UnityEngine.AddressableAssets.Addressables.LoadResourceLocationsAsync(absPath);
+                h.WaitForCompletion();
+                return h.Result.Count > 0;
+            }
         }
 
         private string EnsureDirectoryExistsAndReturn(string path) {
@@ -271,6 +383,12 @@ namespace Service.FileSystem {
         }
 
 
+        public override void SetPersistentRoot(string root) {
+            persistentDataPath = root;
+            RefreshDataPath();
+
+        }
+
         protected override void OnDispose() {
             // do your IDispose-actions here. It is called right after disposables got disposed
         }
@@ -284,7 +402,14 @@ namespace Service.FileSystem {
         }
 
         public override List<string> GetFilesInDomain(FSDomain domain, string innerDomainPath="",string filter = "*.*",bool recursive=false) {
-            return GetFilesInAbsFolder(GetPath(domain,innerDomainPath), filter, recursive);
+            if (domain != FSDomain.Addressables) {
+
+                return GetFilesInAbsFolder(GetPath(domain,innerDomainPath), filter, recursive);
+            }
+            else {
+                Debug.LogError(typeof(FileSystemServiceImpl).Name + "GetFilesInDomain() is not implemented for domain " + FSDomain.Addressables.ToString());
+                return null;
+            }
         }
 
         public override void RemoveFile(string filePath) {
@@ -299,8 +424,105 @@ namespace Service.FileSystem {
         }
 
         public override void RemoveFileInDomain(FSDomain domain, string relativePath) {
+            if (domain == FSDomain.Addressables) return;
             string path = GetPath(domain,relativePath);
             RemoveFile(path);
+        }
+
+        protected virtual void FileRemovalThreadLogic() {
+            while (fileRemovalQueue.TryDequeue(out string fileToRemove)) {
+                RemoveFile(fileToRemove);
+                if (afterRemovalCallback != null) {
+                    afterRemovalCallback(fileToRemove);
+                }
+            }
+            lock (lock_fileRemovalThread) {
+                fileRemovalThread = null;
+            }
+        }
+
+        /// <summary>
+        /// Ensures fileremovalthread is running
+        /// </summary>
+        private void EnsureFileRemovalThread() {
+            lock (lock_fileRemovalThread) {
+                if (fileRemovalThread != null) {
+                    return;
+                }
+                fileRemovalThread = new System.Threading.Thread(FileRemovalThreadLogic);
+                fileRemovalThread.IsBackground = true;
+                fileRemovalThread.Start();
+            }
+        }
+
+        public override void RemoveFileAsync(string filePath) {
+            fileRemovalQueue.Enqueue(filePath);
+            EnsureFileRemovalThread();
+        }
+
+        public override void RemoveFileInDomainAsync(FSDomain domain, string relativePath) {
+            if (domain == FSDomain.Addressables) return;
+            string path = GetPath(domain, relativePath);
+            RemoveFileAsync(path);
+        }
+
+        public override long GetCurrentlyUsedSavegameStorage() {
+#if ENABLE_CONSOLE_UI
+            return usedSpace;
+#else
+            return 10485760; //10 MB in bytes
+#endif
+        }
+
+
+
+        public override long GetMaxAvailableSavegameStorage() {
+#if ENABLE_CONSOLE_UI
+            return (long)Mathf.Max(104857600, (GetCurrentlyUsedSavegameStorage()*1.25f));
+#else
+            //FileInfo file = new FileInfo(configPath);
+            //DriveInfo drive = new DriveInfo(file.Directory.Root.FullName);
+            //return drive.AvailableFreeSpace;
+            return 1073741824; //1 GB in bytes
+#endif
+        }
+
+        private void UpdateSavegameStorage() {
+#if ENABLE_CONSOLE_UI && !BUILD_CONSOLE
+            usedSpace = DirSize(new DirectoryInfo(savegamePath));
+#endif
+        }
+
+        public override long GetFreeSavegameStorage() {
+            return GetMaxAvailableSavegameStorage() - GetCurrentlyUsedSavegameStorage();
+        }
+        public static long DirSize(DirectoryInfo d) {
+            long size = 0;
+            // Add file sizes.
+            FileInfo[] fis = d.GetFiles();
+            foreach (FileInfo fi in fis) {
+                size += fi.Length;
+            }
+            // Add subdirectory sizes.
+            DirectoryInfo[] dis = d.GetDirectories();
+            foreach (DirectoryInfo di in dis) {
+                size += DirSize(di);
+            }
+            return size;
+        }
+
+        public override long GetFileSize(FSDomain domain, string relativePathInDomain) {
+            return GetFileSize(GetPath(domain, relativePathInDomain));
+        }
+
+        public override long GetFileSize(string pathToFile) {
+            try {
+                var fi = new System.IO.FileInfo(pathToFile);
+                return fi.Length;
+            }
+            catch (Exception e) {
+                return 0;
+            }
         }
     }
 }

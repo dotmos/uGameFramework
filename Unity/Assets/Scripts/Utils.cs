@@ -60,11 +60,23 @@ public class DirtyFlag : IDirtyFlagable
 }
 public class UtilsObservable
 {
+#if ADDRESSABLES
+    public static Dictionary<string, UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance>> asyncHandlesForSceneNames
+        = new Dictionary<string, UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance>>();
+
     public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
         return Observable.Create<bool>((observer) => {
-            AsyncOperation async = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            async.completed += (val) => {
-                if(makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+            if (asyncHandlesForSceneNames.ContainsKey(sceneName)) {
+                if (makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+                observer.OnNext(true);
+                observer.OnCompleted();
+                return null;
+            }
+            UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance> async;
+            async = UnityEngine.AddressableAssets.Addressables.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+            async.Completed += (val) => {
+                asyncHandlesForSceneNames[sceneName]=async;
+                if (makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 observer.OnNext(true);
                 observer.OnCompleted();
             };
@@ -74,9 +86,40 @@ public class UtilsObservable
 
     public static IObservable<bool> UnloadScene(string sceneName) {
         return Observable.Create<bool>((observer) => {
-            int idx = SceneManager.GetSceneByName(sceneName).buildIndex;
-            AsyncOperation async = SceneManager.UnloadSceneAsync(idx);
+
+            var scene = SceneManager.GetSceneByName(sceneName);
+
+            if (scene.isLoaded) {
+                UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<UnityEngine.ResourceManagement.ResourceProviders.SceneInstance> handle, result;
+                if (asyncHandlesForSceneNames.TryGetValue(sceneName, out handle)) {
+
+                    asyncHandlesForSceneNames.Remove(sceneName);
+                    result = UnityEngine.AddressableAssets.Addressables.UnloadSceneAsync(handle);
+                    result.Completed += (val) => {
+
+                        Debug.LogWarning("Unload Scene Progress:" + val.PercentComplete);
+                        if (val.IsDone) {
+                            observer.OnNext(true);
+                            observer.OnCompleted();
+                        }
+                    };
+                }
+
+            } else {
+                observer.OnNext(true);
+                observer.OnCompleted();
+            }
+            return null;
+        });
+    }
+}
+
+#else
+    public static IObservable<bool> LoadScene(string sceneName, bool makeActive = false) {
+        return Observable.Create<bool>((observer) => {
+            AsyncOperation async = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
             async.completed += (val) => {
+                if (makeActive) SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
                 observer.OnNext(true);
                 observer.OnCompleted();
             };
@@ -84,7 +127,30 @@ public class UtilsObservable
         });
     }
 
+    public static IObservable<bool> UnloadScene(string sceneName) {
+        return Observable.Create<bool>((observer) => {
+            var scene = SceneManager.GetSceneByName(sceneName);
+            if (scene.isLoaded) {
+                AsyncOperation async = SceneManager.UnloadSceneAsync(scene.buildIndex);
+                async.completed += (val) => {
+                    Debug.LogWarning("Unload Scene Progress:" + val.progress);
+                    if (val.isDone) {
+                        observer.OnNext(true);
+                        observer.OnCompleted();
+                    }
+                };
+            }
+            else {
+                observer.OnNext(true);
+                observer.OnCompleted();
+            }
+            return null;
+        });
+    }
+
 }
+
+#endif
 
 public class DefaultExecutionWrapper : IExecutionWrapper
 {
@@ -317,6 +383,19 @@ public class Utils {
         if (result >= except) result += 1;
         return result;
     }
+
+    /// <summary>
+    /// Create a valid pathname
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="replacement"></param>
+    /// <returns></returns>
+    public static string CreateValidFilename(string input, char replacement = '_') {
+        foreach (char c in System.IO.Path.GetInvalidFileNameChars()) {
+            input = input.Replace(c, replacement);
+        }
+        return input;
+    }
 }
 
 public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDirtyFlagable, IObservableDictionary {
@@ -492,7 +571,32 @@ public class DebugUtils {
             Debug.Log(outputString);
         }
     }
+
+    /// <summary>
+    /// Logs Error in UNITY_EDITOR or Warning in BUILD
+    /// </summary>
+    /// <param name="output"></param>
+    public static void LogEditorErrBuildWarn(String output) {
+#if UNITY_EDITOR
+        Debug.LogError(output);
+#else
+        Debug.LogWarning(output);
+#endif
+    }
+    /// <summary>
+    /// Logs Error in UNITY_EDITOR or Warning in BUILD
+    /// </summary>
+    /// <param name="output"></param>
+    public static void LogEditorErrBuildWarn(Exception e) {
+#if UNITY_EDITOR
+        Debug.LogException(e);
+#else
+        Debug.LogWarning($"Exception:{e.Message}\nStacktrace:{e.StackTrace}");
+#endif
+    }
 }
+
+
 
 public class PoolList<T> where T : new()
 {
@@ -714,11 +818,6 @@ public class ArrayPool<T> where T : struct {
     public void Release(params T[][] releasedArray) {
         lock (pool) {
             for (int i = releasedArray.Length - 1; i >= 0; i--) {
-#if UNITY_EDITOR
-                if (releasedArray[i] == null) {
-                    int a = 0;
-                }
-#endif
                 pool.Add(releasedArray[i]);
             }
             pool.Sort((x, y) => {
@@ -960,7 +1059,7 @@ public class SimplePool<T> : SimplePoolDisposable where T : class {
         }
 #if UNITY_EDITOR
         int releasedObjectsCount = 0;
-#endif        
+#endif
         if (keepTrackMode == KeepTrackMode.RefCounted) {
             for (int i = acquiredObjectsRef.Count - 1; i >= 0; i--) {
                 T obj = acquiredObjectsRef[i];

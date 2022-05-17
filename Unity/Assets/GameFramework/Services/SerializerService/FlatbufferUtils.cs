@@ -466,15 +466,26 @@ namespace Service.Serializer
             int bufferPos = GetOffset(fbPos);
             if (bufferPos == 0) return default(T);
 
+            T cachedObject = dctx._GetCachedObject<T>(bufferPos);
+            if (cachedObject != null) {
+                return cachedObject;
+            }
+
             object obj = IsTypedObjectType(typeof(T)) ? CreateTypedObjectType(fbPos) : null;
             T result = dctx.GetReference<T>(bufferPos,obj);
             return result;
         }
 
         public T GetReference<T>(int fbPos, ref T obj, DeserializationContext dctx) where T : new() {
-            int bufferPos = GetOffset(fbPos);
-            T result = dctx.GetReference<T>(bufferPos,ref obj);
-            return result;
+            try {
+                int bufferPos = GetOffset(fbPos);
+                T result = dctx.GetReference<T>(bufferPos, ref obj);
+                return result;
+            }
+            catch (Exception e) {
+                DebugUtils.LogEditorErrBuildWarn(e);
+                return obj;
+            }
         }
 
         public ObservableList<T> GetReference<T>(int fbPos, ref ObservableList<T> obj, DeserializationContext dctx) {
@@ -1330,6 +1341,16 @@ namespace Service.Serializer
 
             int keySize = keyPrimitiveOrStruct ? ByteBuffer.SizeOf(typeKey) : (isKeyTypedObject?8:4);
             int valueSize = valuePrimitiveOrStruct ? ByteBuffer.SizeOf(typeValue) : (isValueTypedObject ? 8 : 4);
+
+            if (DeserializationContext.currentSavegameDataformat > 120) {
+                if (keySize < 4) {
+                    keySize = 4;
+                }
+                if (valueSize < 4) {
+                    valueSize = 4;
+                }
+            }
+
             int elementSize = keySize + valueSize;
             //int overallSize = elementSize * count + ByteBuffer.SizeOf(typeInt);
 

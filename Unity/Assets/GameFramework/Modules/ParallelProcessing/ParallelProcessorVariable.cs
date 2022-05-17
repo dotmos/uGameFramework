@@ -28,9 +28,9 @@ namespace ParallelProcessing {
             threadVariableLUT = new Dictionary<int, T>(ParallelProcessorWorkers.MaxWorkerCount);
             
             //Create worker thread lists
-            foreach (Thread t in ParallelProcessorWorkers.Workers) {
-                threadVariableLUT[t.ManagedThreadId] = initialValue();
-                cachedThreadIDs.Add(t.ManagedThreadId);
+            foreach (ParallelProcessorWorkers.Worker worker in ParallelProcessorWorkers.Workers) {
+                threadVariableLUT[worker.thread.ManagedThreadId] = initialValue();
+                cachedThreadIDs.Add(worker.thread.ManagedThreadId);
             }
             //Also create lists for other threads?
             if (otherThreads != null) {

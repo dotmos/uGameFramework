@@ -15,18 +15,23 @@ namespace ECS {
         /// </summary>
         IEntityManager entityManager { get; }
 
+#if ECS_PROFILING
+        double AvgElapsedTime { get; }
+        void ShowLog(bool showInUIConsole = false,bool forceAll=false);
+        void ResetLog();
+#endif
+
         /// <summary>
         /// Call whenever an entity is modified
         /// </summary>
         /// <param name="entity"></param>
         void EntityModified(UID entity);
-        
-        void ProcessSystem(float deltaTime);
 
-        /// <summary>
-        /// Remove all entities from the system
-        /// </summary>
+        void ProcessSystem(float deltaTime, float unscaled, float systemScaled);
+
+            /// <summary>
+            /// Remove all entities from the system
+            /// </summary>
         void RemoveAllEntities();
     }
 }
-

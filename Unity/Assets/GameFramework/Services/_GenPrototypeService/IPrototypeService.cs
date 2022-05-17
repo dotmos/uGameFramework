@@ -11,6 +11,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     public interface /*name:interfaceName*/IPrototypeService/*endname*/ : IFBSerializable2, IFBSerializable, IService {
@@ -47,6 +48,16 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
     [System.Serializable]
     public partial class /*name:className*/SomeModel/*endname*//*name:inheritance*/: DefaultSerializable2 /*endname*/
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         /*block:ser2_header*/
         [Newtonsoft.Json.JsonIgnore]
 
@@ -68,7 +79,15 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         public /*name:newkeyword*/new/*endname*/ int Ser2Offset { get => ser2table.offset; set => ser2table.offset = value; }
 
         [Newtonsoft.Json.JsonIgnore]
-        public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context { get; set; }
+        private ContextProxy ctxProxy;
+
+        public void SetProxy(ContextProxy proxy) {
+            this.ctxProxy = proxy;
+        }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public  /*name:newkeyword*/new/*endname*/ IFB2Context Ser2Context => ctxProxy == null ? null : ctxProxy.CTX;
+
         [Newtonsoft.Json.JsonIgnore]
         public  /*name:newkeyword*/new/*endname*/ bool Ser2HasValidContext => Ser2Context != null && ((IFB2Context)Ser2Context).IsValid();
 
@@ -97,7 +116,21 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         }
         /*endblock:ser2_header*/
 
-        public /*name:className*/SomeModel/*endname*/() { }
+        public /*name:className*/SomeModel/*endname*/() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         /*block:field*/
         /// <summary>
         /// /*name:documentation*//*endname*/
@@ -113,6 +146,8 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
         /*name:scope*/
         public/*endname*/ /*name:type*/int/*endname*/ /*name:name*/MaxSoundChannels/*endname*/{/*name:getter*/get;/*endname*//*name:setter*/set;/*endname*/}
         /*endblock:property*/
+
+
         /*block:constructor*/
         /// <summary>
         /// /*name:documentation*//*endname*/
@@ -123,12 +158,38 @@ namespace /*name:namespace*/Service.GeneratorPrototype/*endname*/ {
             /*block:constructorSet*/
             this./*name:name*/name/*endname*/ = /*name:paramName*/name/*endname*/;
             /*endblock:constructorSet*/
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+
             /*block:rip*/
             this.MaxSoundChannels = maxChannels;/*endblock:rip*/
         }
 
+
+
         /*endblock:constructor*/
 
+#if LEAK_DETECTION
+        ~/*name:className*/SomeModel/*endname*/ () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

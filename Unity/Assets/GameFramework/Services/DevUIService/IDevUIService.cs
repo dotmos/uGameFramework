@@ -15,6 +15,7 @@ using System.Runtime.Serialization;
 using FlatBuffers;
 using Service.Serializer;
 using System.Linq;
+using Service.PerformanceTest;
 
 namespace Service.DevUIService {
     public interface IDevUIService : IFBSerializable2, IFBSerializable, IService {
@@ -50,6 +51,16 @@ namespace Service.DevUIService {
         
         
                     DevUIView GetView(string viewName);
+        
+                           
+        
+        /// <summary>
+        /// Returns the view if it already exists or creates a new one if not 
+                /// <param name="viewName"></param>
+         /// </summary>
+        
+        
+                    DevUIView GetOrCreateView(string viewName);
         
                            
         
@@ -204,9 +215,33 @@ namespace Service.DevUIService {
     [System.Serializable]
     public partial class DataBrowserTopLevel: DefaultSerializable2
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         
 
-        public DataBrowserTopLevel() { }
+        public DataBrowserTopLevel() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         
         /// <summary>
         /// 
@@ -221,8 +256,20 @@ namespace Service.DevUIService {
         public System.Collections.IList objectList ;
         
         
+
+
         
 
+#if LEAK_DETECTION
+        ~DataBrowserTopLevel () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>
@@ -249,9 +296,33 @@ namespace Service.DevUIService {
     [System.Serializable]
     public partial class HistoryElement: DefaultSerializable2
     {
+#if LEAK_DETECTION
+        /// <summary>
+        /// Did be put this instance into the leak-detection? 
+        /// TODO: necessary?
+        /// </summary>
+        
+        [System.NonSerialized]
+        [Newtonsoft.Json.JsonIgnore]
+        private bool leakDetectionCounted;
+#endif
         
 
-        public HistoryElement() { }
+        public HistoryElement() {
+#if LEAK_DETECTION
+            try {
+                if (PerformanceTestServiceImpl.instance != null) {
+                    PerformanceTestServiceImpl.instance.AddInstance(this);
+                    leakDetectionCounted = true;
+                }
+            }
+            catch (System.Exception e) {
+                UnityEngine.Debug.Log($"Leak-Detection: Could not add instance {GetType()} to leak-detection: {e.Message}");
+                UnityEngine.Debug.LogException(e);
+            }
+#endif
+
+        }
         
         /// <summary>
         /// 
@@ -266,8 +337,20 @@ namespace Service.DevUIService {
         public string historyTitle ;
         
         
+
+
         
 
+#if LEAK_DETECTION
+        ~HistoryElement () {
+            if (leakDetectionCounted) {
+                PerformanceTestServiceImpl.instance.RemoveInstance(this);
+                leakDetectionCounted = false;
+            }
+        }
+
+
+#endif
         /// <summary>
         /// Merges data into your object. (no deep copy)
         /// </summary>

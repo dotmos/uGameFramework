@@ -72,6 +72,11 @@ namespace UserInterface
         static private readonly char[] kSeparators = { ' ', '.', ',', '\t', '\r', '\n' };
 
         /// <summary>
+        /// (De)activate VirtualKeyboard
+        /// </summary>
+        public static bool VirtualKeyboardActive { get; set; } = false;
+
+        /// <summary>
         /// Text Text used to display the input's value.
         /// </summary>
 
@@ -1964,7 +1969,7 @@ namespace UserInterface
             if (EventSystem.current.currentSelectedGameObject != gameObject)
                 EventSystem.current.SetSelectedGameObject(gameObject);
 
-            if (TouchScreenKeyboard.isSupported) {
+            if (VirtualKeyboardActive && TouchScreenKeyboard.isSupported) {
                 if (input.touchSupported) {
                     TouchScreenKeyboard.hideInput = shouldHideMobileInput;
                 }

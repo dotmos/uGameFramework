@@ -1,7 +1,8 @@
 ## service start
 using System.Collections.Generic;
 using MoonSharp.Interpreter;
-        
+using System.Collections.Concurrent;
+         
 namespace Service.PerformanceTest {  
     public interface IPerformanceTestService {  	
         void StartWatch(string t);
@@ -9,6 +10,20 @@ namespace Service.PerformanceTest {
         void PerfTestOutputToConsole();
         string PerfTestOutputAsString();
         void Clear();
+        
+        ## "Add instance to 'leak-system' (must be removed in destructor)"
+        void AddInstance(object o);
+        ## "Remove instance from 'leak-system'"
+        void RemoveInstance(object o);
+        ## "Get the current amount of captured instance-counts"
+        ("ConcurrentDictionary<System.Type,int>") GetInstanceView();
+        ## "Get the instance-count for a specific type"
+        int GetInstanceCount(("System.Type") instanceType);
+        ## "Output instance-view to log"
+        void OutputInstanceViewToLog(bool gccollect=True, bool compare=True);
+        
+        ## "Stores the current view-data for later comparison"
+        void StoreCurrentView();
     }      
 }                      
 ## model 
