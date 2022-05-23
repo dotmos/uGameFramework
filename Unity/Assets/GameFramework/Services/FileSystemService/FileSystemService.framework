@@ -34,6 +34,10 @@ namespace Service.FileSystem {
 		void RemoveFileAsync(string filePath);
 		## "Remove file from domain in background-thread"
 		void RemoveFileInDomainAsync(?FSDomain domain,string relativePath);
+		
+		## "Move file within one domain"
+		void MoveFileInDomain(?FSDomain domain,string fromRelativePath,?FSDomain toDomain,string toRelativePath);
+		
 		## "Check if a file exists(absolute)"
 		bool FileExists(string pathToFile);
 		## "Check if a file exists in a domain(relative to domain-root)"
@@ -54,6 +58,7 @@ namespace Service.FileSystem {
 		long GetFileSize(string pathToFile);
 		## "Get filesize in domain" 
 		long GetFileSize(?FSDomain domain, string relativePathInDomain);
+		
     }       
 }     
 ## model 

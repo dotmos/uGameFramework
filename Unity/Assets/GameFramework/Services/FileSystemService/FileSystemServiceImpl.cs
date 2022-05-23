@@ -258,6 +258,25 @@ namespace Service.FileSystem {
             }
         }
 
+        public override void MoveFileInDomain(FSDomain domain, string fromRelativePath, FSDomain toDomain,string toRelativePath)
+        {
+            string from = GetPath(domain, fromRelativePath);
+            string to = GetPath(toDomain, toRelativePath);
+            string destPath = Path.GetDirectoryName(to);
+            if (!Directory.Exists(destPath)) {
+                try {
+                    System.IO.Directory.CreateDirectory(destPath);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    Debug.LogError($"Could not move file from '{from}' to '{to}'");
+                    return;
+                }
+            }
+            File.Move(from, to);
+        }
+
         public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false,int maxFileSize = int.MaxValue) {
             if (domain == FSDomain.Addressables) return false;
             relativePathToFile = Utils.CreateValidFilename(relativePathToFile.TrimStart('/'));
@@ -518,6 +537,7 @@ namespace Service.FileSystem {
         public override long GetFileSize(string pathToFile) {
             try {
                 var fi = new System.IO.FileInfo(pathToFile);
+                fi.Refresh();
                 return fi.Length;
             }
             catch (Exception e) {
