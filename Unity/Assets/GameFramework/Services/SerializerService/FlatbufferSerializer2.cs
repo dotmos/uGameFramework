@@ -523,7 +523,7 @@ namespace Service.Serializer
             if (obj != null) {
                 objType = obj.GetType();
             }
-#if true
+#if ECS_TESTING
             typeCounter.TryGetValue(objType, out int currentAmount);
             typeCounter[objType] = currentAmount + 1;
 #endif
