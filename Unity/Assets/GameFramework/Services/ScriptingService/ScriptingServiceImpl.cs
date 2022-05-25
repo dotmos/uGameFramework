@@ -426,7 +426,7 @@ namespace Service.Scripting {
 
 
         public override void Tick(float dt) {
-#if !NO_LUATESTING
+#if LUATESTING
             object tickFunc = mainScript.Globals["tick"];
             if (tickFunc != null) {
                 mainScript.Call(tickFunc, dt);
@@ -554,22 +554,27 @@ namespace Service.Scripting {
         }
 
         private void ReplayWrite_WaitForCurrentGameTime() {
+#if LUATESTING
             if (getCurrentGameTime == null) {
                 Debug.LogError("Tried to write currentGameTime to lua-replay, but there is no getCurrentGametime-func");
                 return;
             }
             float gametime = getCurrentGameTime();
             data.replayScript.Append($"coroutine.yield('waitForGameTime',{gametime})\n");
+#endif
         }
         public override void ReplayWrite_CustomLua(string luaScript, bool waitForGameTime = true) {
+#if LUATESTING
             if (waitForGameTime) ReplayWrite_WaitForCurrentGameTime();
             data.replayScript.Append(luaScript);
             if (!luaScript.EndsWith("\n")) {
                 data.replayScript.Append('\n');
             }
+#endif
         }
 
         public override void RegisterEntityToLua(int persistedId,UID uid) {
+#if LUATESTING
             if (persistedId == -1) return; 
 
             if (uid.IsNull()) {
@@ -581,15 +586,20 @@ namespace Service.Scripting {
             var tbl = mapper.Table;
             tbl[persistedId] = uid;
             data.uid2persistedId[uid] = persistedId;
+#endif
         }
 
         public override int GetLUAEntityID(UID entity) {
+#if LUATESTING
             if (data.uid2persistedId.TryGetValue(entity,out int value)) {
                 return value;
             } else {
                 Debug.LogWarning("Could not find uid2persist for entity:" + entity.ToString());
                 return -1;
             }
+#else
+            return -1;
+#endif
         }
 
         public override bool IsEntityRegistered(UID entity) {
@@ -603,12 +613,14 @@ namespace Service.Scripting {
         }
 
         public override void ReplayWrite_SetCurrentEntity(UID uid) {
+#if LUATESTING
             if (data.uid2persistedId.TryGetValue(uid,out int value)) {
                 int bid = data.uid2persistedId[uid];
                 data.replayScript.Append($"entity=uID[{bid}]\n");
             } else {
                 data.replayScript.Append($"-- could not add uid2pid mapping for uid:{uid} (maybe worldtask building...?)");
             }
+#endif
         }
 
         public override void SetLuaReplayGetGameTimeFunc(Func<float> getCurrentGameTime) {
