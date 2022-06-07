@@ -207,6 +207,14 @@ namespace Service.DevUIService {
                     void OutputGameInfo(float systemStartupTime);
         
                            
+        
+                    void SetDevConsoleOpenedCallback(System.Action callback);
+        
+                           
+        
+                    void TriggerDevConsoleOpenedCallback();
+        
+                           
 
     }
 

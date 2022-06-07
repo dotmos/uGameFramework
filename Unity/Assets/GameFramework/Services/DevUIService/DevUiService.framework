@@ -51,6 +51,8 @@ namespace Service.DevUIService {
 		object DataBrowserConvertObject(object inObject);
 		
 		void OutputGameInfo(float systemStartupTime);
+		void SetDevConsoleOpenedCallback(("System.Action") callback);
+		void TriggerDevConsoleOpenedCallback();
     }   
 }          
 ## model
