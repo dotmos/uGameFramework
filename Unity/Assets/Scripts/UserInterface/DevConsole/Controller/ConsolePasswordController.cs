@@ -20,7 +20,7 @@ namespace UserInterface {
 #if UNITY_PS5
             UnlockConsole();
 #else
-            //if (Application.isEditor || Application.isConsolePlatform) UnlockConsole();
+            if (Application.isEditor || Application.isConsolePlatform) UnlockConsole();
 #endif
 
         }
