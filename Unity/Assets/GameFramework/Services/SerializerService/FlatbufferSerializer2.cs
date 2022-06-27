@@ -515,7 +515,6 @@ namespace Service.Serializer
                     }
                 }
             }
-            int a = 0;
         }
 #endif
 
@@ -885,8 +884,8 @@ namespace Service.Serializer
             }
         }
 
-        // internal testing
-        private HashSet<Type> nestedTypes = new HashSet<Type>();
+        //// internal testing
+        //private HashSet<Type> nestedTypes = new HashSet<Type>();
 
         public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
@@ -907,9 +906,6 @@ namespace Service.Serializer
             //perfTest.StartWatch(watchname);
             try {
 #endif
-            if (obj.GetType().ToString().Contains("RaiderWarningData")) {
-                int a = 0;
-            }
             if (obj is IFBSerializable2 iFBSer2Obj) {
                 if (iFBSer2Obj is IFBSerializeOnMainThread) {
                 // serialize this on mainthread
@@ -924,10 +920,9 @@ namespace Service.Serializer
                     return newOffsetFromMainThread;
                 }
                 //--- testing---
-                if (obj.GetType().DeclaringType != null && !nestedTypes.Contains(obj.GetType())) {
-                    nestedTypes.Add(obj.GetType());                        
-                    int a = 0;
-                }
+                //if (obj.GetType().DeclaringType != null && !nestedTypes.Contains(obj.GetType())) {
+                //    nestedTypes.Add(obj.GetType());                        
+                //}
                 //----
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
                 iFBSer2Obj.SetContextProxy(proxy);
