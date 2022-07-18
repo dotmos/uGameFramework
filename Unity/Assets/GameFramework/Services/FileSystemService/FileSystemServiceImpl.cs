@@ -138,9 +138,11 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteStringToFile(string pathToFile, string data, bool append=false) {
+#if UNITY_STANDALONE_WIN
             if (!append) {
                 return WriteBytesToFile(pathToFile, Encoding.UTF8.GetBytes(data));
             }
+#endif
 
 
             string tempPath = pathToFile + ".tmp";
