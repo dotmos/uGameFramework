@@ -9,6 +9,7 @@ using System.IO;
 using Service.Scripting;
 using System.IO.Compression;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace Service.FileSystem {
     public partial class FileSystemServiceImpl : FileSystemServiceBase {
@@ -137,9 +138,13 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteStringToFile(string pathToFile, string data, bool append=false) {
-            // TODO: Ensure Directory?
-            // TODO: Use the PC3-bulletproof writing version
+            if (!append) {
+                return WriteBytesToFile(pathToFile, Encoding.UTF8.GetBytes(data));
+            }
+
+
             string tempPath = pathToFile + ".tmp";
+
 
             try {
                 if (File.Exists(tempPath)) {
@@ -240,6 +245,7 @@ namespace Service.FileSystem {
                                 totalWritten += writeSize;
                                 writeBytesToFileLeft -= writeSize;
                             }
+                            fs.Flush();
                         }
                         fileNumber++;
                     }
