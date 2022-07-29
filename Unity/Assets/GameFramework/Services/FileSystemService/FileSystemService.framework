@@ -74,7 +74,8 @@ public enum FSDomain {
 	Debugging,
 	Modding,
 	SteamingAssets,
-	Addressables
+	Addressables,
+	Realm
 }  
 
 ## events 

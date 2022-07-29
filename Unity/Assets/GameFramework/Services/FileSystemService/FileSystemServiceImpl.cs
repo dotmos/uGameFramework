@@ -30,6 +30,7 @@ namespace Service.FileSystem {
         private string debuggingPath;
         private string moddingPath;
         private string defaultDataPath;
+        private string realmPath;
 
         private long totalSpace;
         private long usedSpace;
@@ -65,6 +66,7 @@ namespace Service.FileSystem {
             debuggingPath = persistentDataPath + "/debugging";
             moddingPath = persistentDataPath + "/modding";
             defaultDataPath = persistentDataPath + "/default";
+            realmPath = persistentDataPath + "/analytics/realm";
         }
 
         public static byte[] Compress(byte[] data, System.IO.Compression.CompressionLevel compressionLevel = System.IO.Compression.CompressionLevel.Optimal) {
@@ -121,6 +123,7 @@ namespace Service.FileSystem {
                 case FSDomain.Modding: path = moddingPath; break;
                 case FSDomain.SteamingAssets: path = streamingAssetsPath; break;
                 case FSDomain.Addressables: path = "Assets"; break;
+                case FSDomain.Realm: path = realmPath; break;
 
                 default: Debug.LogError("UNKNOWN DOMAIN:" + domain.ToString()+" in GetPath! Using MISC-Path"); break;
             }
