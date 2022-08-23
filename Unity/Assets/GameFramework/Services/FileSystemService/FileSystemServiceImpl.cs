@@ -66,7 +66,7 @@ namespace Service.FileSystem {
             debuggingPath = persistentDataPath + "/debugging";
             moddingPath = persistentDataPath + "/modding";
             defaultDataPath = persistentDataPath + "/default";
-            realmPath = persistentDataPath + "/analytics/realm";
+            realmPath = persistentDataPath + "/realm";
         }
 
         public static byte[] Compress(byte[] data, System.IO.Compression.CompressionLevel compressionLevel = System.IO.Compression.CompressionLevel.Optimal) {
