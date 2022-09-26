@@ -232,7 +232,7 @@ namespace Service.FileSystem {
                     }
 
                     int size = bytes.Length;
-                    int chunkSize = size / 20;
+                    int chunkSize = size / 20 > 0 ? size / 20 : size;
                     int totalWritten = 0;
                     int fileNumber = 0;
                     while (totalWritten < bytes.Length) {
