@@ -87,7 +87,7 @@ namespace Service.DevUIService {
                 }
             }).AddTo(disposables);
 
-#if ENABLE_CONSOLE_UI
+#if ENABLE_CONSOLE_UI && !LUNA
             Observable.EveryUpdate().Subscribe(_ => {
                 if (UnityEngine.Input.GetButton("ToggleConsole1") && UnityEngine.Input.GetButtonDown("ToggleConsole2")) {
                     ToggleScriptingConsole();
