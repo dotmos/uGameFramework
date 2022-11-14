@@ -52,6 +52,8 @@ namespace Service.FileSystem{
 //
 //            this.OnEvent<RemoveFileInDomainAsyncCommand>().Subscribe(e => RemoveFileInDomainAsyncCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<MoveFileInDomainCommand>().Subscribe(e => MoveFileInDomainCommandHandler(e)).AddTo(this);
+//
 //            this.OnEvent<FileExistsCommand>().Subscribe(e => FileExistsCommandHandler(e)).AddTo(this);
 //
 //            this.OnEvent<FileExistsInDomainCommand>().Subscribe(e => FileExistsInDomainCommandHandler(e)).AddTo(this);
@@ -476,6 +478,33 @@ namespace Service.FileSystem{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("RemoveFileInDomainAsyncCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// Move file within one domain
+        /// </summary>
+        
+//        public class MoveFileInDomainCommand  {
+//            public FSDomain domain;
+//                        public string fromRelativePath;
+//                        public FSDomain toDomain;
+//                        public string toRelativePath;
+//            
+//            
+//        }
+
+//		protected void MoveFileInDomainCommandHandler  (MoveFileInDomainCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("MoveFileInDomainCommand");
+//#endif
+//        _service.MoveFileInDomain(cmd.domain,cmd.fromRelativePath,cmd.toDomain,cmd.toRelativePath);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("MoveFileInDomainCommand");
 //#endif
 //        }
         

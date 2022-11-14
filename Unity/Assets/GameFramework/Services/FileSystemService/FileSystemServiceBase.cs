@@ -180,6 +180,9 @@ namespace Service.FileSystem
         public abstract             void RemoveFileInDomainAsync(FSDomain domain,string relativePath);
 
         
+        public abstract             void MoveFileInDomain(FSDomain domain,string fromRelativePath,FSDomain toDomain,string toRelativePath);
+
+        
         public abstract             bool FileExists(string pathToFile);
 
         

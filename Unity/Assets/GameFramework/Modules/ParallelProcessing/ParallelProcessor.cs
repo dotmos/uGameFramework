@@ -3,7 +3,7 @@
 using System;
 using System.Collections;
 using System.Threading;
-
+using UnityEngine.UI;
 
 namespace ParallelProcessing {
     public class ParallelProcessor : IDisposable /*where T : ISystemComponents*/ {
@@ -48,6 +48,8 @@ namespace ParallelProcessing {
                 processActions[i] = () => {
                     //Thread.MemoryBarrier();
                     try {
+                        UnityEngine.Profiling.Profiler.BeginSample("ECSTask");
+                        
                         ProcessActionData processData = processActionData[threadID];
                         //Work on linear range of indices. Problem: Might get indices that are very heavy to compute, while others threads are idling
                         //~10ms
@@ -101,11 +103,16 @@ namespace ParallelProcessing {
                         UnityEngine.Debug.LogException(e);
                     }
                     finally {
+                        UnityEngine.Profiling.Profiler.BeginSample("SemaphorWait");
+
                         //Interlocked.Decrement(ref workingCount);
                         lock (ParallelProcessorWorkers._workingCountLocker) {
                             ParallelProcessorWorkers._workingCount--;
                             Monitor.Pulse(ParallelProcessorWorkers._workingCountLocker);
                         }
+                        
+                        UnityEngine.Profiling.Profiler.EndSample();
+                        UnityEngine.Profiling.Profiler.EndSample();
                     }
                 };
             }

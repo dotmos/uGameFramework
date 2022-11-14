@@ -17,7 +17,7 @@ namespace UserInterface {
         }
 
         private void OnEnable() {
-#if UNITY_PS5
+#if UNITY_PS5 || UNITY_GAMECORE
             UnlockConsole();
 #else
             if (Application.isEditor || Application.isConsolePlatform) UnlockConsole();
@@ -48,6 +48,8 @@ namespace UserInterface {
 
         public void UnlockConsole() {
             gameObject.SetActive(false);
+            //Trigger callback on unlock
+            Kernel.Instance.Resolve<Service.DevUIService.IDevUIService>().TriggerDevConsoleOpenedCallback();
         }
 
 #if ENABLE_CONSOLE_UI

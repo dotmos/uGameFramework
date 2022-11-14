@@ -68,6 +68,10 @@ namespace Service.DevUIService{
 //
 //            this.OnEvent<OutputGameInfoCommand>().Subscribe(e => OutputGameInfoCommandHandler(e)).AddTo(this);
 //
+//            this.OnEvent<SetDevConsoleOpenedCallbackCommand>().Subscribe(e => SetDevConsoleOpenedCallbackCommandHandler(e)).AddTo(this);
+//
+//            this.OnEvent<TriggerDevConsoleOpenedCallbackCommand>().Subscribe(e => TriggerDevConsoleOpenedCallbackCommandHandler(e)).AddTo(this);
+//
         }
         
 
@@ -614,6 +618,53 @@ namespace Service.DevUIService{
 //#if PERFORMANCE_TEST
 //            // now stop the watches
 //            ptest.Stop("OutputGameInfoCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class SetDevConsoleOpenedCallbackCommand  {
+//            public System.Action callback;
+//            
+//            
+//        }
+
+//		protected void SetDevConsoleOpenedCallbackCommandHandler  (SetDevConsoleOpenedCallbackCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("SetDevConsoleOpenedCallbackCommand");
+//#endif
+//        _service.SetDevConsoleOpenedCallback(cmd.callback);
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("SetDevConsoleOpenedCallbackCommand");
+//#endif
+//        }
+        
+
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        
+//        public class TriggerDevConsoleOpenedCallbackCommand  {
+//
+//            
+//        }
+
+//		protected void TriggerDevConsoleOpenedCallbackCommandHandler  (TriggerDevConsoleOpenedCallbackCommand cmd) {
+//#if PERFORMANCE_TEST
+//            var ptest=Service.Performance.PerformanceTest.Get();
+//            ptest.Start("TriggerDevConsoleOpenedCallbackCommand");
+//#endif
+//        _service.TriggerDevConsoleOpenedCallback();
+//#if PERFORMANCE_TEST
+//            // now stop the watches
+//            ptest.Stop("TriggerDevConsoleOpenedCallbackCommand");
 //#endif
 //        }
         

@@ -9,6 +9,7 @@ using System.IO;
 using Service.Scripting;
 using System.IO.Compression;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace Service.FileSystem {
     public partial class FileSystemServiceImpl : FileSystemServiceBase {
@@ -137,9 +138,15 @@ namespace Service.FileSystem {
         }
 
         public override bool WriteStringToFile(string pathToFile, string data, bool append=false) {
-            // TODO: Ensure Directory?
-            // TODO: Use the PC3-bulletproof writing version
+#if UNITY_STANDALONE_WIN
+            if (!append) {
+                return WriteBytesToFile(pathToFile, Encoding.UTF8.GetBytes(data));
+            }
+#endif
+
+
             string tempPath = pathToFile + ".tmp";
+
 
             try {
                 if (File.Exists(tempPath)) {
@@ -225,7 +232,7 @@ namespace Service.FileSystem {
                     }
 
                     int size = bytes.Length;
-                    int chunkSize = size / 20;
+                    int chunkSize = size / 20 > 0 ? size / 20 : size;
                     int totalWritten = 0;
                     int fileNumber = 0;
                     while (totalWritten < bytes.Length) {
@@ -240,6 +247,7 @@ namespace Service.FileSystem {
                                 totalWritten += writeSize;
                                 writeBytesToFileLeft -= writeSize;
                             }
+                            fs.Flush();
                         }
                         fileNumber++;
                     }
@@ -256,6 +264,25 @@ namespace Service.FileSystem {
             finally {
                 UnityEngine.Profiling.Profiler.EndSample();
             }
+        }
+
+        public override void MoveFileInDomain(FSDomain domain, string fromRelativePath, FSDomain toDomain,string toRelativePath)
+        {
+            string from = GetPath(domain, fromRelativePath);
+            string to = GetPath(toDomain, toRelativePath);
+            string destPath = Path.GetDirectoryName(to);
+            if (!Directory.Exists(destPath)) {
+                try {
+                    System.IO.Directory.CreateDirectory(destPath);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    Debug.LogError($"Could not move file from '{from}' to '{to}'");
+                    return;
+                }
+            }
+            File.Move(from, to);
         }
 
         public override bool WriteBytesToFileAtDomain(FSDomain domain, string relativePathToFile, byte[] bytes,bool compress=false,int maxFileSize = int.MaxValue) {
@@ -518,6 +545,7 @@ namespace Service.FileSystem {
         public override long GetFileSize(string pathToFile) {
             try {
                 var fi = new System.IO.FileInfo(pathToFile);
+                fi.Refresh();
                 return fi.Length;
             }
             catch (Exception e) {

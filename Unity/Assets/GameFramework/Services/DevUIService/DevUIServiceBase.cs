@@ -203,6 +203,12 @@ namespace Service.DevUIService
         public abstract             void OutputGameInfo(float systemStartupTime);
 
         
+        public abstract             void SetDevConsoleOpenedCallback(System.Action callback);
+
+        
+        public abstract             void TriggerDevConsoleOpenedCallback();
+
+        
 
 
         

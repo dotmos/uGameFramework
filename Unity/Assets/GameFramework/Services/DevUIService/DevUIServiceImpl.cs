@@ -515,5 +515,15 @@ namespace Service.DevUIService {
         public override void OutputGameInfo(float systemStartupTime) {
             this.Publish(new Events.GameInfoChanged() { systemStartupTime = systemStartupTime });
         }
+
+        private Action devConsoleOpenedCallback;
+
+        public override void SetDevConsoleOpenedCallback(Action callback) {
+            devConsoleOpenedCallback = callback;
+        }
+
+        public override void TriggerDevConsoleOpenedCallback() {
+            if (devConsoleOpenedCallback != null) devConsoleOpenedCallback();
+        }
     }
 }

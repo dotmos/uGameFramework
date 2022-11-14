@@ -199,6 +199,19 @@ namespace Service.FileSystem {
                            
         
         /// <summary>
+        /// Move file within one domain 
+                /// <param name="domain"></param>
+                /// <param name="fromRelativePath"></param>
+                /// <param name="toDomain"></param>
+                /// <param name="toRelativePath"></param>
+         /// </summary>
+        
+        
+                    void MoveFileInDomain(FSDomain domain,string fromRelativePath,FSDomain toDomain,string toRelativePath);
+        
+                           
+        
+        /// <summary>
         /// Check if a file exists(absolute) 
                 /// <param name="pathToFile"></param>
          /// </summary>

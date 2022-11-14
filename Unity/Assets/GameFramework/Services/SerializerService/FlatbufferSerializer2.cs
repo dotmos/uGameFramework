@@ -427,6 +427,9 @@ namespace Service.Serializer
             }
         }
 
+        // DO REMOVE THIS
+        public static Dictionary<Type, int> typeCounter = new Dictionary<Type, int>();
+
         public T GetOrCreate<T>(int bufferOffset, ref T obj) where T: new() {
             if (bufferOffset == 0) {
                 obj = default(T);
@@ -496,11 +499,34 @@ namespace Service.Serializer
             pos2obj[pos] = obj;
         }
 
+#if ECS_TESTING
+        public void CheckComponentsForValidity() {
+            int invalid = 0;
+            Dictionary<Type, int> invalidTypes = new Dictionary<Type, int>();
+            var em = Kernel.Instance.Resolve<IEntityManager>();
+            foreach (var kv in pos2obj) {
+                if (kv.Value is IComponent) {
+                    UID entity = ((IComponent)(kv.Value)).Entity;
+                    if (!em.EntityExists(entity)) {
+                        invalid++;
+                        var type = kv.Value.GetType();
+                        invalidTypes.TryGetValue(type, out int currentAmount);
+                        invalidTypes[type] = currentAmount + 1;
+                    }
+                }
+            }
+        }
+#endif
 
         private object _GetOrCreate(int bufferOffset, Type objType, object obj=null) {
             if (obj != null) {
                 objType = obj.GetType();
             }
+#if ECS_TESTING
+            typeCounter.TryGetValue(objType, out int currentAmount);
+            typeCounter[objType] = currentAmount + 1;
+#endif
+
             try {
                 if (ExtendedTable.typeIFBSerializable2.IsAssignableFrom(objType)) {
                     //if (ExtendedTable.typeISerializeAsTypedObject.IsAssignableFrom(objType)) {
@@ -668,6 +694,9 @@ namespace Service.Serializer
 
         public void Cleanup() {
             ClearTables();
+#if ECS_TESTING
+            CheckComponentsForValidity();
+#endif
             pos2obj.Clear();
             Invalidate();
         }
@@ -855,8 +884,8 @@ namespace Service.Serializer
             }
         }
 
-        // internal testing
-        private HashSet<Type> nestedTypes = new HashSet<Type>();
+        //// internal testing
+        //private HashSet<Type> nestedTypes = new HashSet<Type>();
 
         public int GetOrCreate(object obj) {
             int cachedOffset = GetCachedOffset(obj);
@@ -877,9 +906,6 @@ namespace Service.Serializer
             //perfTest.StartWatch(watchname);
             try {
 #endif
-            if (obj.GetType().ToString().Contains("RaiderWarningData")) {
-                int a = 0;
-            }
             if (obj is IFBSerializable2 iFBSer2Obj) {
                 if (iFBSer2Obj is IFBSerializeOnMainThread) {
                 // serialize this on mainthread
@@ -894,10 +920,9 @@ namespace Service.Serializer
                     return newOffsetFromMainThread;
                 }
                 //--- testing---
-                if (obj.GetType().DeclaringType != null && !nestedTypes.Contains(obj.GetType())) {
-                    nestedTypes.Add(obj.GetType());                        
-                    int a = 0;
-                }
+                //if (obj.GetType().DeclaringType != null && !nestedTypes.Contains(obj.GetType())) {
+                //    nestedTypes.Add(obj.GetType());                        
+                //}
                 //----
                 int newOffset = iFBSer2Obj.Ser2Serialize(this);
                 iFBSer2Obj.SetContextProxy(proxy);
