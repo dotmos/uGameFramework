@@ -1,4 +1,9 @@
 # uGameFramework by gentlymad
+<br><br>
+***DEPRECATED<br>
+Use the new GameFramework2 instead, which has been rewritten from scratch<br>
+-> https://github.com/dotmos/GameFramework2***
+<br><br>
 
 A modular, service based, multithreaded framework for Unity that keeps the code side of your project de-fragmented, organized and reuseable.
 
